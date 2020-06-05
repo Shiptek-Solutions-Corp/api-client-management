@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20200521051843_test.cs" />
+    <Compile Remove="Migrations\20200521051843_test.Designer.cs" />
+    <Compile Remove="Migrations\20200521052726_initial_migration_CompanyAPI.cs" />
+    <Compile Remove="Migrations\20200521052726_initial_migration_CompanyAPI.Designer.cs" />
+    <Compile Remove="Migrations\20200521060512_initial_migration_CompanyAPI.cs" />
+    <Compile Remove="Migrations\20200521060512_initial_migration_CompanyAPI.Designer.cs" />
+    <Compile Remove="Migrations\20200521060716_initial_migration_CompanyAPI.cs" />
+    <Compile Remove="Migrations\20200521060716_initial_migration_CompanyAPI.Designer.cs" />
+    <Compile Remove="Migrations\20200526041734_update_user_table.cs" />
+    <Compile Remove="Migrations\20200526041734_update_user_table.Designer.cs" />
+    <Compile Remove="Migrations\20200526052321_remove_user_contact_table.cs" />
+    <Compile Remove="Migrations\20200526052321_remove_user_contact_table.Designer.cs" />
+    <Compile Remove="Migrations\20200531044959_db_structure_adjustments.cs" />
+    <Compile Remove="Migrations\20200531044959_db_structure_adjustments.Designer.cs" />
+    <Compile Remove="Migrations\20200531093137_database_structure_adjustment_for_Auth.cs" />
+    <Compile Remove="Migrations\20200531093137_database_structure_adjustment_for_Auth.Designer.cs" />
+    <Compile Remove="Migrations\20200531101525_database_structure_adjustment_for_Auth.cs" />
+    <Compile Remove="Migrations\20200531101525_database_structure_adjustment_for_Auth.Designer.cs" />
+    <Compile Remove="Migrations\20200531124422_added_relationship_Company_CompanyService.cs" />
+    <Compile Remove="Migrations\20200531124422_added_relationship_Company_CompanyService.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+</Project>

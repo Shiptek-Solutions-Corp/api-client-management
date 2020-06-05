@@ -1,0 +1,51 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+namespace xgca.entity.Migrations
+{
+    public partial class add_user_email_table : Migration
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.CreateTable(
+                name: "UserEmail",
+                schema: "Users",
+                columns: table => new
+                {
+                    EmailId = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(nullable: false),
+                    Email = table.Column<string>(maxLength: 100, nullable: false),
+                    Status = table.Column<byte>(nullable: false, defaultValue: 1),
+                    CreatedBy = table.Column<int>(nullable: false),
+                    CreatedOn = table.Column<DateTime>(nullable: false),
+                    ModifiedBy = table.Column<int>(nullable: true),
+                    ModifiedOn = table.Column<DateTime>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserEmail", x => x.EmailId);
+                    table.ForeignKey(
+                        name: "FK_UserEmail_User_UserId",
+                        column: x => x.UserId,
+                        principalSchema: "Users",
+                        principalTable: "User",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserEmail_UserId",
+                schema: "Users",
+                table: "UserEmail",
+                column: "UserId");
+        }
+
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: "UserEmail",
+                schema: "Users");
+        }
+    }
+}

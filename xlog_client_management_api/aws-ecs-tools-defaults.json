@@ -1,0 +1,27 @@
+
+{
+    "region" : "us-east-1",
+    "profile" : "default",
+    "configuration" : "Release",
+    "tag"           : "xloguserapi:latest",
+    "docker-build-working-dir" : "",
+    "cluster"                  : "ECS-OPTIMUS-NP",
+    "launch-type"              : "EC2",
+    "task-definition-name"     : "xloguserapi-dev",
+    "task-definition-network-mode" : "bridge",
+    "task-definition-task-role"    : "arn:aws:iam::101749551814:role/ecsTaskExecutionRole",
+    "container-name"               : "xloguserapi-dev",
+    "container-memory-hard-limit"  : 128,
+    "container-memory-soft-limit"  : 128,
+    "container-port-mapping"       : "10201:80",
+    "container-environment-variables" : "\"ASPNETCORE_ENVIRONMENT\"=\"dev\"",
+    "skip-image-push"                 : false,
+    "cluster-service"                 : "xloguserapi-dev",
+    "desired-count"                   : 1,
+    "deployment-minimum-healthy-percent" : 50,
+    "deployment-maximum-percent"         : 200,
+    "elb-target-group"                   : "arn:aws:elasticloadbalancing:us-east-1:101749551814:targetgroup/xloguserapiTarget-dev/ca611d4514a606cd",
+    "elb-container-port"                 : 80,
+    "placement-strategy"                 : "spread=attribute:ecs.availability-zone,spread=instanceId",
+    "vstoolkit-deployment-mode"          : "DeployService"
+}
