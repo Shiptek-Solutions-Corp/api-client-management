@@ -11,7 +11,7 @@ using Newtonsoft.Json.Linq;
 
 namespace xlog_client_management_api.Controllers.CompanyUser
 {
-    [Route("api/v1")]
+    [Route("clients/api/v1")]
     [ApiController]
     public class CompayUserController : Controller
     {

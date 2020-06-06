@@ -11,7 +11,7 @@ using xgca.core.CompanyService;
 
 namespace xlog_client_management_api.Controllers.CompanyService
 {
-    [Route("api/v1")]
+    [Route("clients/api/v1")]
     [ApiController]
     public class CompanyServiceController : Controller
     {

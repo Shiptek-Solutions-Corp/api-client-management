@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace xlog_client_management_api.Controllers
 {
     [ApiController]
-    [Route("clients/")]
+    [Route("clients/[controller]")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]

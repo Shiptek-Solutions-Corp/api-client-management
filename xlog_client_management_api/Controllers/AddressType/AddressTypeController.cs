@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 
 namespace xlog_company_service_api.Controllers.AddressType
 {
-    [Route("api/v1")]
+    [Route("clients/api/v1")]
     public class AddressTypeController : Controller
     {
         private readonly xgca.core.AddressType.IAddressType _addressType;

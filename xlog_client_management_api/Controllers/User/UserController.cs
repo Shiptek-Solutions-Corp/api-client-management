@@ -12,7 +12,7 @@ using Newtonsoft.Json.Linq;
 
 namespace xlog_client_management_api.Controllers.User
 {
-    [Route("api/v1")]
+    [Route("clients/api/v1")]
     public class UserController : Controller
     {
         public readonly xgca.core.User.IUser _user;

@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 
 namespace xlog_company_service_api.Controllers.Company
 {
-    [Route("api/v1")]
+    [Route("clients/api/v1")]
     public class CompanyController : Controller
     {
         public readonly xgca.core.Company.ICompany _company;
