@@ -14,7 +14,6 @@ using xgca.core.Helpers;
 using xgca.core.CompanyUser;
 using xgca.core.Helpers.Http;
 using xgca.core.Constants;
-using xgca.core.Models.CompanyService;
 
 namespace xgca.core.CompanyService
 {
