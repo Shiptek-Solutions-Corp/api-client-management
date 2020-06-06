@@ -16,10 +16,8 @@ namespace xgca.entity.Models
         public int AddressTypeId { get; set; }
         [StringLength(100)]
         public string AddressLine { get; set; }
-        public int CityId { get; set; }
         [StringLength(100)]
         public string CityName { get; set; }
-        public int StateId { get; set; }
         [StringLength(100)]
         public string StateName { get; set; }
         [StringLength(10)]

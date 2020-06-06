@@ -54,9 +54,7 @@ namespace xgca.data.Address
             }
             data.AddressTypeId = obj.AddressTypeId;
             data.AddressLine = obj.AddressLine;
-            data.CityId = obj.CityId;
             data.CityName = obj.CityName;
-            data.StateId = obj.StateId;
             data.StateName = obj.StateName;
             data.ZipCode = obj.ZipCode;
             data.CountryId = obj.CountryId;

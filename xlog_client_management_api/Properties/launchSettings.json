@@ -18,7 +18,7 @@
       "launchBrowser": true,
       "launchUrl": "weatherforecast",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "dev"
+        "ASPNETCORE_ENVIRONMENT": "local"
       }
     },
     "xlog_client_management_api": {
@@ -35,7 +35,7 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/weatherforecast",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "dev"
+        "ASPNETCORE_ENVIRONMENT": "local"
       },
       "publishAllPorts": true,
       "useSSL": false

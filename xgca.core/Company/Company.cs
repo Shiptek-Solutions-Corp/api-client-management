@@ -217,9 +217,6 @@ namespace xgca.core.Company
             if (result == null)
             { return _general.Response(null, 400, "Selected company might have been deleted or does not exists", false); }
 
-            var city = await _httpHelpers.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetCity, result.Addresses.CityId);
-            var state = await _httpHelpers.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetState, result.Addresses.StateId);
-
             var data = new
             {
                 CompanyId = result.Guid,
@@ -228,9 +225,7 @@ namespace xgca.core.Company
                 result.ImageURL,
                 AddressId = result.Addresses.Guid,
                 result.Addresses.AddressLine,
-                CityId = city.data.CityId,
                 result.Addresses.CityName,
-                StateId = state.data.StateId,
                 result.Addresses.StateName,
                 result.Addresses.ZipCode,
                 result.Addresses.CountryId,

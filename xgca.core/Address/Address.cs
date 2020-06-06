@@ -47,8 +47,6 @@ namespace xgca.core.Address
         public async Task<int> CreateAndReturnId(dynamic obj)
         {
             int addressTypeId = await _coreAddressType.RetrieveIdByName("Company");
-            var city = await _httpHelpers.GetIdByGuid(_options.Value.BaseUrl, ApiEndpoints.cmsGetCity, obj.CityId);
-            var state = await _httpHelpers.GetIdByGuid(_options.Value.BaseUrl, ApiEndpoints.cmsGetState, obj.StateId);
             string fullAddress = AddressHelper.GenerateFullAddress(obj);
             string json = JsonConvert.SerializeObject(obj);
             int createdBy = json.Contains("CreatedBy") ? (json.Contains("MasterUser") || obj.CreatedBy is null ? 0 : obj.CreatedBy) : 0;
@@ -57,9 +55,7 @@ namespace xgca.core.Address
             {
                 AddressTypeId = addressTypeId,
                 AddressLine = obj.AddressLine,
-                CityId = city.data.cityId,
                 CityName = obj.CityName,
-                StateId = state.data.stateId,
                 StateName = obj.StateName,
                 ZipCode = obj.ZipCode,
                 CountryId = Convert.ToInt32(obj.CountryId),
@@ -80,8 +76,6 @@ namespace xgca.core.Address
         {
             var addressTypeId = await _coreAddressType.RetrieveIdByName("Company");
             int addressId = await _addressData.GetIdByGuid(Guid.Parse(obj.AddressId));
-            var city = await _httpHelpers.Get(_options.Value.BaseUrl, ApiEndpoints.cmsGetCity, obj.CityId);
-            var state = await _httpHelpers.Get(_options.Value.BaseUrl, ApiEndpoints.cmsGetState, obj.StateId);
             string fullAddress = AddressHelper.GenerateFullAddress(obj);
             string json = JsonConvert.SerializeObject(obj);
             int modifiedBy = json.Contains("userId") ? obj.UserId : 0;
@@ -91,9 +85,7 @@ namespace xgca.core.Address
                 AddressId = addressId,
                 AddressTypeId = addressTypeId,
                 AddressLine = obj.AddressLine,
-                CityId = city.data.cityId,
                 CityName = obj.CityName,
-                StateId = state.data.stateId,
                 StateName = obj.StateName,
                 ZipCode = obj.ZipCode,
                 CountryId = Convert.ToInt32(obj.CountryId),
