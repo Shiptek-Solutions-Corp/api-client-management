@@ -71,6 +71,7 @@ namespace xgca.core.CompanyService
                 {
                     CompanyServiceId = companyService.CompanyServiceId.ToString(),
                     ServiceId = (json)["data"]["service"]["serviceId"].ToString(),
+                    Code = (json)["data"]["service"]["code"].ToString(),
                     Name = (json)["data"]["service"]["name"].ToString(),
                     ImageURL = (json)["data"]["service"]["imageUrl"].ToString(),
                 });
