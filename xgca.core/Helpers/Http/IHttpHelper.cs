@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace xgca.core.Helpers.Http
 {
-    public interface IHttpHelpers
+    public interface IHttpHelper
     {
         public Task<dynamic> Post(string environment, string endpointUrl, dynamic data);
 

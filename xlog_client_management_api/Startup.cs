@@ -27,6 +27,7 @@ using xgca.data.CompanyUser;
 using xgca.core.Response;
 using xgca.core.User;
 using xgca.core.Helpers.Http;
+using xgca.core.Helpers.Token;
 using xgca.core.Company;
 using xgca.core.Constants;
 
@@ -74,7 +75,8 @@ namespace xlog_client_management_api
             services.AddScoped<xgca.core.Address.IAddress, xgca.core.Address.Address>();
             services.AddScoped<xgca.core.AddressType.IAddressType, xgca.core.AddressType.AddressType>();
             services.AddScoped<ICompany, Company>();
-            services.AddScoped<IHttpHelpers, HttpHelpers>();
+            services.AddScoped<IHttpHelper, HttpHelper>();
+            services.AddScoped<ITokenHelper, TokenHelper>();
             services.AddScoped<xgca.core.CompanyService.ICompanyService, xgca.core.CompanyService.CompanyService>();
             services.AddScoped<xgca.core.CompanyServiceRole.ICompanyServiceRole, xgca.core.CompanyServiceRole.CompanyServiceRole>();
             services.AddScoped<xgca.core.CompanyServiceUser.ICompanyServiceUser, xgca.core.CompanyServiceUser.CompanyServiceUser>();

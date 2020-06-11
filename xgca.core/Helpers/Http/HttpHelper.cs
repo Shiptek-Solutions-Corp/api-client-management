@@ -9,10 +9,10 @@ using xgca.core.Helpers.Http;
 
 namespace xgca.core.Helpers.Http
 {
-    public class HttpHelpers : IHttpHelpers
+    public class HttpHelper : IHttpHelper
     {
         private static HttpClient _httpClient = new HttpClient();
-        public HttpHelpers()
+        public HttpHelper()
         {
         }
 

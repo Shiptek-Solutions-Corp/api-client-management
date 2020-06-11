@@ -22,11 +22,11 @@ namespace xgca.core.Address
     {
         private readonly IAddressData _addressData;
         private readonly xgca.core.AddressType.IAddressType _coreAddressType;
-        private readonly IHttpHelpers _httpHelpers;
+        private readonly IHttpHelper _httpHelpers;
         private readonly IGeneral _general;
         private readonly IOptions<GlobalCmsApi> _options;
         public Address(IAddressData addressData,
-            xgca.core.AddressType.IAddressType coreAddressType, IHttpHelpers httpHelpers,
+            xgca.core.AddressType.IAddressType coreAddressType, IHttpHelper httpHelpers,
             IOptions<GlobalCmsApi> options, IGeneral general)
         {
             _addressData = addressData;

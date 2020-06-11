@@ -17,7 +17,7 @@ using xgca.core.Helpers;
 using xgca.core.Helpers.Http;
 using xgca.core.Constants;
 using xgca.core.Models.CompanyService;
-using System.IdentityModel.Tokens.Jwt;
+using xgca.core.Helpers.Token;
 
 namespace xgca.core.Company
 {
@@ -33,7 +33,8 @@ namespace xgca.core.Company
         private readonly xgca.core.CompanyServiceUser.ICompanyServiceUser _coreCompanyServiceUser;
         private readonly xgca.core.CompanyUser.ICompanyUser _coreCompanyUser;
 
-        private readonly IHttpHelpers _httpHelpers;
+        private readonly IHttpHelper _httpHelper;
+        private readonly ITokenHelper _tokenHelper;
         private readonly IOptions<GlobalCmsApi> _options;
         private readonly IGeneral _general;
 
@@ -46,7 +47,8 @@ namespace xgca.core.Company
             xgca.core.CompanyServiceRole.ICompanyServiceRole coreCompanyServiceRole,
             xgca.core.CompanyServiceUser.ICompanyServiceUser coreCompanyServiceUser,
             xgca.core.CompanyUser.ICompanyUser coreCompanyUser,
-            IHttpHelpers httpHelpers,
+            IHttpHelper httpHelper,
+            ITokenHelper tokenHelper,
             IOptions<GlobalCmsApi> options,
             IGeneral general)
         {
@@ -59,7 +61,8 @@ namespace xgca.core.Company
             _coreCompanyServiceRole = coreCompanyServiceRole;
             _coreCompanyServiceUser = coreCompanyServiceUser;
             _coreCompanyUser = coreCompanyUser;
-            _httpHelpers = httpHelpers;
+            _httpHelper = httpHelper;
+            _tokenHelper = tokenHelper;
             _options = options;
             _general = general;
         }
@@ -206,14 +209,10 @@ namespace xgca.core.Company
                 ? _general.Response(true, 200, "Company updated", true)
                 : _general.Response(false, 400, "Error on updating company", true);
         }
-        public async Task<IGeneralModel> Retrieve(string key)
+        public async Task<IGeneralModel> Retrieve(string authToken)
         {
-
-            var jwt = key;
-            var handler = new JwtSecurityTokenHandler();
-            var token = handler.ReadJwtToken(jwt);
-
-            var tokenCompanyId = token.Payload["companyId"];
+            var decodedToken = _tokenHelper.DecodeJWT(authToken);
+            var tokenCompanyId = decodedToken.Payload["companyId"];
 
             int companyId = await _companyData.GetIdByGuid(Guid.Parse(Convert.ToString(tokenCompanyId)));
             if (companyId == 0)

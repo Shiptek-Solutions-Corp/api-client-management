@@ -24,14 +24,14 @@ namespace xgca.core.CompanyService
         private readonly xgca.core.User.IUser _coreUser;
         private readonly ICompanyUser _coreCompanyUser;
 
-        private readonly IHttpHelpers _httpHelpers;
+        private readonly IHttpHelper _httpHelpers;
         private readonly IOptions<GlobalCmsApi> _options;
         private readonly IGeneral _general;
 
         public CompanyService(xgca.data.CompanyService.ICompanyService companyService,
             xgca.data.Company.ICompanyData company,
             xgca.core.User.IUser coreUser, ICompanyUser coreCompanyUser,
-            IHttpHelpers httpHelpers,
+            IHttpHelper httpHelpers,
             IOptions<GlobalCmsApi> options,
             IGeneral general)
         {
