@@ -103,7 +103,6 @@ namespace xgca.core.User
             {
                 FirstName = obj.FirstName,
                 LastName = obj.LastName,
-                MiddleName = obj.MiddleName,
                 Title = obj.Title,
                 ContactDetailId = contactDetailId,
                 ImageURL = obj.ImageURL,
