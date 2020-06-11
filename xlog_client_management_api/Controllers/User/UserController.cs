@@ -106,6 +106,27 @@ namespace xlog_client_management_api.Controllers.User
             return Ok(response);
         }
 
+        [Route("user/username")]
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> SetUsername([FromBody] xgca.core.Models.User.SetUsernameModel request)
+        {
+            var response = await _user.SetUsername(request);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
         [Route("user/{userId}")]
         [HttpDelete]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -128,7 +149,7 @@ namespace xlog_client_management_api.Controllers.User
         }
 
         [Route("user/{userId}/id")]
-        [HttpDelete]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

@@ -12,18 +12,18 @@ using xgca.core.Response;
 using xgca.entity.Models;
 using xgca.data.Company;
 using xgca.data.CompanyService;
-//using xgca.data.Service;
 using xgca.data.AuditLog;
 using xgca.core.Helpers;
 using xgca.core.Helpers.Http;
 using xgca.core.Constants;
+using xgca.core.Models.CompanyService;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace xgca.core.Company
 {
     public class Company : ICompany
     {
         private readonly ICompanyData _companyData;
-        //private readonly IServiceData _serviceData;
         private readonly xgca.core.Address.IAddress _coreAddress;
         private readonly xgca.core.ContactDetail.IContactDetail _coreContactDetail;
         private readonly xgca.core.User.IUser _coreUser;
@@ -38,7 +38,6 @@ namespace xgca.core.Company
         private readonly IGeneral _general;
 
         public Company(ICompanyData companyData,
-            //IServiceData serviceData,
             xgca.core.Address.IAddress coreAddress,
             xgca.core.ContactDetail.IContactDetail coreContactDetail,
             xgca.core.User.IUser coreUser,
@@ -52,7 +51,6 @@ namespace xgca.core.Company
             IGeneral general)
         {
             _companyData = companyData;
-            //_serviceData = serviceData;
             _coreAddress = coreAddress;
             _coreContactDetail = coreContactDetail;
             _coreUser = coreUser;
@@ -158,7 +156,7 @@ namespace xgca.core.Company
             var auditLog = AuditLogHelper.BuilCreateLog(obj, "Create", company.GetType().Name, companyId);
             await _auditLog.Create(auditLog);
             return companyId > 0
-                ? _general.Response(new { masterUserId = masterUser.MasterUserGuid }, 200, "Company registration successful", true)
+                ? _general.Response(new { CompanyId = companyId, MasterUserId = masterUser.MasterUserId }, 200, "Company registration successful", true)
                 : _general.Response(false, 400, "Error on registration", true);
         }
 
@@ -210,12 +208,21 @@ namespace xgca.core.Company
         }
         public async Task<IGeneralModel> Retrieve(string key)
         {
-            int companyId = await _companyData.GetIdByGuid(Guid.Parse(key));
+
+            var jwt = key;
+            var handler = new JwtSecurityTokenHandler();
+            var token = handler.ReadJwtToken(jwt);
+
+            var tokenCompanyId = token.Payload["companyId"];
+
+            int companyId = await _companyData.GetIdByGuid(Guid.Parse(Convert.ToString(tokenCompanyId)));
             if (companyId == 0)
             { return _general.Response(null, 400, "Selected company might have been deleted or does not exists", false); }
             var result = await _companyData.Retrieve(companyId);
             if (result == null)
             { return _general.Response(null, 400, "Selected company might have been deleted or does not exists", false); }
+
+            var companyServices = await _coreCompanyService.ListByCompanyId(Convert.ToString(tokenCompanyId));
 
             var data = new
             {
@@ -245,7 +252,7 @@ namespace xgca.core.Company
                 result.ContactDetails.FaxPrefixId,
                 result.ContactDetails.FaxPrefix,
                 result.ContactDetails.Fax,
-                //Services = result.CompanyServices.Select(s => new { ServiceId = s.Services.Guid, s.Services.ServiceName })
+                CompanyServices = companyServices.data.companyService,
             };
 
             return _general.Response(new { company = data }, 200, "Configurable information for selected company has been displayed", true);

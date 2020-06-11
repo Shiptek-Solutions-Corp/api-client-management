@@ -47,7 +47,27 @@ namespace xgca.core.CompanyService
         {
             int companyId = await _company.GetIdByGuid(Guid.Parse(key));
             var result = await _companyService.ListByCompanyId(companyId);
-            var data = result.Select(t => new { CompanyServiceId = t.Guid, t.Status });
+            var companyServices = result.Select(t => new { CompanyServiceId = t.Guid, t.ServiceId, t.Status });
+
+            List<ListCompanyServiceModel> data = new List<ListCompanyServiceModel>();
+            foreach(var companyService in companyServices)
+            {
+                var serviceKey = await _httpHelpers.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, companyService.ServiceId);
+                string serviceGuid = serviceKey.data.serviceId;
+                var serviceResponse = await _httpHelpers.Get(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, serviceGuid);
+                var json = (JObject)serviceResponse;
+                data.Add(new ListCompanyServiceModel
+                {
+                    CompanyServiceId = companyService.CompanyServiceId.ToString(),
+                    ServiceId = (json)["data"]["service"]["serviceId"].ToString(),
+                    Code = (json)["data"]["service"]["code"].ToString(),
+                    Name = (json)["data"]["service"]["name"].ToString(),
+                    ImageURL = (json)["data"]["service"]["imageUrl"].ToString(),
+                    StaticId = Convert.ToByte((json)["data"]["service"]["staticId"]),
+                    Status = companyService.Status
+                });
+            }
+
             return _general.Response(new { companyService = data }, 200, "Configurable services for selected company has been listed", true);
         }
         public async Task<IGeneralModel> ListByCompanyUserId(string key)
@@ -74,6 +94,7 @@ namespace xgca.core.CompanyService
                     Code = (json)["data"]["service"]["code"].ToString(),
                     Name = (json)["data"]["service"]["name"].ToString(),
                     ImageURL = (json)["data"]["service"]["imageUrl"].ToString(),
+                    StaticId = Convert.ToByte((json)["data"]["service"]["staticId"])
                 });
             }
 

@@ -25,6 +25,16 @@ namespace xgca.core.Helpers.Http
 
             return responseData;
         }
+
+        public async Task<dynamic> Get(string environment, string endpointUrl)
+        {
+            string apiUrl = environment + endpointUrl;
+            var response = await _httpClient.GetAsync(apiUrl);
+            var result = await response.Content.ReadAsStringAsync();
+            var responseData = JsonConvert.DeserializeObject(result);
+
+            return responseData;
+        }
         public async Task<dynamic> GetIdByGuid(string environment, string endpointUrl, string guid)
         {
             string apiUrl = environment + endpointUrl + guid + "/id";

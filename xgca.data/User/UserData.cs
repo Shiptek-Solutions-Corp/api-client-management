@@ -59,6 +59,21 @@ namespace xgca.data.User
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
         }
+
+        public async Task<bool> SetUsername(entity.Models.User obj)
+        {
+            var data = await _context.Users.Where(u => u.UserId == obj.UserId && u.IsDeleted == 0).FirstOrDefaultAsync();
+            if (data == null)
+            {
+                return false;
+            }
+            
+            data.Username = obj.Username;
+            data.ModifiedBy = obj.ModifiedBy;
+            data.ModifiedOn = DateTime.Now;
+            var result = await _context.SaveChangesAsync();
+            return result > 0 ? true : false;
+        }
         public async Task<bool> Delete(int key)
         {
             var data = await _context.Users.Where(u => u.UserId == key && u.IsDeleted == 0).FirstOrDefaultAsync();

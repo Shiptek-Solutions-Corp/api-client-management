@@ -40,14 +40,14 @@ namespace xlog_company_service_api.Controllers.Company
             return Ok(response);
         }
 
-        [Route("company/{companyId}")]
+        [Route("company/details")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> ViewCompany(string companyId)
+        public async Task<IActionResult> ViewCompany([FromQuery]string token)
         {
-            var response = await _company.Retrieve(companyId);
+            var response = await _company.Retrieve(token);
 
             if (response.statusCode == 400)
             {

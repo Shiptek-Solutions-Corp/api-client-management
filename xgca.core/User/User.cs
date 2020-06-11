@@ -245,6 +245,21 @@ namespace xgca.core.User
             }
             return _general.Response(new { UserId = userId }, 200, "User Id retrieved", true);
         }
+        public async Task<IGeneralModel> SetUsername(SetUsernameModel obj)
+        {
+            var data = new entity.Models.User
+            {
+                UserId = obj.UserId,
+                Username = obj.Username,
+                ModifiedBy = 0,
+                ModifiedOn = DateTime.Now
+            };
+
+            var result = await _userData.SetUsername(data);
+            return result
+                ? _general.Response(true, 200, "Username updated", true)
+                : _general.Response(false, 400, "Error on updating username", true);
+        }
         public async Task<int> GetIdByGuid(Guid key)
         {
             int userId = await _userData.GetIdByGuid(key);
