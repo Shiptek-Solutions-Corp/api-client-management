@@ -233,7 +233,7 @@ namespace xgca.core.User
         public async Task<IGeneralModel> RetrieveByToken(string token)
         {
             var decodedToken = _tokenHelper.DecodeJWT(token);
-            var tokenUsername = decodedToken.Payload["cognito:username"];
+            var tokenUsername = decodedToken.Payload["username"];
 
             var data = await _userData.RetrieveByUsername(tokenUsername);
             if (data == null)
@@ -307,6 +307,12 @@ namespace xgca.core.User
         public Task<bool> Create(xgca.entity.Models.User obj)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<int> RetrieveByUsername(string username)
+        {
+            var user = await _userData.RetrieveByUsername(username);
+            return user.UserId;
         }
     }
 }

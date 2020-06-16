@@ -16,5 +16,6 @@ namespace xgca.data.User
         Task<bool> Delete(int key);
         Task<int> GetIdByGuid(Guid key);
         Task<Guid> GetGuidById(int key);
+        Task<int> GetIdByUsername(string username);
     }
 }

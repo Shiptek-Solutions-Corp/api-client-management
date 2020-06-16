@@ -11,6 +11,7 @@ using xgca.core.Models.User;
 using xgca.core.Response;
 using xgca.entity.Models;
 using xgca.data.User;
+using xgca.data.Company;
 using xgca.core.Helpers;
 using xgca.core.Helpers.Token;
 using xgca.core.Helpers.Http;
@@ -20,8 +21,9 @@ namespace xgca.core.Profile
 {
     public class Profile : IProfile
     {
-        private readonly xgca.data.User.IUserData _userData;
-        private readonly xgca.data.Company.ICompanyData _companyData;
+        private readonly IUserData _userData;
+        private readonly ICompanyData _companyData;
+        private readonly xgca.data.CompanyUser.ICompanyUser _companyUserData;
         private readonly xgca.data.CompanyService.ICompanyService _companyServiceData;
 
         private readonly IHttpHelper _httpHelper;
@@ -30,7 +32,8 @@ namespace xgca.core.Profile
         private readonly IGeneral _general;
 
         public Profile(xgca.data.User.IUserData userData,
-            xgca.data.Company.ICompanyData companyData,
+            ICompanyData companyData,
+            xgca.data.CompanyUser.ICompanyUser companyUserData,
             xgca.data.CompanyService.ICompanyService companyServiceData,
             IHttpHelper httpHelper,
             ITokenHelper tokenHelper,
@@ -39,6 +42,7 @@ namespace xgca.core.Profile
         {
             _userData = userData;
             _companyData = companyData;
+            _companyUserData = companyUserData;
             _companyServiceData = companyServiceData;
             _httpHelper = httpHelper;
             _tokenHelper = tokenHelper;
@@ -49,11 +53,12 @@ namespace xgca.core.Profile
         public async Task<dynamic> LoadProfile(string encodedToken, string companyServiceKey)
         {
             var decodedToken = _tokenHelper.DecodeJWT(encodedToken);
-            var tokenCompanyId = decodedToken.Payload["custom:companyId"];
-            var tokenUsername = decodedToken.Payload["cognito:username"];
+            var tokenUsername = decodedToken.Payload["username"];
+            int userId = await _userData.GetIdByUsername(tokenUsername);
+            int companyId = await _companyUserData.GetCompanyIdByUserId(userId);
 
             var user = await _userData.RetrieveByUsername(Convert.ToString(tokenUsername));
-            var company = await _companyData.Retrieve(Convert.ToInt32(tokenCompanyId));
+            var company = await _companyData.Retrieve(companyId);
             int companyServiceId = await _companyServiceData.GetIdByGuid(Guid.Parse(companyServiceKey));
             var companyService = await _companyServiceData.Retrieve(companyServiceId);
             var serviceResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, companyService.ServiceId);

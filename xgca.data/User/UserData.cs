@@ -105,5 +105,13 @@ namespace xgca.data.User
                 .Where(u => u.UserId == key && u.IsDeleted == 0).FirstOrDefaultAsync();
             return data.Guid;
         }
+
+        public async Task<int> GetIdByUsername(string username)
+        {
+            var data = await _context.Users
+                .Where(u => u.Username == username)
+                .FirstOrDefaultAsync();
+            return data.UserId;
+        }
     }
 }
