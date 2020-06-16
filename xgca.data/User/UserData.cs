@@ -41,13 +41,6 @@ namespace xgca.data.User
                 .Where(u => u.UserId == key && u.IsDeleted == 0).FirstOrDefaultAsync();
             return data;
         }
-        public async Task<entity.Models.User> RetrieveByUsername(int key)
-        {
-            var data = await _context.Users
-                .Include(cn => cn.ContactDetails)
-                .Where(u => u.UserId == key && u.IsDeleted == 0).FirstOrDefaultAsync();
-            return data;
-        }
         public async Task<entity.Models.User> RetrieveByUsername(string username)
         {
             var data = await _context.Users
