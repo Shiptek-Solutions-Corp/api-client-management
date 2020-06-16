@@ -10,8 +10,13 @@ namespace xgca.core.Helpers.Token
 
         public string RemoveBearer(string encodedToken)
         {
-            string[] tokenArray = encodedToken.Split(" ");
-            return tokenArray[1];
+            if (encodedToken.Contains("Bearer"))
+            {
+                string[] tokenArray = encodedToken.Split(" ");
+                return tokenArray[1];
+            }
+            return encodedToken;
+            
         }
         public dynamic DecodeJWT(string encodedToken)
         {
