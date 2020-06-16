@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -9,6 +10,7 @@ namespace xlog_client_management_api.Controllers
 {
     [ApiController]
     [Route("clients/[controller]")]
+    
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
@@ -17,15 +19,21 @@ namespace xlog_client_management_api.Controllers
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly IAuthorizationService _authorizationService;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(
+            ILogger<WeatherForecastController> logger,
+            IAuthorizationService authorizationService            
+            )
         {
             _logger = logger;
+            _authorizationService = authorizationService;
         }
 
         [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         public IEnumerable<WeatherForecast> Get()
-        {
+        {            
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {

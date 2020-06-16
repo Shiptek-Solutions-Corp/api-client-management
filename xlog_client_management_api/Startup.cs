@@ -30,6 +30,11 @@ using xgca.core.Helpers.Http;
 using xgca.core.Helpers.Token;
 using xgca.core.Company;
 using xgca.core.Constants;
+using Amazon.CognitoIdentityProvider;
+using Amazon.Extensions.CognitoAuthentication;
+using Amazon.Runtime;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace xlog_client_management_api
 {
@@ -52,8 +57,27 @@ namespace xlog_client_management_api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //Instantiate Cognito Provider on Startup
+            AmazonCognitoIdentityProviderClient cognitoIdentityProvider =
+             new AmazonCognitoIdentityProviderClient(new AnonymousAWSCredentials(), Amazon.RegionEndpoint.USEast1);
+
+            //Instantiate Cognito User Pool
+            CognitoUserPool userPool = new CognitoUserPool(Configuration.GetSection("AWSCognito:UserPoolId").Value,
+                Configuration.GetSection("AWSCognito:UserPoolClientId").Value, cognitoIdentityProvider);
+
+            services.AddCognitoIdentity();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            {
+                options.Audience = Configuration.GetSection("AWSCognito:UserPoolClientId").Value;
+                options.Authority = $"https://cognito-idp.{Configuration.GetSection("AWSCognito:Region").Value}.amazonaws.com/{Configuration.GetSection("AWSCognito:UserPoolId").Value}";
+            });
+
             services.AddDbContext<XGCAContext>(opts => opts.UseSqlServer(Configuration["ConnectionString:XGCADb"]));
-            
+
+            services.AddSingleton<IAmazonCognitoIdentityProvider>(cognitoIdentityProvider);
+            services.AddSingleton<CognitoUserPool>(userPool);
+
             services.Configure<xgca.core.Models.S3.Variables>(Configuration.GetSection("AWS"));
             services.AddScoped<IXGCAContext, XGCAContext>();
             services.AddScoped<IUserData, UserData>();
@@ -97,6 +121,17 @@ namespace xlog_client_management_api
                        .AllowAnyMethod()
                        .AllowAnyHeader();
             }));
+
+            services.ConfigureApplicationCookie(options => {
+                options.AccessDeniedPath = "/Account/Login";
+                options.LoginPath = "/Account/Denied";
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+                options.Events.OnRedirectToLogin = context => {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    return Task.CompletedTask;
+                };
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -109,6 +144,8 @@ namespace xlog_client_management_api
             app.UseRouting();
 
             app.UseCors("AllowAllPolicy");
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
