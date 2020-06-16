@@ -8,7 +8,7 @@ namespace xgca.core.CompanyService
     public interface ICompanyService
     {
         Task<IGeneralModel> ListByCompanyId(string key);
-        Task<IGeneralModel> ListByCompanyUserId(string key);
+        Task<IGeneralModel> ListByCompanyUserId(int key);
         Task<IGeneralModel> Create(CreateCompanyServiceModel obj);
         Task<bool> CreateBatch(dynamic services, int companyId, int userId);
         Task<IGeneralModel> Update(UpdateCompanyServiceModel obj);

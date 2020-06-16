@@ -22,8 +22,8 @@ namespace xlog_client_management_api
                 .ConfigureWebHostDefaults(webBuilder =>
                 {                    
                     webBuilder.UseStartup<Startup>();
-                    webBuilder.UseKestrel(); // FOR LINUX DOCKER BUILD - To be revert back on commit and push
-                    //webBuilder.UseIIS(); // FOR IIS BUILD
+                    //webBuilder.UseKestrel(); // FOR LINUX DOCKER BUILD - To be revert back on commit and push
+                    webBuilder.UseIIS(); // FOR IIS BUILD
                 });
     }
 }

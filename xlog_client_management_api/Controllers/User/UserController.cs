@@ -64,6 +64,27 @@ namespace xlog_client_management_api.Controllers.User
             return Ok(response);
         }
 
+        [Route("user/profile")]
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> RetrieveProfile([FromHeader] string Authorization)
+        {
+            var response = await _user.RetrieveByToken(Authorization);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
         [Route("user")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]

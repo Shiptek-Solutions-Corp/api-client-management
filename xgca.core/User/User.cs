@@ -14,6 +14,7 @@ using xgca.data.User;
 using xgca.data.ContactDetail;
 using xgca.data.AuditLog;
 using xgca.core.Helpers;
+using xgca.core.Helpers.Token;
 
 namespace xgca.core.User
 {
@@ -23,18 +24,21 @@ namespace xgca.core.User
         private readonly xgca.core.ContactDetail.IContactDetail _coreContactDetail;
         private readonly xgca.core.CompanyUser.ICompanyUser _coreCompanyUser;
         private readonly xgca.data.AuditLog.IAuditLog _auditLog;
+        private readonly ITokenHelper _tokenHelper;
         private readonly IGeneral _general;
 
         public User(xgca.data.User.IUserData userData,
             xgca.core.ContactDetail.IContactDetail coreContactDetail,
             xgca.core.CompanyUser.ICompanyUser coreCompanyUser,
             xgca.data.AuditLog.IAuditLog auditLog,
+            ITokenHelper tokenHelper,
             IGeneral general)
         {
             _userData = userData;
             _coreContactDetail = coreContactDetail;
             _coreCompanyUser = coreCompanyUser;
             _auditLog = auditLog;
+            _tokenHelper = tokenHelper;
             _general = general;
         }
 
@@ -197,6 +201,41 @@ namespace xgca.core.User
         {
             int userId = await _userData.GetIdByGuid(Guid.Parse(key));
             var data = await _userData.Retrieve(userId);
+            if (data == null)
+            {
+                return _general.Response(null, 400, "Selected user might have been deleted or does not exists", false);
+            }
+
+            var result = new
+            {
+                UserId = data.Guid,
+                data.FirstName,
+                data.LastName,
+                data.MiddleName,
+                data.Title,
+                data.Status,
+                data.ImageURL,
+                data.EmailAddress,
+                ContactDetailId = data.ContactDetails.Guid,
+                data.ContactDetails.PhonePrefixId,
+                data.ContactDetails.PhonePrefix,
+                data.ContactDetails.Phone,
+                data.ContactDetails.MobilePrefixId,
+                data.ContactDetails.MobilePrefix,
+                data.ContactDetails.Mobile,
+                data.ContactDetails.FaxPrefixId,
+                data.ContactDetails.FaxPrefix,
+                data.ContactDetails.Fax
+            };
+
+            return _general.Response(result, 200, "Configurable information for selected user has been displayed", true);
+        }
+        public async Task<IGeneralModel> RetrieveByToken(string token)
+        {
+            var decodedToken = _tokenHelper.DecodeJWT(token);
+            var tokenUsername = decodedToken.Payload["cognito:username"];
+
+            var data = await _userData.RetrieveByUsername(tokenUsername);
             if (data == null)
             {
                 return _general.Response(null, 400, "Selected user might have been deleted or does not exists", false);
