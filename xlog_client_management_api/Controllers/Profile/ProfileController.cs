@@ -7,28 +7,27 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using xgca.core.CompanyService;
 
-namespace xlog_client_management_api.Controllers.CompanyService
+namespace xlog_client_management_api.Controllers.Profile
 {
     [Route("clients/api/v1")]
-    [ApiController]
-    public class CompanyServiceController : Controller
+    public class ProfileController : Controller
     {
-        public readonly ICompanyService _companyService;
-        public CompanyServiceController(ICompanyService companyService)
+        public readonly xgca.core.Profile.IProfile _profile;
+
+        public ProfileController(xgca.core.Profile.IProfile profile)
         {
-            _companyService = companyService;
+            _profile = profile;
         }
 
-        [Route("company/services/user/{referenceId}")]
+        [Route("profile/service/{companyServiceKey}")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> ListCompanyServiceByUserId(int referenceId)
+        public async Task<IActionResult> ListUser([FromHeader] string Authorization, [FromRoute]string companyServiceKey)
         {
-            var response = await _companyService.ListByCompanyUserId(referenceId);
+            var response = await _profile.LoadProfile(Authorization, companyServiceKey);
 
             if (response.statusCode == 400)
             {

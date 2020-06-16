@@ -10,10 +10,12 @@ namespace xgca.data.User
         Task<int> CreateAndReturnId(entity.Models.User obj);
         Task<List<entity.Models.User>> List();
         Task<entity.Models.User> Retrieve(int key);
+        Task<entity.Models.User> RetrieveByUsername(string username);
         Task<bool> Update(entity.Models.User obj);
         Task<bool> SetUsername(entity.Models.User obj);
         Task<bool> Delete(int key);
         Task<int> GetIdByGuid(Guid key);
         Task<Guid> GetGuidById(int key);
+        Task<int> GetIdByUsername(string username);
     }
 }

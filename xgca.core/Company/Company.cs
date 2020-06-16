@@ -212,16 +212,18 @@ namespace xgca.core.Company
         public async Task<IGeneralModel> Retrieve(string authToken)
         {
             var decodedToken = _tokenHelper.DecodeJWT(authToken);
-            var tokenCompanyId = decodedToken.Payload["companyId"];
+            var tokenUsername = decodedToken.Payload["username"];
+            int userId = await _coreUser.RetrieveByUsername(tokenUsername);
+            int companyId = await _coreCompanyUser.GetCompanyIdByUserId(userId);
 
-            int companyId = await _companyData.GetIdByGuid(Guid.Parse(Convert.ToString(tokenCompanyId)));
-            if (companyId == 0)
+            string companyKey = await _companyData.GetGuidById(companyId);
+            if (companyKey is null)
             { return _general.Response(null, 400, "Selected company might have been deleted or does not exists", false); }
             var result = await _companyData.Retrieve(companyId);
             if (result == null)
             { return _general.Response(null, 400, "Selected company might have been deleted or does not exists", false); }
 
-            var companyServices = await _coreCompanyService.ListByCompanyId(Convert.ToString(tokenCompanyId));
+            var companyServices = await _coreCompanyService.ListByCompanyId(companyKey);
 
             var data = new
             {

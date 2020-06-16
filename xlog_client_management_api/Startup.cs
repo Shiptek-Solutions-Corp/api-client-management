@@ -23,12 +23,12 @@ using xgca.data.CompanyService;
 using xgca.data.CompanyServiceRole;
 using xgca.data.CompanyServiceUser;
 using xgca.data.CompanyUser;
-//using xgca.data.Service;
 using xgca.core.Response;
 using xgca.core.User;
 using xgca.core.Helpers.Http;
 using xgca.core.Helpers.Token;
 using xgca.core.Company;
+using xgca.core.Profile;
 using xgca.core.Constants;
 using Amazon.CognitoIdentityProvider;
 using Amazon.Extensions.CognitoAuthentication;
@@ -90,7 +90,6 @@ namespace xlog_client_management_api
             services.AddScoped<ICompanyServiceUser, CompanyServiceUser>();
             services.AddScoped<ICompanyUser, CompanyUser>();
             services.AddScoped<IContactDetail, ContactDetail>();
-            //services.AddScoped<IServiceData, ServiceData>();
             services.AddScoped<IGeneral, General>();
 
             services.AddScoped<IGeneralModel, GeneralModel>();
@@ -99,6 +98,7 @@ namespace xlog_client_management_api
             services.AddScoped<xgca.core.Address.IAddress, xgca.core.Address.Address>();
             services.AddScoped<xgca.core.AddressType.IAddressType, xgca.core.AddressType.AddressType>();
             services.AddScoped<ICompany, Company>();
+            services.AddScoped<IProfile, Profile>();
             services.AddScoped<IHttpHelper, HttpHelper>();
             services.AddScoped<ITokenHelper, TokenHelper>();
             services.AddScoped<xgca.core.CompanyService.ICompanyService, xgca.core.CompanyService.CompanyService>();
@@ -106,7 +106,6 @@ namespace xlog_client_management_api
             services.AddScoped<xgca.core.CompanyServiceUser.ICompanyServiceUser, xgca.core.CompanyServiceUser.CompanyServiceUser>();
             services.AddScoped<xgca.core.CompanyUser.ICompanyUser, xgca.core.CompanyUser.CompanyUser>();
             services.AddScoped<xgca.core.ContactDetail.IContactDetail, xgca.core.ContactDetail.ContactDetail>();
-            //services.AddScoped<xgca.core.Service.IService, xgca.core.Service.Service>();
 
             services.Configure<GlobalCmsApi>(o => {
                 o.BaseUrl = Configuration.GetSection("GlobalCMS:BaseUrl").Value;

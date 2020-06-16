@@ -70,10 +70,9 @@ namespace xgca.core.CompanyService
 
             return _general.Response(new { companyService = data }, 200, "Configurable services for selected company has been listed", true);
         }
-        public async Task<IGeneralModel> ListByCompanyUserId(string key)
+        public async Task<IGeneralModel> ListByCompanyUserId(int referenceId)
         {
-            int userId = await _coreUser.GetIdByGuid(Guid.Parse(key));
-            int companyId = await _coreCompanyUser.GetCompanyIdByUserId(userId);
+            int companyId = await _coreCompanyUser.GetCompanyIdByUserId(referenceId);
             var result = await _companyService.ListByCompanyId(companyId);
             var companyServices = result.Select(t => new { CompanyServiceId = t.Guid, t.ServiceId, t.Status });
 

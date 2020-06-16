@@ -53,6 +53,13 @@ namespace xgca.data.Company
             if (data == null) { return 0; }
             return data.CompanyId;
         }
+        public async Task<string> GetGuidById(int id)
+        {
+            var data = await _context.Companies
+                .Where(c => c.CompanyId == id && c.IsDeleted == 0).FirstOrDefaultAsync();
+            if (data == null) { return null; }
+            return data.Guid.ToString();
+        }
         public async Task<bool> Update(entity.Models.Company obj)
         {
             var data = await _context.Companies.Where(c => c.CompanyId == obj.CompanyId && c.IsDeleted == 0).FirstOrDefaultAsync();
