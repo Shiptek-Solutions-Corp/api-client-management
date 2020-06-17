@@ -228,28 +228,46 @@ namespace xgca.core.Company
                 result.ImageURL,
                 AddressId = result.Addresses.Guid,
                 result.Addresses.AddressLine,
-                result.Addresses.CityId,
-                result.Addresses.CityName,
-                result.Addresses.StateId,
-                result.Addresses.StateName,
+                City = new
+                {
+                    result.Addresses.CityId,
+                    result.Addresses.CityName,
+                },
+                State = new
+                {
+                    result.Addresses.StateId,
+                    result.Addresses.StateName,
+                },
+                Country = new
+                {
+                    result.Addresses.CountryId,
+                    result.Addresses.CountryName,
+                },
                 result.Addresses.ZipCode,
-                result.Addresses.CountryId,
-                result.Addresses.CountryName,
                 result.Addresses.FullAddress,
                 result.Addresses.Longitude,
                 result.Addresses.Latitude,
                 result.WebsiteURL,
                 result.EmailAddress,
                 ContactDetailId = result.ContactDetails.Guid,
-                result.ContactDetails.PhonePrefixId,
-                result.ContactDetails.PhonePrefix,
-                result.ContactDetails.Phone,
-                result.ContactDetails.MobilePrefixId,
-                result.ContactDetails.MobilePrefix,
-                result.ContactDetails.Mobile,
-                result.ContactDetails.FaxPrefixId,
-                result.ContactDetails.FaxPrefix,
-                result.ContactDetails.Fax,
+                Phone = new
+                {
+                    result.ContactDetails.PhonePrefixId,
+                    result.ContactDetails.PhonePrefix,
+                    result.ContactDetails.Phone,
+                },
+                Mobile = new
+                {
+                    result.ContactDetails.MobilePrefixId,
+                    result.ContactDetails.MobilePrefix,
+                    result.ContactDetails.Mobile,
+                },
+                Fax = new
+                {
+                    result.ContactDetails.FaxPrefixId,
+                    result.ContactDetails.FaxPrefix,
+                    result.ContactDetails.Fax,
+                },
                 CompanyServices = companyServices.data.companyService,
             };
 
