@@ -95,7 +95,8 @@ namespace xlog_client_management_api.Controllers.User
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> CreateUser([FromBody]xgca.core.Models.User.CreateUserModel request)
         {
-            var response = await _user.Create(request);
+            var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
+            var response = await _user.Create(request, companyId);
 
             if (response.statusCode == 400)
             {

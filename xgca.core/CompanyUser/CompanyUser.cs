@@ -34,19 +34,17 @@ namespace xgca.core.CompanyUser
 
         public async Task<IGeneralModel> Create(CreateCompanyUserModel obj)
         {
-            int companyId = await _company.GetIdByGuid(Guid.Parse(obj.CompanyId));
-            int userId = await _userData.GetIdByGuid(Guid.Parse(obj.User));
-            int createdBy = await _userData.GetIdByGuid(Guid.Parse(obj.CreatedBy));
+            int userId = await _userData.GetIdByGuid(Guid.Parse(obj.UserId));
             int userTypeId = 1;
             var data = new entity.Models.CompanyUser
             {
-                CompanyId = companyId,
+                CompanyId = obj.CompanyId,
                 UserId = userId,
                 UserTypeId = userTypeId,
                 Status = 1,
-                CreatedBy = createdBy,
+                CreatedBy = 0,
                 CreatedOn = DateTime.Now,
-                ModifiedBy = createdBy,
+                ModifiedBy = 0,
                 ModifiedOn = DateTime.Now,
                 Guid = Guid.NewGuid()
             };

@@ -49,7 +49,7 @@ namespace xgca.core.User
             return _general.Response(data, 200, "Configurable companies has been listed", true);
         }
 
-        public async Task<IGeneralModel> Create(CreateUserModel obj)
+        public async Task<IGeneralModel> Create(CreateUserModel obj, string companyId)
         {
             if (obj == null)
             { 
@@ -85,8 +85,8 @@ namespace xgca.core.User
 
             int newUserId = await _userData.CreateAndReturnId(user);
             var newUserGuid = await _userData.GetGuidById(newUserId);
-            var companyUser = CompanyHelper.BuildCompanyValue(obj);
-            await _coreCompanyUser.Create(companyUser);
+            
+            await _coreCompanyUser.Create(new xgca.core.Models.CompanyUser.CreateCompanyUserModel { CompanyId = Convert.ToInt32(companyId), UserId = newUserGuid.ToString() });
             
             var auditLog = AuditLogHelper.BuilCreateLog(obj, "Create", user.GetType().Name, newUserId);
             await _auditLog.Create(auditLog);
