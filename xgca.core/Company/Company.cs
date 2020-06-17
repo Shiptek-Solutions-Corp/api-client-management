@@ -209,13 +209,8 @@ namespace xgca.core.Company
                 ? _general.Response(true, 200, "Company updated", true)
                 : _general.Response(false, 400, "Error on updating company", true);
         }
-        public async Task<IGeneralModel> Retrieve(string authToken)
+        public async Task<IGeneralModel> Retrieve(int companyId)
         {
-            var decodedToken = _tokenHelper.DecodeJWT(authToken);
-            var tokenUsername = decodedToken.Payload["username"];
-            int userId = await _coreUser.RetrieveByUsername(tokenUsername);
-            int companyId = await _coreCompanyUser.GetCompanyIdByUserId(userId);
-
             string companyKey = await _companyData.GetGuidById(companyId);
             if (companyKey is null)
             { return _general.Response(null, 400, "Selected company might have been deleted or does not exists", false); }
@@ -233,7 +228,9 @@ namespace xgca.core.Company
                 result.ImageURL,
                 AddressId = result.Addresses.Guid,
                 result.Addresses.AddressLine,
+                result.Addresses.CityId,
                 result.Addresses.CityName,
+                result.Addresses.StateId,
                 result.Addresses.StateName,
                 result.Addresses.ZipCode,
                 result.Addresses.CountryId,

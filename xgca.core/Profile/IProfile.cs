@@ -5,6 +5,6 @@ namespace xgca.core.Profile
 {
     public interface IProfile
     {
-        Task<dynamic> LoadProfile(string token, string companyServiceKey);
+        Task<dynamic> LoadProfile(string username, string companyServiceKey);
     }
 }

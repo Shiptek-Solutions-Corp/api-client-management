@@ -50,14 +50,12 @@ namespace xgca.core.Profile
             _general = general;
         }
 
-        public async Task<dynamic> LoadProfile(string encodedToken, string companyServiceKey)
+        public async Task<dynamic> LoadProfile(string username, string companyServiceKey)
         {
-            var decodedToken = _tokenHelper.DecodeJWT(encodedToken);
-            var tokenUsername = decodedToken.Payload["username"];
-            int userId = await _userData.GetIdByUsername(tokenUsername);
+            int userId = await _userData.GetIdByUsername(username);
             int companyId = await _companyUserData.GetCompanyIdByUserId(userId);
 
-            var user = await _userData.RetrieveByUsername(Convert.ToString(tokenUsername));
+            var user = await _userData.RetrieveByUsername(username);
             var company = await _companyData.Retrieve(companyId);
             int companyServiceId = await _companyServiceData.GetIdByGuid(Guid.Parse(companyServiceKey));
             var companyService = await _companyServiceData.Retrieve(companyServiceId);
@@ -74,6 +72,7 @@ namespace xgca.core.Profile
                     CompanyId = company.Guid,
                     Name = company.CompanyName,
                     Image = company.ImageURL,
+                    ServiceId = serviceKey,
                     Service = serviceJson["data"]["service"]["name"],
                 },
                 User = new

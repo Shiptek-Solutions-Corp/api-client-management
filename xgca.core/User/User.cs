@@ -230,12 +230,9 @@ namespace xgca.core.User
 
             return _general.Response(result, 200, "Configurable information for selected user has been displayed", true);
         }
-        public async Task<IGeneralModel> RetrieveByToken(string token)
+        public async Task<IGeneralModel> RetrieveByUsername(string username)
         {
-            var decodedToken = _tokenHelper.DecodeJWT(token);
-            var tokenUsername = decodedToken.Payload["username"];
-
-            var data = await _userData.RetrieveByUsername(tokenUsername);
+            var data = await _userData.RetrieveByUsername(username);
             if (data == null)
             {
                 return _general.Response(null, 400, "Selected user might have been deleted or does not exists", false);
@@ -309,7 +306,7 @@ namespace xgca.core.User
             throw new NotImplementedException();
         }
 
-        public async Task<int> RetrieveByUsername(string username)
+        public async Task<int> GetIdByUsername(string username)
         {
             var user = await _userData.RetrieveByUsername(username);
             return user.UserId;

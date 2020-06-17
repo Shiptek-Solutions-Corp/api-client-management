@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -66,12 +67,14 @@ namespace xlog_client_management_api.Controllers.User
 
         [Route("user/profile")]
         [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> RetrieveProfile([FromHeader] string Authorization)
+        public async Task<IActionResult> RetrieveProfile()
         {
-            var response = await _user.RetrieveByToken(Authorization);
+            var username = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
+            var response = await _user.RetrieveByUsername(username);
 
             if (response.statusCode == 400)
             {
