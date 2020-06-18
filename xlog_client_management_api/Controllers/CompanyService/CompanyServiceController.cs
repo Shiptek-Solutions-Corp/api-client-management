@@ -22,8 +22,6 @@ namespace xlog_client_management_api.Controllers.CompanyService
             _companyService = companyService;
         }
 
-
-
         [Route("company/services/user/{referenceId}")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
