@@ -9,6 +9,7 @@ namespace xgca.data.User
         Task<bool> Create(entity.Models.User obj);
         Task<int> CreateAndReturnId(entity.Models.User obj);
         Task<List<entity.Models.User>> List();
+        Task<List<entity.Models.User>> List(string columnFilter, string isActive, string isLock);        
         Task<entity.Models.User> Retrieve(int key);
         Task<entity.Models.User> RetrieveByUsername(string username);
         Task<bool> Update(entity.Models.User obj);

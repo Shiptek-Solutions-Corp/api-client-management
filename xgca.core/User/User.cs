@@ -49,11 +49,35 @@ namespace xgca.core.User
             return _general.Response(data, 200, "Configurable companies has been listed", true);
         }
 
+        public async Task<IGeneralModel> List(string query, string isActive, string isLock)
+        {
+            //Start: Please move this on helpers
+            var queryParams = query.Split(",")
+                                    .Select(p => p.Split(':'))
+                                    .ToDictionary(p => p[0], p => p.Length > 1 ? Uri.EscapeDataString(p[1]) : null);
+
+            var queryString = "";
+
+            foreach (var v in queryParams)
+            {
+                queryString += $"{v.Key} = '{v.Value}' and ";
+            }
+            //End
+            
+
+
+            var user = await _userData.List(queryString, isActive, isLock);
+
+            var data = new { user = user.Select(u => new { UserId = u.Guid, u.FirstName, u.LastName.Length, u.MiddleName, u.ImageURL, u.EmailAddress, u.Status }) };
+
+            return _general.Response(data, 200, "Configurable companies has been listed", true);
+        }
+
         public async Task<IGeneralModel> Create(CreateUserModel obj)
         {
             if (obj == null)
-            { 
-                return _general.Response(false, 400, "Data cannot be null", false); 
+            {
+                return _general.Response(false, 400, "Data cannot be null", false);
             }
 
             int userId = 1;
@@ -87,7 +111,7 @@ namespace xgca.core.User
             var newUserGuid = await _userData.GetGuidById(newUserId);
             var companyUser = CompanyHelper.BuildCompanyValue(obj);
             await _coreCompanyUser.Create(companyUser);
-            
+
             var auditLog = AuditLogHelper.BuilCreateLog(obj, "Create", user.GetType().Name, newUserId);
             await _auditLog.Create(auditLog);
             return newUserId > 0

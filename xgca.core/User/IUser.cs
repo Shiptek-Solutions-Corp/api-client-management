@@ -9,6 +9,7 @@ namespace xgca.core.User
     public interface IUser
     {
         Task<IGeneralModel> List();
+        Task<IGeneralModel> List(string columnFilter, string isActive, string isLock);
         Task<IGeneralModel> Create(CreateUserModel obj);
         Task<int> CreateAndReturnId(CreateUserModel obj);
         Task<dynamic> CreateMasterUser(CreateUserModel obj, int createdBy);
