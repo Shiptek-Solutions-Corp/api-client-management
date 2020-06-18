@@ -47,9 +47,9 @@ namespace xgca.core.Address
         public async Task<int> CreateAndReturnId(dynamic obj)
         {
             int addressTypeId = await _coreAddressType.RetrieveIdByName("Company");
-            var cityResponse = await _httpHelpers.GetIdByGuid(_options.Value.BaseUrl, ApiEndpoints.cmsGetCity, obj.CityId.ToString());
+            var cityResponse = await _httpHelpers.GetIdByGuid(_options.Value.BaseUrl, ApiEndpoints.cmsGetCity, obj.CityId.ToString(), AuthToken.Contra);
             var cityJson = (JObject)cityResponse;
-            var stateResponse = await _httpHelpers.GetIdByGuid(_options.Value.BaseUrl, ApiEndpoints.cmsGetState, obj.StateId.ToString());
+            var stateResponse = await _httpHelpers.GetIdByGuid(_options.Value.BaseUrl, ApiEndpoints.cmsGetState, obj.StateId.ToString(), AuthToken.Contra);
             var stateJson = (JObject)stateResponse;
             string fullAddress = AddressHelper.GenerateFullAddress(obj);
             string json = JsonConvert.SerializeObject(obj);
