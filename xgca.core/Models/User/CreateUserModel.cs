@@ -17,5 +17,7 @@
         public string Mobile { get; set; }
         public string EmailAddress { get; set; }
         public string CreatedBy { get; set; }
+        public string ServiceId { get; set; }
+
     }
 }

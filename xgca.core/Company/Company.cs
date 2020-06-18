@@ -209,13 +209,8 @@ namespace xgca.core.Company
                 ? _general.Response(true, 200, "Company updated", true)
                 : _general.Response(false, 400, "Error on updating company", true);
         }
-        public async Task<IGeneralModel> Retrieve(string authToken)
+        public async Task<IGeneralModel> Retrieve(int companyId)
         {
-            var decodedToken = _tokenHelper.DecodeJWT(authToken);
-            var tokenUsername = decodedToken.Payload["username"];
-            int userId = await _coreUser.RetrieveByUsername(tokenUsername);
-            int companyId = await _coreCompanyUser.GetCompanyIdByUserId(userId);
-
             string companyKey = await _companyData.GetGuidById(companyId);
             if (companyKey is null)
             { return _general.Response(null, 400, "Selected company might have been deleted or does not exists", false); }
@@ -233,26 +228,46 @@ namespace xgca.core.Company
                 result.ImageURL,
                 AddressId = result.Addresses.Guid,
                 result.Addresses.AddressLine,
-                result.Addresses.CityName,
-                result.Addresses.StateName,
+                City = new
+                {
+                    result.Addresses.CityId,
+                    result.Addresses.CityName,
+                },
+                State = new
+                {
+                    result.Addresses.StateId,
+                    result.Addresses.StateName,
+                },
+                Country = new
+                {
+                    result.Addresses.CountryId,
+                    result.Addresses.CountryName,
+                },
                 result.Addresses.ZipCode,
-                result.Addresses.CountryId,
-                result.Addresses.CountryName,
                 result.Addresses.FullAddress,
                 result.Addresses.Longitude,
                 result.Addresses.Latitude,
                 result.WebsiteURL,
                 result.EmailAddress,
                 ContactDetailId = result.ContactDetails.Guid,
-                result.ContactDetails.PhonePrefixId,
-                result.ContactDetails.PhonePrefix,
-                result.ContactDetails.Phone,
-                result.ContactDetails.MobilePrefixId,
-                result.ContactDetails.MobilePrefix,
-                result.ContactDetails.Mobile,
-                result.ContactDetails.FaxPrefixId,
-                result.ContactDetails.FaxPrefix,
-                result.ContactDetails.Fax,
+                Phone = new
+                {
+                    result.ContactDetails.PhonePrefixId,
+                    result.ContactDetails.PhonePrefix,
+                    result.ContactDetails.Phone,
+                },
+                Mobile = new
+                {
+                    result.ContactDetails.MobilePrefixId,
+                    result.ContactDetails.MobilePrefix,
+                    result.ContactDetails.Mobile,
+                },
+                Fax = new
+                {
+                    result.ContactDetails.FaxPrefixId,
+                    result.ContactDetails.FaxPrefix,
+                    result.ContactDetails.Fax,
+                },
                 CompanyServices = companyServices.data.companyService,
             };
 

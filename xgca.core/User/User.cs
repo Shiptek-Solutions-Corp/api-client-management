@@ -73,7 +73,8 @@ namespace xgca.core.User
             return _general.Response(data, 200, "Configurable companies has been listed", true);
         }
 
-        public async Task<IGeneralModel> Create(CreateUserModel obj)
+        
+        public async Task<IGeneralModel> Create(CreateUserModel obj, string companyId)
         {
             if (obj == null)
             {
@@ -109,9 +110,9 @@ namespace xgca.core.User
 
             int newUserId = await _userData.CreateAndReturnId(user);
             var newUserGuid = await _userData.GetGuidById(newUserId);
-            var companyUser = CompanyHelper.BuildCompanyValue(obj);
-            await _coreCompanyUser.Create(companyUser);
-
+            
+            await _coreCompanyUser.Create(new xgca.core.Models.CompanyUser.CreateCompanyUserModel { CompanyId = Convert.ToInt32(companyId), UserId = newUserGuid.ToString() });
+            
             var auditLog = AuditLogHelper.BuilCreateLog(obj, "Create", user.GetType().Name, newUserId);
             await _auditLog.Create(auditLog);
             return newUserId > 0
@@ -241,25 +242,25 @@ namespace xgca.core.User
                 data.ImageURL,
                 data.EmailAddress,
                 ContactDetailId = data.ContactDetails.Guid,
-                data.ContactDetails.PhonePrefixId,
-                data.ContactDetails.PhonePrefix,
-                data.ContactDetails.Phone,
-                data.ContactDetails.MobilePrefixId,
-                data.ContactDetails.MobilePrefix,
-                data.ContactDetails.Mobile,
-                data.ContactDetails.FaxPrefixId,
-                data.ContactDetails.FaxPrefix,
-                data.ContactDetails.Fax
+                Phone = new
+                {
+                    data.ContactDetails.PhonePrefixId,
+                    data.ContactDetails.PhonePrefix,
+                    data.ContactDetails.Phone,
+                },
+                Mobile = new
+                {
+                    data.ContactDetails.MobilePrefixId,
+                    data.ContactDetails.MobilePrefix,
+                    data.ContactDetails.Mobile,
+                }
             };
 
             return _general.Response(result, 200, "Configurable information for selected user has been displayed", true);
         }
-        public async Task<IGeneralModel> RetrieveByToken(string token)
+        public async Task<IGeneralModel> RetrieveByUsername(string username)
         {
-            var decodedToken = _tokenHelper.DecodeJWT(token);
-            var tokenUsername = decodedToken.Payload["username"];
-
-            var data = await _userData.RetrieveByUsername(tokenUsername);
+            var data = await _userData.RetrieveByUsername(username);
             if (data == null)
             {
                 return _general.Response(null, 400, "Selected user might have been deleted or does not exists", false);
@@ -276,15 +277,18 @@ namespace xgca.core.User
                 data.ImageURL,
                 data.EmailAddress,
                 ContactDetailId = data.ContactDetails.Guid,
-                data.ContactDetails.PhonePrefixId,
-                data.ContactDetails.PhonePrefix,
-                data.ContactDetails.Phone,
-                data.ContactDetails.MobilePrefixId,
-                data.ContactDetails.MobilePrefix,
-                data.ContactDetails.Mobile,
-                data.ContactDetails.FaxPrefixId,
-                data.ContactDetails.FaxPrefix,
-                data.ContactDetails.Fax
+                Phone = new
+                {
+                    data.ContactDetails.PhonePrefixId,
+                    data.ContactDetails.PhonePrefix,
+                    data.ContactDetails.Phone,
+                },
+                Mobile = new
+                {
+                    data.ContactDetails.MobilePrefixId,
+                    data.ContactDetails.MobilePrefix,
+                    data.ContactDetails.Mobile,
+                }
             };
 
             return _general.Response(result, 200, "Configurable information for selected user has been displayed", true);
@@ -333,7 +337,7 @@ namespace xgca.core.User
             throw new NotImplementedException();
         }
 
-        public async Task<int> RetrieveByUsername(string username)
+        public async Task<int> GetIdByUsername(string username)
         {
             var user = await _userData.RetrieveByUsername(username);
             return user.UserId;

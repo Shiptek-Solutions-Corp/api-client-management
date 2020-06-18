@@ -31,7 +31,6 @@ namespace xlog_client_management_api.Controllers
         }
 
         [HttpGet]
-        [Authorize(AuthenticationSchemes = "Bearer")]
         public IEnumerable<WeatherForecast> Get()
         {            
             var rng = new Random();

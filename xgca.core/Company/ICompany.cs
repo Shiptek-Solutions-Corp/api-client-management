@@ -13,7 +13,7 @@ namespace xgca.core.Company
         Task<IGeneralModel> CreateAndReturnId(CreateCompanyModel obj);
         Task<IGeneralModel> InitialRegistration(InitialRegistrationModel obj);
         Task<IGeneralModel> Update(UpdateCompanyModel obj);
-        Task<IGeneralModel> Retrieve(string authToken);
+        Task<IGeneralModel> Retrieve(int companyId);
         Task<IGeneralModel> Delete(string key);
         Task<IGeneralModel> GetIdByGuid(string key);
         Task<int> GetIdByGuid(Guid key);

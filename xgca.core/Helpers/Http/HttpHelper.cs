@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using xgca.core.Helpers.Http;
+using System.Net.Http.Headers;
 
 namespace xgca.core.Helpers.Http
 {
@@ -26,10 +27,31 @@ namespace xgca.core.Helpers.Http
             return responseData;
         }
 
+        public async Task<dynamic> Get(string environment, string endpointUrl, string key, string token)
+        {
+            string apiUrl = environment + endpointUrl + key;
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(token);
+            var response = await _httpClient.GetAsync(apiUrl);
+            var result = await response.Content.ReadAsStringAsync();
+            var responseData = JsonConvert.DeserializeObject(result);
+
+            return responseData;
+        }
+
         public async Task<dynamic> Get(string environment, string endpointUrl)
         {
             string apiUrl = environment + endpointUrl;
             var response = await _httpClient.GetAsync(apiUrl);            
+            var result = await response.Content.ReadAsStringAsync();
+            var responseData = JsonConvert.DeserializeObject(result);
+
+            return responseData;
+        }
+        public async Task<dynamic> GetIdByGuid(string environment, string endpointUrl, string guid, string token)
+        {
+            string apiUrl = environment + endpointUrl + guid + "/id";
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(token);
+            var response = await _httpClient.GetAsync(apiUrl);
             var result = await response.Content.ReadAsStringAsync();
             var responseData = JsonConvert.DeserializeObject(result);
 
@@ -44,7 +66,16 @@ namespace xgca.core.Helpers.Http
 
             return responseData;
         }
+        public async Task<dynamic> GetGuidById(string environment, string endpointUrl, int id, string token)
+        {
+            string apiUrl = environment + endpointUrl + id + "/guid";
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(token);
+            var response = await _httpClient.GetAsync(apiUrl);
+            var result = await response.Content.ReadAsStringAsync();
+            var responseData = JsonConvert.DeserializeObject(result);
 
+            return responseData;
+        }
         public async Task<dynamic> GetGuidById(string environment, string endpointUrl, int id)
         {
             string apiUrl = environment + endpointUrl + id + "/guid";

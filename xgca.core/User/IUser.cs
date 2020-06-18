@@ -9,17 +9,17 @@ namespace xgca.core.User
     public interface IUser
     {
         Task<IGeneralModel> List();
-        Task<IGeneralModel> List(string columnFilter, string isActive, string isLock);
-        Task<IGeneralModel> Create(CreateUserModel obj);
+        Task<IGeneralModel> List(string columnFilter, string isActive, string isLock);        
+        Task<IGeneralModel> Create(CreateUserModel obj, string companyId);
         Task<int> CreateAndReturnId(CreateUserModel obj);
         Task<dynamic> CreateMasterUser(CreateUserModel obj, int createdBy);
         Task<IGeneralModel> Update(UpdateUserModel obj);
         Task<IGeneralModel> SetUsername(SetUsernameModel obj);
         Task<IGeneralModel> Retrieve(string key);
-        Task<int> RetrieveByUsername(string username);
-        Task<IGeneralModel> RetrieveByToken(string token);
+        Task<IGeneralModel> RetrieveByUsername(string username);
         Task<IGeneralModel> Delete(string key);
         Task<IGeneralModel> GetIdByGuid(string key);
         Task<int> GetIdByGuid(Guid key);
+        Task<int> GetIdByUsername(string username);
     }
 }

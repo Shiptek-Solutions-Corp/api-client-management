@@ -2,8 +2,7 @@
 {
     public class CreateCompanyUserModel
     {
-        public string CompanyId { get; set; }
-        public string User { get; set; }
-        public string CreatedBy { get; set; }
+        public int CompanyId { get; set; }
+        public string UserId { get; set; }
     }
 }

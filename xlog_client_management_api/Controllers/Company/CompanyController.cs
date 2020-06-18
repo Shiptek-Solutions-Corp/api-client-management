@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -42,12 +43,14 @@ namespace xlog_company_service_api.Controllers.Company
 
         [Route("company/details")]
         [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> ViewCompany([FromHeader] string Authorization)
+        public async Task<IActionResult> ViewCompany()
         {
-            var response = await _company.Retrieve(Authorization);
+            var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
+            var response = await _company.Retrieve(Convert.ToInt32(companyId));
 
             if (response.statusCode == 400)
             {
