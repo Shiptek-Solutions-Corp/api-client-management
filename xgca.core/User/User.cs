@@ -217,15 +217,18 @@ namespace xgca.core.User
                 data.ImageURL,
                 data.EmailAddress,
                 ContactDetailId = data.ContactDetails.Guid,
-                data.ContactDetails.PhonePrefixId,
-                data.ContactDetails.PhonePrefix,
-                data.ContactDetails.Phone,
-                data.ContactDetails.MobilePrefixId,
-                data.ContactDetails.MobilePrefix,
-                data.ContactDetails.Mobile,
-                data.ContactDetails.FaxPrefixId,
-                data.ContactDetails.FaxPrefix,
-                data.ContactDetails.Fax
+                Phone = new
+                {
+                    data.ContactDetails.PhonePrefixId,
+                    data.ContactDetails.PhonePrefix,
+                    data.ContactDetails.Phone,
+                },
+                Mobile = new
+                {
+                    data.ContactDetails.MobilePrefixId,
+                    data.ContactDetails.MobilePrefix,
+                    data.ContactDetails.Mobile,
+                }
             };
 
             return _general.Response(result, 200, "Configurable information for selected user has been displayed", true);
@@ -249,15 +252,18 @@ namespace xgca.core.User
                 data.ImageURL,
                 data.EmailAddress,
                 ContactDetailId = data.ContactDetails.Guid,
-                data.ContactDetails.PhonePrefixId,
-                data.ContactDetails.PhonePrefix,
-                data.ContactDetails.Phone,
-                data.ContactDetails.MobilePrefixId,
-                data.ContactDetails.MobilePrefix,
-                data.ContactDetails.Mobile,
-                data.ContactDetails.FaxPrefixId,
-                data.ContactDetails.FaxPrefix,
-                data.ContactDetails.Fax
+                Phone = new
+                {
+                    data.ContactDetails.PhonePrefixId,
+                    data.ContactDetails.PhonePrefix,
+                    data.ContactDetails.Phone,
+                },
+                Mobile = new
+                {
+                    data.ContactDetails.MobilePrefixId,
+                    data.ContactDetails.MobilePrefix,
+                    data.ContactDetails.Mobile,
+                }
             };
 
             return _general.Response(result, 200, "Configurable information for selected user has been displayed", true);
