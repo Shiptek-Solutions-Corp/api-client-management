@@ -42,7 +42,8 @@ namespace xgca.entity.Models
         public DateTime ModifiedOn { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Guid { get; set; }
-
+        [System.ComponentModel.DefaultValue(0)]
+        public byte IsLocked { get; set; }
         public virtual ContactDetail ContactDetails { get; set; }
     }
 }
