@@ -218,6 +218,11 @@ namespace xgca.core.Company
             if (result == null)
             { return _general.Response(null, 400, "Selected company might have been deleted or does not exists", false); }
 
+            var cityResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetCity, result.Addresses.CityId, AuthToken.Contra);
+            var cityJson = (JObject)cityResponse;
+            var stateResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetState, result.Addresses.StateId, AuthToken.Contra);
+            var stateJson = (JObject)stateResponse;
+
             var companyServices = await _coreCompanyService.ListByCompanyId(companyKey);
 
             var data = new
@@ -230,12 +235,12 @@ namespace xgca.core.Company
                 result.Addresses.AddressLine,
                 City = new
                 {
-                    result.Addresses.CityId,
+                    CityId = (cityJson)["data"]["cityId"],
                     result.Addresses.CityName,
                 },
                 State = new
                 {
-                    result.Addresses.StateId,
+                    StateId = (stateJson)["data"]["stateId"],
                     result.Addresses.StateName,
                 },
                 Country = new
