@@ -18,5 +18,7 @@ namespace xgca.data.User
         Task<int> GetIdByGuid(Guid key);
         Task<Guid> GetGuidById(int key);
         Task<int> GetIdByUsername(string username);
+        bool UsernameExists(string username);
+        Task<bool> EmailAddressExists(string emailAddress, int userId);
     }
 }
