@@ -75,9 +75,22 @@ namespace xgca.data.CompanyServiceUser
             return data;
         }
 
-        public Task<entity.Models.CompanyServiceUser> Retrieve(int key)
+        public async Task<entity.Models.CompanyServiceUser> Retrieve(int companyServiceUserId)
         {
-            throw new NotImplementedException();
+            var data = await _context.CompanyServiceUsers
+                .Include(csr => csr.CompanyServiceRoles)
+                .Where(csu => csu.CompanyServiceUserId == companyServiceUserId)
+                .FirstOrDefaultAsync();
+            return data;
+        }
+
+        public async Task<entity.Models.CompanyServiceUser> Retrieve(int companyUserId, int companyServiceId)
+        {
+            var data = await _context.CompanyServiceUsers
+                .Include(csr => csr.CompanyServiceRoles)
+                .Where(csu => csu.CompanyUserId == companyUserId && csu.CompanyServiceId == companyServiceId)
+                .FirstOrDefaultAsync();
+            return data;
         }
 
         public Task<bool> Update(entity.Models.CompanyServiceUser obj)

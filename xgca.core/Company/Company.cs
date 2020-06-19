@@ -273,6 +273,8 @@ namespace xgca.core.Company
                     result.ContactDetails.FaxPrefix,
                     result.ContactDetails.Fax,
                 },
+                result.TaxExemption,
+                result.TaxExemptionStatus,
                 CompanyServices = companyServices.data.companyService,
             };
 

@@ -54,6 +54,7 @@ namespace xgca.data.User
         {
             var data = await _context.Users
                 .Include(cn => cn.ContactDetails)
+                .Include(cu => cu.CompanyUsers)
                 .Where(u => u.Username == username).FirstOrDefaultAsync();
             return data;
         }

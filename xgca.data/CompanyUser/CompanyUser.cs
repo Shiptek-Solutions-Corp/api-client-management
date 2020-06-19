@@ -112,5 +112,13 @@ namespace xgca.data.CompanyUser
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
         }
+
+        public async Task<int> GetIdByUserId(int userId)
+        {
+            var data = await _context.CompanyUsers
+                .Where(cu => cu.UserId == userId)
+                .FirstOrDefaultAsync();
+            return data.CompanyUserId;
+        }
     }
 }
