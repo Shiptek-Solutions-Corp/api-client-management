@@ -37,7 +37,7 @@ namespace xgca.data.User
 
         public async Task<List<entity.Models.User>> List(string columnFilter, string isActive, string isLock )
         {
-            var queryString = $"Select * from [Users].[User] where {columnFilter}  and isDeleted = 0";
+            var queryString = $"Select * from [Users].[User] where {columnFilter} isDeleted = 0";
 
             var data = await _context.Users.FromSqlRaw(queryString).ToListAsync();
             return data;
