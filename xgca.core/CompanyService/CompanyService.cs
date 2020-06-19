@@ -149,13 +149,11 @@ namespace xgca.core.CompanyService
 
             int userId = 1;
             int companyServiceId = await _companyService.GetIdByGuid(Guid.Parse(obj.CompanyServiceId));
-            //int serviceId = await _service.GetIdByGuid(Guid.Parse(obj.Serviceid));
             int companyId = await _company.GetIdByGuid(Guid.Parse(obj.CompanyId));
 
             var companyService = new entity.Models.CompanyService
             {
                 CompanyServiceId = companyServiceId,
-                //ServiceId = serviceId,
                 CompanyId = companyId,
                 Status = obj.Status,
                 CreatedBy = userId,
@@ -174,13 +172,18 @@ namespace xgca.core.CompanyService
             List<entity.Models.CompanyService> updateServices = new List<entity.Models.CompanyService>();
             foreach (dynamic service in services)
             {
-                //int serviceId = await _service.GetIdByGuid(Guid.Parse(service.ServiceId));
-                if (service.CompanyServiceId == 0)
+                var serviceObj = (JObject)service;
+                string serviceKey = (serviceObj)["serviceId"].ToString();
+                var serviceResponse = await _httpHelpers.GetIdByGuid(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, serviceKey);
+                var serviceJson = (JObject)serviceResponse;
+                string companyServiceKey = (serviceObj)["companyServiceId"].ToString();
+                if (companyServiceKey == "NEW")
                 {
                     createServices.Add(new entity.Models.CompanyService
                     {
                         CompanyId = companyId,
-                        //ServiceId = serviceId,
+                        ServiceId = Convert.ToInt32((serviceJson)["data"]["serviceId"]),
+                        Guid = Guid.NewGuid(),
                         Status = 1,
                         CreatedBy = userId,
                         CreatedOn = DateTime.Now,
@@ -190,11 +193,13 @@ namespace xgca.core.CompanyService
                 }
                 else
                 {
+                    int companyServiceId = await _companyService.GetIdByGuid(Guid.Parse(companyServiceKey));
                     updateServices.Add(new entity.Models.CompanyService
                     {
+                        CompanyServiceId = companyServiceId,
                         CompanyId = companyId,
-                        //ServiceId = serviceId,
-                        Status = 1,
+                        ServiceId = Convert.ToInt32((serviceJson)["data"]["serviceId"]),
+                        Status = Convert.ToByte((serviceObj)["status"]),
                         ModifiedBy = userId,
                         ModifiedOn = DateTime.Now,
                     });

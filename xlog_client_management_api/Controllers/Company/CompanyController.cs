@@ -87,6 +87,7 @@ namespace xlog_company_service_api.Controllers.Company
 
         [Route("company")]
         [HttpPut]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

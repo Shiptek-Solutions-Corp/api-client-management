@@ -27,7 +27,7 @@ namespace xgca.core.Helpers
                 {
                     CompanyServiceId = service.CompanyServiceId,
                     ServiceId = service.ServiceId,
-                    ServicenName = service.Services.ServicenName,
+                    //ServicenName = service.Services.ServicenName,
                     Status = service.Status
                 });
             }

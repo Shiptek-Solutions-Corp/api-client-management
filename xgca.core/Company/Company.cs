@@ -168,11 +168,11 @@ namespace xgca.core.Company
             if (obj == null)
             { return _general.Response(null, 400, "Data cannot be null", true); }
 
-            int userId = await _coreUser.GetIdByGuid(Guid.Parse(obj.ModifiedBy));
+            int userId = 0; // await _coreUser.GetIdByGuid(Guid.Parse(obj.ModifiedBy));
 
             int oldCompanyId = await _companyData.GetIdByGuid(Guid.Parse(obj.CompanyId));
             var oldCompany = await _companyData.Retrieve(oldCompanyId);
-            var oldValue = CompanyHelper.BuildCompanyValue(oldCompany);
+            //var oldValue = CompanyHelper.BuildCompanyValue(oldCompany);
 
             
             int addressId = await _coreAddress.UpdateAndReturnId(obj);
@@ -201,10 +201,10 @@ namespace xgca.core.Company
             };
 
             var companyResult = await _companyData.Update(company);
-            var newValue = CompanyHelper.BuildCompanyValue(company);
-            await _coreCompanyService.UpdateBatch(obj.Services, companyId, userId);
-            var auditLog = AuditLogHelper.BuildUpdateLog(oldValue, newValue, "Update", company.GetType().Name, company.CompanyId);
-            await _auditLog.Create(auditLog);
+            //var newValue = CompanyHelper.BuildCompanyValue(company);
+            await _coreCompanyService.UpdateBatch(obj.CompanyServices, companyId, userId);
+            //var auditLog = AuditLogHelper.BuildUpdateLog(oldValue, newValue, "Update", company.GetType().Name, company.CompanyId);
+            //await _auditLog.Create(auditLog);
             return companyResult
                 ? _general.Response(true, 200, "Company updated", true)
                 : _general.Response(false, 400, "Error on updating company", true);
