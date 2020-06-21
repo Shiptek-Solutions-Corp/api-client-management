@@ -43,5 +43,63 @@ namespace xgca.core.Helpers
             };
             return obj;
         }
+
+        public static dynamic ReturnUpdatedValue(dynamic companyObj, dynamic companyServicesObj)
+        {
+            string fullAddress = AddressHelper.GenerateFullAddress(companyObj);
+            var company = new
+            {
+                companyObj.CompanyId,
+                companyObj.CompanyName,
+                companyObj.ImageURL,
+                companyObj.AddressId,
+                companyObj.AddressLine,
+                City = new
+                {
+                    companyObj.CityId,
+                    companyObj.CityName,
+                },
+                State = new
+                {
+                    companyObj.StateId,
+                    companyObj.StateName,
+                },
+                Country = new
+                {
+                    companyObj.CountryId,
+                    companyObj.CountryName,
+                },
+                companyObj.ZipCode,
+                FullAddress = fullAddress,
+                companyObj.Longitude,
+                companyObj.Latitude,
+                companyObj.WebsiteURL,
+                companyObj.EmailAddress,
+                companyObj.ContactDetailId,
+                Phone = new
+                {
+                    companyObj.PhonePrefixId,
+                    companyObj.PhonePrefix,
+                    companyObj.Phone,
+                },
+                Mobile = new
+                {
+                    companyObj.MobilePrefixId,
+                    companyObj.MobilePrefix,
+                    companyObj.Mobile,
+                },
+                Fax = new
+                {
+                    companyObj.FaxPrefixId,
+                    companyObj.FaxPrefix,
+                    companyObj.Fax,
+                },
+                companyObj.TaxExemption,
+                companyObj.TaxExemptionStatus,
+                CompanyServices = companyServicesObj
+            };
+
+            return company;
+        }
     }
 }
