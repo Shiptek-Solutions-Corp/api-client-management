@@ -39,10 +39,13 @@ namespace xgca.core.Helpers
 
         public static xgca.entity.Models.ContactDetail BuildExistingContactDetail(dynamic obj, int contactDetailId)
         {
+
+
+
             string json = JsonConvert.SerializeObject(obj);
-            var fax = json.Contains("fax") ? obj.Fax : null;
-            var faxPrefixId = json.Contains("faxPrefixId") ? obj.FaxPrefixId : 0;
-            var faxPrefix = json.Contains("faxPrefix") ? obj.FaxPrefix : null;
+            var fax = json.Contains("Fax") ? obj.Fax : null;
+            var faxPrefixId = json.Contains("FaxPrefixId") ? obj.FaxPrefixId : 0;
+            var faxPrefix = json.Contains("FaxPrefix") ? obj.FaxPrefix : null;
             int modifiedBy = json.Contains("modifiedBy") ? obj.UserId : 0;
             var contactDetail = new xgca.entity.Models.ContactDetail
             {
