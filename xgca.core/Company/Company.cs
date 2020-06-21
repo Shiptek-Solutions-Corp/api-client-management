@@ -205,9 +205,15 @@ namespace xgca.core.Company
             await _coreCompanyService.UpdateBatch(obj.CompanyServices, companyId, userId);
             //var auditLog = AuditLogHelper.BuildUpdateLog(oldValue, newValue, "Update", company.GetType().Name, company.CompanyId);
             //await _auditLog.Create(auditLog);
+
+            // Return updated company detail
+            var companyServicesResponse = await _coreCompanyService.ListByCompanyId(obj.CompanyId);
+            var companyServices = companyServicesResponse.data.companyService;
+            var updatedCompany = CompanyHelper.ReturnUpdatedValue(obj, companyServices);
+
             return companyResult
-                ? _general.Response(true, 200, "Company updated", true)
-                : _general.Response(false, 400, "Error on updating company", true);
+                ? _general.Response(new { company = updatedCompany }, 200, "Company updated", true)
+                : _general.Response(null, 400, "Error on updating company", true);
         }
         public async Task<IGeneralModel> Retrieve(int companyId)
         {
@@ -228,7 +234,6 @@ namespace xgca.core.Company
             var data = new
             {
                 CompanyId = result.Guid,
-                result.ClientId,
                 result.CompanyName,
                 result.ImageURL,
                 AddressId = result.Addresses.Guid,
