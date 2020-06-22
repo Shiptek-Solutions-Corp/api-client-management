@@ -45,7 +45,7 @@ namespace xgca.core.User
         public async Task<IGeneralModel> List()
         {
             var user = await _userData.List();
-            var data = new { user = user.Select(u => new { UserId = u.Guid, u.FirstName, u.LastName.Length, u.MiddleName, u.ImageURL, u.EmailAddress, u.Status }) };
+            var data = new { user = user.Select(u => new { UserId = u.Guid, FullName = u.FirstName + " " + u.MiddleName + " " + u.LastName, u.FirstName, u.LastName.Length, u.MiddleName, u.ImageURL, u.EmailAddress, u.Status, u.IsLocked, Role = "Admin", Service = "Shipping Line" }), TotalCount = user.Count() };
             return _general.Response(data, 200, "Configurable companies has been listed", true);
         }
 
@@ -63,12 +63,10 @@ namespace xgca.core.User
                 queryString += $"{v.Key} = '{v.Value}' and ";
             }
             //End
-            
-
 
             var user = await _userData.List(queryString, isActive, isLock);
 
-            var data = new { user = user.Select(u => new { UserId = u.Guid, u.FirstName, u.LastName.Length, u.MiddleName, u.ImageURL, u.EmailAddress, u.Status }) };
+            var data = new { user = user.Select(u => new { UserId = u.Guid, FullName = u.FirstName + " " + u.MiddleName + " " + u.LastName, u.ImageURL, u.EmailAddress, u.Status, u.IsLocked, Role = "Admin", Service = "Shipping Line" }), TotalCount = user.Count() };
 
             return _general.Response(data, 200, "Configurable companies has been listed", true);
         }
