@@ -48,13 +48,12 @@ namespace xgca.core.ContactDetail
         {
             throw new NotImplementedException();
         }
-        public async Task<int> CreateAndReturnId(dynamic obj)
+        public async Task<int> CreateAndReturnId(dynamic obj, int creatdById)
         {
             string json = JsonConvert.SerializeObject(obj);
             var fax = json.Contains("Fax") ? obj.Fax : null;
             var faxPrefixId = json.Contains("FaxPrefixId") ? obj.FaxPrefixId : 0;
             var faxPrefix = json.Contains("FaxPrefix") ? obj.FaxPrefix : null;
-            int createdBy = json.Contains("CreatedBy") ? (json.Contains("MasterUser") || obj.CreatedBy is null ? 0 : obj.CreatedBy) : 0;
 
             var contactDetail = new xgca.entity.Models.ContactDetail
             {
@@ -67,19 +66,19 @@ namespace xgca.core.ContactDetail
                 FaxPrefixId = faxPrefixId,
                 FaxPrefix = faxPrefix,
                 Fax = fax,
-                CreatedBy = createdBy,
+                CreatedBy = creatdById,
                 CreatedOn = DateTime.Now,
-                ModifiedBy = createdBy,
+                ModifiedBy = creatdById,
                 ModifiedOn = DateTime.Now,
                 Guid = Guid.NewGuid(),
             };
             int contactDetailId = await _contactDetail.CreateAndReturnId(contactDetail);
             return contactDetailId;
         }
-        public async Task<int> UpdateAndReturnId(dynamic obj)
+        public async Task<int> UpdateAndReturnId(dynamic obj, int modifiedById)
         {
             int contactDetailId = await _contactDetail.GetIdByGuid(Guid.Parse(obj.ContactDetailId));
-            var contactDetail = ContactDetailHelper.BuildExistingContactDetail(obj, contactDetailId);
+            var contactDetail = ContactDetailHelper.BuildExistingContactDetail(obj, contactDetailId, modifiedById);
             await _contactDetail.Update(contactDetail);
             return contactDetailId;
         }

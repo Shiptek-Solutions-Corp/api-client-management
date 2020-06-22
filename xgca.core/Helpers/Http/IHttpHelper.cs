@@ -9,6 +9,9 @@ namespace xgca.core.Helpers.Http
     {
         public Task<dynamic> Post(string environment, string endpointUrl, dynamic data);
 
+        public Task<dynamic> CustomGet(string environment, string endpointUrl, string token);
+        public Task<dynamic> CustomGet(string environment, string endpointUrl);
+
         public Task<dynamic> Get(string environment, string endpointUrl, string key);
         public Task<dynamic> Get(string environment, string endpointUrl, string key, string token);
         public Task<dynamic> Get(string environment, string endpointUrl);

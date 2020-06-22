@@ -9,10 +9,11 @@ namespace xgca.core.Company
     public interface ICompany
     {
         Task<IGeneralModel> List();
-        Task<IGeneralModel> Create(CreateCompanyModel obj);
+        Task<IGeneralModel> Create(CreateCompanyModel obj, string createdBy);
         Task<IGeneralModel> CreateAndReturnId(CreateCompanyModel obj);
         Task<IGeneralModel> InitialRegistration(InitialRegistrationModel obj);
         Task<IGeneralModel> Update(UpdateCompanyModel obj);
+        Task<IGeneralModel> Update(UpdateCompanyModel obj, string modifiedBy);
         Task<IGeneralModel> Retrieve(int companyId);
         Task<IGeneralModel> Delete(string key);
         Task<IGeneralModel> GetIdByGuid(string key);

@@ -24,6 +24,7 @@ using xgca.data.CompanyServiceRole;
 using xgca.data.CompanyServiceUser;
 using xgca.data.CompanyUser;
 using xgca.core.Response;
+using xgca.core.AuditLog;
 using xgca.core.User;
 using xgca.core.Helpers.Http;
 using xgca.core.Helpers.Token;
@@ -83,7 +84,7 @@ namespace xlog_client_management_api
             services.AddScoped<IUserData, UserData>();
             services.AddScoped<IAddressData, AddressData>();
             services.AddScoped<IAddressType, AddressType>();
-            services.AddScoped<IAuditLog, AuditLog>();
+            services.AddScoped<IAuditLogData, AuditLogData>();
             services.AddScoped<ICompanyData, CompanyData>();
             services.AddScoped<ICompanyService, CompanyService>();
             services.AddScoped<ICompanyServiceRole, CompanyServiceRole>();
@@ -98,6 +99,7 @@ namespace xlog_client_management_api
             services.AddScoped<xgca.core.Address.IAddress, xgca.core.Address.Address>();
             services.AddScoped<xgca.core.AddressType.IAddressType, xgca.core.AddressType.AddressType>();
             services.AddScoped<ICompany, Company>();
+            services.AddScoped<IAuditLog, AuditLog>();
             services.AddScoped<IProfile, Profile>();
             services.AddScoped<IHttpHelper, HttpHelper>();
             services.AddScoped<ITokenHelper, TokenHelper>();

@@ -15,6 +15,28 @@ namespace xgca.core.Helpers.Http
         private static HttpClient _httpClient = new HttpClient();
         public HttpHelper()
         {
+
+        }
+
+        public async Task<dynamic> CustomGet(string environment, string endpointUrl, string token)
+        {
+            string apiUrl = environment + endpointUrl;
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(token);
+            var response = await _httpClient.GetAsync(apiUrl);
+            var result = await response.Content.ReadAsStringAsync();
+            var responseData = JsonConvert.DeserializeObject(result);
+
+            return responseData;
+        }
+
+        public async Task<dynamic> CustomGet(string environment, string endpointUrl)
+        {
+            string apiUrl = environment + endpointUrl;
+            var response = await _httpClient.GetAsync(apiUrl);
+            var result = await response.Content.ReadAsStringAsync();
+            var responseData = JsonConvert.DeserializeObject(result);
+
+            return responseData;
         }
 
         public async Task<dynamic> Get(string environment, string endpointUrl, string key)

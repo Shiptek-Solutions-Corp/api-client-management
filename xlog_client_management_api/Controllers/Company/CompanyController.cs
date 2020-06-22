@@ -93,7 +93,8 @@ namespace xlog_company_service_api.Controllers.Company
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> UpdateCompany([FromBody]xgca.core.Models.Company.UpdateCompanyModel request)
         {
-            var response = await _company.Update(request);
+            var username = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
+            var response = await _company.Update(request, username);
 
             if (response.statusCode == 400)
             {
@@ -128,8 +129,8 @@ namespace xlog_company_service_api.Controllers.Company
             return Ok(response);
         }
 
-        [Route("company/users")]
-        [HttpDelete]
+        [Route("company/{companyId}/users")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
