@@ -27,7 +27,7 @@ namespace xgca.core.Company
         private readonly xgca.core.Address.IAddress _coreAddress;
         private readonly xgca.core.ContactDetail.IContactDetail _coreContactDetail;
         private readonly xgca.core.User.IUser _coreUser;
-        private readonly xgca.data.AuditLog.IAuditLog _auditLog;        
+        private readonly xgca.data.AuditLog.IAuditLogData _auditLog;        
         private readonly xgca.core.CompanyService.ICompanyService _coreCompanyService;
         private readonly xgca.core.CompanyServiceRole.ICompanyServiceRole _coreCompanyServiceRole;
         private readonly xgca.core.CompanyServiceUser.ICompanyServiceUser _coreCompanyServiceUser;
@@ -42,7 +42,7 @@ namespace xgca.core.Company
             xgca.core.Address.IAddress coreAddress,
             xgca.core.ContactDetail.IContactDetail coreContactDetail,
             xgca.core.User.IUser coreUser,
-            xgca.data.AuditLog.IAuditLog auditLog,
+            xgca.data.AuditLog.IAuditLogData auditLog,
             xgca.core.CompanyService.ICompanyService coreCompanyService,
             xgca.core.CompanyServiceRole.ICompanyServiceRole coreCompanyServiceRole,
             xgca.core.CompanyServiceUser.ICompanyServiceUser coreCompanyServiceUser,
@@ -74,18 +74,18 @@ namespace xgca.core.Company
             return _general.Response(new { companty = data }, 200, "Configurable companies has been listed", true);
         }
 
-        public async Task<IGeneralModel> Create(CreateCompanyModel obj)
+        public async Task<IGeneralModel> Create(CreateCompanyModel obj, string createdBy)
         {
             if (obj == null)
             { return _general.Response(null, 400, "Data cannot be null", true); }
 
-            int userId = await _coreUser.GetIdByGuid(Guid.Parse(obj.CreatedBy));
+            int createdById = await _coreUser.GetIdByUsername(createdBy);
 
-            int addressId = await _coreAddress.CreateAndReturnId(obj);
+            int addressId = await _coreAddress.CreateAndReturnId(obj, createdById);
             if (addressId <= 0)
             { return _general.Response(false, 400, "Error on creating company", true); }
 
-            int contactDetailId = await _coreContactDetail.CreateAndReturnId(obj);
+            int contactDetailId = await _coreContactDetail.CreateAndReturnId(obj, createdById);
             if (contactDetailId <= 0)
             { return _general.Response(false, 400, "Error on creating company", true); }
 
@@ -100,9 +100,9 @@ namespace xgca.core.Company
                 EmailAddress = obj.EmailAddress,
                 TaxExemption = obj.TaxExemption,
                 TaxExemptionStatus = obj.TaxExemptionStatus,
-                CreatedBy = userId,
+                CreatedBy = createdById,
                 CreatedOn = DateTime.Now,
-                ModifiedBy = userId,
+                ModifiedBy = createdById,
                 ModifiedOn = DateTime.Now,
                 Guid = Guid.NewGuid()
             };
@@ -110,8 +110,8 @@ namespace xgca.core.Company
             var companyId = await _companyData.CreateAndReturnId(company);
             if (companyId <= 0)
             { return _general.Response(null, 400, "Error on creating company", true); }
-            await _coreCompanyService.CreateBatch(obj.Services, companyId, userId);
-            var auditLog = AuditLogHelper.BuilCreateLog(obj, "Create", company.GetType().Name, companyId);
+            await _coreCompanyService.CreateBatch(obj.Services, companyId, createdById);
+            var auditLog = AuditLogHelper.BuildAuditLog(obj, "Create", company.GetType().Name, companyId, createdById);
             await _auditLog.Create(auditLog);
             return companyId > 0
                 ? _general.Response(new { companyId = companyId }, 200, "Company created", true)
@@ -122,11 +122,11 @@ namespace xgca.core.Company
             if (obj == null)
             { return _general.Response(null, 400, "Data cannot be null", true); }
 
-            int addressId = await _coreAddress.CreateAndReturnId(obj);
+            int addressId = await _coreAddress.CreateAndReturnId(obj, GlobalVariables.SystemUserId);
             if (addressId <= 0)
             { return _general.Response(false, 400, "Error on creating company", true); }
 
-            int contactDetailId = await _coreContactDetail.CreateAndReturnId(obj);
+            int contactDetailId = await _coreContactDetail.CreateAndReturnId(obj, GlobalVariables.SystemUserId);
             if (contactDetailId <= 0)
             { return _general.Response(false, 400, "Error on creating company", true); }
 
@@ -139,9 +139,9 @@ namespace xgca.core.Company
                 ImageURL = obj.ImageURL,
                 WebsiteURL = obj.WebsiteURL,
                 EmailAddress = obj.EmailAddress,
-                CreatedBy = 0,
+                CreatedBy = GlobalVariables.SystemUserId,
                 CreatedOn = DateTime.Now,
-                ModifiedBy = 0,
+                ModifiedBy = GlobalVariables.SystemUserId,
                 ModifiedOn = DateTime.Now,
                 Guid = Guid.NewGuid()
             };
@@ -149,37 +149,42 @@ namespace xgca.core.Company
             var companyId = await _companyData.CreateAndReturnId(company);
             if (companyId <= 0)
             { return _general.Response(null, 400, "Error on creating company", true); }
-            await _coreCompanyService.CreateBatch(obj.Services, companyId, 0);
-            await _coreCompanyServiceRole.CreateDefault(companyId, 0);
+
+            await _coreCompanyService.CreateBatch(obj.Services, companyId, GlobalVariables.SystemUserId);
+            await _coreCompanyServiceRole.CreateDefault(companyId, GlobalVariables.SystemUserId);
 
             var masterUserObj = obj.MasterUser;
-            dynamic masterUser = await _coreUser.CreateMasterUser(masterUserObj, 0);
-            int companyUserId = await _coreCompanyUser.CreateDefaultCompanyUser(companyId, masterUser.MasterUserId, 0);
-            await _coreCompanyServiceUser.CreateDefault(companyId, companyUserId, 0);
-            var auditLog = AuditLogHelper.BuilCreateLog(obj, "Create", company.GetType().Name, companyId);
+            dynamic masterUser = await _coreUser.CreateMasterUser(masterUserObj, GlobalVariables.SystemUserId);
+            int companyUserId = await _coreCompanyUser.CreateDefaultCompanyUser(companyId, masterUser.MasterUserId, GlobalVariables.SystemUserId);
+            await _coreCompanyServiceUser.CreateDefault(companyId, companyUserId, GlobalVariables.SystemUserId);
+
+            var newCompany = await _companyData.Retrieve(companyId);
+            var companyLog = CompanyHelper.BuildCompanyValue(newCompany);
+
+            var auditLog = AuditLogHelper.BuildAuditLog(companyLog, "Create", company.GetType().Name, companyId, GlobalVariables.SystemUserId);
             await _auditLog.Create(auditLog);
             return companyId > 0
                 ? _general.Response(new { CompanyId = companyId, MasterUserId = masterUser.MasterUserId }, 200, "Company registration successful", true)
                 : _general.Response(false, 400, "Error on registration", true);
         }
 
-        public async Task<IGeneralModel> Update(UpdateCompanyModel obj)
+        public async Task<IGeneralModel> Update(UpdateCompanyModel obj, string modifiedBy)
         {
             if (obj == null)
             { return _general.Response(null, 400, "Data cannot be null", true); }
 
-            int userId = 0; // await _coreUser.GetIdByGuid(Guid.Parse(obj.ModifiedBy));
+            int modifiedById = await _coreUser.GetIdByUsername(modifiedBy);
 
             int oldCompanyId = await _companyData.GetIdByGuid(Guid.Parse(obj.CompanyId));
             var oldCompany = await _companyData.Retrieve(oldCompanyId);
-            //var oldValue = CompanyHelper.BuildCompanyValue(oldCompany);
+            var oldValue = CompanyHelper.BuildCompanyValue(oldCompany);
 
             
-            int addressId = await _coreAddress.UpdateAndReturnId(obj);
+            int addressId = await _coreAddress.UpdateAndReturnId(obj, modifiedById);
             if (addressId <= 0)
             { return _general.Response(false, 400, "Error on updating company", true); }
            
-            int contactDetailId  = await _coreContactDetail.UpdateAndReturnId(obj);
+            int contactDetailId  = await _coreContactDetail.UpdateAndReturnId(obj, modifiedById);
             if (contactDetailId <= 0)
             { return _general.Response(false, 400, "Error on updating company", true); }
 
@@ -195,21 +200,24 @@ namespace xgca.core.Company
                 EmailAddress = obj.EmailAddress,
                 TaxExemption = obj.TaxExemption,
                 TaxExemptionStatus = obj.TaxExemptionStatus,
-                ModifiedBy = userId,
+                ModifiedBy = modifiedById,
                 ModifiedOn = DateTime.Now,
                 Guid = Guid.Parse(obj.CompanyId),
             };
 
             var companyResult = await _companyData.Update(company);
-            //var newValue = CompanyHelper.BuildCompanyValue(company);
-            await _coreCompanyService.UpdateBatch(obj.CompanyServices, companyId, userId);
-            //var auditLog = AuditLogHelper.BuildUpdateLog(oldValue, newValue, "Update", company.GetType().Name, company.CompanyId);
-            //await _auditLog.Create(auditLog);
+
+            await _coreCompanyService.UpdateBatch(obj.CompanyServices, companyId, modifiedById);
 
             // Return updated company detail
             var companyServicesResponse = await _coreCompanyService.ListByCompanyId(obj.CompanyId);
             var companyServices = companyServicesResponse.data.companyService;
             var updatedCompany = CompanyHelper.ReturnUpdatedValue(obj, companyServices);
+
+            var newCompany = await _companyData.Retrieve(companyId);
+            var newValue = CompanyHelper.BuildCompanyValue(updatedCompany);
+            var auditLog = AuditLogHelper.BuildAuditLog(oldValue, newValue, "Update", company.GetType().Name, company.CompanyId, modifiedById);
+            await _auditLog.Create(auditLog);
 
             return companyResult
                 ? _general.Response(new { company = updatedCompany }, 200, "Company updated", true)
@@ -313,6 +321,57 @@ namespace xgca.core.Company
         public Task<IGeneralModel> CreateAndReturnId(CreateCompanyModel obj)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<IGeneralModel> Update(UpdateCompanyModel obj)
+        {
+            if (obj == null)
+            { return _general.Response(null, 400, "Data cannot be null", true); }
+
+            int oldCompanyId = await _companyData.GetIdByGuid(Guid.Parse(obj.CompanyId));
+            var oldCompany = await _companyData.Retrieve(oldCompanyId);
+            var oldValue = CompanyHelper.BuildCompanyValue(oldCompany);
+
+
+            int addressId = await _coreAddress.UpdateAndReturnId(obj, GlobalVariables.SystemUserId);
+            if (addressId <= 0)
+            { return _general.Response(false, 400, "Error on updating company", true); }
+
+            int contactDetailId = await _coreContactDetail.UpdateAndReturnId(obj, GlobalVariables.SystemUserId);
+            if (contactDetailId <= 0)
+            { return _general.Response(false, 400, "Error on updating company", true); }
+
+            int companyId = await _companyData.GetIdByGuid(Guid.Parse(obj.CompanyId));
+            var company = new xgca.entity.Models.Company
+            {
+                CompanyId = companyId,
+                CompanyName = obj.CompanyName,
+                AddressId = addressId,
+                ContactDetailId = contactDetailId,
+                ImageURL = obj.ImageURL,
+                WebsiteURL = obj.WebsiteURL,
+                EmailAddress = obj.EmailAddress,
+                TaxExemption = obj.TaxExemption,
+                TaxExemptionStatus = obj.TaxExemptionStatus,
+                ModifiedBy = GlobalVariables.SystemUserId,
+                ModifiedOn = DateTime.Now,
+                Guid = Guid.Parse(obj.CompanyId),
+            };
+
+            var companyResult = await _companyData.Update(company);
+            var newValue = CompanyHelper.BuildCompanyValue(company);
+            await _coreCompanyService.UpdateBatch(obj.CompanyServices, companyId, GlobalVariables.SystemUserId);
+            var auditLog = AuditLogHelper.BuildAuditLog(oldValue, newValue, "Update", company.GetType().Name, company.CompanyId, GlobalVariables.SystemUserId);
+            await _auditLog.Create(auditLog);
+
+            // Return updated company detail
+            var companyServicesResponse = await _coreCompanyService.ListByCompanyId(obj.CompanyId);
+            var companyServices = companyServicesResponse.data.companyService;
+            var updatedCompany = CompanyHelper.ReturnUpdatedValue(obj, companyServices);
+
+            return companyResult
+                ? _general.Response(new { company = updatedCompany }, 200, "Company updated", true)
+                : _general.Response(null, 400, "Error on updating company", true);
         }
     }
 }

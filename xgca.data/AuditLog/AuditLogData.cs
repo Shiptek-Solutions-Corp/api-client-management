@@ -8,10 +8,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace xgca.data.AuditLog
 {
-    public class AuditLog : IMaintainable<entity.Models.AuditLog>, IAuditLog
+    public class AuditLogData : IMaintainable<entity.Models.AuditLog>, IAuditLogData
     {
         private readonly IXGCAContext _context;
-        public AuditLog(IXGCAContext context)
+        public AuditLogData(IXGCAContext context)
         {
             _context = context;
         }
@@ -21,6 +21,14 @@ namespace xgca.data.AuditLog
             await _context.AuditLogs.AddAsync(obj);
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
+        }
+
+        public async Task<int> GetIdByGuid(Guid key)
+        {
+            var auditLogs = await _context.AuditLogs
+                .Where(al => al.Guid == key)
+                .FirstOrDefaultAsync();
+            return auditLogs.AuditLogId;
         }
 
         public async Task<List<entity.Models.AuditLog>> List()

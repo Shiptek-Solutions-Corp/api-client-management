@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using xgca.entity;
 
 namespace xgca.entity.Migrations
 {
     [DbContext(typeof(XGCAContext))]
-    partial class XGCAContextModelSnapshot : ModelSnapshot
+    [Migration("20200621154051_removed_column_ModifiedBy_ModifiedOn")]
+    partial class removed_column_ModifiedBy_ModifiedOn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

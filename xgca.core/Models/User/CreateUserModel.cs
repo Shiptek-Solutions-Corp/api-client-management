@@ -3,7 +3,6 @@
     public class CreateUserModel
     {
         public string CompanyId { get; set; }
-        public string UserTypeId { get; set; }
         public string LastName { get; set; }
         public string FirstName { get; set; }
         public string MiddleName { get; set; }

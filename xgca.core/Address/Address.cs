@@ -44,7 +44,7 @@ namespace xgca.core.Address
         {
             throw new NotImplementedException();
         }
-        public async Task<int> CreateAndReturnId(dynamic obj)
+        public async Task<int> CreateAndReturnId(dynamic obj, int createdById)
         {
             int addressTypeId = await _coreAddressType.RetrieveIdByName("Company");
             var cityResponse = await _httpHelpers.GetIdByGuid(_options.Value.BaseUrl, ApiEndpoints.cmsGetCity, obj.CityId.ToString(), AuthToken.Contra);
@@ -53,7 +53,6 @@ namespace xgca.core.Address
             var stateJson = (JObject)stateResponse;
             string fullAddress = AddressHelper.GenerateFullAddress(obj);
             string json = JsonConvert.SerializeObject(obj);
-            int createdBy = json.Contains("CreatedBy") ? (json.Contains("MasterUser") || obj.CreatedBy is null ? 0 : obj.CreatedBy) : 0;
 
             var address = new entity.Models.Address
             {
@@ -69,16 +68,16 @@ namespace xgca.core.Address
                 FullAddress = fullAddress,
                 Longitude = obj.Longitude,
                 Latitude = obj.Latitude,
-                CreatedBy = createdBy,
+                CreatedBy = createdById,
                 CreatedOn = DateTime.Now,
-                ModifiedBy = createdBy,
+                ModifiedBy = createdById,
                 ModifiedOn = DateTime.Now,
                 Guid = Guid.NewGuid()
             };
             int addressId = await _addressData.CreateAndReturnId(address);
             return addressId;
         }
-        public async Task<int> UpdateAndReturnId(dynamic obj)
+        public async Task<int> UpdateAndReturnId(dynamic obj, int modifiedById)
         {
             var addressTypeId = await _coreAddressType.RetrieveIdByName("Company");
             int addressId = await _addressData.GetIdByGuid(Guid.Parse(obj.AddressId));
@@ -88,7 +87,6 @@ namespace xgca.core.Address
             var stateJson = (JObject)stateResponse;
             string fullAddress = AddressHelper.GenerateFullAddress(obj);
             string json = JsonConvert.SerializeObject(obj);
-            int modifiedBy = json.Contains("userId") ? obj.UserId : 0;
 
             var address = new entity.Models.Address
             {
@@ -105,7 +103,7 @@ namespace xgca.core.Address
                 FullAddress = fullAddress,
                 Longitude = obj.Longitude,
                 Latitude = obj.Latitude,
-                ModifiedBy = modifiedBy,
+                ModifiedBy = modifiedById,
                 ModifiedOn = DateTime.Now,
                 Guid = Guid.Parse(obj.AddressId)
             };
