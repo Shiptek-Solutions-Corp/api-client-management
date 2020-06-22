@@ -13,7 +13,7 @@ namespace xgca.core.User
         Task<IGeneralModel> Create(CreateUserModel obj, string companyId);
         Task<int> CreateAndReturnId(CreateUserModel obj);
         Task<dynamic> CreateMasterUser(CreateUserModel obj, int createdBy);
-        Task<IGeneralModel> Update(UpdateUserModel obj);
+        Task<IGeneralModel> Update(UpdateUserModel obj, string modifiedBy);
         Task<IGeneralModel> SetUsername(SetUsernameModel obj);
         Task<IGeneralModel> Retrieve(string key);
         Task<IGeneralModel> RetrieveByUsername(string username);

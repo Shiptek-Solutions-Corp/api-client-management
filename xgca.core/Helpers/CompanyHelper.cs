@@ -20,22 +20,20 @@ namespace xgca.core.Helpers
 
             var obj = new
             {
-                ReferenceId = company.ReferenceId,
                 CompanyId = company.CompanyId,
                 CompanyName = company.CompanyName,
-                Address1 = company.Addresses.Address1,
-                Address2 = company.Addresses.Address2,
-                TownCity = company.Addresses.TownCity,
-                StateProvince = company.Addresses.StateProvince,
+                AddressLine = company.Addresses.AddressLine,
+                CityName = company.Addresses.CityName,
+                StateName = company.Addresses.StateName,
                 ZipCode = company.Addresses.ZipCode,
                 CountryId = company.Addresses.CountryId,
                 CountryName = company.Addresses.CountryName,
                 ImageURL = company.ImageURL,
                 WebsiteURL = company.WebsiteURL,
                 EmailAddress = company.EmailAddress,
-                Landline = company.ContactDetails.Landline,
-                Mobile = company.ContactDetails.Mobile,
-                Fax = company.ContactDetails.Fax,
+                Phone = String.Concat(company.ContactDetails.PhonePrefix, company.ContactDetails.Phone),
+                Mobile = String.Concat(company.ContactDetails.MobilePrefix, company.ContactDetails.Mobile),
+                Fax = String.Concat(company.ContactDetails.FaxPrefix, company.ContactDetails.Fax),
                 TaxExemption = company.TaxExemption,
                 TaxExemptionStatus = company.TaxExemptionStatus,
                 Guid = company.Guid,
@@ -44,6 +42,64 @@ namespace xgca.core.Helpers
                 CompanyServices = services
             };
             return obj;
+        }
+
+        public static dynamic ReturnUpdatedValue(dynamic companyObj, dynamic companyServicesObj)
+        {
+            string fullAddress = AddressHelper.GenerateFullAddress(companyObj);
+            var company = new
+            {
+                companyObj.CompanyId,
+                companyObj.CompanyName,
+                companyObj.ImageURL,
+                companyObj.AddressId,
+                companyObj.AddressLine,
+                City = new
+                {
+                    companyObj.CityId,
+                    companyObj.CityName,
+                },
+                State = new
+                {
+                    companyObj.StateId,
+                    companyObj.StateName,
+                },
+                Country = new
+                {
+                    companyObj.CountryId,
+                    companyObj.CountryName,
+                },
+                companyObj.ZipCode,
+                FullAddress = fullAddress,
+                companyObj.Longitude,
+                companyObj.Latitude,
+                companyObj.WebsiteURL,
+                companyObj.EmailAddress,
+                companyObj.ContactDetailId,
+                Phone = new
+                {
+                    companyObj.PhonePrefixId,
+                    companyObj.PhonePrefix,
+                    companyObj.Phone,
+                },
+                Mobile = new
+                {
+                    companyObj.MobilePrefixId,
+                    companyObj.MobilePrefix,
+                    companyObj.Mobile,
+                },
+                Fax = new
+                {
+                    companyObj.FaxPrefixId,
+                    companyObj.FaxPrefix,
+                    companyObj.Fax,
+                },
+                companyObj.TaxExemption,
+                companyObj.TaxExemptionStatus,
+                CompanyServices = companyServicesObj
+            };
+
+            return company;
         }
     }
 }

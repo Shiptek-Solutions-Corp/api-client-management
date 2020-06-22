@@ -12,6 +12,7 @@ namespace xgca.data.CompanyUser
         Task<List<entity.Models.CompanyUser>> ListByCompanyId(int companyId);
         Task<entity.Models.CompanyUser> Retrieve(int key);
         Task<int> GetIdByGuid(Guid guid);
+        Task<int> GetIdByUserId(int userId);
         Task<int> GetCompanyIdByUserId(int key);
         Task<bool> Update(entity.Models.CompanyUser obj);
         Task<bool> ChangeStatus(entity.Models.CompanyUser obj);

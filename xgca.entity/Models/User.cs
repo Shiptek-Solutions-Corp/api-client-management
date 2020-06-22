@@ -45,5 +45,6 @@ namespace xgca.entity.Models
         [System.ComponentModel.DefaultValue(0)]
         public byte IsLocked { get; set; }
         public virtual ContactDetail ContactDetails { get; set; }
+        public virtual CompanyUser CompanyUsers { get; set; }
     }
 }

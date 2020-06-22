@@ -137,12 +137,14 @@ namespace xlog_client_management_api.Controllers.User
 
         [Route("user")]
         [HttpPut]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> UpdateUser([FromBody]xgca.core.Models.User.UpdateUserModel request)
         {
-            var response = await _user.Update(request);
+            var modifiedBy = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
+            var response = await _user.Update(request, modifiedBy);
 
             if (response.statusCode == 400)
             {

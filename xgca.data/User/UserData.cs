@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using xgca.entity;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using xgca.entity.Migrations;
 
 namespace xgca.data.User
 {
@@ -54,6 +55,7 @@ namespace xgca.data.User
         {
             var data = await _context.Users
                 .Include(cn => cn.ContactDetails)
+                .Include(cu => cu.CompanyUsers)
                 .Where(u => u.Username == username).FirstOrDefaultAsync();
             return data;
         }
@@ -121,6 +123,20 @@ namespace xgca.data.User
                 .Where(u => u.Username == username)
                 .FirstOrDefaultAsync();
             return data.UserId;
+        }
+
+        public bool UsernameExists(string username)
+        {
+            return _context.Users.Any(u => u.Username == username);
+        }
+
+        public async Task<bool> EmailAddressExists(string emailAddress, int userId)
+        {
+            var user = await _context.Users
+                .Where(u => u.EmailAddress == emailAddress && u.UserId != userId)
+                .FirstOrDefaultAsync();
+
+            return !(user is null) ? true : false;
         }
     }
 }

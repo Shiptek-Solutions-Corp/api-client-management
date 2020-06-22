@@ -9,12 +9,13 @@ namespace xgca.core.Models.Company
         public string CompanyName { get; set; }
         public string AddressId { get; set; }
         public string AddressLine { get; set; }
+        public string CityId { get; set; }
         public string CityName { get; set; }
+        public string StateId { get; set; }
         public string StateName { get; set; }
         public string ZipCode { get; set; }
         public int CountryId { get; set; }
         public string CountryName { get; set; }
-        public string FullAddress { get; set; }
         public string Longitude { get; set; }
         public string Latitude { get; set; }
         public string ImageURL { get; set; }
@@ -32,7 +33,7 @@ namespace xgca.core.Models.Company
         public string EmailAddress { get; set; }
         public byte TaxExemption { get; set; }
         public byte TaxExemptionStatus { get; set; }
-        public List<string> Services { get; set; }
+        public List<dynamic> CompanyServices { get; set; }
 
         public string ModifiedBy { get; set; }
     }

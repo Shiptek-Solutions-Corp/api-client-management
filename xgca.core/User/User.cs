@@ -15,6 +15,7 @@ using xgca.data.ContactDetail;
 using xgca.data.AuditLog;
 using xgca.core.Helpers;
 using xgca.core.Helpers.Token;
+using xgca.core.Validators.User;
 
 namespace xgca.core.User
 {
@@ -183,24 +184,45 @@ namespace xgca.core.User
             return newUserId;
         }
 
-        public async Task<IGeneralModel> Update(UpdateUserModel obj)
+        public async Task<IGeneralModel> Update(UpdateUserModel obj, string modifiedBy)
         {
             if (obj == null)
-            { return _general.Response(null, 400, "Data cannot be null", true); }
+            { return _general.Response(null, 400, "Data cannot be null", false); }
 
             int userId = await _userData.GetIdByGuid(Guid.Parse(obj.UserId));
-            var oldUser = await _userData.Retrieve(userId);
-            var oldValue = UserHelper.BuildUserValue(oldUser);
+
+            var validator = new UpdateUserValidator(_userData);
+            var validationResult = validator.Validate(obj);
+
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors.Select(error => new ErrorField(error.PropertyName, error.ErrorMessage)).ToList();
+                return _general.Response(null, errors, 400, "Error on updating user", false);
+            }
+
+            bool emailAddressIsExists = await _userData.EmailAddressExists(obj.EmailAddress, userId);
+            if (emailAddressIsExists)
+            {
+                var errors = new List<ErrorField>();
+                errors.Add(new ErrorField("EmailAddress", "Email address already exists."));
+                return _general.Response(null, errors, 400, "Error updating user", false);
+            }
+
+            //int userId = await _userData.GetIdByGuid(Guid.Parse(obj.UserId));
+            //var oldUser = await _userData.Retrieve(userId);
+            //var oldValue = UserHelper.BuildUserValue(oldUser);
 
             int contactDetailId = await _coreContactDetail.UpdateAndReturnId(obj);
             if (contactDetailId <= 0)
             {
-                return _general.Response(false, 400, "Error on updating company", true);
+                return _general.Response(false, 400, "Error on updating company", false);
             }
+
+            int modifiedById = await _userData.GetIdByUsername(modifiedBy);
 
             var user = new xgca.entity.Models.User
             {
-                UserId = Convert.ToInt32(obj.UserId),
+                UserId = userId,
                 FirstName = obj.FirstName,
                 LastName = obj.LastName,
                 MiddleName = obj.MiddleName,
@@ -208,17 +230,17 @@ namespace xgca.core.User
                 ContactDetailId = contactDetailId,
                 ImageURL = obj.ImageURL,
                 EmailAddress = obj.EmailAddress,
-                ModifiedBy = Convert.ToInt32(obj.ModifiedBy),
+                ModifiedBy = modifiedById,
                 ModifiedOn = DateTime.Now
             };
 
             var userResult = await _userData.Update(user);
-            var newValue = UserHelper.BuildUserValue(user);
-            var auditLog = AuditLogHelper.BuildUpdateLog(oldValue, newValue, "Update", user.GetType().Name, user.UserId);
-            await _auditLog.Create(auditLog);
+            //var newValue = UserHelper.BuildUserValue(user);
+            //var auditLog = AuditLogHelper.BuildUpdateLog(oldValue, newValue, "Update", user.GetType().Name, user.UserId);
+            //await _auditLog.Create(auditLog);
             return userResult
-                ? _general.Response(true, 200, "User updated", true)
-                : _general.Response(false, 400, "Error on updating user", true);
+                ? _general.Response(null, 200, "User updated", true)
+                : _general.Response(null, 400, "Error on updating user", false);
         }
         public async Task<IGeneralModel> Retrieve(string key)
         {
@@ -232,6 +254,7 @@ namespace xgca.core.User
             var result = new
             {
                 UserId = data.Guid,
+                data.Username,
                 data.FirstName,
                 data.LastName,
                 data.MiddleName,
@@ -267,6 +290,7 @@ namespace xgca.core.User
             var result = new
             {
                 UserId = data.Guid,
+                data.Username,
                 data.FirstName,
                 data.LastName,
                 data.MiddleName,

@@ -25,6 +25,8 @@ namespace xgca.core.Profile
         private readonly ICompanyData _companyData;
         private readonly xgca.data.CompanyUser.ICompanyUser _companyUserData;
         private readonly xgca.data.CompanyService.ICompanyService _companyServiceData;
+        private readonly xgca.data.CompanyServiceRole.ICompanyServiceRole _companyServiceRoleData;
+        private readonly xgca.data.CompanyServiceUser.ICompanyServiceUser _companyServiceUserData;
 
         private readonly IHttpHelper _httpHelper;
         private readonly ITokenHelper _tokenHelper;
@@ -35,6 +37,8 @@ namespace xgca.core.Profile
             ICompanyData companyData,
             xgca.data.CompanyUser.ICompanyUser companyUserData,
             xgca.data.CompanyService.ICompanyService companyServiceData,
+            xgca.data.CompanyServiceRole.ICompanyServiceRole companyServiceRoleData,
+            xgca.data.CompanyServiceUser.ICompanyServiceUser companyServiceUserData,
             IHttpHelper httpHelper,
             ITokenHelper tokenHelper,
             IOptions<GlobalCmsApi> options,
@@ -44,6 +48,8 @@ namespace xgca.core.Profile
             _companyData = companyData;
             _companyUserData = companyUserData;
             _companyServiceData = companyServiceData;
+            _companyServiceRoleData = companyServiceRoleData;
+            _companyServiceUserData = companyServiceUserData;
             _httpHelper = httpHelper;
             _tokenHelper = tokenHelper;
             _options = options;
@@ -65,6 +71,9 @@ namespace xgca.core.Profile
             var service = await _httpHelper.Get(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, serviceKey);
             var serviceJson = (JObject)service;
 
+            int companyUserId = user.CompanyUsers.CompanyUserId;
+            var companyServiceUser = await _companyServiceUserData.Retrieve(companyUserId, companyServiceId);
+
             dynamic data = new
             {
                 Company = new
@@ -81,6 +90,7 @@ namespace xgca.core.Profile
                     Name = String.Concat(user.FirstName, " ", user.LastName),
                     Image = user.ImageURL,
                     Email = user.EmailAddress,
+                    ServiceRole = companyServiceUser.CompanyServiceRoles.Name,
                 }
             };
 
