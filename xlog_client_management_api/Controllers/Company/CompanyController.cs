@@ -134,9 +134,10 @@ namespace xlog_company_service_api.Controllers.Company
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> ListCompanyUsersByCompanyId(string companyId)
+        public async Task<IActionResult> ListCompanyUsersByCompanyId()
         {
-            var response = await _company.Delete(companyId);
+            var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
+            var response = await _company.Retrieve(Convert.ToInt32(companyId));
 
             if (response.statusCode == 400)
             {

@@ -13,6 +13,8 @@ namespace xgca.data.User
         Task<entity.Models.User> Retrieve(int key);
         Task<entity.Models.User> RetrieveByUsername(string username);
         Task<bool> Update(entity.Models.User obj);
+        Task<bool> UpdateStatus(entity.Models.User obj);
+        Task<bool> UpdateLock(entity.Models.User obj);
         Task<bool> SetUsername(entity.Models.User obj);
         Task<bool> Delete(int key);
         Task<int> GetIdByGuid(Guid key);
