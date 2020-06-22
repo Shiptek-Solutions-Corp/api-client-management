@@ -21,5 +21,8 @@ namespace xgca.core.User
         Task<IGeneralModel> GetIdByGuid(string key);
         Task<int> GetIdByGuid(Guid key);
         Task<int> GetIdByUsername(string username);
+        Task<IGeneralModel> GetUserByReferenceId(int id);
+
+
     }
 }

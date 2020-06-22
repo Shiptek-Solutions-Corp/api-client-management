@@ -364,5 +364,14 @@ namespace xgca.core.User
             var user = await _userData.RetrieveByUsername(username);
             return user.UserId;
         }
+
+        public async Task<IGeneralModel> GetUserByReferenceId(int id)
+        {
+            var user = await _userData.Retrieve(id);
+
+            return user == null 
+                ? _general.Response(null, 400, "Invalid User", true) 
+                : _general.Response(new { name = user.FirstName + " " + user.LastName}, 200, "User details retrieved", true);
+        }
     }
 }
