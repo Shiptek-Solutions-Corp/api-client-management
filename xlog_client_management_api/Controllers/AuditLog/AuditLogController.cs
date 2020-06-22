@@ -42,7 +42,7 @@ namespace xlog_client_management_api.Controllers.AuditLog
             return Ok(response);
         }
 
-        [Route("logs/{auditLogId}/details")]
+        [Route("logs/details/{auditLogId}")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]

@@ -65,10 +65,10 @@ namespace xgca.core.Profile
             var company = await _companyData.Retrieve(companyId);
             int companyServiceId = await _companyServiceData.GetIdByGuid(Guid.Parse(companyServiceKey));
             var companyService = await _companyServiceData.Retrieve(companyServiceId);
-            var serviceResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, companyService.ServiceId);
+            var serviceResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, companyService.ServiceId, AuthToken.Contra);
             var json = (JObject)serviceResponse;
             string serviceKey = json["data"]["serviceId"].ToString();
-            var service = await _httpHelper.Get(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, serviceKey);
+            var service = await _httpHelper.Get(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, serviceKey, AuthToken.Contra);
             var serviceJson = (JObject)service;
 
             int companyUserId = user.CompanyUsers.CompanyUserId;

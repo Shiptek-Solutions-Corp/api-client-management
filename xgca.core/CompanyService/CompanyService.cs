@@ -52,9 +52,9 @@ namespace xgca.core.CompanyService
             List<ListCompanyServiceModel> data = new List<ListCompanyServiceModel>();
             foreach(var companyService in companyServices)
             {
-                var serviceKey = await _httpHelpers.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, companyService.ServiceId);
+                var serviceKey = await _httpHelpers.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, companyService.ServiceId, AuthToken.Contra);
                 string serviceGuid = serviceKey.data.serviceId;
-                var serviceResponse = await _httpHelpers.Get(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, serviceGuid);
+                var serviceResponse = await _httpHelpers.Get(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, serviceGuid, AuthToken.Contra);
                 var json = (JObject)serviceResponse;
                 data.Add(new ListCompanyServiceModel
                 {
@@ -80,9 +80,9 @@ namespace xgca.core.CompanyService
 
             foreach (var companyService in companyServices)
             {
-                var serviceKey = await _httpHelpers.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, companyService.ServiceId);
+                var serviceKey = await _httpHelpers.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, companyService.ServiceId, AuthToken.Contra);
                 string serviceId = serviceKey.data.serviceId;
-                var serviceResponse = await _httpHelpers.Get(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, serviceId);
+                var serviceResponse = await _httpHelpers.Get(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, serviceId, AuthToken.Contra);
 
                 var json = (JObject)serviceResponse;
 
@@ -102,7 +102,7 @@ namespace xgca.core.CompanyService
         public async Task<IGeneralModel> Create(CreateCompanyServiceModel obj)
         {
             int companyId = await _company.GetIdByGuid(Guid.Parse(obj.CompanyId));
-            var service = await _httpHelpers.Get(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, obj.ServiceId);
+            var service = await _httpHelpers.Get(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, obj.ServiceId, AuthToken.Contra);
             int userId = 1;
             var companyService = new entity.Models.CompanyService
             {
@@ -126,7 +126,7 @@ namespace xgca.core.CompanyService
             List<entity.Models.CompanyService> companyServices = new List<entity.Models.CompanyService>();
             foreach(string serviceKey in services)
             {
-                var service = await _httpHelpers.GetIdByGuid(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, serviceKey);
+                var service = await _httpHelpers.GetIdByGuid(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, serviceKey, AuthToken.Contra);
                 companyServices.Add(new entity.Models.CompanyService
                 {
                     ServiceId = service.data.serviceId,
@@ -174,7 +174,7 @@ namespace xgca.core.CompanyService
             {
                 var serviceObj = (JObject)service;
                 string serviceKey = (serviceObj)["serviceId"].ToString();
-                var serviceResponse = await _httpHelpers.GetIdByGuid(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, serviceKey);
+                var serviceResponse = await _httpHelpers.GetIdByGuid(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, serviceKey, AuthToken.Contra);
                 var serviceJson = (JObject)serviceResponse;
                 string companyServiceKey = (serviceObj)["companyServiceId"].ToString();
                 if (companyServiceKey == "NEW")
