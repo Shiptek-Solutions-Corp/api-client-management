@@ -242,6 +242,55 @@ namespace xgca.core.User
                 ? _general.Response(null, 200, "User updated", true)
                 : _general.Response(null, 400, "Error on updating user", false);
         }
+
+        public async Task<IGeneralModel> UpdateStatus(UpdateUserStatusModel obj, string modifiedBy)
+        {
+            if (obj == null)
+            { return _general.Response(null, 400, "Data cannot be null", false); }
+
+            int userId = await _userData.GetIdByGuid(Guid.Parse(obj.UserId));
+
+            int modifiedById = await _userData.GetIdByUsername(modifiedBy);
+
+            var user = new xgca.entity.Models.User
+            {
+                UserId = userId,
+                Status = obj.Status,
+                ModifiedBy = modifiedById,
+                ModifiedOn = DateTime.Now
+            };
+
+            var userResult = await _userData.UpdateStatus(user);
+
+            return userResult
+                ? _general.Response(null, 200, "User Status updated", true)
+                : _general.Response(null, 400, "Error on updating user", false);
+        }
+
+        public async Task<IGeneralModel> UpdateLock(UpdateUserLockModel obj, string modifiedBy)
+        {
+            if (obj == null)
+            { return _general.Response(null, 400, "Data cannot be null", false); }
+
+            int userId = await _userData.GetIdByGuid(Guid.Parse(obj.UserId));
+
+            int modifiedById = await _userData.GetIdByUsername(modifiedBy);
+
+            var user = new xgca.entity.Models.User
+            {
+                UserId = userId,
+                IsLocked = obj.IsLocked,
+                ModifiedBy = modifiedById,
+                ModifiedOn = DateTime.Now
+            };
+
+            var userResult = await _userData.UpdateLock(user);
+
+            return userResult
+                ? _general.Response(null, 200, "User Lock Status updated", true)
+                : _general.Response(null, 400, "Error on updating user", false);
+        }
+
         public async Task<IGeneralModel> Retrieve(string key)
         {
             int userId = await _userData.GetIdByGuid(Guid.Parse(key));
