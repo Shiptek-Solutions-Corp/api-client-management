@@ -55,7 +55,25 @@ namespace xgca.core.User
         public async Task<IGeneralModel> List()
         {
             var user = await _userData.List();
-            var data = new { user = user.Select(u => new { UserId = u.Guid, FullName = u.FirstName + " " + u.MiddleName + " " + u.LastName, u.FirstName, u.LastName.Length, u.MiddleName, u.ImageURL, u.EmailAddress, u.Status, u.IsLocked, Role = "Admin", Service = "Shipping Line" }), TotalCount = user.Count() };
+            var totalUsers = await _userData.GetTotalUsers();
+            var activeUsers = await _userData.GetTotalActiveUsers();
+            var inactiveUsers = await _userData.GetTotalInactiveUsers();
+            var lockUsers = await _userData.GetTotalLockedUsers();
+            var unlockUsers = await _userData.GetTotalUnlockedUsers();
+            var data = new { user = user.Select(u => new { UserId = u.Guid, 
+                FullName = u.FirstName + " " + u.MiddleName + " " + u.LastName, 
+                u.FirstName, 
+                u.LastName.Length, 
+                u.MiddleName, 
+                u.ImageURL, 
+                u.EmailAddress, 
+                u.Status, 
+                u.IsLocked,
+                u.Username,
+                Role = "Admin", 
+                Service = "Shipping Line" 
+            }), TotalUsersCount = totalUsers, TotalActiveUsers = activeUsers,TotalInactiveUsers = inactiveUsers, TotalLockUsers = lockUsers, TotalUnlockUsers = unlockUsers };
+            
             return _general.Response(data, 200, "Configurable companies has been listed", true);
         }
 
@@ -75,8 +93,22 @@ namespace xgca.core.User
             //End
             
             var user = await _userData.List(queryString, isActive, isLock);
+            var totalUsers = await _userData.GetTotalUsers();
+            var activeUsers = await _userData.GetTotalActiveUsers();
+            var inactiveUsers = await _userData.GetTotalInactiveUsers();
+            var lockUsers = await _userData.GetTotalLockedUsers();
+            var unlockUsers = await _userData.GetTotalUnlockedUsers();
 
-            var data = new { user = user.Select(u => new { UserId = u.Guid, FullName = u.FirstName + " " + u.MiddleName + " " + u.LastName, u.ImageURL, u.EmailAddress, u.Status, u.IsLocked, Role = "Admin", Service = "Shipping Line" }), TotalCount = user.Count() };
+            var data = new { user = user.Select(u => new { UserId = u.Guid, 
+                FullName = u.FirstName + " " + u.MiddleName + " " + u.LastName, 
+                u.ImageURL, 
+                u.EmailAddress, 
+                u.Status, 
+                u.IsLocked, 
+                Role = "Admin", 
+                Service = "Shipping Line",
+                u.Username,
+            }), TotalUsersCount = totalUsers, TotalActiveUsers = activeUsers, TotalInactiveUsers = inactiveUsers, TotalLockUsers = lockUsers, TotalUnlockUsers = unlockUsers };
 
             return _general.Response(data, 200, "Configurable companies has been listed", true);
         }

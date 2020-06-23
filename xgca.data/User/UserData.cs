@@ -36,7 +36,7 @@ namespace xgca.data.User
             return data;
         }
 
-        public async Task<List<entity.Models.User>> List(string columnFilter, string isActive, string isLock )
+        public async Task<List<entity.Models.User>> List(string columnFilter, string isActive, string isLock)
         {
             var queryString = $"Select * from [Users].[User] where {columnFilter} isDeleted = 0";
 
@@ -113,7 +113,7 @@ namespace xgca.data.User
             {
                 return false;
             }
-            
+
             data.Username = obj.Username;
             data.ModifiedBy = obj.ModifiedBy;
             data.ModifiedOn = DateTime.Now;
@@ -165,6 +165,46 @@ namespace xgca.data.User
                 .FirstOrDefaultAsync();
 
             return !(user is null) ? true : false;
+        }
+
+        public async Task<int> GetTotalActiveUsers()
+        {
+            var data = await _context.Users
+                .Where(u => u.Status == 1 && u.IsDeleted == 0)
+                .ToListAsync();
+            return data.Count;
+        }
+
+        public async Task<int> GetTotalInactiveUsers()
+        {
+            var data = await _context.Users
+                .Where(u => u.Status == 0 && u.IsDeleted == 0)
+                .ToListAsync();
+            return data.Count;
+        }
+
+        public async Task<int> GetTotalLockedUsers()
+        {
+            var data = await _context.Users
+                .Where(u => u.IsLocked == 1 && u.IsDeleted == 0)
+                .ToListAsync();
+            return data.Count;
+        }
+
+        public async Task<int> GetTotalUnlockedUsers()
+        {
+            var data = await _context.Users
+                .Where(u => u.IsLocked == 0 && u.IsDeleted == 0)
+                .ToListAsync();
+            return data.Count;
+        }
+
+        public async Task<int> GetTotalUsers()
+        {
+            var data = await _context.Users
+                .Where(u => u.IsDeleted == 0)
+                .ToListAsync();
+            return data.Count;
         }
     }
 }
