@@ -59,12 +59,12 @@ namespace xlog_client_management_api
         public void ConfigureServices(IServiceCollection services)
         {
             //Instantiate Cognito Provider on Startup
-            AmazonCognitoIdentityProviderClient cognitoIdentityProvider =
-             new AmazonCognitoIdentityProviderClient(new AnonymousAWSCredentials(), Amazon.RegionEndpoint.USEast1);
+            //AmazonCognitoIdentityProviderClient cognitoIdentityProvider =
+            // new AmazonCognitoIdentityProviderClient(new AnonymousAWSCredentials(), Amazon.RegionEndpoint.USEast1);
 
-            //Instantiate Cognito User Pool
-            CognitoUserPool userPool = new CognitoUserPool(Configuration.GetSection("AWSCognito:UserPoolId").Value,
-                Configuration.GetSection("AWSCognito:UserPoolClientId").Value, cognitoIdentityProvider);
+            ////Instantiate Cognito User Pool
+            //CognitoUserPool userPool = new CognitoUserPool(Configuration.GetSection("AWSCognito:UserPoolId").Value,
+            //    Configuration.GetSection("AWSCognito:UserPoolClientId").Value, cognitoIdentityProvider);
 
             services.AddCognitoIdentity();
 
@@ -76,8 +76,8 @@ namespace xlog_client_management_api
 
             services.AddDbContext<XGCAContext>(opts => opts.UseSqlServer(Configuration["ConnectionString:XGCADb"]));
 
-            services.AddSingleton<IAmazonCognitoIdentityProvider>(cognitoIdentityProvider);
-            services.AddSingleton<CognitoUserPool>(userPool);
+            //services.AddSingleton<IAmazonCognitoIdentityProvider>(cognitoIdentityProvider);
+            //services.AddSingleton<CognitoUserPool>(userPool);
 
             services.Configure<xgca.core.Models.S3.Variables>(Configuration.GetSection("AWS"));
             services.AddScoped<IXGCAContext, XGCAContext>();
