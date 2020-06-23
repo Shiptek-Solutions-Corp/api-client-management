@@ -57,7 +57,9 @@ namespace xgca.data.AuditLog
 
         public async Task<entity.Models.AuditLog> Retrieve(int key)
         {
-            var data = await _context.AuditLogs.Where(c => c.AuditLogId == key).FirstOrDefaultAsync();
+            var data = await _context.AuditLogs
+                .Where(c => c.AuditLogId == key)
+                .FirstOrDefaultAsync();
             return data;
         }
 

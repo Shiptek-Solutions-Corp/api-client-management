@@ -7,38 +7,62 @@ namespace xgca.core.Helpers
 {
     public class CompanyHelper
     {
-        public static dynamic BuildCompanyValue(dynamic company)
+        public static dynamic BuildCompanyLogValue(dynamic company, dynamic companyServices)
         {
             dynamic services = null;
             if (company.CompanyServices == null)
             { services = null; }
             else
             {
-                services = company.CompanyServices;
-                services = CompanyServiceHelper.BuildCompanyServiceList(services);
+                services = CompanyServiceHelper.BuildCompanyServiceList(companyServices);
             }
 
             var obj = new
             {
-                CompanyId = company.CompanyId,
-                CompanyName = company.CompanyName,
-                AddressLine = company.Addresses.AddressLine,
-                CityName = company.Addresses.CityName,
-                StateName = company.Addresses.StateName,
-                ZipCode = company.Addresses.ZipCode,
-                CountryId = company.Addresses.CountryId,
-                CountryName = company.Addresses.CountryName,
-                ImageURL = company.ImageURL,
-                WebsiteURL = company.WebsiteURL,
-                EmailAddress = company.EmailAddress,
+                company.CompanyName,
+                company.AddressLine,
+                company.CityName,
+                company.StateName,
+                company.ZipCode,
+                company.CountryName,
+                company.ImageURL,
+                company.WebsiteURL,
+                company.EmailAddress,
                 Phone = String.Concat(company.ContactDetails.PhonePrefix, company.ContactDetails.Phone),
                 Mobile = String.Concat(company.ContactDetails.MobilePrefix, company.ContactDetails.Mobile),
                 Fax = String.Concat(company.ContactDetails.FaxPrefix, company.ContactDetails.Fax),
-                TaxExemption = company.TaxExemption,
-                TaxExemptionStatus = company.TaxExemptionStatus,
-                Guid = company.Guid,
-                Addresses = company.Addresses,
-                ContactDetails = company.ContactDetails,
+                TaxExemption = company.TaxExemption == 1 ? "Yes" : "No",
+                TaxExemptionStatus = company.TaxExemptionStatus == 1 ? "Yes" : "No",
+                CompanyServices = services
+            };
+            return obj;
+        }
+        public static dynamic BuildCompanyValue(dynamic company, dynamic companyServices)
+        {
+            dynamic services = null;
+            if (company.CompanyServices == null)
+            { services = null; }
+            else
+            {
+                services = CompanyServiceHelper.BuildCompanyServiceList(companyServices);
+            }
+
+            var obj = new
+            {
+                company.CompanyName,
+                company.Addresses.AddressLine,
+                company.Addresses.CityName,
+                company.Addresses.StateName,
+                company.Addresses.ZipCode,
+                company.Addresses.CountryName,
+                company.ImageURL,
+                company.WebsiteURL,
+                company.EmailAddress,
+                Phone = String.Concat(company.ContactDetails.PhonePrefix, company.ContactDetails.Phone),
+                Mobile = String.Concat(company.ContactDetails.MobilePrefix, company.ContactDetails.Mobile),
+                Fax = String.Concat(company.ContactDetails.FaxPrefix, company.ContactDetails.Fax),
+                TaxExemption = company.TaxExemption == 1 ? "Yes" : "No",
+                TaxExemptionStatus = company.TaxExemptionStatus == 1 ? "Yes" : "No",
                 CompanyServices = services
             };
             return obj;
@@ -46,60 +70,60 @@ namespace xgca.core.Helpers
 
         public static dynamic ReturnUpdatedValue(dynamic companyObj, dynamic companyServicesObj)
         {
-            string fullAddress = AddressHelper.GenerateFullAddress(companyObj);
-            var company = new
+            string fullAddress = AddressHelper.GenerateFullAddress(companyObj.Addresses);
+            var data = new
             {
                 companyObj.CompanyId,
                 companyObj.CompanyName,
                 companyObj.ImageURL,
                 companyObj.AddressId,
-                companyObj.AddressLine,
+                companyObj.Addresses.AddressLine,
                 City = new
                 {
-                    companyObj.CityId,
-                    companyObj.CityName,
+                    companyObj.Addresses.CityId,
+                    companyObj.Addresses.CityName,
                 },
                 State = new
                 {
-                    companyObj.StateId,
-                    companyObj.StateName,
+                    companyObj.Addresses.StateId,
+                    companyObj.Addresses.StateName,
                 },
                 Country = new
                 {
-                    companyObj.CountryId,
-                    companyObj.CountryName,
+                    companyObj.Addresses.CountryId,
+                    companyObj.Addresses.CountryName,
                 },
-                companyObj.ZipCode,
+                companyObj.Addresses.ZipCode,
                 FullAddress = fullAddress,
-                companyObj.Longitude,
-                companyObj.Latitude,
+                companyObj.Addresses.Longitude,
+                companyObj.Addresses.Latitude,
                 companyObj.WebsiteURL,
                 companyObj.EmailAddress,
                 companyObj.ContactDetailId,
                 Phone = new
                 {
-                    companyObj.PhonePrefixId,
-                    companyObj.PhonePrefix,
-                    companyObj.Phone,
+                    companyObj.ContactDetails.PhonePrefixId,
+                    companyObj.ContactDetails.PhonePrefix,
+                    companyObj.ContactDetails.Phone,
                 },
                 Mobile = new
                 {
-                    companyObj.MobilePrefixId,
-                    companyObj.MobilePrefix,
-                    companyObj.Mobile,
+                    companyObj.ContactDetails.MobilePrefixId,
+                    companyObj.ContactDetails.MobilePrefix,
+                    companyObj.ContactDetails.Mobile,
                 },
                 Fax = new
                 {
-                    companyObj.FaxPrefixId,
-                    companyObj.FaxPrefix,
-                    companyObj.Fax,
+                    companyObj.ContactDetails.FaxPrefixId,
+                    companyObj.ContactDetails.FaxPrefix,
+                    companyObj.ContactDetails.Fax,
                 },
                 companyObj.TaxExemption,
                 companyObj.TaxExemptionStatus,
                 CompanyServices = companyServicesObj
             };
 
-            return company;
+            return data;
         }
     }
 }

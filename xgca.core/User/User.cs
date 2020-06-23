@@ -254,7 +254,7 @@ namespace xgca.core.User
             }
 
             var oldUser = await _userData.Retrieve(userId);
-            var oldValue = UserHelper.BuildUserValue(oldUser);
+            var oldValue = UserHelper.BuildUserLogValue(oldUser, userId, modifiedById);
 
             int contactDetailId = await _coreContactDetail.UpdateAndReturnId(obj, modifiedById);
             if (contactDetailId <= 0)
@@ -277,7 +277,7 @@ namespace xgca.core.User
             };
 
             var userResult = await _userData.Update(user);
-            var newValue = UserHelper.BuildUserValue(user);
+            var newValue = UserHelper.BuildUserLogValue(oldUser, userId, modifiedById);
             var auditLog = AuditLogHelper.BuildAuditLog(oldValue, newValue, "Update", user.GetType().Name, user.UserId, modifiedById);
             await _auditLog.Create(auditLog);
             return userResult

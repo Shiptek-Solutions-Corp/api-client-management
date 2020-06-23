@@ -27,6 +27,10 @@
     <Compile Remove="Migrations\20200531124422_added_relationship_Company_CompanyService.Designer.cs" />
     <Compile Remove="Migrations\20200606122546_removed_columns_StateId_CityId.cs" />
     <Compile Remove="Migrations\20200606122546_removed_columns_StateId_CityId.Designer.cs" />
+    <Compile Remove="Migrations\20200623034442_added_foreign_key_relationship_AuditLog_User.cs" />
+    <Compile Remove="Migrations\20200623034442_added_foreign_key_relationship_AuditLog_User.Designer.cs" />
+    <Compile Remove="Migrations\20200623080939_added_foreign_key_relationship_AuditLog_User.cs" />
+    <Compile Remove="Migrations\20200623080939_added_foreign_key_relationship_AuditLog_User.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

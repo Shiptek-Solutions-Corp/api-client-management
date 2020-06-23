@@ -8,19 +8,23 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using xgca.entity.Models;
+using xgca.core.Models.AuditLog;
 using xgca.data.AuditLog;
+using xgca.data.User;
 using xgca.core.Response;
 
 namespace xgca.core.AuditLog
 {
     public class AuditLog : IAuditLog
     {
-        private readonly xgca.data.AuditLog.IAuditLogData _auditLog;
+        private readonly IAuditLogData _auditLog;
+        private readonly IUserData _user;
         private readonly IGeneral _general;
 
-        public AuditLog(xgca.data.AuditLog.IAuditLogData auditLog, IGeneral general)
+        public AuditLog(IAuditLogData auditLog, IUserData user, IGeneral general)
         {
             _auditLog = auditLog;
+            _user = user;
             _general = general;
         }
 
@@ -36,14 +40,45 @@ namespace xgca.core.AuditLog
                 logs.CreatedOn
             });
 
-            return _general.Response(new { Logs = auditLogs }, 200, "Configurable audit logs has been listed", true);
+            List<ListAuditLogModel> logs = new List<ListAuditLogModel>();
+
+            foreach (var auditLog in auditLogs)
+            {
+                var user = await _user.Retrieve(auditLog.CreatedBy);
+
+                logs.Add(new ListAuditLogModel
+                {
+                    AuditLogId = auditLog.AuditLogId.ToString(),
+                    AuditLogAction = auditLog.AuditLogAction,
+                    CreatedBy = (auditLog.CreatedBy == 0) ? "System" : String.Concat(user.FirstName, " ", user.LastName),
+                    Username = !(user.Username is null) ? (auditLog.CreatedBy == 0 ? "system" : user.Username) : "Not Set",
+                    CreatedOn = auditLog.CreatedOn.ToString("MMMM dd, yyyy ; hh:mm:tt")
+                });
+            }
+
+            return _general.Response(new { Logs = logs }, 200, "Configurable audit logs has been listed", true);
         }
 
         public async Task<IGeneralModel> RetrieveDetails(string key)
         {
             int logId = await _auditLog.GetIdByGuid(Guid.Parse(key));
             var data = await _auditLog.Retrieve(logId);
+            
+            string username = "";
+            string createdBy = "";
+            if (data.CreatedBy == 0)
+            {
+                username = "system";
+                createdBy = "System";
+            }
+            else
+            {
+                var user = await _user.Retrieve(data.CreatedBy);
+                username = !(user.Username is null) ? user.Username : "Not Set";
+                createdBy = String.Concat(user.FirstName, " ", user.LastName);
+            }
 
+            
             var log = new
             {
                 AuditLogId = data.Guid,
@@ -51,8 +86,9 @@ namespace xgca.core.AuditLog
                 KeyFieldId = String.Concat(data.TableName,"Id : ", data.KeyFieldId),
                 OldValue = !(data.OldValue is null) ? JsonConvert.DeserializeObject(data.OldValue) : null,
                 NewValue = JsonConvert.DeserializeObject(data.NewValue),
-                data.CreatedBy,
-                data.CreatedOn
+                CreatedBy = createdBy,
+                Username = username,
+                CreatedOn = data.CreatedOn.ToString("MMM dd, yyyy ; hh:mm:tt")
             };
 
             return _general.Response(new { AuditLog = log }, 200, "Audit log details has been displayed", true);

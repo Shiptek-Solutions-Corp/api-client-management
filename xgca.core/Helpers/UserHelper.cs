@@ -43,5 +43,36 @@ namespace xgca.core.Helpers
             };
             return obj;
         }
+
+        public static dynamic ReturnUserUpdateValue(dynamic userObj)
+        {
+            var data = new
+            {
+                UserId = userObj.Guid,
+                userObj.Username,
+                userObj.FirstName,
+                userObj.LastName,
+                userObj.MiddleName,
+                userObj.Title,
+                userObj.Status,
+                userObj.ImageURL,
+                userObj.EmailAddress,
+                ContactDetailId = userObj.ContactDetails.Guid,
+                Phone = new
+                {
+                    userObj.ContactDetails.PhonePrefixId,
+                    userObj.ContactDetails.PhonePrefix,
+                    userObj.ContactDetails.Phone,
+                },
+                Mobile = new
+                {
+                    userObj.ContactDetails.MobilePrefixId,
+                    userObj.ContactDetails.MobilePrefix,
+                    userObj.ContactDetails.Mobile,
+                }
+            };
+
+            return data;
+        }
     }
 }

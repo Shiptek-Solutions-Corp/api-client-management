@@ -25,10 +25,10 @@ namespace xgca.core.Helpers
             {
                 data.Add(new
                 {
-                    CompanyServiceId = service.CompanyServiceId,
-                    ServiceId = service.ServiceId,
-                    //ServicenName = service.Services.ServicenName,
-                    Status = service.Status
+                    service.Code,
+                    service.Name,
+                    service.ImageURL,
+                    service.Status
                 });
             }
 

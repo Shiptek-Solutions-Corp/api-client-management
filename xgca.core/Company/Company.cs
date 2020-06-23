@@ -104,7 +104,8 @@ namespace xgca.core.Company
                 CreatedOn = DateTime.Now,
                 ModifiedBy = createdById,
                 ModifiedOn = DateTime.Now,
-                Guid = Guid.NewGuid()
+                Guid = Guid.NewGuid(),
+                Status = 1
             };
 
             var companyId = await _companyData.CreateAndReturnId(company);
@@ -143,7 +144,8 @@ namespace xgca.core.Company
                 CreatedOn = DateTime.Now,
                 ModifiedBy = GlobalVariables.SystemUserId,
                 ModifiedOn = DateTime.Now,
-                Guid = Guid.NewGuid()
+                Guid = Guid.NewGuid(),
+                Status = 1
             };
 
             var companyId = await _companyData.CreateAndReturnId(company);
@@ -159,7 +161,9 @@ namespace xgca.core.Company
             await _coreCompanyServiceUser.CreateDefault(companyId, companyUserId, GlobalVariables.SystemUserId);
 
             var newCompany = await _companyData.Retrieve(companyId);
-            var companyLog = CompanyHelper.BuildCompanyValue(newCompany);
+            var newCompanyServicesResponse = await _coreCompanyService.ListByCompanyId(newCompany.Guid.ToString());
+            var newCompanyServices = newCompanyServicesResponse.data.companyService;
+            var companyLog = CompanyHelper.BuildCompanyValue(newCompany, newCompanyServices);
 
             var auditLog = AuditLogHelper.BuildAuditLog(companyLog, "Create", company.GetType().Name, companyId, GlobalVariables.SystemUserId);
             await _auditLog.Create(auditLog);
@@ -177,7 +181,9 @@ namespace xgca.core.Company
 
             int oldCompanyId = await _companyData.GetIdByGuid(Guid.Parse(obj.CompanyId));
             var oldCompany = await _companyData.Retrieve(oldCompanyId);
-            var oldValue = CompanyHelper.BuildCompanyValue(oldCompany);
+            var oldCompanyServicesResponse = await _coreCompanyService.ListByCompanyId(oldCompany.Guid.ToString());
+            var oldCompanyServices = oldCompanyServicesResponse.data.companyService;
+            var oldValue = CompanyHelper.BuildCompanyValue(oldCompany, oldCompanyServices);
 
             
             int addressId = await _coreAddress.UpdateAndReturnId(obj, modifiedById);
@@ -212,10 +218,10 @@ namespace xgca.core.Company
             // Return updated company detail
             var companyServicesResponse = await _coreCompanyService.ListByCompanyId(obj.CompanyId);
             var companyServices = companyServicesResponse.data.companyService;
-            var updatedCompany = CompanyHelper.ReturnUpdatedValue(obj, companyServices);
-
             var newCompany = await _companyData.Retrieve(companyId);
-            var newValue = CompanyHelper.BuildCompanyValue(updatedCompany);
+            var updatedCompany = CompanyHelper.ReturnUpdatedValue(newCompany, companyServices);
+
+            var newValue = CompanyHelper.BuildCompanyValue(newCompany, companyServices);
             var auditLog = AuditLogHelper.BuildAuditLog(oldValue, newValue, "Update", company.GetType().Name, company.CompanyId, modifiedById);
             await _auditLog.Create(auditLog);
 
@@ -330,7 +336,9 @@ namespace xgca.core.Company
 
             int oldCompanyId = await _companyData.GetIdByGuid(Guid.Parse(obj.CompanyId));
             var oldCompany = await _companyData.Retrieve(oldCompanyId);
-            var oldValue = CompanyHelper.BuildCompanyValue(oldCompany);
+            var oldCompanyServicesResponse = await _coreCompanyService.ListByCompanyId(oldCompany.Guid.ToString());
+            var oldCompanyServices = oldCompanyServicesResponse.data.companyService;
+            var oldValue = CompanyHelper.BuildCompanyValue(oldCompany, oldCompanyServices);
 
 
             int addressId = await _coreAddress.UpdateAndReturnId(obj, GlobalVariables.SystemUserId);
@@ -359,7 +367,10 @@ namespace xgca.core.Company
             };
 
             var companyResult = await _companyData.Update(company);
-            var newValue = CompanyHelper.BuildCompanyValue(company);
+            var newCompany = await _companyData.Retrieve(companyId);
+            var newCompanyServicesResponse = await _coreCompanyService.ListByCompanyId(newCompany.Guid.ToString());
+            var newCompanyServices = newCompanyServicesResponse.data.companyService;
+            var newValue = CompanyHelper.BuildCompanyValue(company, newCompanyServices);
             await _coreCompanyService.UpdateBatch(obj.CompanyServices, companyId, GlobalVariables.SystemUserId);
             var auditLog = AuditLogHelper.BuildAuditLog(oldValue, newValue, "Update", company.GetType().Name, company.CompanyId, GlobalVariables.SystemUserId);
             await _auditLog.Create(auditLog);
