@@ -15,15 +15,15 @@ namespace xgca.entity.Models
         [System.ComponentModel.DefaultValue(1)]
         public int ClientId { get; set; }
         [Required]
-        [StringLength(100)]
+        [StringLength(160)]
         public string CompanyName { get; set; }
         public int AddressId { get; set; }
         public int ContactDetailId { get; set; }
         [StringLength(500)]
         public string ImageURL { get; set; }
-        [StringLength(100)]
+        [StringLength(74)]
         public string EmailAddress { get; set; }
-        [StringLength(100)]
+        [StringLength(50)]
         public string WebsiteURL { get; set; }
         [System.ComponentModel.DefaultValue(1)]
         public byte Status { get; set; }
