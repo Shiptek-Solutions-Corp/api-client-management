@@ -8,6 +8,6 @@ namespace xgca.core.Models.AuditLog
         public string AuditLogAction { get; set; }
         public string CreatedBy { get; set; }
         public string Username { get; set; }
-        public DateTime CreatedOn { get; set; }
+        public string CreatedOn { get; set; }
     }
 }

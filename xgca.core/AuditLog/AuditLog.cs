@@ -12,6 +12,7 @@ using xgca.core.Models.AuditLog;
 using xgca.data.AuditLog;
 using xgca.data.User;
 using xgca.core.Response;
+using xgca.core.Constants;
 
 namespace xgca.core.AuditLog
 {
@@ -52,7 +53,7 @@ namespace xgca.core.AuditLog
                     AuditLogAction = auditLog.AuditLogAction,
                     CreatedBy = (auditLog.CreatedBy == 0) ? "System" : String.Concat(user.FirstName, " ", user.LastName),
                     Username = !(user.Username is null) ? (auditLog.CreatedBy == 0 ? "system" : user.Username) : "Not Set",
-                    CreatedOn = auditLog.CreatedOn
+                    CreatedOn = auditLog.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat)
                 });
             }
 
@@ -87,7 +88,7 @@ namespace xgca.core.AuditLog
                 NewValue = JsonConvert.DeserializeObject(data.NewValue),
                 CreatedBy = createdBy,
                 Username = username,
-                data.CreatedOn
+                CratedOn = data.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat)
             };
 
             return _general.Response(new { AuditLog = log }, 200, "Audit log details has been displayed", true);
