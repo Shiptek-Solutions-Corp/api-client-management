@@ -68,7 +68,7 @@ namespace xgca.core.Helpers
             return obj;
         }
 
-        public static dynamic ReturnUpdatedValue(dynamic companyObj, dynamic companyServicesObj)
+        public static dynamic ReturnUpdatedValue(dynamic companyObj, string cityId, string stateId, dynamic companyServicesObj)
         {
             string fullAddress = AddressHelper.GenerateFullAddress(companyObj.Addresses);
             var data = new
@@ -80,12 +80,12 @@ namespace xgca.core.Helpers
                 companyObj.Addresses.AddressLine,
                 City = new
                 {
-                    companyObj.Addresses.CityId,
+                    CityId = cityId,
                     companyObj.Addresses.CityName,
                 },
                 State = new
                 {
-                    companyObj.Addresses.StateId,
+                    StateId = stateId,
                     companyObj.Addresses.StateName,
                 },
                 Country = new

@@ -230,7 +230,13 @@ namespace xgca.core.Company
             var companyServicesResponse = await _coreCompanyService.ListByCompanyId(obj.CompanyId);
             var companyServices = companyServicesResponse.data.companyService;
             var newCompany = await _companyData.Retrieve(companyId);
-            var updatedCompany = CompanyHelper.ReturnUpdatedValue(newCompany, companyServices);
+
+            var cityResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetCity, newCompany.Addresses.CityId, AuthToken.Contra);
+            var cityJson = (JObject)cityResponse;
+            var stateResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetState, newCompany.Addresses.StateId, AuthToken.Contra);
+            var stateJson = (JObject)stateResponse;
+
+            var updatedCompany = CompanyHelper.ReturnUpdatedValue(newCompany, (cityJson)["data"]["cityId"].ToString(), (stateJson)["data"]["stateId"].ToString(), companyServices);
 
             var newValue = CompanyHelper.BuildCompanyValue(newCompany, companyServices);
             var auditLog = AuditLogHelper.BuildAuditLog(oldValue, newValue, "Update", company.GetType().Name, company.CompanyId, modifiedById);
@@ -378,18 +384,24 @@ namespace xgca.core.Company
             };
 
             var companyResult = await _companyData.Update(company);
-            var newCompany = await _companyData.Retrieve(companyId);
-            var newCompanyServicesResponse = await _coreCompanyService.ListByCompanyId(newCompany.Guid.ToString());
-            var newCompanyServices = newCompanyServicesResponse.data.companyService;
-            var newValue = CompanyHelper.BuildCompanyValue(company, newCompanyServices);
-            await _coreCompanyService.UpdateBatch(obj.CompanyServices, companyId, GlobalVariables.SystemUserId);
-            var auditLog = AuditLogHelper.BuildAuditLog(oldValue, newValue, "Update", company.GetType().Name, company.CompanyId, GlobalVariables.SystemUserId);
-            await _auditLog.Create(auditLog);
+
+            await _coreCompanyService.UpdateBatch(obj.CompanyServices, companyId, 0);
 
             // Return updated company detail
             var companyServicesResponse = await _coreCompanyService.ListByCompanyId(obj.CompanyId);
             var companyServices = companyServicesResponse.data.companyService;
-            var updatedCompany = CompanyHelper.ReturnUpdatedValue(obj, companyServices);
+            var newCompany = await _companyData.Retrieve(companyId);
+
+            var cityResponse = await _httpHelper.GetIdByGuid(_options.Value.BaseUrl, ApiEndpoints.cmsGetCity, newCompany.Addresses.CityId.ToString(), AuthToken.Contra);
+            var cityJson = (JObject)cityResponse;
+            var stateResponse = await _httpHelper.GetIdByGuid(_options.Value.BaseUrl, ApiEndpoints.cmsGetState, newCompany.Addresses.StateId.ToString(), AuthToken.Contra);
+            var stateJson = (JObject)stateResponse;
+
+            var updatedCompany = CompanyHelper.ReturnUpdatedValue(newCompany, (cityJson)["data"]["cityId"].ToString(), (stateJson)["data"]["stateId"].ToString(), companyServices);
+
+            var newValue = CompanyHelper.BuildCompanyValue(newCompany, companyServices);
+            var auditLog = AuditLogHelper.BuildAuditLog(oldValue, newValue, "Update", company.GetType().Name, company.CompanyId, 0);
+            await _auditLog.Create(auditLog);
 
             return companyResult
                 ? _general.Response(new { company = updatedCompany }, 200, "Company updated", true)
