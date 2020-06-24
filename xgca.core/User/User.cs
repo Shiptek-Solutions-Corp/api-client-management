@@ -19,6 +19,7 @@ using xgca.core.Validators.User;
 using xgca.core.Constants;
 using xgca.core.Helpers.Http;
 using xgca.entity.Migrations;
+using xgca.core.Models.AuditLog;
 
 namespace xgca.core.User
 {
@@ -463,6 +464,48 @@ namespace xgca.core.User
             return user == null 
                 ? _general.Response(null, 400, "Invalid User", true) 
                 : _general.Response(new { name = user.FirstName + " " + user.LastName}, 200, "User details retrieved", true);
+        }
+
+        public async Task<IGeneralModel> ListUserLogs(string? userKey, string? username)
+        {
+            int userId = 0;
+            if(!(username is null))
+            {
+                userId = await _userData.GetIdByUsername(username);
+            }
+            else if(!(userKey is null ))
+            {
+                userId = await _userData.GetIdByGuid(Guid.Parse(userKey));
+            }
+
+            var data = await _auditLog.ListByTableNameAndKeyFieldId("User", userId);
+
+            var auditLogs = data.Select(logs => new
+            {
+                AuditLogId = logs.Guid,
+                logs.AuditLogAction,
+                logs.CreatedBy,
+                logs.CreatedOn
+            });
+
+            List<ListAuditLogModel> logs = new List<ListAuditLogModel>();
+
+            foreach (var auditLog in auditLogs)
+            {
+                var user = await _userData.Retrieve(auditLog.CreatedBy);
+
+                logs.Add(new ListAuditLogModel
+                {
+                    AuditLogId = auditLog.AuditLogId.ToString(),
+                    AuditLogAction = auditLog.AuditLogAction,
+                    CreatedBy = (auditLog.CreatedBy == 0) ? "System" : String.Concat(user.FirstName, " ", user.LastName),
+                    Username = auditLog.CreatedBy != 0 ? (!(user.Username is null) ? user.Username : "Not Set") : "system",
+                    //Username = !(user.Username is null) ? (auditLog.CreatedBy == 0 ? "system" : user.Username) : "Not Set",
+                    CreatedOn = auditLog.CreatedOn
+                });
+            }
+
+            return _general.Response(new { Logs = logs }, 200, "Company audit logs has been listed", true);
         }
     }
 }

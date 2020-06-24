@@ -13,11 +13,18 @@ using xgca.entity.Models;
 using xgca.data.Company;
 using xgca.data.CompanyService;
 using xgca.data.AuditLog;
+using xgca.data.User;
+using xgca.core.User;
+using xgca.core.CompanyServiceRole;
+using xgca.core.CompanyServiceUser;
+using xgca.core.CompanyUser;
 using xgca.core.Helpers;
 using xgca.core.Helpers.Http;
 using xgca.core.Constants;
 using xgca.core.Models.CompanyService;
+using xgca.core.Models.AuditLog;
 using xgca.core.Helpers.Token;
+using Amazon.Runtime.Internal;
 
 namespace xgca.core.Company
 {
@@ -26,12 +33,14 @@ namespace xgca.core.Company
         private readonly ICompanyData _companyData;
         private readonly xgca.core.Address.IAddress _coreAddress;
         private readonly xgca.core.ContactDetail.IContactDetail _coreContactDetail;
-        private readonly xgca.core.User.IUser _coreUser;
-        private readonly xgca.data.AuditLog.IAuditLogData _auditLog;        
+        private readonly IUser _coreUser;
+        private readonly IAuditLogData _auditLog;        
         private readonly xgca.core.CompanyService.ICompanyService _coreCompanyService;
-        private readonly xgca.core.CompanyServiceRole.ICompanyServiceRole _coreCompanyServiceRole;
-        private readonly xgca.core.CompanyServiceUser.ICompanyServiceUser _coreCompanyServiceUser;
-        private readonly xgca.core.CompanyUser.ICompanyUser _coreCompanyUser;
+        private readonly ICompanyServiceRole _coreCompanyServiceRole;
+        private readonly ICompanyServiceUser _coreCompanyServiceUser;
+        private readonly ICompanyUser _coreCompanyUser;
+
+        private readonly IUserData _userData;
 
         private readonly IHttpHelper _httpHelper;
         private readonly ITokenHelper _tokenHelper;
@@ -44,9 +53,10 @@ namespace xgca.core.Company
             xgca.core.User.IUser coreUser,
             xgca.data.AuditLog.IAuditLogData auditLog,
             xgca.core.CompanyService.ICompanyService coreCompanyService,
-            xgca.core.CompanyServiceRole.ICompanyServiceRole coreCompanyServiceRole,
-            xgca.core.CompanyServiceUser.ICompanyServiceUser coreCompanyServiceUser,
-            xgca.core.CompanyUser.ICompanyUser coreCompanyUser,
+            ICompanyServiceRole coreCompanyServiceRole,
+            ICompanyServiceUser coreCompanyServiceUser,
+            ICompanyUser coreCompanyUser,
+            IUserData userData,
             IHttpHelper httpHelper,
             ITokenHelper tokenHelper,
             IOptions<GlobalCmsApi> options,
@@ -61,6 +71,7 @@ namespace xgca.core.Company
             _coreCompanyServiceRole = coreCompanyServiceRole;
             _coreCompanyServiceUser = coreCompanyServiceUser;
             _coreCompanyUser = coreCompanyUser;
+            _userData = userData;
             _httpHelper = httpHelper;
             _tokenHelper = tokenHelper;
             _options = options;
@@ -383,6 +394,71 @@ namespace xgca.core.Company
             return companyResult
                 ? _general.Response(new { company = updatedCompany }, 200, "Company updated", true)
                 : _general.Response(null, 400, "Error on updating company", true);
+        }
+
+        public async Task<IGeneralModel> ListCompanyLogs(int companyId)
+        {
+            var data = await _auditLog.ListByTableNameAndKeyFieldId("Company", companyId);
+
+            var auditLogs = data.Select(logs => new
+            {
+                AuditLogId = logs.Guid,
+                logs.AuditLogAction,
+                logs.CreatedBy,
+                logs.CreatedOn
+            });
+
+            List<ListAuditLogModel> logs = new List<ListAuditLogModel>();
+
+            foreach (var auditLog in auditLogs)
+            {
+                var user = await _userData.Retrieve(auditLog.CreatedBy);
+
+                logs.Add(new ListAuditLogModel
+                {
+                    AuditLogId = auditLog.AuditLogId.ToString(),
+                    AuditLogAction = auditLog.AuditLogAction,
+                    CreatedBy = (auditLog.CreatedBy == 0) ? "System" : String.Concat(user.FirstName, " ", user.LastName),
+                    Username = auditLog.CreatedBy != 0 ? (!(user.Username is null) ? user.Username : "Not Set") : "system",
+                    //Username = !(user.Username is null) ? (auditLog.CreatedBy == 0 ? "system" : user.Username) : "Not Set",
+                    CreatedOn = auditLog.CreatedOn
+                });
+            }
+
+            return _general.Response(new { Logs = logs }, 200, "Company audit logs has been listed", true);
+        }
+
+        public async Task<IGeneralModel> ListCompanyLogs(string companyId)
+        {
+            int companyKey = await _companyData.GetIdByGuid(Guid.Parse(companyId));
+            var data = await _auditLog.ListByTableNameAndKeyFieldId("Company", companyKey);
+
+            var auditLogs = data.Select(logs => new
+            {
+                AuditLogId = logs.Guid,
+                logs.AuditLogAction,
+                logs.CreatedBy,
+                logs.CreatedOn
+            });
+
+            List<ListAuditLogModel> logs = new List<ListAuditLogModel>();
+
+            foreach (var auditLog in auditLogs)
+            {
+                var user = await _userData.Retrieve(auditLog.CreatedBy);
+
+                logs.Add(new ListAuditLogModel
+                {
+                    AuditLogId = auditLog.AuditLogId.ToString(),
+                    AuditLogAction = auditLog.AuditLogAction,
+                    CreatedBy = (auditLog.CreatedBy == 0) ? "System" : String.Concat(user.FirstName, " ", user.LastName),
+                    Username = auditLog.CreatedBy != 0 ? (!(user.Username is null) ? user.Username : "Not Set") : "system",
+                    //Username = !(user.Username is null) ? (auditLog.CreatedBy == 0 ? "system" : user.Username) : "Not Set",
+                    CreatedOn = auditLog.CreatedOn
+                });
+            }
+
+            return _general.Response(new { Logs = logs }, 200, "Company audit logs has been listed", true);
         }
     }
 }

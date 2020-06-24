@@ -18,5 +18,7 @@ namespace xgca.core.Company
         Task<IGeneralModel> Delete(string key);
         Task<IGeneralModel> GetIdByGuid(string key);
         Task<int> GetIdByGuid(Guid key);
+        Task<IGeneralModel> ListCompanyLogs(int companyId);
+        Task<IGeneralModel> ListCompanyLogs(string companyId);
     }
 }

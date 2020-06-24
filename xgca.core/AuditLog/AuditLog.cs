@@ -52,7 +52,7 @@ namespace xgca.core.AuditLog
                     AuditLogAction = auditLog.AuditLogAction,
                     CreatedBy = (auditLog.CreatedBy == 0) ? "System" : String.Concat(user.FirstName, " ", user.LastName),
                     Username = !(user.Username is null) ? (auditLog.CreatedBy == 0 ? "system" : user.Username) : "Not Set",
-                    CreatedOn = auditLog.CreatedOn.ToString("MMMM dd, yyyy ; hh:mm:tt")
+                    CreatedOn = auditLog.CreatedOn
                 });
             }
 
@@ -77,7 +77,6 @@ namespace xgca.core.AuditLog
                 username = !(user.Username is null) ? user.Username : "Not Set";
                 createdBy = String.Concat(user.FirstName, " ", user.LastName);
             }
-
             
             var log = new
             {
@@ -88,7 +87,7 @@ namespace xgca.core.AuditLog
                 NewValue = JsonConvert.DeserializeObject(data.NewValue),
                 CreatedBy = createdBy,
                 Username = username,
-                CreatedOn = data.CreatedOn.ToString("MMM dd, yyyy ; hh:mm:tt")
+                data.CreatedOn
             };
 
             return _general.Response(new { AuditLog = log }, 200, "Audit log details has been displayed", true);
