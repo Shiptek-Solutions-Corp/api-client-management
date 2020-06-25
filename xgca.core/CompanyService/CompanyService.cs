@@ -73,7 +73,7 @@ namespace xgca.core.CompanyService
         public async Task<IGeneralModel> ListByCompanyUserId(int referenceId)
         {
             int companyId = await _coreCompanyUser.GetCompanyIdByUserId(referenceId);
-            var result = await _companyService.ListByCompanyId(companyId);
+            var result = await _companyService.ListByCompanyId(companyId, GlobalVariables.ActiveServices);
             var companyServices = result.Select(t => new { CompanyServiceId = t.Guid, t.ServiceId, t.Status });
 
             List<ListCompanyServiceModel> data = new List<ListCompanyServiceModel>();
