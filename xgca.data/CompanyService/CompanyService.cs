@@ -40,6 +40,12 @@ namespace xgca.data.CompanyService
                 .Where(c => c.CompanyId == companyId && c.IsDeleted == 0).ToListAsync();
             return data;
         }
+        public async Task<List<entity.Models.CompanyService>> ListByCompanyId(int companyId, int status)
+        {
+            var data = await _context.CompanyServices
+                .Where(c => c.CompanyId == companyId && c.Status == 1 && c.IsDeleted == 0).ToListAsync();
+            return data;
+        }
         public async Task<entity.Models.CompanyService> Retrieve(int key)
         { 
             var data = await _context.CompanyServices

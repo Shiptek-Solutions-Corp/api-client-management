@@ -10,6 +10,7 @@ namespace xgca.data.CompanyService
         Task<bool> Create(entity.Models.CompanyService obj);
         Task<List<entity.Models.CompanyService>> List();
         Task<List<entity.Models.CompanyService>> ListByCompanyId(int companyId);
+        Task<List<entity.Models.CompanyService>> ListByCompanyId(int companyId, int status);
         Task<entity.Models.CompanyService> Retrieve(int key);
         Task<int> GetIdByGuid(Guid guid);
         Task<bool> Update(entity.Models.CompanyService obj);
