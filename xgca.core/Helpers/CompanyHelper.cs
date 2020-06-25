@@ -73,7 +73,7 @@ namespace xgca.core.Helpers
             string fullAddress = AddressHelper.GenerateFullAddress(companyObj.Addresses);
             var data = new
             {
-                companyObj.CompanyId,
+                CompanyId = companyObj.Guid,
                 companyObj.CompanyName,
                 companyObj.ImageURL,
                 AddressId = companyObj.Addresses.Guid,
