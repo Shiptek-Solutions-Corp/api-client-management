@@ -112,9 +112,9 @@ namespace xgca.core.Company
                 TaxExemption = obj.TaxExemption,
                 TaxExemptionStatus = obj.TaxExemptionStatus,
                 CreatedBy = createdById,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 ModifiedBy = createdById,
-                ModifiedOn = DateTime.Now,
+                ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid(),
                 Status = 1
             };
@@ -152,9 +152,9 @@ namespace xgca.core.Company
                 WebsiteURL = obj.WebsiteURL,
                 EmailAddress = obj.EmailAddress,
                 CreatedBy = GlobalVariables.SystemUserId,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 ModifiedBy = GlobalVariables.SystemUserId,
-                ModifiedOn = DateTime.Now,
+                ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid(),
                 Status = 1
             };
@@ -218,7 +218,7 @@ namespace xgca.core.Company
                 TaxExemption = obj.TaxExemption,
                 TaxExemptionStatus = obj.TaxExemptionStatus,
                 ModifiedBy = modifiedById,
-                ModifiedOn = DateTime.Now,
+                ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.Parse(obj.CompanyId),
             };
 
@@ -379,7 +379,7 @@ namespace xgca.core.Company
                 TaxExemption = obj.TaxExemption,
                 TaxExemptionStatus = obj.TaxExemptionStatus,
                 ModifiedBy = GlobalVariables.SystemUserId,
-                ModifiedOn = DateTime.Now,
+                ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.Parse(obj.CompanyId),
             };
 

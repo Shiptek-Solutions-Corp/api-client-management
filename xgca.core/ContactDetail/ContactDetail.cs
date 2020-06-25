@@ -67,9 +67,9 @@ namespace xgca.core.ContactDetail
                 FaxPrefix = faxPrefix,
                 Fax = fax,
                 CreatedBy = creatdById,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 ModifiedBy = creatdById,
-                ModifiedOn = DateTime.Now,
+                ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid(),
             };
             int contactDetailId = await _contactDetail.CreateAndReturnId(contactDetail);

@@ -10,5 +10,7 @@ namespace xgca.core.Constants
         public static string SystemUser = "System";
 
         public static string AuditLogTimeFormat = "yyyy-MM-dd HH:mm";
+
+        public static int ActiveServices = 1;
     }
 }

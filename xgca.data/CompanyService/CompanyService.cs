@@ -40,6 +40,12 @@ namespace xgca.data.CompanyService
                 .Where(c => c.CompanyId == companyId && c.IsDeleted == 0).ToListAsync();
             return data;
         }
+        public async Task<List<entity.Models.CompanyService>> ListByCompanyId(int companyId, int status)
+        {
+            var data = await _context.CompanyServices
+                .Where(c => c.CompanyId == companyId && c.Status == 1 && c.IsDeleted == 0).ToListAsync();
+            return data;
+        }
         public async Task<entity.Models.CompanyService> Retrieve(int key)
         { 
             var data = await _context.CompanyServices
@@ -69,7 +75,7 @@ namespace xgca.data.CompanyService
                 data.ServiceId = companyService.ServiceId;
                 data.Status = companyService.Status;
                 data.ModifiedBy = companyService.ModifiedBy;
-                data.ModifiedOn = DateTime.Now;
+                data.ModifiedOn = DateTime.UtcNow;
             }
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
@@ -95,7 +101,7 @@ namespace xgca.data.CompanyService
                 return false;
             }
             data.IsDeleted = 1;
-            data.ModifiedOn = DateTime.Now;
+            data.ModifiedOn = DateTime.UtcNow;
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
         }

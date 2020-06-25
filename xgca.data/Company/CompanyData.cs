@@ -73,7 +73,7 @@ namespace xgca.data.Company
             data.WebsiteURL = obj.WebsiteURL;
             data.TaxExemption = obj.TaxExemption;
             data.TaxExemptionStatus = obj.TaxExemptionStatus;
-            data.ModifiedOn = DateTime.Now;
+            data.ModifiedOn = DateTime.UtcNow;
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
         }
@@ -85,7 +85,7 @@ namespace xgca.data.Company
                 return false;
             }
             data.IsDeleted = 1;
-            data.ModifiedOn = DateTime.Now;
+            data.ModifiedOn = DateTime.UtcNow;
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
         }

@@ -73,10 +73,10 @@ namespace xgca.core.Helpers
             string fullAddress = AddressHelper.GenerateFullAddress(companyObj.Addresses);
             var data = new
             {
-                companyObj.CompanyId,
+                CompanyId = companyObj.Guid,
                 companyObj.CompanyName,
                 companyObj.ImageURL,
-                companyObj.AddressId,
+                AddressId = companyObj.Addresses.Guid,
                 companyObj.Addresses.AddressLine,
                 City = new
                 {
@@ -99,7 +99,7 @@ namespace xgca.core.Helpers
                 companyObj.Addresses.Latitude,
                 companyObj.WebsiteURL,
                 companyObj.EmailAddress,
-                companyObj.ContactDetailId,
+                ContactDetailId = companyObj.ContactDetails.Guid,
                 Phone = new
                 {
                     companyObj.ContactDetails.PhonePrefixId,

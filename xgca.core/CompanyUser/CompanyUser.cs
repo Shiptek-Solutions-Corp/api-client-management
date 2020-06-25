@@ -43,9 +43,9 @@ namespace xgca.core.CompanyUser
                 UserTypeId = userTypeId,
                 Status = 1,
                 CreatedBy = 0,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 ModifiedBy = 0,
-                ModifiedOn = DateTime.Now,
+                ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid()
             };
 
@@ -65,9 +65,9 @@ namespace xgca.core.CompanyUser
                 UserTypeId = userTypeId,
                 Status = 1,
                 CreatedBy = createdBy,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 ModifiedBy = createdBy,
-                ModifiedOn = DateTime.Now,
+                ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid()
             };
 
@@ -100,7 +100,7 @@ namespace xgca.core.CompanyUser
                 UserTypeId = userTypeId,
                 Status = 1,
                 ModifiedBy = modifiedBy,
-                ModifiedOn = DateTime.Now
+                ModifiedOn = DateTime.UtcNow
             };
 
             var result = await _companyUser.Update(data);

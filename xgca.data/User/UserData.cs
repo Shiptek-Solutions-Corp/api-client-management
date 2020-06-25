@@ -73,7 +73,7 @@ namespace xgca.data.User
             data.EmailAddress = obj.EmailAddress;
             data.ImageURL = obj.ImageURL;
             data.ModifiedBy = obj.ModifiedBy;
-            data.ModifiedOn = DateTime.Now;
+            data.ModifiedOn = DateTime.UtcNow;
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
         }
@@ -87,7 +87,7 @@ namespace xgca.data.User
             }
             data.Status = obj.Status;
             data.ModifiedBy = obj.ModifiedBy;
-            data.ModifiedOn = DateTime.Now;
+            data.ModifiedOn = DateTime.UtcNow;
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
         }
@@ -101,7 +101,7 @@ namespace xgca.data.User
             }
             data.IsLocked = obj.IsLocked;
             data.ModifiedBy = obj.ModifiedBy;
-            data.ModifiedOn = DateTime.Now;
+            data.ModifiedOn = DateTime.UtcNow;
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
         }
@@ -116,7 +116,7 @@ namespace xgca.data.User
 
             data.Username = obj.Username;
             data.ModifiedBy = obj.ModifiedBy;
-            data.ModifiedOn = DateTime.Now;
+            data.ModifiedOn = DateTime.UtcNow;
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
         }
@@ -128,7 +128,7 @@ namespace xgca.data.User
                 return false;
             }
             data.IsDeleted = 1;
-            data.ModifiedOn = DateTime.Now;
+            data.ModifiedOn = DateTime.UtcNow;
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
         }
