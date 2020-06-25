@@ -31,6 +31,8 @@
     <Compile Remove="Migrations\20200623034442_added_foreign_key_relationship_AuditLog_User.Designer.cs" />
     <Compile Remove="Migrations\20200623080939_added_foreign_key_relationship_AuditLog_User.cs" />
     <Compile Remove="Migrations\20200623080939_added_foreign_key_relationship_AuditLog_User.Designer.cs" />
+    <Compile Remove="Migrations\20200625083300_changed_max_characters.cs" />
+    <Compile Remove="Migrations\20200625083300_changed_max_characters.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
