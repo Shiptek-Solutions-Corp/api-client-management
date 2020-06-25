@@ -23,7 +23,7 @@ namespace xgca.entity.Models
         public string FirstName { get; set; }
         [StringLength(100)]
         public string MiddleName { get; set; }
-        [StringLength(20)]
+        [StringLength(50)]
         public string Title { get; set; }
         [StringLength(100)]
         public string EmailAddress { get; set; }
