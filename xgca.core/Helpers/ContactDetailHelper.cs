@@ -27,9 +27,9 @@ namespace xgca.core.Helpers
                 FaxPrefix = faxPrefix,
                 Fax = fax,
                 CreatedBy = createdBy,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 ModifiedBy = createdBy,
-                ModifiedOn = DateTime.Now,
+                ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid(),
             };
 
@@ -58,7 +58,7 @@ namespace xgca.core.Helpers
                 FaxPrefix = faxPrefix,
                 Fax = fax,
                 ModifiedBy = modifiedBy,
-                ModifiedOn = DateTime.Now,
+                ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.Parse(obj.ContactDetailId)
             };
 

@@ -39,7 +39,7 @@ namespace xgca.core.Helpers
                 user.ContactDetails.Mobile,
                 user.ContactDetails.Fax,
                 CreatedBy = createdBy,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
             };
             return obj;
         }

@@ -142,9 +142,9 @@ namespace xgca.core.User
                 ImageURL = obj.ImageURL,
                 EmailAddress = obj.EmailAddress,
                 CreatedBy = userId,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 ModifiedBy = userId,
-                ModifiedOn = DateTime.Now,
+                ModifiedOn = DateTime.UtcNow,
                 Status = 1,
                 Guid = Guid.NewGuid()
             };
@@ -182,9 +182,9 @@ namespace xgca.core.User
                 ImageURL = obj.ImageURL,
                 EmailAddress = obj.EmailAddress,
                 CreatedBy = createdBy,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 ModifiedBy = createdBy,
-                ModifiedOn = DateTime.Now,
+                ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid()
             };
 
@@ -217,9 +217,9 @@ namespace xgca.core.User
                 ImageURL = obj.ImageURL,
                 EmailAddress = obj.EmailAddress,
                 CreatedBy = GlobalVariables.SystemUserId,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 ModifiedBy = GlobalVariables.SystemUserId,
-                ModifiedOn = DateTime.Now,
+                ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid()
             };
 
@@ -274,7 +274,7 @@ namespace xgca.core.User
                 ImageURL = obj.ImageURL,
                 EmailAddress = obj.EmailAddress,
                 ModifiedBy = modifiedById,
-                ModifiedOn = DateTime.Now
+                ModifiedOn = DateTime.UtcNow
             };
 
             var userResult = await _userData.Update(user);
@@ -300,7 +300,7 @@ namespace xgca.core.User
                 UserId = userId,
                 Status = obj.Status,
                 ModifiedBy = modifiedById,
-                ModifiedOn = DateTime.Now
+                ModifiedOn = DateTime.UtcNow
             };
 
             var userResult = await _userData.UpdateStatus(user);
@@ -324,7 +324,7 @@ namespace xgca.core.User
                 UserId = userId,
                 IsLocked = obj.IsLocked,
                 ModifiedBy = modifiedById,
-                ModifiedOn = DateTime.Now
+                ModifiedOn = DateTime.UtcNow
             };
 
             var userResult = await _userData.UpdateLock(user);
@@ -432,7 +432,7 @@ namespace xgca.core.User
                 UserId = obj.UserId,
                 Username = obj.Username,
                 ModifiedBy = GlobalVariables.SystemUserId,
-                ModifiedOn = DateTime.Now
+                ModifiedOn = DateTime.UtcNow
             };
 
             var result = await _userData.SetUsername(data);

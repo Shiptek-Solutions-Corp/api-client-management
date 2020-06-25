@@ -69,7 +69,7 @@ namespace xgca.data.CompanyService
                 data.ServiceId = companyService.ServiceId;
                 data.Status = companyService.Status;
                 data.ModifiedBy = companyService.ModifiedBy;
-                data.ModifiedOn = DateTime.Now;
+                data.ModifiedOn = DateTime.UtcNow;
             }
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
@@ -95,7 +95,7 @@ namespace xgca.data.CompanyService
                 return false;
             }
             data.IsDeleted = 1;
-            data.ModifiedOn = DateTime.Now;
+            data.ModifiedOn = DateTime.UtcNow;
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
         }

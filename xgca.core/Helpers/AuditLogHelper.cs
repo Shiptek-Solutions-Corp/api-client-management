@@ -18,7 +18,7 @@ namespace xgca.core.Helpers
                 NewValue = JsonConvert.SerializeObject(obj),
                 OldValue = null,
                 CreatedBy = createdBy,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid()
             };
 
@@ -35,7 +35,7 @@ namespace xgca.core.Helpers
                 NewValue = JsonConvert.SerializeObject(newObj),
                 OldValue = JsonConvert.SerializeObject(oldObj),
                 CreatedBy = createdBy,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid()
             };
 

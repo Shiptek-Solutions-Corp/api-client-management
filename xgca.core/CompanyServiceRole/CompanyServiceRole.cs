@@ -41,9 +41,9 @@ namespace xgca.core.CompanyServiceRole
                     Name = "Administrator",
                     Description = "Service administrator",
                     CreatedBy = userId,
-                    CreatedOn = DateTime.Now,
+                    CreatedOn = DateTime.UtcNow,
                     ModifiedBy = userId,
-                    ModifiedOn = DateTime.Now,
+                    ModifiedOn = DateTime.UtcNow,
                     Guid = Guid.NewGuid()
                 });
             }

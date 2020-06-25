@@ -65,8 +65,8 @@ namespace xgca.core.AddressType
                 Name = obj.Name,
                 Guid = Guid.NewGuid(),
                 CreatedBy = 1,
-                CreatedOn = DateTime.Now,
-                ModifiedOn = DateTime.Now
+                CreatedOn = DateTime.UtcNow,
+                ModifiedOn = DateTime.UtcNow
             };
             var result = await _addressType.Create(data);
 
@@ -85,7 +85,7 @@ namespace xgca.core.AddressType
                 AddressTypeId = addressTypeId,
                 Name = obj.Name,
                 ModifiedBy = 1,
-                ModifiedOn = DateTime.Now
+                ModifiedOn = DateTime.UtcNow
             };
             var result = await _addressType.Update(data);
 

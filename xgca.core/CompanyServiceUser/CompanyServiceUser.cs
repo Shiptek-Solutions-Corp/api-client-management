@@ -44,9 +44,9 @@ namespace xgca.core.CompanyServiceUser
                     CompanyServiceRoleId = companyServiceRoleId,
                     CompanyUserId = companyUserId,
                     CreatedBy = createdBy,
-                    CreatedOn = DateTime.Now,
+                    CreatedOn = DateTime.UtcNow,
                     ModifiedBy = createdBy,
-                    ModifiedOn = DateTime.Now,
+                    ModifiedOn = DateTime.UtcNow,
                     Guid = Guid.NewGuid()
                 });
             }

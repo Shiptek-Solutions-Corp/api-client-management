@@ -110,9 +110,9 @@ namespace xgca.core.CompanyService
                 ServiceId = service.data.ServiceId,
                 Status = 1,
                 CreatedBy = userId,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 ModifiedBy = userId,
-                ModifiedOn = DateTime.Now,
+                ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid()
             };
 
@@ -133,9 +133,9 @@ namespace xgca.core.CompanyService
                     CompanyId = companyId,
                     Status = 1,
                     CreatedBy = userId,
-                    CreatedOn = DateTime.Now,
+                    CreatedOn = DateTime.UtcNow,
                     ModifiedBy = userId,
-                    ModifiedOn = DateTime.Now,
+                    ModifiedOn = DateTime.UtcNow,
                     Guid = Guid.NewGuid()
                 });
             }
@@ -157,7 +157,7 @@ namespace xgca.core.CompanyService
                 CompanyId = companyId,
                 Status = obj.Status,
                 CreatedBy = userId,
-                CreatedOn = DateTime.Now
+                CreatedOn = DateTime.UtcNow
             };
 
             var companyServiceResult = await _companyService.Update(companyService);
@@ -186,9 +186,9 @@ namespace xgca.core.CompanyService
                         Guid = Guid.NewGuid(),
                         Status = 1,
                         CreatedBy = userId,
-                        CreatedOn = DateTime.Now,
+                        CreatedOn = DateTime.UtcNow,
                         ModifiedBy = userId,
-                        ModifiedOn = DateTime.Now,
+                        ModifiedOn = DateTime.UtcNow,
                     });
                 }
                 else
@@ -201,7 +201,7 @@ namespace xgca.core.CompanyService
                         ServiceId = Convert.ToInt32((serviceJson)["data"]["serviceId"]),
                         Status = Convert.ToByte((serviceObj)["status"]),
                         ModifiedBy = userId,
-                        ModifiedOn = DateTime.Now,
+                        ModifiedOn = DateTime.UtcNow,
                     });
                 }
             }

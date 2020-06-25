@@ -69,9 +69,9 @@ namespace xgca.core.Address
                 Longitude = obj.Longitude,
                 Latitude = obj.Latitude,
                 CreatedBy = createdById,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 ModifiedBy = createdById,
-                ModifiedOn = DateTime.Now,
+                ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid()
             };
             int addressId = await _addressData.CreateAndReturnId(address);
@@ -104,7 +104,7 @@ namespace xgca.core.Address
                 Longitude = obj.Longitude,
                 Latitude = obj.Latitude,
                 ModifiedBy = modifiedById,
-                ModifiedOn = DateTime.Now,
+                ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.Parse(obj.AddressId)
             };
             await _addressData.Update(address);
