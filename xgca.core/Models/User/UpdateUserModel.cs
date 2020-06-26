@@ -16,7 +16,7 @@
         public string MobilePrefix { get; set; }
         public string Mobile { get; set; }
         public string WebsiteURL { get; set; }
-        public string EmailAddress { get; set; }
+        //public string EmailAddress { get; set; }
         public string ContactDetailId { get; set; }
         public string ModifiedBy { get; set; }
     }

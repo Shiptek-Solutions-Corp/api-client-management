@@ -20,7 +20,7 @@ namespace xgca.core.Validators.User
             RuleFor(o => o.PhonePrefix).NotEmpty().WithMessage("Phone prefix is required.");
             RuleFor(o => o.Phone).NotEmpty().WithMessage("Phone number is required.");
             RuleFor(o => o.Title).NotEmpty().WithMessage("Title/Designation is required.");
-            RuleFor(o => o.EmailAddress).NotEmpty().WithMessage("EmailAddress is required.");
+            //RuleFor(o => o.EmailAddress).NotEmpty().WithMessage("EmailAddress is required.");
         }
     }
 }
