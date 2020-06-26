@@ -246,13 +246,13 @@ namespace xgca.core.User
                 return _general.Response(null, errors, 400, "Error on updating user", false);
             }
 
-            bool emailAddressIsExists = await _userData.EmailAddressExists(obj.EmailAddress, userId);
-            if (emailAddressIsExists)
-            {
-                var errors = new List<ErrorField>();
-                errors.Add(new ErrorField("EmailAddress", "Email address already exists."));
-                return _general.Response(null, errors, 400, "Error updating user", false);
-            }
+            //bool emailAddressIsExists = await _userData.EmailAddressExists(obj.EmailAddress, userId);
+            //if (emailAddressIsExists)
+            //{
+            //    var errors = new List<ErrorField>();
+            //    errors.Add(new ErrorField("EmailAddress", "Email address already exists."));
+            //    return _general.Response(null, errors, 400, "Error updating user", false);
+            //}
 
             var oldUser = await _userData.Retrieve(userId);
             var oldValue = UserHelper.BuildUserLogValue(oldUser, userId, modifiedById);
@@ -272,7 +272,7 @@ namespace xgca.core.User
                 Title = obj.Title,
                 ContactDetailId = contactDetailId,
                 ImageURL = obj.ImageURL,
-                EmailAddress = obj.EmailAddress,
+                //EmailAddress = obj.EmailAddress,
                 ModifiedBy = modifiedById,
                 ModifiedOn = DateTime.UtcNow
             };
