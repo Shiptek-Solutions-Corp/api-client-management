@@ -43,5 +43,27 @@ namespace xlog_client_management_api.Controllers.CompanyService
 
             return Ok(response);
         }
+
+        [Route("company/services/{companyId}")]
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> ListCompanyServiceByCompanyId(string companyId)
+        {
+            var response = await _companyService.ListByCompanyId(companyId);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
     }
 }
