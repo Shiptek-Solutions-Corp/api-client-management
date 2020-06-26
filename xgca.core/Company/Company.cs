@@ -316,6 +316,77 @@ namespace xgca.core.Company
 
             return _general.Response(new { company = data }, 200, "Configurable information for selected company has been displayed", true);
         }
+
+        public async Task<IGeneralModel> Retrieve(string companyId)
+        {
+            int companyKey = await _companyData.GetIdByGuid(Guid.Parse(companyId));
+            if (!(companyKey > 0))
+            { return _general.Response(null, 400, "Selected company might have been deleted or does not exists", false); }
+            var result = await _companyData.Retrieve(companyKey);
+            if (result == null)
+            { return _general.Response(null, 400, "Selected company might have been deleted or does not exists", false); }
+
+            var cityResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetCity, result.Addresses.CityId, AuthToken.Contra);
+            var cityJson = (JObject)cityResponse;
+            var stateResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetState, result.Addresses.StateId, AuthToken.Contra);
+            var stateJson = (JObject)stateResponse;
+
+            var companyServices = await _coreCompanyService.ListByCompanyId(companyId);
+
+            var data = new
+            {
+                CompanyId = result.Guid,
+                result.CompanyName,
+                result.ImageURL,
+                AddressId = result.Addresses.Guid,
+                result.Addresses.AddressLine,
+                City = new
+                {
+                    CityId = (cityJson)["data"]["cityId"],
+                    result.Addresses.CityName,
+                },
+                State = new
+                {
+                    StateId = (stateJson)["data"]["stateId"],
+                    result.Addresses.StateName,
+                },
+                Country = new
+                {
+                    result.Addresses.CountryId,
+                    result.Addresses.CountryName,
+                },
+                result.Addresses.ZipCode,
+                result.Addresses.FullAddress,
+                result.Addresses.Longitude,
+                result.Addresses.Latitude,
+                result.WebsiteURL,
+                result.EmailAddress,
+                ContactDetailId = result.ContactDetails.Guid,
+                Phone = new
+                {
+                    result.ContactDetails.PhonePrefixId,
+                    result.ContactDetails.PhonePrefix,
+                    result.ContactDetails.Phone,
+                },
+                Mobile = new
+                {
+                    result.ContactDetails.MobilePrefixId,
+                    result.ContactDetails.MobilePrefix,
+                    result.ContactDetails.Mobile,
+                },
+                Fax = new
+                {
+                    result.ContactDetails.FaxPrefixId,
+                    result.ContactDetails.FaxPrefix,
+                    result.ContactDetails.Fax,
+                },
+                result.TaxExemption,
+                result.TaxExemptionStatus,
+                CompanyServices = companyServices.data.companyService,
+            };
+
+            return _general.Response(new { company = data }, 200, "Configurable information for selected company has been displayed", true);
+        }
         public async Task<IGeneralModel> Delete(string key)
         {
             int companyId = await _companyData.GetIdByGuid(Guid.Parse(key));
