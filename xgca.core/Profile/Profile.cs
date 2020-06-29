@@ -88,6 +88,7 @@ namespace xgca.core.Profile
                 {
                     UserId = user.Guid,
                     Name = String.Concat(user.FirstName, " ", user.LastName),
+                    Username = username,
                     Image = user.ImageURL,
                     Email = user.EmailAddress,
                     ServiceRole = companyServiceUser.CompanyServiceRoles.Name,
