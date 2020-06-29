@@ -23,7 +23,7 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
         }
 
 
-        [Route("company/role/{companyServiceId}")]
+        [Route("company/services/role/{companyServiceId}")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]

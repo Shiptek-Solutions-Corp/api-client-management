@@ -112,5 +112,18 @@ namespace xgca.core.Helpers.Http
 
             throw new NotImplementedException();
         }
+
+        public async Task<dynamic> Put(string environment, string endpointUrl, string key, string token, object bodyParams)
+        {
+            string apiUrl = environment + endpointUrl + key;
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(token);
+            var response = await _httpClient.GetAsync(apiUrl);
+            var result = await response.Content.ReadAsStringAsync();
+            var responseData = JsonConvert.DeserializeObject(result);
+
+            return responseData;
+        }
+
+
     }
 }

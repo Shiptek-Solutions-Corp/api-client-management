@@ -92,6 +92,23 @@ namespace xgca.data.User
             return result > 0 ? true : false;
         }
 
+        public async Task<bool> UpdateStatus(List<int> userIds, int modifiedBy, byte status)
+        {
+            var data = await _context.Users.Where(u => userIds.Contains(u.UserId) && u.IsDeleted == 0)
+                .ToListAsync();
+            if (data == null)
+            {
+                return false;
+            }
+            data.ForEach(t => {
+                t.Status = status;
+                t.ModifiedBy = modifiedBy;
+                t.ModifiedOn = DateTime.UtcNow;
+            });
+            var result = await _context.SaveChangesAsync();
+            return result > 0 ? true : false;
+        }
+
         public async Task<bool> UpdateLock(entity.Models.User obj)
         {
             var data = await _context.Users.Where(u => u.UserId == obj.UserId && u.IsDeleted == 0).FirstOrDefaultAsync();

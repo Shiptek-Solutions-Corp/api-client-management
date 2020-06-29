@@ -23,7 +23,8 @@ using xgca.core.Models.AuditLog;
 
 namespace xgca.core.User
 {
-    public class User : IUser
+    public class User : 
+        IUser
     {
         private readonly xgca.data.User.IUserData _userData;
         private readonly xgca.core.ContactDetail.IContactDetail _coreContactDetail;
@@ -33,6 +34,7 @@ namespace xgca.core.User
         private readonly IHttpHelper _httpHelper;
         private readonly IOptions<GlobalCmsApi> _options;
         private readonly IGeneral _general;
+        private readonly IHttpHelper _httpHelpers;
 
         public User(xgca.data.User.IUserData userData,
             xgca.core.ContactDetail.IContactDetail coreContactDetail,
@@ -51,6 +53,7 @@ namespace xgca.core.User
             _httpHelper = httpHelper;
             _options = options;
             _general = general;
+            _httpHelpers = httpHelpers;
         }
 
         public async Task<IGeneralModel> List()
@@ -334,6 +337,30 @@ namespace xgca.core.User
                 : _general.Response(null, 400, "Error on updating user", false);
         }
 
+        public async Task<IGeneralModel> UpdateMultipleStatus(UpdateMultipleStatusModel obj, string modifiedBy)
+        {
+            if (obj == null)
+            { return _general.Response(null, 400, "Data cannot be null", false); }
+
+            List<int> userIdList = new List<int>();
+            foreach (string UserId in obj.UserId)
+            {
+                int userId = await _userData.GetIdByGuid(Guid.Parse(UserId));
+                userIdList.Add(userId);
+            }
+
+            int modifiedById = await _userData.GetIdByUsername(modifiedBy);
+
+            var userResult = await _userData.UpdateStatus(
+                userIdList,
+                modifiedById,
+                obj.Status);
+
+            return userResult
+                ? _general.Response(null, 200, "User Multiple Status updated", true)
+                : _general.Response(null, 400, "Error on updating user", false);
+        }
+
         public async Task<IGeneralModel> Retrieve(string key)
         {
             int userId = await _userData.GetIdByGuid(Guid.Parse(key));
@@ -507,5 +534,6 @@ namespace xgca.core.User
 
             return _general.Response(new { Logs = logs }, 200, "Company audit logs has been listed", true);
         }
+
     }
 }

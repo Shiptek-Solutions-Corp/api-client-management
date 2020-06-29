@@ -16,6 +16,7 @@ namespace xgca.core.User
         Task<IGeneralModel> Update(UpdateUserModel obj, string modifiedBy);
         Task<IGeneralModel> UpdateStatus(UpdateUserStatusModel obj, string modifiedBy);
         Task<IGeneralModel> UpdateLock(UpdateUserLockModel obj, string modifiedBy);
+        Task<IGeneralModel> UpdateMultipleStatus(UpdateMultipleStatusModel obj, string modifiedBy);
         Task<IGeneralModel> SetUsername(SetUsernameModel obj);
         Task<IGeneralModel> Retrieve(string key);
         Task<IGeneralModel> RetrieveByUsername(string username);
