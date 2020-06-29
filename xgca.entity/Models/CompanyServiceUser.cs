@@ -30,7 +30,5 @@ namespace xgca.entity.Models
         public virtual CompanyService CompanyServices { get; set; }
         public virtual CompanyUser CompanyUsers { get; set; }
         public virtual CompanyServiceRole CompanyServiceRoles { get; set; }
-
-
     }
 }

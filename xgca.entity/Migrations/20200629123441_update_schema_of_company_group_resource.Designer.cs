@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using xgca.entity;
 
 namespace xgca.entity.Migrations
 {
     [DbContext(typeof(XGCAContext))]
-    partial class XGCAContextModelSnapshot : ModelSnapshot
+    [Migration("20200629123441_update_schema_of_company_group_resource")]
+    partial class update_schema_of_company_group_resource
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -260,9 +262,6 @@ namespace xgca.entity.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("GroupResourceId")
-                        .HasColumnType("int");
-
                     b.Property<Guid>("Guid")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
@@ -279,12 +278,10 @@ namespace xgca.entity.Migrations
                     b.Property<DateTime>("ModifiedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("ModuleGroupId")
+                        .HasColumnType("int");
+
                     b.HasKey("CompanyGroupResourceId");
-
-                    b.HasIndex("CompanyServiceRoleId")
-                        .IsUnique();
-
-                    b.HasIndex("GroupResourceId");
 
                     b.ToTable("CompanyGroupResource","Company");
                 });
@@ -338,6 +335,9 @@ namespace xgca.entity.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int?>("CompanyGroupResourcesCompanyGroupResourceId")
+                        .HasColumnType("int");
+
                     b.Property<int>("CompanyServiceId")
                         .HasColumnType("int");
 
@@ -367,6 +367,8 @@ namespace xgca.entity.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CompanyServiceRoleId");
+
+                    b.HasIndex("CompanyGroupResourcesCompanyGroupResourceId");
 
                     b.HasIndex("CompanyServiceId");
 
@@ -531,68 +533,6 @@ namespace xgca.entity.Migrations
                     b.ToTable("ContactDetail","General");
                 });
 
-            modelBuilder.Entity("xgca.entity.Models.GroupResource", b =>
-                {
-                    b.Property<int>("GroupResourceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ModuleGroupId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ResourceId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("GroupResourceId");
-
-                    b.HasIndex("ModuleGroupId");
-
-                    b.ToTable("GroupResource","Module");
-                });
-
-            modelBuilder.Entity("xgca.entity.Models.ModuleGroup", b =>
-                {
-                    b.Property<int>("ModuleGroupsId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ModuleId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ResourceGroupId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ModuleGroupsId");
-
-                    b.ToTable("ModuleGroup","Module");
-                });
-
             modelBuilder.Entity("xgca.entity.Models.User", b =>
                 {
                     b.Property<int>("UserId")
@@ -689,21 +629,6 @@ namespace xgca.entity.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("xgca.entity.Models.CompanyGroupResource", b =>
-                {
-                    b.HasOne("xgca.entity.Models.CompanyServiceRole", "CompanyServiceRole")
-                        .WithOne("CompanyGroupResources")
-                        .HasForeignKey("xgca.entity.Models.CompanyGroupResource", "CompanyServiceRoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("xgca.entity.Models.GroupResource", "GroupResource")
-                        .WithMany("CompanyGroupResources")
-                        .HasForeignKey("GroupResourceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("xgca.entity.Models.CompanyService", b =>
                 {
                     b.HasOne("xgca.entity.Models.Company", "Companies")
@@ -715,6 +640,10 @@ namespace xgca.entity.Migrations
 
             modelBuilder.Entity("xgca.entity.Models.CompanyServiceRole", b =>
                 {
+                    b.HasOne("xgca.entity.Models.CompanyGroupResource", "CompanyGroupResources")
+                        .WithMany("CompanyServiceRoles")
+                        .HasForeignKey("CompanyGroupResourcesCompanyGroupResourceId");
+
                     b.HasOne("xgca.entity.Models.CompanyService", "CompanyServices")
                         .WithMany("CompanyServiceRoles")
                         .HasForeignKey("CompanyServiceId")
@@ -754,15 +683,6 @@ namespace xgca.entity.Migrations
                     b.HasOne("xgca.entity.Models.User", "Users")
                         .WithOne("CompanyUsers")
                         .HasForeignKey("xgca.entity.Models.CompanyUser", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("xgca.entity.Models.GroupResource", b =>
-                {
-                    b.HasOne("xgca.entity.Models.ModuleGroup", "ModuleGroup")
-                        .WithMany()
-                        .HasForeignKey("ModuleGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
