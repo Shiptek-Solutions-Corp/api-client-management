@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using xgca.entity;
 
 namespace xgca.entity.Migrations
 {
     [DbContext(typeof(XGCAContext))]
-    partial class XGCAContextModelSnapshot : ModelSnapshot
+    [Migration("20200630084833_change_CompanyServiceId_to_nullable_in_CompanyServiceRole_table")]
+    partial class change_CompanyServiceId_to_nullable_in_CompanyServiceRole_table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -281,7 +283,8 @@ namespace xgca.entity.Migrations
 
                     b.HasKey("CompanyGroupResourceId");
 
-                    b.HasIndex("CompanyServiceRoleId");
+                    b.HasIndex("CompanyServiceRoleId")
+                        .IsUnique();
 
                     b.HasIndex("GroupResourceId");
 
@@ -428,6 +431,9 @@ namespace xgca.entity.Migrations
                     b.Property<int?>("CompanyServiceId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("CompanyServiceId1")
+                        .HasColumnType("int");
+
                     b.Property<int?>("CompanyServiceRoleId")
                         .HasColumnType("int");
 
@@ -437,6 +443,8 @@ namespace xgca.entity.Migrations
                     b.HasKey("CompanyServiceUserRoleID");
 
                     b.HasIndex("CompanyServiceId");
+
+                    b.HasIndex("CompanyServiceId1");
 
                     b.HasIndex("CompanyServiceRoleId");
 
@@ -751,9 +759,9 @@ namespace xgca.entity.Migrations
             modelBuilder.Entity("xgca.entity.Models.CompanyGroupResource", b =>
                 {
                     b.HasOne("xgca.entity.Models.CompanyServiceRole", "CompanyServiceRole")
-                        .WithMany("CompanyGroupResources")
-                        .HasForeignKey("CompanyServiceRoleId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .WithOne("CompanyGroupResources")
+                        .HasForeignKey("xgca.entity.Models.CompanyGroupResource", "CompanyServiceRoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("xgca.entity.Models.GroupResource", "GroupResource")
@@ -798,16 +806,30 @@ namespace xgca.entity.Migrations
 
             modelBuilder.Entity("xgca.entity.Models.CompanyServiceUserRole", b =>
                 {
-                    b.HasOne("xgca.entity.Models.CompanyService", "CompanyService")
+                    b.HasOne("xgca.entity.Models.CompanyService", null)
+                        .WithMany("CompanyServiceUserRoles")
+                        .HasForeignKey("CompanyServiceId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("xgca.entity.Models.CompanyServiceRole", null)
                         .WithMany("CompanyServiceUserRoles")
                         .HasForeignKey("CompanyServiceId");
 
-                    b.HasOne("xgca.entity.Models.CompanyServiceRole", "CompanyServiceRole")
+                    b.HasOne("xgca.entity.Models.CompanyServiceUser", null)
                         .WithMany("CompanyServiceUserRoles")
+                        .HasForeignKey("CompanyServiceId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("xgca.entity.Models.CompanyService", "CompanyService")
+                        .WithMany()
+                        .HasForeignKey("CompanyServiceId1");
+
+                    b.HasOne("xgca.entity.Models.CompanyServiceRole", "CompanyServiceRole")
+                        .WithMany()
                         .HasForeignKey("CompanyServiceRoleId");
 
                     b.HasOne("xgca.entity.Models.CompanyServiceUser", "CompanyServiceUser")
-                        .WithMany("CompanyServiceUserRoles")
+                        .WithMany()
                         .HasForeignKey("CompanyServiceUserId");
                 });
 

@@ -14,7 +14,7 @@ namespace xgca.entity.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CompanyServiceRoleId { get; set; }
-        public int CompanyServiceId { get; set; }
+        public int? CompanyServiceId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public int CreatedBy { get; set; }
@@ -28,8 +28,10 @@ namespace xgca.entity.Models
         public byte IsDeleted { get; set; }
 
         public virtual CompanyService CompanyServices { get; set; } 
-        public virtual CompanyGroupResource CompanyGroupResources { get; set; }
+        public virtual ICollection<CompanyGroupResource> CompanyGroupResources { get; set; }
 
         public virtual ICollection<CompanyServiceUser> CompanyServiceUsers { get; set; }
+        public virtual ICollection<CompanyServiceUserRole> CompanyServiceUserRoles { get; set; }
+
     }
 }

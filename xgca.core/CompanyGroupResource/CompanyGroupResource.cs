@@ -3,9 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using xgca.core.CompanyService;
+using xgca.core.CompanyServiceRole;
 using xgca.core.Models.CompanyGroupResource;
 using xgca.core.Response;
 using xgca.data.CompanyGroupResource;
+using xgca.data.CompanyService;
+using xgca.data.CompanyServiceRole;
+using xgca.data.CompanyServiceUser;
 using xgca.entity.Models;
 
 namespace xgca.core.CompanyGroupResource
@@ -19,11 +24,25 @@ namespace xgca.core.CompanyGroupResource
         private readonly ICompanyGroupResourceData _companyGroupResourceData;
         private readonly IMapper _mapper;
         private readonly IGeneral _general;
-        public CompanyGroupResource(ICompanyGroupResourceData companyGroupResourceData, IMapper mapper, IGeneral general)
+        private readonly data.CompanyService.ICompanyService _companyServiceData;
+        private readonly data.CompanyServiceRole.ICompanyServiceRole _companyServiceRoleData;
+        private readonly ICompanyServiceUser _companyServiceUserData;
+
+        public CompanyGroupResource(
+            ICompanyGroupResourceData companyGroupResourceData, 
+            IMapper mapper, 
+            IGeneral general,
+            data.CompanyService.ICompanyService companyService,
+            data.CompanyServiceRole.ICompanyServiceRole companyServiceRole,
+            ICompanyServiceUser companyServiceUser
+            )
         {
             _companyGroupResourceData = companyGroupResourceData;
             _mapper = mapper;
             _general = general;
+            _companyServiceData = companyService;
+            _companyServiceRoleData = companyServiceRole;
+            _companyServiceUserData = companyServiceUser;
         }
 
         public async Task<IGeneralModel> Create(CreateCompanyGroupResource createCompanyGroupResource)

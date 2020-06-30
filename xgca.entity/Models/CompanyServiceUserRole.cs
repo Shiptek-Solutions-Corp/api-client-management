@@ -12,9 +12,9 @@ namespace xgca.entity.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CompanyServiceUserRoleID { get; set; }
-        public int CompanyServiceId { get; set; }
-        public int CompanyServiceUserId { get; set; }
-        public int CompanyServiceRoleId { get; set; }
+        public int? CompanyServiceId { get; set; }
+        public int? CompanyServiceUserId { get; set; }
+        public int? CompanyServiceRoleId { get; set; }
         public virtual CompanyService CompanyService { get; set; }
         public virtual CompanyServiceUser CompanyServiceUser { get; set; }
         public virtual CompanyServiceRole CompanyServiceRole { get; set; }

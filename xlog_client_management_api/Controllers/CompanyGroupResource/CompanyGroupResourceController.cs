@@ -9,7 +9,7 @@ using xgca.core.Models.CompanyGroupResource;
 
 namespace xlog_client_management_api.Controllers.CompanyGroupResource
 {
-    [Route("clients/api/v1/[cotroller]")]
+    [Route("clients/api/v1/[controller]")]
     public class CompanyGroupResourceController : Controller
     {
         private readonly ICompanyGroupResource _companyGroupResource;
@@ -19,7 +19,7 @@ namespace xlog_client_management_api.Controllers.CompanyGroupResource
         }
 
         [HttpPost]
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> Create([FromBody] CreateCompanyGroupResource createCompanyGroupResource)
         {
             var result = await _companyGroupResource.Create(createCompanyGroupResource);

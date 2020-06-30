@@ -39,7 +39,10 @@ namespace xgca.entity
             UpdateAuditEntities();
             return base.SaveChangesAsync();
         }
-
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+        }
         private void UpdateAuditEntities()
         {
             // https://medium.com/@unhandlederror/deleting-it-softly-with-ef-core-5f191db5cf72

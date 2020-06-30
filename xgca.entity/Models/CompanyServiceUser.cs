@@ -14,9 +14,9 @@ namespace xgca.entity.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CompanyServiceUserId { get; set; }
-        public int CompanyServiceId { get; set; }
+        public int? CompanyServiceId { get; set; }
         public int CompanyUserId { get; set; }
-        public int CompanyServiceRoleId { get; set; }
+        public int? CompanyServiceRoleId { get; set; }
         public int CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
         public int ModifiedBy { get; set; }
@@ -30,5 +30,6 @@ namespace xgca.entity.Models
         public virtual CompanyService CompanyServices { get; set; }
         public virtual CompanyUser CompanyUsers { get; set; }
         public virtual CompanyServiceRole CompanyServiceRoles { get; set; }
+        public virtual ICollection<CompanyServiceUserRole> CompanyServiceUserRoles { get; set; }
     }
 }

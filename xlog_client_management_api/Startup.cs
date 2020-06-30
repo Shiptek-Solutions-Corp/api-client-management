@@ -46,6 +46,8 @@ using xgca.data.MenuModule;
 using xgca.core.MenuModule;
 using xgca.core.ModuleGroup;
 using xgca.data.ModuleGroup;
+using AutoMapper;
+using xgca.data.GroupResource;
 
 namespace xlog_client_management_api
 {
@@ -88,7 +90,7 @@ namespace xlog_client_management_api
 
             //services.AddSingleton<IAmazonCognitoIdentityProvider>(cognitoIdentityProvider);
             //services.AddSingleton<CognitoUserPool>(userPool);
-
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.Configure<xgca.core.Models.S3.Variables>(Configuration.GetSection("AWS"));
             services.AddScoped<IXGCAContext, XGCAContext>();
             services.AddScoped<IUserData, UserData>();
@@ -103,6 +105,8 @@ namespace xlog_client_management_api
             services.AddScoped<IContactDetail, ContactDetail>();
             services.AddScoped<IGeneral, General>();
             services.AddScoped<IGroupResource, GroupResource>();
+            services.AddScoped<IGroupResourceData, GroupResourceData>();
+
 
             services.AddScoped<ICompanyGroupResource, CompanyGroupResource>();
             services.AddScoped<ICompanyGroupResourceData, CompanyGroupResourceData>();
@@ -123,7 +127,7 @@ namespace xlog_client_management_api
             services.AddScoped<xgca.core.AddressType.IAddressType, xgca.core.AddressType.AddressType>();
             services.AddScoped<ICompany, Company>();
             services.AddScoped<IAuditLog, AuditLog>();
-            services.AddScoped<IProfile, Profile>();
+            services.AddScoped<IProfile, xgca.core.Profile.Profile>();
             services.AddScoped<IHttpHelper, HttpHelper>();
             services.AddScoped<ITokenHelper, TokenHelper>();
             services.AddScoped<xgca.core.CompanyService.ICompanyService, xgca.core.CompanyService.CompanyService>();
