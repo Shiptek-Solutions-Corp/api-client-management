@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using xgca.core.MenuModule;
 using xgca.core.Models.MenuModule;
@@ -17,6 +18,8 @@ namespace xlog_client_management_api.Controllers.MenuModules
         {
             _menuModule = menuModule;
         }
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> Create([FromBody] CreateMenuModule createMenuModules)
         {
             var result = await _menuModule.Create(createMenuModules);

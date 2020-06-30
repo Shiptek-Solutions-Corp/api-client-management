@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using xgca.core.GroupResource;
 using xgca.core.Models.GroupResource;
@@ -19,6 +20,7 @@ namespace xlog_client_management_api.Controllers
         }
 
         [HttpPost]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> Create([FromBody] CreateGroupResource createGroupResource)
         {
             var result = await _groupResource.Create(createGroupResource);

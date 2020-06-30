@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,9 @@ namespace xgca.data.ModuleGroup
     public interface IModuleGroupData
     {
         Task<bool> Create(entity.Models.ModuleGroup obj);
+        Task<List<entity.Models.ModuleGroup>> List();
+        Task<entity.Models.ModuleGroup> Retrieve(int key);
+
     }
     public class ModuleGroupData : IModuleGroupData, IMaintainable<entity.Models.ModuleGroup>
     {
@@ -26,14 +30,21 @@ namespace xgca.data.ModuleGroup
             return result > 0 ? true : false;
         }
 
-        public Task<List<entity.Models.ModuleGroup>> List()
+        public async Task<List<entity.Models.ModuleGroup>> List()
         {
-            throw new NotImplementedException();
+            var moduleGroups = await _xGCAContext
+                .ModuleGroups
+                .AsNoTracking()
+                .ToListAsync();
+
+            return moduleGroups;
         }
 
-        public Task<entity.Models.ModuleGroup> Retrieve(int key)
+        public async Task<entity.Models.ModuleGroup> Retrieve(int key)
         {
-            throw new NotImplementedException();
+            var moduleGroup = await _xGCAContext.ModuleGroups.SingleOrDefaultAsync(x => x.ModuleGroupsId == key);
+            
+            return moduleGroup;
         }
 
         public Task<bool> Update(entity.Models.ModuleGroup obj)

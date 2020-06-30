@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using xgca.core.Models.ModuleGroup;
@@ -12,7 +13,10 @@ namespace xgca.core.ModuleGroup
     public interface IModuleGroup
     {
         Task<IGeneralModel> Create(CreateModuleGroup obj);
+        Task<IGeneralModel> Get(int id);
+        Task<IGeneralModel> GetAll();
     }
+
     public class ModuleGroup : IModuleGroup
     {
         private readonly IModuleGroupData _moduleGroupData;
@@ -32,6 +36,25 @@ namespace xgca.core.ModuleGroup
             var viewCompanyModelGroup = _mapper.Map<GetModuleGroup>(companyModuleGroup);
 
             return _general.Response(viewCompanyModelGroup, 200, "Created successfuly", true);
+        }
+
+        public async Task<IGeneralModel> Get(int id)
+        {
+            var moduleGroup = await _moduleGroupData.Retrieve(id);
+            if (moduleGroup != null)
+            {
+                var viewModuleGroup = _mapper.Map<GetModuleGroup>(moduleGroup);
+                return _general.Response(viewModuleGroup, 200, "Retreived successfuly", true);
+            }
+            return _general.Response(null, 400, "Invalid Module Group", false);
+        }
+
+        public async Task<IGeneralModel> GetAll()
+        {
+            var result = await _moduleGroupData.List();
+            var viewModuleGroups = result.Select(d => _mapper.Map<GetModuleGroup>(d)).ToList();
+
+            return _general.Response(viewModuleGroups, 200, "Module Groups listed successfuly", true);
         }
     }
 }

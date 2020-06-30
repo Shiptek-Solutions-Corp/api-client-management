@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using xgca.core.CompanyServiceUserRole;
 using xgca.core.Models.CompanyServiceUserRole;
@@ -16,6 +17,8 @@ namespace xlog_client_management_api.Controllers.CompanyServiceUserRole
         {
             _companyServiceUserRole = companyServiceUserRole;
         }
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> Create([FromBody] CreateCompanyServiceUserRole createCompanyServiceUser)
         {
             var result = await _companyServiceUserRole.Create(createCompanyServiceUser);
