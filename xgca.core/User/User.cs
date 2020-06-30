@@ -33,8 +33,8 @@ namespace xgca.core.User
         private readonly ITokenHelper _tokenHelper;
         private readonly IHttpHelper _httpHelper;
         private readonly IOptions<GlobalCmsApi> _options;
+        private readonly IOptions<OptimusAuthService> _optimusAuthService;
         private readonly IGeneral _general;
-        private readonly IHttpHelper _httpHelpers;
 
         public User(xgca.data.User.IUserData userData,
             xgca.core.ContactDetail.IContactDetail coreContactDetail,
@@ -43,6 +43,7 @@ namespace xgca.core.User
             ITokenHelper tokenHelper,
             IOptions<GlobalCmsApi> options,
             IHttpHelper httpHelper,
+            IOptions<OptimusAuthService> optimusAuthService,
         IGeneral general)
         {
             _userData = userData;
@@ -53,7 +54,7 @@ namespace xgca.core.User
             _httpHelper = httpHelper;
             _options = options;
             _general = general;
-            _httpHelpers = httpHelpers;
+            _optimusAuthService = optimusAuthService;
         }
 
         public async Task<IGeneralModel> List()
@@ -337,22 +338,49 @@ namespace xgca.core.User
                 : _general.Response(null, 400, "Error on updating user", false);
         }
 
-        public async Task<IGeneralModel> UpdateMultipleStatus(UpdateMultipleStatusModel obj, string modifiedBy)
+        public async Task<IGeneralModel> UpdateMultipleStatus(UpdateMultipleStatusModel obj, string modifiedBy, string auth)
         {
             if (obj == null)
             { return _general.Response(null, 400, "Data cannot be null", false); }
 
-            List<int> userIdList = new List<int>();
+            List<int> Ids = new List<int>();
             foreach (string UserId in obj.UserId)
             {
                 int userId = await _userData.GetIdByGuid(Guid.Parse(UserId));
-                userIdList.Add(userId);
+                Ids.Add(userId);
             }
+
+            //var serviceKey = await _httpHelpers.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, companyService.ServiceId, AuthToken.Contra);
+            var arrIds = new { Ids = Ids };
+            string url = "";
+            if (obj.Status == 1)
+            {
+                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.EnableUserBatch;
+            }
+            else {
+                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.DisableUserBatch;
+            }
+            string token = _tokenHelper.RemoveBearer(auth);
+            var serviceResponse = await _httpHelper.Put(url, arrIds, token);
+            var json = (JObject)serviceResponse;
+            var IdsSuccessList = json["data"]["success"];
+
+
+            List<int> newIdsList = new List<int>();
+            foreach (int successUserId in IdsSuccessList)
+            {
+                newIdsList.Add(successUserId);
+            }
+
+            //List<int> IdsSuccessList = new List<int> json["data"]["success"];
+            //List<int> IdsSuccessList = json["data"]["success"].Value<List<int>>();
+
+
 
             int modifiedById = await _userData.GetIdByUsername(modifiedBy);
 
             var userResult = await _userData.UpdateStatus(
-                userIdList,
+                newIdsList,
                 modifiedById,
                 obj.Status);
 

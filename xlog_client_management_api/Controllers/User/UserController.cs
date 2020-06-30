@@ -302,7 +302,8 @@ namespace xlog_client_management_api.Controllers.User
         public async Task<IActionResult> UpdateMultipleStatus([FromBody] xgca.core.Models.User.UpdateMultipleStatusModel request)
         {
             var modifiedBy = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
-            var response = await _user.UpdateMultipleStatus(request, modifiedBy);
+            var authHeader = Request.Headers["Authorization"].ToString();
+            var response = await _user.UpdateMultipleStatus(request, modifiedBy, authHeader);
 
             if (response.statusCode == 400)
             {

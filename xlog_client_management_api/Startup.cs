@@ -36,6 +36,7 @@ using Amazon.Extensions.CognitoAuthentication;
 using Amazon.Runtime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using xgca.core.Helpers;
 
 namespace xlog_client_management_api
 {
@@ -109,8 +110,15 @@ namespace xlog_client_management_api
             services.AddScoped<xgca.core.CompanyUser.ICompanyUser, xgca.core.CompanyUser.CompanyUser>();
             services.AddScoped<xgca.core.ContactDetail.IContactDetail, xgca.core.ContactDetail.ContactDetail>();
 
-            services.Configure<GlobalCmsApi>(o => {
+            services.Configure<GlobalCmsApi>(o =>
+            {
                 o.BaseUrl = Configuration.GetSection("GlobalCMS:BaseUrl").Value;
+            });
+
+            services.Configure<OptimusAuthService>(o => {
+                o.BaseUrl = Configuration.GetSection("OptimusAuthService:BaseUrl").Value;
+                o.EnableUserBatch = Configuration.GetSection("OptimusAuthService:EnableUserBatch").Value;
+                o.DisableUserBatch = Configuration.GetSection("OptimusAuthService:DisableUserBatch").Value;
             });
 
             services.AddHttpClient();

@@ -1,0 +1,38 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace xgca.core.Helpers
+{
+    public static class Constants
+    {
+        public static bool IsPropertyExist(dynamic settings, string name)
+        {
+            if (settings is ExpandoObject)
+                return ((IDictionary<string, object>)settings).ContainsKey(name);
+
+            return settings.GetType().GetProperty(name) != null;
+        }
+        public static string GetValueFromProperty(dynamic data, string key)
+        {
+            return data.GetType().GetProperty(key).GetValue(data, null);
+        }
+    }
+    public interface IParentConstant
+    {
+        public string BaseUrl { get; set; }
+    }
+    public abstract class ParentConstant : IParentConstant
+    {
+        public string BaseUrl { get; set; }
+    }
+    public class OptimusAuthService : ParentConstant
+    {
+        // Client Menu
+        public string EnableUserBatch { get; set; }
+        public string DisableUserBatch { get; set; }
+
+    }
+}

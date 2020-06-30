@@ -20,5 +20,6 @@ namespace xgca.core.Helpers.Http
         public Task<dynamic> GetIdByGuid(string environment, string endpointUrl, string guid, string token);
         public Task<dynamic> GetGuidById(string environment, string endpointUrl, int id);
         public Task<dynamic> GetGuidById(string environment, string endpointUrl, int id, string token);
+        public Task<dynamic> Put(string endpointUrl, dynamic data, string token);
     }
 }
