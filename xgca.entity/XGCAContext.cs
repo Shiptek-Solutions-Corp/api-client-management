@@ -27,6 +27,11 @@ namespace xgca.entity
         public DbSet<CompanyServiceUser> CompanyServiceUsers { get; set; }
         public DbSet<CompanyUser> CompanyUsers { get; set; }
         public DbSet<CompanyGroupResource> CompanyGroupResources { get; set; }
+        public DbSet<CompanyServiceUserRole> CompanyServiceUserRoles { get; set; }
+        public DbSet<GroupResource> GroupResources { get; set; }
+        public DbSet<MenuModule> MenuModules { get; set; }
+        public DbSet<ModuleGroup> ModuleGroups { get; set; }
+
 
         public Task<int> SaveChangesAsync() => base.SaveChangesAsync();
         public Task<int> SaveChangesAuditable()

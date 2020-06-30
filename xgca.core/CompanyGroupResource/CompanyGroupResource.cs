@@ -23,15 +23,16 @@ namespace xgca.core.CompanyGroupResource
         {
             _companyGroupResourceData = companyGroupResourceData;
             _mapper = mapper;
+            _general = general;
         }
 
         public async Task<IGeneralModel> Create(CreateCompanyGroupResource createCompanyGroupResource)
         {
             var companyGroupResource = _mapper.Map<entity.Models.CompanyGroupResource>(createCompanyGroupResource);
             var result = await _companyGroupResourceData.Create(companyGroupResource);
-            var viewCompanyGroupResource = _mapper.Map<GetCompanyGroupResource>(result);
+            var viewCompanyGroupResource = _mapper.Map<GetCompanyGroupResource>(companyGroupResource);
 
-            return _general.Response(viewCompanyGroupResource, 200, "Created successfully.", true);
+            return _general.Response(viewCompanyGroupResource, 200, "Created successfuly.", true);
         }
     }
 }

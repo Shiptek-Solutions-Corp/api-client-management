@@ -36,6 +36,16 @@ using Amazon.Extensions.CognitoAuthentication;
 using Amazon.Runtime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using xgca.core.GroupResource;
+using System.Text.RegularExpressions;
+using xgca.core.CompanyServiceUserRole;
+using xgca.data.CompanyServiceUserRole;
+using xgca.core.CompanyGroupResource;
+using xgca.data.CompanyGroupResource;
+using xgca.data.MenuModule;
+using xgca.core.MenuModule;
+using xgca.core.ModuleGroup;
+using xgca.data.ModuleGroup;
 
 namespace xlog_client_management_api
 {
@@ -92,6 +102,19 @@ namespace xlog_client_management_api
             services.AddScoped<ICompanyUser, CompanyUser>();
             services.AddScoped<IContactDetail, ContactDetail>();
             services.AddScoped<IGeneral, General>();
+            services.AddScoped<IGroupResource, GroupResource>();
+
+            services.AddScoped<ICompanyGroupResource, CompanyGroupResource>();
+            services.AddScoped<ICompanyGroupResourceData, CompanyGroupResourceData>();
+
+            services.AddScoped<ICompanyServiceUserRole, CompanyServiceUserRole>();
+            services.AddScoped<ICompanyServiceUserRoleData, CompanyServiceUserRoleData>();
+
+            services.AddScoped<IMenuModuleData, MenuModuleData>();
+            services.AddScoped<IMenuModule, MenuModule>();
+
+            services.AddScoped<IModuleGroup, ModuleGroup>();
+            services.AddScoped<IModuleGroupData, ModuleGroupData>();
 
             services.AddScoped<IGeneralModel, GeneralModel>();
 

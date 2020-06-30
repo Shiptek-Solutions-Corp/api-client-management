@@ -8,8 +8,8 @@ using static xgca.entity.Models._Model;
 namespace xgca.entity.Models
 {
 
-    [Table("MenuModules", Schema = "Module")]
-    public class MenuModules : AuditableEntity
+    [Table("MenuModule", Schema = "Module")]
+    public class MenuModule : AuditableEntity
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

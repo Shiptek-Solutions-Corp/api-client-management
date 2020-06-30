@@ -7,6 +7,7 @@ namespace xgca.entity
     public interface IXGCAContext
     {
         Task<int> SaveChangesAsync();
+        Task<int> SaveChangesAuditable();
         DbSet<User> Users { get; set; }
 
         DbSet<Address> Addresses { get; set; }
@@ -20,7 +21,10 @@ namespace xgca.entity
         DbSet<CompanyServiceUser> CompanyServiceUsers { get; set; }
         DbSet<CompanyUser> CompanyUsers { get; set; }
         DbSet<CompanyGroupResource> CompanyGroupResources { get; set; }
-
+        DbSet<CompanyServiceUserRole> CompanyServiceUserRoles { get; set; }
+        DbSet<GroupResource> GroupResources { get; set; }
+        DbSet<MenuModule> MenuModules { get; set; }
+        DbSet<ModuleGroup> ModuleGroups { get; set; }
 
     }
 }
