@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace xgca.entity.Models
 {
-   
+   [Table("CompanyGroupResource", Schema = "Company")]
     public class CompanyGroupResource
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CompanyGroupResourceId { get; set; }
         public int CompanyServiceRoleId { get; set; }
-        public int ModuleGroupId { get; set; }
+        public int GroupResourceId { get; set; }
         [System.ComponentModel.DefaultValue(0)]
         public byte IsAllowed { get; set; }
         public int CreatedBy { get; set; }
@@ -27,10 +27,7 @@ namespace xgca.entity.Models
         public Guid Guid { get; set; }
         [System.ComponentModel.DefaultValue(0)]
         public byte IsDeleted { get; set; }
-
-
-        public virtual ICollection<CompanyServiceRole> CompanyServiceRoles { get; set; }
-
-
+        public virtual GroupResource GroupResource { get; set; }
+        public virtual CompanyServiceRole CompanyServiceRole { get; set; }
     }
 }
