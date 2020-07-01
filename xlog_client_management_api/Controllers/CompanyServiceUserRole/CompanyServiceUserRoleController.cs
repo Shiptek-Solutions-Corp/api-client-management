@@ -28,5 +28,29 @@ namespace xlog_client_management_api.Controllers.CompanyServiceUserRole
             }
             return BadRequest(result);
         }
+
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await _companyServiceUserRole.GetAll();
+            if (result.statusCode == 200)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [HttpGet("{id}")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> Get(int id)
+        {
+            var result = await _companyServiceUserRole.Get(id);
+            if (result.statusCode == 200)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
     }
 }

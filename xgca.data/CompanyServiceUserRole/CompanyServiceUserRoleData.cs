@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,8 @@ namespace xgca.data.CompanyServiceUserRole
     public interface ICompanyServiceUserRoleData
     {
         Task<bool> Create(entity.Models.CompanyServiceUserRole obj);
+        Task<entity.Models.CompanyServiceUserRole> Retrieve(int key);
+        Task<List<entity.Models.CompanyServiceUserRole>> List();
     }
     public class CompanyServiceUserRoleData : ICompanyServiceUserRoleData, IMaintainable<entity.Models.CompanyServiceUserRole>
     {
@@ -25,14 +28,26 @@ namespace xgca.data.CompanyServiceUserRole
             return result > 0 ? true : false;
         }
 
-        public Task<List<entity.Models.CompanyServiceUserRole>> List()
+        public async Task<List<entity.Models.CompanyServiceUserRole>> List()
         {
-            throw new NotImplementedException();
+            var companyServiceUserRoles = await _context
+                .CompanyServiceUserRoles
+                .Include(x => x.CompanyServiceUser)
+                .Include(x => x.CompanyServiceRole)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return companyServiceUserRoles;
         }
 
-        public Task<entity.Models.CompanyServiceUserRole> Retrieve(int key)
+        public async Task<entity.Models.CompanyServiceUserRole> Retrieve(int key)
         {
-            throw new NotImplementedException();
+            var moduleGroup = await _context.CompanyServiceUserRoles
+                .Include(x => x.CompanyServiceUser)
+                .Include(x => x.CompanyServiceRole)
+                .SingleOrDefaultAsync(x => x.CompanyServiceUserRoleID == key);
+
+            return moduleGroup;
         }
 
         public Task<bool> Update(entity.Models.CompanyServiceUserRole obj)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,8 @@ namespace xgca.data.CompanyGroupResource
     public interface ICompanyGroupResourceData
     {
         Task<bool> Create(entity.Models.CompanyGroupResource obj);
+        Task<List<entity.Models.CompanyGroupResource>> List();
+        Task<entity.Models.CompanyGroupResource> Retrieve(int key);
     }
     public class CompanyGroupResourceData : IMaintainable<entity.Models.CompanyGroupResource>, ICompanyGroupResourceData
     {
@@ -32,14 +35,26 @@ namespace xgca.data.CompanyGroupResource
             return result > 0 ? true : false;
         }
 
-        public Task<List<entity.Models.CompanyGroupResource>> List()
+        public async Task<List<entity.Models.CompanyGroupResource>> List()
         {
-            throw new NotImplementedException();
+            var companyGroupResources = await _context
+                .CompanyGroupResources
+                .Include(x => x.GroupResource)
+                .Include(x => x.CompanyServiceRole)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return companyGroupResources;
         }
 
-        public Task<entity.Models.CompanyGroupResource> Retrieve(int key)
+        public async Task<entity.Models.CompanyGroupResource> Retrieve(int key)
         {
-            throw new NotImplementedException();
+            var companyGroupResource = await _context.CompanyGroupResources
+                .Include(x => x.GroupResource)
+                .Include(x => x.CompanyServiceRole)
+                .SingleOrDefaultAsync(x => x.CompanyGroupResourceId == key);
+
+            return companyGroupResource;
         }
 
         public Task<bool> Update(entity.Models.CompanyGroupResource obj)

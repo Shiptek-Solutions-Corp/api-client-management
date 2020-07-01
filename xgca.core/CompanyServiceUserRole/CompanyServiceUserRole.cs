@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using xgca.core.Models.CompanyServiceUserRole;
@@ -13,6 +14,9 @@ namespace xgca.core.CompanyServiceUserRole
     public interface ICompanyServiceUserRole
     {
         Task<IGeneralModel> Create(CreateCompanyServiceUserRole createCompanyServiceUserRole);
+        Task<IGeneralModel> GetAll();
+        Task<IGeneralModel> Get(int id);
+
     }
     public class CompanyServiceUserRole : ICompanyServiceUserRole
     {
@@ -32,6 +36,25 @@ namespace xgca.core.CompanyServiceUserRole
             var viewCompanyServiceUserRole = _mapper.Map<GetCompanyServiceUserRole>(companyServiceUserRole);
 
             return _general.Response(viewCompanyServiceUserRole, 200, "Created successfuly.", true);
+        }
+
+        public async Task<IGeneralModel> Get(int id)
+        {
+            var moduleGroup = await _companyServiceUserRoleData.Retrieve(id);
+            if (moduleGroup != null)
+            {
+                var viewModuleGroup = _mapper.Map<GetCompanyServiceUserRole>(moduleGroup);
+                return _general.Response(viewModuleGroup, 200, "Retreived successfuly", true);
+            }
+            return _general.Response(null, 400, "Invalid Module Group", false);
+        }
+
+        public async Task<IGeneralModel> GetAll()
+        {
+            var result = await _companyServiceUserRoleData.List();
+            var viewModuleGroups = result.Select(d => _mapper.Map<GetCompanyServiceUserRole>(d)).ToList();
+
+            return _general.Response(viewModuleGroups, 200, "Module Groups listed successfuly", true);
         }
     }
 }
