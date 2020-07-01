@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,9 @@ namespace xgca.data.GroupResource
     public interface IGroupResourceData
     {
         Task<bool> Create(entity.Models.GroupResource obj);
+        Task<List<entity.Models.GroupResource>> List();
+        Task<entity.Models.GroupResource> Retrieve(int key);
+
     }
     public class GroupResourceData : IGroupResourceData, IMaintainable<entity.Models.GroupResource>
     {
@@ -25,14 +29,27 @@ namespace xgca.data.GroupResource
             return result > 0 ? true : false;
         }
 
-        public Task<List<entity.Models.GroupResource>> List()
+        public async Task<List<entity.Models.GroupResource>> List()
         {
-            throw new NotImplementedException();
+            var moduleGroups = await _context
+                .GroupResources
+                .Include(x => x.ModuleGroup)
+                .Include(x => x.CompanyGroupResources).ThenInclude(x => x.CompanyServiceRole)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return moduleGroups;
         }
 
-        public Task<entity.Models.GroupResource> Retrieve(int key)
+        public async Task<entity.Models.GroupResource> Retrieve(int key)
         {
-            throw new NotImplementedException();
+            var moduleGroup = await _context
+                .GroupResources
+                .Include(x => x.ModuleGroup)
+                .Include(x => x.CompanyGroupResources)
+                .SingleOrDefaultAsync(x => x.GroupResourceId == key);
+
+            return moduleGroup;
         }
 
         public Task<bool> Update(entity.Models.GroupResource obj)

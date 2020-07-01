@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using xgca.core.Models.AuditLog;
 using xgca.core.Models.CompanyGroupResource;
+using xgca.core.Models.CompanyServiceRole;
 using xgca.core.Models.CompanyServiceUserRole;
 using xgca.core.Models.GroupResource;
 using xgca.core.Models.MenuModule;
@@ -31,6 +32,8 @@ namespace xgca.core._Mapper
 
             CreateMap<CreateModuleGroup, entity.Models.ModuleGroup>();
             CreateMap<entity.Models.ModuleGroup, GetModuleGroup>();
+
+            CreateMap<entity.Models.CompanyServiceRole, GetCompanyServiceRoleModel>();
 
         }
     }

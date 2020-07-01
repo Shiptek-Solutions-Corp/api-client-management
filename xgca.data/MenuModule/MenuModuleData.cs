@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,8 @@ namespace xgca.data.MenuModule
     public interface IMenuModuleData
     {
         Task<bool> Create(entity.Models.MenuModule obj);
+        Task<entity.Models.MenuModule> Retrieve(int key);
+        Task<List<entity.Models.MenuModule>> List();
     }
 
     public class MenuModuleData : IMenuModuleData, IMaintainable<entity.Models.MenuModule>
@@ -27,14 +30,21 @@ namespace xgca.data.MenuModule
             return result > 0 ? true : false;
         }
 
-        public Task<List<entity.Models.MenuModule>> List()
+        public async Task<List<entity.Models.MenuModule>> List()
         {
-            throw new NotImplementedException();
+            var menuModules = await _context
+                .MenuModules
+                .AsNoTracking()
+                .ToListAsync();
+
+            return menuModules;
         }
 
-        public Task<entity.Models.MenuModule> Retrieve(int key)
+        public async Task<entity.Models.MenuModule> Retrieve(int key)
         {
-            throw new NotImplementedException();
+            var menuModule = await _context.MenuModules.SingleOrDefaultAsync(x => x.MenuModulesId == key);
+
+            return menuModule;
         }
 
         public Task<bool> Update(entity.Models.MenuModule obj)

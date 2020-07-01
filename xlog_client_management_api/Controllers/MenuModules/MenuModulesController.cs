@@ -20,9 +20,36 @@ namespace xlog_client_management_api.Controllers.MenuModules
         }
         [HttpPost]
         [Authorize(AuthenticationSchemes = "Bearer")]
+
         public async Task<IActionResult> Create([FromBody] CreateMenuModule createMenuModules)
         {
             var result = await _menuModule.Create(createMenuModules);
+            if (result.statusCode == 200)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [HttpGet("{id}")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> Get(int id)
+        {
+            var result = await _menuModule.Get(id);
+
+            if (result.statusCode == 200)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [HttpGet()]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await _menuModule.GetAll();
+
             if (result.statusCode == 200)
             {
                 return Ok(result);

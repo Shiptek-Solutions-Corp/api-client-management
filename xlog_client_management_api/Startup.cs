@@ -48,6 +48,8 @@ using xgca.core.ModuleGroup;
 using xgca.data.ModuleGroup;
 using AutoMapper;
 using xgca.data.GroupResource;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace xlog_client_management_api
 {
@@ -86,7 +88,7 @@ namespace xlog_client_management_api
                 options.Authority = $"https://cognito-idp.{Configuration.GetSection("AWSCognito:Region").Value}.amazonaws.com/{Configuration.GetSection("AWSCognito:UserPoolId").Value}";
             });
 
-            services.AddDbContext<XGCAContext>(opts => opts.UseSqlServer(Configuration["ConnectionString:XGCADb"]));
+            services.AddDbContext<XGCAContext>(opts => opts.UseLazyLoadingProxies(false).UseSqlServer(Configuration["ConnectionString:XGCADb"]));
 
             //services.AddSingleton<IAmazonCognitoIdentityProvider>(cognitoIdentityProvider);
             //services.AddSingleton<CognitoUserPool>(userPool);
@@ -141,7 +143,11 @@ namespace xlog_client_management_api
             });
 
             services.AddHttpClient();
-            services.AddMvc().AddNewtonsoftJson();
+            services.AddMvc().AddNewtonsoftJson(options => {
+                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.PreserveReferencesHandling = PreserveReferencesHandling.None;
+            });
             services.AddControllers();            
             services.AddCors(o => o.AddPolicy("AllowAllPolicy", builder =>
             {

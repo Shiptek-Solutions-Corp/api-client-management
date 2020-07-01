@@ -31,5 +31,31 @@ namespace xlog_client_management_api.Controllers
             }
             return BadRequest(result);
         }
+
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await _groupResource.GetAll();
+
+            if (result.statusCode == 200)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [HttpGet("{id}")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> Get(int id)
+        {
+            var result = await _groupResource.Get(id);
+
+            if (result.statusCode == 200)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
     }
 }
