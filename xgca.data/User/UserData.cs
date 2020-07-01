@@ -125,7 +125,7 @@ namespace xgca.data.User
 
         public async Task<bool> UpdateLock(List<int> userIds, int modifiedBy, byte isLock)
         {
-            var data = await _context.Users.Where(u => userIds.Contains(u.UserId) && u.IsLocked == 0)
+            var data = await _context.Users.Where(u => userIds.Contains(u.UserId))
                 .ToListAsync();
             if (data == null)
             {
