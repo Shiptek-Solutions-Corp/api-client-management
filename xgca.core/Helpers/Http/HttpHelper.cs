@@ -63,7 +63,7 @@ namespace xgca.core.Helpers.Http
         public async Task<dynamic> Get(string environment, string endpointUrl)
         {
             string apiUrl = environment + endpointUrl;
-            var response = await _httpClient.GetAsync(apiUrl);            
+            var response = await _httpClient.GetAsync(apiUrl);
             var result = await response.Content.ReadAsStringAsync();
             var responseData = JsonConvert.DeserializeObject(result);
 
@@ -115,15 +115,33 @@ namespace xgca.core.Helpers.Http
 
         public async Task<dynamic> Put(string endpointUrl, dynamic data, string token)
         {
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",token);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             string json = JsonConvert.SerializeObject(data, Formatting.Indented);
+
             var httpContent = new StringContent(json,
                                     Encoding.UTF8,
                                     "application/json");
 
             // PostAsync returns a Task<httpresponsemessage>
             var httpResponce = await _httpClient.PutAsync(endpointUrl, httpContent);
+
+            var result = await httpResponce.Content.ReadAsStringAsync();
+            var responseData = JsonConvert.DeserializeObject(result);
+
+            return responseData;
+        }
+
+        public async Task<dynamic> PutWithoutBody(string endpointUrl, string token)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+
+            var httpContent = new StringContent(
+                                    "application/json");
+
+            // PostAsync returns a Task<httpresponsemessage>
+            var httpResponce = await _httpClient.PutAsync(endpointUrl, null);
 
             var result = await httpResponce.Content.ReadAsStringAsync();
             var responseData = JsonConvert.DeserializeObject(result);

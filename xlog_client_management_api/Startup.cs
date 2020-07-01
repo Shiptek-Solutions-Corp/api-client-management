@@ -148,6 +148,8 @@ namespace xlog_client_management_api
                 o.BaseUrl = Configuration.GetSection("OptimusAuthService:BaseUrl").Value;
                 o.EnableUserBatch = Configuration.GetSection("OptimusAuthService:EnableUserBatch").Value;
                 o.DisableUserBatch = Configuration.GetSection("OptimusAuthService:DisableUserBatch").Value;
+                o.EnableUser = Configuration.GetSection("OptimusAuthService:EnableUser").Value;
+                o.DisableUser = Configuration.GetSection("OptimusAuthService:DisableUser").Value;
             });
 
             services.AddHttpClient();

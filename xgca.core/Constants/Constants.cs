@@ -33,6 +33,9 @@ namespace xgca.core.Helpers
         // Client Menu
         public string EnableUserBatch { get; set; }
         public string DisableUserBatch { get; set; }
+        public string EnableUser { get; set; }
+        public string DisableUser{ get; set; }
+
 
     }
 }
