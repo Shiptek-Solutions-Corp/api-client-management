@@ -7,7 +7,7 @@ namespace xgca.core.Helpers.Http
 {
     public interface IHttpHelper
     {
-        public Task<dynamic> Post(string environment, string endpointUrl, dynamic data);
+        public Task<dynamic> Post(string endpointUrl, dynamic data, string token);
 
         public Task<dynamic> CustomGet(string environment, string endpointUrl, string token);
         public Task<dynamic> CustomGet(string environment, string endpointUrl);
@@ -20,7 +20,6 @@ namespace xgca.core.Helpers.Http
         public Task<dynamic> GetGuidById(string environment, string endpointUrl, int id);
         public Task<dynamic> GetGuidById(string environment, string endpointUrl, int id, string token);
         public Task<dynamic> Put(string endpointUrl, dynamic data, string token);
-        public Task<dynamic> PutWithoutBody(string endpointUrl, string token);
 
     }
 }

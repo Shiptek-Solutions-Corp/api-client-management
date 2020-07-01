@@ -123,7 +123,8 @@ namespace xlog_client_management_api.Controllers.User
         public async Task<IActionResult> CreateUser([FromBody] xgca.core.Models.User.CreateUserModel request)
         {
             var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
-            var response = await _user.Create(request, companyId);
+            var authHeader = Request.Headers["Authorization"].ToString();
+            var response = await _user.Create(request, companyId, authHeader);
 
             if (response.statusCode == 400)
             {
@@ -280,7 +281,8 @@ namespace xlog_client_management_api.Controllers.User
         public async Task<IActionResult> UpdateLock([FromBody] xgca.core.Models.User.UpdateUserLockModel request)
         {
             var modifiedBy = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
-            var response = await _user.UpdateLock(request, modifiedBy);
+            var authHeader = Request.Headers["Authorization"].ToString();
+            var response = await _user.UpdateLock(request, modifiedBy, authHeader);
 
             if (response.statusCode == 400)
             {
@@ -300,11 +302,11 @@ namespace xlog_client_management_api.Controllers.User
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> UpdateMultipleLock([FromBody] xgca.core.Models.User.UpdateMultipleStatusModel request)
+        public async Task<IActionResult> UpdateMultipleLock([FromBody] xgca.core.Models.User.UpdateMultipleLockModel request)
         {
             var modifiedBy = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
             var authHeader = Request.Headers["Authorization"].ToString();
-            var response = await _user.UpdateMultipleStatus(request, modifiedBy, authHeader);
+            var response = await _user.UpdateMultipleLock(request, modifiedBy, authHeader);
 
             if (response.statusCode == 400)
             {

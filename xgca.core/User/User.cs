@@ -117,9 +117,8 @@ namespace xgca.core.User
 
             return _general.Response(data, 200, "Configurable companies has been listed", true);
         }
-
         
-        public async Task<IGeneralModel> Create(CreateUserModel obj, string companyId)
+        public async Task<IGeneralModel> Create(CreateUserModel obj, string companyId, string auth)
         {
             if (obj == null)
             {
@@ -155,9 +154,42 @@ namespace xgca.core.User
 
             int newUserId = await _userData.CreateAndReturnId(user);
             var newUserGuid = await _userData.GetGuidById(newUserId);
-            
+
+            // integration of registration to auth
+            var postvals = new { Email = obj.EmailAddress, ReferenceId = newUserId, CompanyReferenceId = Convert.ToInt32(companyId) };
+            string url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.SingleRegisterUser;
+
+            string token = _tokenHelper.RemoveBearer(auth);
+            var serviceResponse = await _httpHelper.Post(url, postvals, token);
+            var json = (JObject)serviceResponse;
+
             await _coreCompanyUser.Create(new xgca.core.Models.CompanyUser.CreateCompanyUserModel { CompanyId = Convert.ToInt32(companyId), UserId = newUserGuid.ToString() });
-            
+
+
+
+            //var companyServices = await _companyService.ListByCompanyId(companyId);
+            //List<entity.Models.CompanyServiceUser> companyServiceUsers = new List<entity.Models.CompanyServiceUser>();
+            //foreach (entity.Models.CompanyService companyService in companyServices)
+            //{
+            //    //int companyServiceRoleId = await _companyServiceRole.RetrieveAdministratorId(companyService.CompanyServiceId);
+            //    companyServiceUsers.Add(new entity.Models.CompanyServiceUser
+            //    {
+            //        CompanyServiceId = companyService.CompanyServiceId,
+            //        CompanyServiceRoleId = companyServiceRoleId,
+            //        CompanyUserId = companyUserId,
+            //        CreatedBy = createdBy,
+            //        CreatedOn = DateTime.UtcNow,
+            //        ModifiedBy = createdBy,
+            //        ModifiedOn = DateTime.UtcNow,
+            //        Guid = Guid.NewGuid()
+            //    });
+            //}
+
+            //var result = await _companyServiceUser.Create(companyServiceUsers);
+
+
+
+
             var auditLog = AuditLogHelper.BuildAuditLog(obj, "Create", user.GetType().Name, newUserId, GlobalVariables.SystemUserId);
             await _auditLog.Create(auditLog);
             return newUserId > 0
@@ -329,12 +361,26 @@ namespace xgca.core.User
                 : _general.Response(null, 400, "Error on updating user", false);
         }
 
-        public async Task<IGeneralModel> UpdateLock(UpdateUserLockModel obj, string modifiedBy)
+        public async Task<IGeneralModel> UpdateLock(UpdateUserLockModel obj, string modifiedBy, string auth)
         {
             if (obj == null)
             { return _general.Response(null, 400, "Data cannot be null", false); }
 
             int userId = await _userData.GetIdByGuid(Guid.Parse(obj.UserId));
+
+            string url = "";
+            if (obj.IsLocked == 1)
+            {
+                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.EnableUser;
+            }
+            else
+            {
+                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.DisableUser;
+            }
+            string token = _tokenHelper.RemoveBearer(auth);
+            var serviceResponse = await _httpHelper.Put($"{url}/{userId}", null, token);
+            var json = (JObject)serviceResponse;
+            var statusCode = json["statusCode"];
 
             int modifiedById = await _userData.GetIdByUsername(modifiedBy);
 
@@ -352,6 +398,56 @@ namespace xgca.core.User
                 ? _general.Response(null, 200, "User Lock Status updated", true)
                 : _general.Response(null, 400, "Error on updating user", false);
         }
+
+
+        public async Task<IGeneralModel> UpdateMultipleLock(UpdateMultipleLockModel obj, string modifiedBy, string auth)
+        {
+            if (obj == null)
+            { return _general.Response(null, 400, "Data cannot be null", false); }
+
+            List<int> Ids = new List<int>();
+            foreach (string UserId in obj.UserId)
+            {
+                int userId = await _userData.GetIdByGuid(Guid.Parse(UserId));
+                Ids.Add(userId);
+            }
+
+            //var serviceKey = await _httpHelpers.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, companyService.ServiceId, AuthToken.Contra);
+            var arrIds = new { Ids = Ids };
+            string url = "";
+            if (obj.IsLocked == 1)
+            {
+                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.EnableUserBatch;
+            }
+            else
+            {
+                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.DisableUserBatch;
+            }
+            string token = _tokenHelper.RemoveBearer(auth);
+            var serviceResponse = await _httpHelper.Put(url, arrIds, token);
+            var json = (JObject)serviceResponse;
+            var IdsSuccessList = json["data"]["success"];
+
+
+            List<int> newIdsList = new List<int>();
+            foreach (int successUserId in IdsSuccessList)
+            {
+                newIdsList.Add(successUserId);
+            }
+
+
+            int modifiedById = await _userData.GetIdByUsername(modifiedBy);
+
+            var userResult = await _userData.UpdateLock(
+                newIdsList,
+                modifiedById,
+                obj.IsLocked);
+
+            return userResult
+                ? _general.Response(null, 200, "User Multiple Lock Status updated", true)
+                : _general.Response(null, 400, "Error on updating user", false);
+        }
+
 
         public async Task<IGeneralModel> UpdateMultipleStatus(UpdateMultipleStatusModel obj, string modifiedBy, string auth)
         {

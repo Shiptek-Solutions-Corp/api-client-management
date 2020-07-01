@@ -1,4 +1,7 @@
-﻿namespace xgca.core.Models.User
+﻿using System;
+using System.Collections.Generic;
+
+namespace xgca.core.Models.User
 {
     public class CreateUserModel
     {
@@ -17,6 +20,7 @@
         public string EmailAddress { get; set; }
         public string CreatedBy { get; set; }
         public string ServiceId { get; set; }
+        public List<dynamic> Roles { get; set; }
 
     }
 }

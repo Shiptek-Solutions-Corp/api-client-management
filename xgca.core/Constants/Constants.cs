@@ -35,7 +35,7 @@ namespace xgca.core.Helpers
         public string DisableUserBatch { get; set; }
         public string EnableUser { get; set; }
         public string DisableUser{ get; set; }
-
+        public string SingleRegisterUser { get; set; }
 
     }
 }
