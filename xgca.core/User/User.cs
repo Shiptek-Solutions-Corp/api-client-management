@@ -290,12 +290,27 @@ namespace xgca.core.User
                 : _general.Response(null, 400, "Error on updating user", false);
         }
 
-        public async Task<IGeneralModel> UpdateStatus(UpdateUserStatusModel obj, string modifiedBy)
+        public async Task<IGeneralModel> UpdateStatus(UpdateUserStatusModel obj, string modifiedBy, string auth)
         {
             if (obj == null)
             { return _general.Response(null, 400, "Data cannot be null", false); }
 
             int userId = await _userData.GetIdByGuid(Guid.Parse(obj.UserId));
+
+            //var arrIds = new { Ids = new List<int>(userId) };
+            string url = "";
+            if (obj.Status == 1)
+            {
+                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.EnableUser;
+            }
+            else
+            {
+                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.DisableUser;
+            }
+            string token = _tokenHelper.RemoveBearer(auth);
+            var serviceResponse = await _httpHelper.Put($"{url}/{userId}", null, token);
+            var json = (JObject)serviceResponse;
+            var statusCode = json["statusCode"];
 
             int modifiedById = await _userData.GetIdByUsername(modifiedBy);
 
@@ -371,10 +386,6 @@ namespace xgca.core.User
             {
                 newIdsList.Add(successUserId);
             }
-
-            //List<int> IdsSuccessList = new List<int> json["data"]["success"];
-            //List<int> IdsSuccessList = json["data"]["success"].Value<List<int>>();
-
 
 
             int modifiedById = await _userData.GetIdByUsername(modifiedBy);

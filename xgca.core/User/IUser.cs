@@ -14,7 +14,7 @@ namespace xgca.core.User
         Task<int> CreateAndReturnId(CreateUserModel obj);
         Task<dynamic> CreateMasterUser(CreateUserModel obj, int createdBy);
         Task<IGeneralModel> Update(UpdateUserModel obj, string modifiedBy);
-        Task<IGeneralModel> UpdateStatus(UpdateUserStatusModel obj, string modifiedBy);
+        Task<IGeneralModel> UpdateStatus(UpdateUserStatusModel obj, string modifiedBy, string auth);
         Task<IGeneralModel> UpdateLock(UpdateUserLockModel obj, string modifiedBy);
         Task<IGeneralModel> UpdateMultipleStatus(UpdateMultipleStatusModel obj, string modifiedBy, string auth);
         Task<IGeneralModel> SetUsername(SetUsernameModel obj);

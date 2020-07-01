@@ -256,7 +256,8 @@ namespace xlog_client_management_api.Controllers.User
         public async Task<IActionResult> UpdateStatus([FromBody] xgca.core.Models.User.UpdateUserStatusModel request)
         {
             var modifiedBy = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
-            var response = await _user.UpdateStatus(request, modifiedBy);
+            var authHeader = Request.Headers["Authorization"].ToString();
+            var response = await _user.UpdateStatus(request, modifiedBy, authHeader);
 
             if (response.statusCode == 400)
             {
@@ -280,6 +281,30 @@ namespace xlog_client_management_api.Controllers.User
         {
             var modifiedBy = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
             var response = await _user.UpdateLock(request, modifiedBy);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Route("user/lock/multiple")]
+        [HttpPut]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> UpdateMultipleLock([FromBody] xgca.core.Models.User.UpdateMultipleStatusModel request)
+        {
+            var modifiedBy = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
+            var authHeader = Request.Headers["Authorization"].ToString();
+            var response = await _user.UpdateMultipleStatus(request, modifiedBy, authHeader);
 
             if (response.statusCode == 400)
             {
