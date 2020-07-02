@@ -417,11 +417,11 @@ namespace xgca.core.User
             string url = "";
             if (obj.IsLocked == 1)
             {
-                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.EnableUserBatch;
+                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.DisableUserBatch;
             }
             else
             {
-                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.DisableUserBatch;
+                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.EnableUserBatch;
             }
             string token = _tokenHelper.RemoveBearer(auth);
             var serviceResponse = await _httpHelper.Put(url, arrIds, token);
