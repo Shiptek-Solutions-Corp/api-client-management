@@ -20,6 +20,10 @@ using xgca.core.Constants;
 using xgca.core.Helpers.Http;
 using xgca.entity.Migrations;
 using xgca.core.Models.AuditLog;
+using xgca.data.CompanyServiceUser;
+using xgca.core.Models.CompanyService;
+using xgca.core.Models.CompanyServiceRole;
+
 
 namespace xgca.core.User
 {
@@ -35,6 +39,9 @@ namespace xgca.core.User
         private readonly IOptions<GlobalCmsApi> _options;
         private readonly IOptions<OptimusAuthService> _optimusAuthService;
         private readonly IGeneral _general;
+        private readonly ICompanyServiceUser _companyServiceUser;
+        private readonly xgca.data.CompanyService.ICompanyService _companyService;
+        private readonly xgca.data.CompanyServiceRole.ICompanyServiceRole _companyServiceRole;
 
         public User(xgca.data.User.IUserData userData,
             xgca.core.ContactDetail.IContactDetail coreContactDetail,
@@ -44,6 +51,9 @@ namespace xgca.core.User
             IOptions<GlobalCmsApi> options,
             IHttpHelper httpHelper,
             IOptions<OptimusAuthService> optimusAuthService,
+            ICompanyServiceUser companyServiceUser,
+            xgca.data.CompanyService.ICompanyService companyService,
+            xgca.data.CompanyServiceRole.ICompanyServiceRole companyServiceRole,
         IGeneral general)
         {
             _userData = userData;
@@ -55,6 +65,9 @@ namespace xgca.core.User
             _options = options;
             _general = general;
             _optimusAuthService = optimusAuthService;
+            _companyServiceUser = companyServiceUser;
+            _companyService = companyService;
+            _companyServiceRole = companyServiceRole;
         }
 
         public async Task<IGeneralModel> List()
@@ -118,7 +131,7 @@ namespace xgca.core.User
             return _general.Response(data, 200, "Configurable companies has been listed", true);
         }
         
-        public async Task<IGeneralModel> Create(CreateUserModel obj, string companyId, string auth)
+        public async Task<IGeneralModel> Create(CreateUserModel obj, string companyId, string auth, string CreatedBy)
         {
             if (obj == null)
             {
@@ -126,13 +139,21 @@ namespace xgca.core.User
             }
 
             int userId = 1;
-            if (obj.CreatedBy != null)
-            { userId = await _userData.GetIdByGuid(Guid.Parse(obj.CreatedBy)); }
+            if (CreatedBy != null)
+            { userId = await _userData.GetIdByUsername(CreatedBy); }
 
             int contactDetailId = await _coreContactDetail.CreateAndReturnId(obj, GlobalVariables.SystemUserId);
             if (contactDetailId <= 0)
             {
                 return _general.Response(false, 400, "Data cannot be null", false);
+            }
+
+            bool emailAddressIsExists = await _userData.EmailAddressExists(obj.EmailAddress);
+            if (emailAddressIsExists)
+            {
+                var errors = new List<ErrorField>();
+                errors.Add(new ErrorField("EmailAddress", "Email address already exists."));
+                return _general.Response(null, errors, 400, "Error updating user", false);
             }
 
             var user = new xgca.entity.Models.User
@@ -163,32 +184,31 @@ namespace xgca.core.User
             var serviceResponse = await _httpHelper.Post(url, postvals, token);
             var json = (JObject)serviceResponse;
 
-            await _coreCompanyUser.Create(new xgca.core.Models.CompanyUser.CreateCompanyUserModel { CompanyId = Convert.ToInt32(companyId), UserId = newUserGuid.ToString() });
-
+            var companyUser = await _coreCompanyUser.CreateAndReturnId(new xgca.core.Models.CompanyUser.CreateCompanyUserModel { CompanyId = Convert.ToInt32(companyId), UserId = newUserGuid.ToString() });
+            int companyUserId = companyUser.data.companyUserId;
 
 
             //var companyServices = await _companyService.ListByCompanyId(companyId);
-            //List<entity.Models.CompanyServiceUser> companyServiceUsers = new List<entity.Models.CompanyServiceUser>();
-            //foreach (entity.Models.CompanyService companyService in companyServices)
-            //{
-            //    //int companyServiceRoleId = await _companyServiceRole.RetrieveAdministratorId(companyService.CompanyServiceId);
-            //    companyServiceUsers.Add(new entity.Models.CompanyServiceUser
-            //    {
-            //        CompanyServiceId = companyService.CompanyServiceId,
-            //        CompanyServiceRoleId = companyServiceRoleId,
-            //        CompanyUserId = companyUserId,
-            //        CreatedBy = createdBy,
-            //        CreatedOn = DateTime.UtcNow,
-            //        ModifiedBy = createdBy,
-            //        ModifiedOn = DateTime.UtcNow,
-            //        Guid = Guid.NewGuid()
-            //    });
-            //}
+            List<entity.Models.CompanyServiceUser> companyServiceUsers = new List<entity.Models.CompanyServiceUser>();
+            foreach (var role in obj.Roles)
+            {
+                //    //int companyServiceRoleId = await _companyServiceRole.RetrieveAdministratorId(companyService.CompanyServiceId);
+                int companyServiceId = await _companyService.GetIdByGuid(Guid.Parse(role.companyServiceId));
+                int companyServiceRoleId = await _companyServiceRole.GetIdByGuid(Guid.Parse(role.companyServiceRoleId));
 
-            //var result = await _companyServiceUser.Create(companyServiceUsers);
-
-
-
+                companyServiceUsers.Add(new entity.Models.CompanyServiceUser
+                {
+                    CompanyServiceId = companyServiceId,
+                    CompanyServiceRoleId = companyServiceRoleId,
+                    CompanyUserId = companyUserId,
+                    CreatedBy = userId,
+                    CreatedOn = DateTime.UtcNow,
+                    ModifiedBy = userId,
+                    ModifiedOn = DateTime.UtcNow,
+                    Guid = Guid.NewGuid()
+                });
+            }
+            var result = await _companyServiceUser.Create(companyServiceUsers);
 
             var auditLog = AuditLogHelper.BuildAuditLog(obj, "Create", user.GetType().Name, newUserId, GlobalVariables.SystemUserId);
             await _auditLog.Create(auditLog);

@@ -123,8 +123,9 @@ namespace xlog_client_management_api.Controllers.User
         public async Task<IActionResult> CreateUser([FromBody] xgca.core.Models.User.CreateUserModel request)
         {
             var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
+            var CreatedBy = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
             var authHeader = Request.Headers["Authorization"].ToString();
-            var response = await _user.Create(request, companyId, authHeader);
+            var response = await _user.Create(request, companyId, authHeader, CreatedBy);
 
             if (response.statusCode == 400)
             {

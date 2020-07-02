@@ -20,7 +20,13 @@ namespace xgca.core.Models.User
         public string EmailAddress { get; set; }
         public string CreatedBy { get; set; }
         public string ServiceId { get; set; }
-        public List<dynamic> Roles { get; set; }
+        public List<RoleProperty> Roles { get; set; }
 
+    }
+
+    public class RoleProperty
+    {
+        public string companyServiceId { get; set; }
+        public string companyServiceRoleId { get; set; }
     }
 }

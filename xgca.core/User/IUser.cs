@@ -10,7 +10,7 @@ namespace xgca.core.User
     {
         Task<IGeneralModel> List();
         Task<IGeneralModel> List(string columnFilter, string isActive, string isLock);        
-        Task<IGeneralModel> Create(CreateUserModel obj, string companyId, string auth);
+        Task<IGeneralModel> Create(CreateUserModel obj, string companyId, string auth, string CreatedBy);
         Task<int> CreateAndReturnId(CreateUserModel obj);
         Task<dynamic> CreateMasterUser(CreateUserModel obj, int createdBy);
         Task<IGeneralModel> Update(UpdateUserModel obj, string modifiedBy);

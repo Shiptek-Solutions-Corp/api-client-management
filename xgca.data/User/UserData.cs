@@ -192,10 +192,10 @@ namespace xgca.data.User
             return _context.Users.Any(u => u.Username == username);
         }
 
-        public async Task<bool> EmailAddressExists(string emailAddress, int userId)
+        public async Task<bool> EmailAddressExists(string emailAddress)
         {
             var user = await _context.Users
-                .Where(u => u.EmailAddress == emailAddress && u.UserId != userId)
+                .Where(u => u.EmailAddress == emailAddress)
                 .FirstOrDefaultAsync();
 
             return !(user is null) ? true : false;

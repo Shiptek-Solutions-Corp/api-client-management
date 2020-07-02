@@ -114,5 +114,28 @@ namespace xgca.core.CompanyUser
             int companyId = await _companyUser.GetCompanyIdByUserId(key);
             return companyId;
         }
+
+        public async Task<IGeneralModel> CreateAndReturnId(CreateCompanyUserModel obj)
+        {
+            int userId = await _userData.GetIdByGuid(Guid.Parse(obj.UserId));
+            int userTypeId = 1;
+            var data = new entity.Models.CompanyUser
+            {
+                CompanyId = obj.CompanyId,
+                UserId = userId,
+                UserTypeId = userTypeId,
+                Status = 1,
+                CreatedBy = 0,
+                CreatedOn = DateTime.UtcNow,
+                ModifiedBy = 0,
+                ModifiedOn = DateTime.UtcNow,
+                Guid = Guid.NewGuid()
+            };
+
+            int companyUserId = await _companyUser.CreateAndReturnId(data);
+            return companyUserId > 0
+                ? _general.Response(new { companyUserId = companyUserId }, 200, "User assiged to company successfully", true)
+                : _general.Response(false, 400, "Error assigning user to company", true);
+        }
     }
 }
