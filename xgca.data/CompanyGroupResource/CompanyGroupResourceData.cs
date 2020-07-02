@@ -39,7 +39,6 @@ namespace xgca.data.CompanyGroupResource
         {
             var companyGroupResources = await _context
                 .CompanyGroupResources
-                .Include(x => x.GroupResource)
                 .Include(x => x.CompanyServiceRole)
                 .AsNoTracking()
                 .ToListAsync();
@@ -50,7 +49,6 @@ namespace xgca.data.CompanyGroupResource
         public async Task<entity.Models.CompanyGroupResource> Retrieve(int key)
         {
             var companyGroupResource = await _context.CompanyGroupResources
-                .Include(x => x.GroupResource)
                 .Include(x => x.CompanyServiceRole)
                 .SingleOrDefaultAsync(x => x.CompanyGroupResourceId == key);
 
