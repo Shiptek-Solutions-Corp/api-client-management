@@ -177,7 +177,7 @@ namespace xgca.core.User
             var newUserGuid = await _userData.GetGuidById(newUserId);
 
             // integration of registration to auth
-            var postvals = new { Email = obj.EmailAddress, ReferenceId = newUserId, CompanyReferenceId = Convert.ToInt32(companyId) };
+            var postvals = new { Email = obj.EmailAddress, ReferenceId = newUserId, CompanyReferenceId = Convert.ToInt32(companyId), FirstName = obj.FirstName, LastName = obj.LastName };
             string url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.SingleRegisterUser;
 
             string token = _tokenHelper.RemoveBearer(auth);
