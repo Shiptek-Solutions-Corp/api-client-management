@@ -123,6 +123,23 @@ namespace xgca.data.User
             return result > 0 ? true : false;
         }
 
+        public async Task<bool> UpdateLock(List<int> userIds, int modifiedBy, byte isLock)
+        {
+            var data = await _context.Users.Where(u => userIds.Contains(u.UserId))
+                .ToListAsync();
+            if (data == null)
+            {
+                return false;
+            }
+            data.ForEach(t => {
+                t.IsLocked = isLock;
+                t.ModifiedBy = modifiedBy;
+                t.ModifiedOn = DateTime.UtcNow;
+            });
+            var result = await _context.SaveChangesAsync();
+            return result > 0 ? true : false;
+        }
+
         public async Task<bool> SetUsername(entity.Models.User obj)
         {
             var data = await _context.Users.Where(u => u.UserId == obj.UserId && u.IsDeleted == 0).FirstOrDefaultAsync();
@@ -175,10 +192,10 @@ namespace xgca.data.User
             return _context.Users.Any(u => u.Username == username);
         }
 
-        public async Task<bool> EmailAddressExists(string emailAddress, int userId)
+        public async Task<bool> EmailAddressExists(string emailAddress)
         {
             var user = await _context.Users
-                .Where(u => u.EmailAddress == emailAddress && u.UserId != userId)
+                .Where(u => u.EmailAddress == emailAddress)
                 .FirstOrDefaultAsync();
 
             return !(user is null) ? true : false;

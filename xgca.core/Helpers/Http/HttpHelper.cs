@@ -107,10 +107,22 @@ namespace xgca.core.Helpers.Http
 
             return responseData;
         }
-        public Task<dynamic> Post(string environment, string endpointUrl, dynamic data)
+        public async Task<dynamic> Post(string endpointUrl, dynamic data, string token)
         {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            throw new NotImplementedException();
+            string json = JsonConvert.SerializeObject(data, Formatting.Indented);
+
+            var httpContent = new StringContent(json,
+                                    Encoding.UTF8,
+                                    "application/json");
+
+            var httpResponce = await _httpClient.PostAsync(endpointUrl, httpContent);
+
+            var result = await httpResponce.Content.ReadAsStringAsync();
+            var responseData = JsonConvert.DeserializeObject(result);
+
+            return responseData;
         }
 
         public async Task<dynamic> Put(string endpointUrl, dynamic data, string token)
@@ -131,24 +143,6 @@ namespace xgca.core.Helpers.Http
 
             return responseData;
         }
-
-        public async Task<dynamic> PutWithoutBody(string endpointUrl, string token)
-        {
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-
-            var httpContent = new StringContent(
-                                    "application/json");
-
-            // PostAsync returns a Task<httpresponsemessage>
-            var httpResponce = await _httpClient.PutAsync(endpointUrl, null);
-
-            var result = await httpResponce.Content.ReadAsStringAsync();
-            var responseData = JsonConvert.DeserializeObject(result);
-
-            return responseData;
-        }
-
 
     }
 }

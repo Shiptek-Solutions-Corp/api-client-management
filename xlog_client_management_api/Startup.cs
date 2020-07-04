@@ -37,18 +37,12 @@ using Amazon.Runtime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using xgca.core.Helpers;
-using xgca.core.GroupResource;
 using System.Text.RegularExpressions;
 using xgca.core.CompanyServiceUserRole;
 using xgca.data.CompanyServiceUserRole;
 using xgca.core.CompanyGroupResource;
 using xgca.data.CompanyGroupResource;
-using xgca.data.MenuModule;
-using xgca.core.MenuModule;
-using xgca.core.ModuleGroup;
-using xgca.data.ModuleGroup;
 using AutoMapper;
-using xgca.data.GroupResource;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 
@@ -107,21 +101,12 @@ namespace xlog_client_management_api
             services.AddScoped<ICompanyUser, CompanyUser>();
             services.AddScoped<IContactDetail, ContactDetail>();
             services.AddScoped<IGeneral, General>();
-            services.AddScoped<IGroupResource, GroupResource>();
-            services.AddScoped<IGroupResourceData, GroupResourceData>();
-
 
             services.AddScoped<ICompanyGroupResource, CompanyGroupResource>();
             services.AddScoped<ICompanyGroupResourceData, CompanyGroupResourceData>();
 
             services.AddScoped<ICompanyServiceUserRole, CompanyServiceUserRole>();
             services.AddScoped<ICompanyServiceUserRoleData, CompanyServiceUserRoleData>();
-
-            services.AddScoped<IMenuModuleData, MenuModuleData>();
-            services.AddScoped<IMenuModule, MenuModule>();
-
-            services.AddScoped<IModuleGroup, ModuleGroup>();
-            services.AddScoped<IModuleGroupData, ModuleGroupData>();
 
             services.AddScoped<IGeneralModel, GeneralModel>();
 
@@ -150,6 +135,7 @@ namespace xlog_client_management_api
                 o.DisableUserBatch = Configuration.GetSection("OptimusAuthService:DisableUserBatch").Value;
                 o.EnableUser = Configuration.GetSection("OptimusAuthService:EnableUser").Value;
                 o.DisableUser = Configuration.GetSection("OptimusAuthService:DisableUser").Value;
+                o.SingleRegisterUser = Configuration.GetSection("OptimusAuthService:SingleRegisterUser").Value;
             });
 
             services.AddHttpClient();

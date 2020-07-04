@@ -27,7 +27,6 @@ namespace xgca.entity.Models
         public Guid Guid { get; set; }
         [System.ComponentModel.DefaultValue(0)]
         public byte IsDeleted { get; set; }
-        public virtual GroupResource GroupResource { get; set; }
         public virtual CompanyServiceRole CompanyServiceRole { get; set; }
     }
 }

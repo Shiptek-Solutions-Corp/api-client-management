@@ -21,12 +21,13 @@ namespace xgca.data.User
         Task<bool> UpdateStatus(entity.Models.User obj);
         Task<bool> UpdateStatus(List<int> userIds, int modifiedBy, byte status);
         Task<bool> UpdateLock(entity.Models.User obj);
+        Task<bool> UpdateLock(List<int> userIds, int modifiedBy, byte isLock);
         Task<bool> SetUsername(entity.Models.User obj);
         Task<bool> Delete(int key);
         Task<int> GetIdByGuid(Guid key);
         Task<Guid> GetGuidById(int key);
         Task<int> GetIdByUsername(string username);
         bool UsernameExists(string username);
-        Task<bool> EmailAddressExists(string emailAddress, int userId);
+        Task<bool> EmailAddressExists(string emailAddress);
     }
 }

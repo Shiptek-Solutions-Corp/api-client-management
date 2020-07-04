@@ -22,9 +22,6 @@ namespace xgca.entity
         DbSet<CompanyUser> CompanyUsers { get; set; }
         DbSet<CompanyGroupResource> CompanyGroupResources { get; set; }
         DbSet<CompanyServiceUserRole> CompanyServiceUserRoles { get; set; }
-        DbSet<GroupResource> GroupResources { get; set; }
-        DbSet<MenuModule> MenuModules { get; set; }
-        DbSet<ModuleGroup> ModuleGroups { get; set; }
 
     }
 }
