@@ -20,15 +20,17 @@ namespace xgca.core.CompanyUser
         private readonly xgca.data.CompanyUser.ICompanyUser _companyUser;
         private readonly xgca.data.Company.ICompanyData _company;
         private readonly xgca.data.User.IUserData _userData;
+        private readonly IUserHelper _userHelper;
         private readonly IGeneral _general;
 
         public CompanyUser(xgca.data.CompanyUser.ICompanyUser companyUser,
             xgca.data.Company.ICompanyData company, xgca.data.User.IUserData userData,
-            IGeneral general)
+            IUserHelper userHelper, IGeneral general)
         {
             _companyUser = companyUser;
             _company = company;
             _userData = userData;
+            _userHelper = userHelper;
             _general = general;
         }
 
@@ -136,6 +138,32 @@ namespace xgca.core.CompanyUser
             return companyUserId > 0
                 ? _general.Response(new { companyUserId = companyUserId }, 200, "User assiged to company successfully", true)
                 : _general.Response(false, 400, "Error assigning user to company", true);
+        }
+
+        public async Task<IGeneralModel> ListByCompanyId(int companyId)
+        {
+            var result = await _companyUser.ListByCompanyId(companyId);
+            if (result == null)
+            {
+                return _general.Response(false, 400, "Error on listing company users", false);
+            }
+
+            var data = result.Select(t => new 
+            { 
+                CompanyUserId = t.Guid,
+                CompanyId = t.Companies.Guid,
+                UserId = t.Users.Guid, 
+                Fullname = _userHelper.GetUserFullname(t.Users),
+                t.Users.ImageURL,
+                t.Users.EmailAddress,
+                t.Users.Status,
+                t.Users.IsLocked,
+                Role = "Admin",
+                Service = "Shipping Line",
+                t.Users.Username,
+            });
+            
+            return _general.Response(new { companyUsers = data }, 200, "Configurable company users have been listed", true);
         }
     }
 }

@@ -27,8 +27,7 @@ using xgca.core.Models.CompanyServiceRole;
 
 namespace xgca.core.User
 {
-    public class User : 
-        IUser
+    public class User : IUser
     {
         private readonly xgca.data.User.IUserData _userData;
         private readonly xgca.core.ContactDetail.IContactDetail _coreContactDetail;

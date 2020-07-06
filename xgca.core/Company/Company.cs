@@ -42,9 +42,9 @@ namespace xgca.core.Company
 
         private readonly IUserData _userData;
 
+        private readonly IOptions<GlobalCmsService> _options;
         private readonly IHttpHelper _httpHelper;
         private readonly ITokenHelper _tokenHelper;
-        private readonly IOptions<GlobalCmsApi> _options;
         private readonly IGeneral _general;
 
         public Company(ICompanyData companyData,
@@ -57,9 +57,9 @@ namespace xgca.core.Company
             ICompanyServiceUser coreCompanyServiceUser,
             ICompanyUser coreCompanyUser,
             IUserData userData,
+            IOptions<GlobalCmsService> options,
             IHttpHelper httpHelper,
             ITokenHelper tokenHelper,
-            IOptions<GlobalCmsApi> options,
             IGeneral general)
         {
             _companyData = companyData;
@@ -231,9 +231,9 @@ namespace xgca.core.Company
             var companyServices = companyServicesResponse.data.companyService;
             var newCompany = await _companyData.Retrieve(companyId);
 
-            var cityResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetCity, newCompany.Addresses.CityId, AuthToken.Contra);
+            var cityResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetCity}/", newCompany.Addresses.CityId, AuthToken.Contra);
             var cityJson = (JObject)cityResponse;
-            var stateResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetState, newCompany.Addresses.StateId, AuthToken.Contra);
+            var stateResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetState}/", newCompany.Addresses.StateId, AuthToken.Contra);
             var stateJson = (JObject)stateResponse;
 
             var updatedCompany = CompanyHelper.ReturnUpdatedValue(newCompany, (cityJson)["data"]["cityId"].ToString(), (stateJson)["data"]["stateId"].ToString(), companyServices);
@@ -255,9 +255,9 @@ namespace xgca.core.Company
             if (result == null)
             { return _general.Response(null, 400, "Selected company might have been deleted or does not exists", false); }
 
-            var cityResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetCity, result.Addresses.CityId, AuthToken.Contra);
+            var cityResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetCity}/", result.Addresses.CityId, AuthToken.Contra);
             var cityJson = (JObject)cityResponse;
-            var stateResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetState, result.Addresses.StateId, AuthToken.Contra);
+            var stateResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetState}/", result.Addresses.StateId, AuthToken.Contra);
             var stateJson = (JObject)stateResponse;
 
             var companyServices = await _coreCompanyService.ListByCompanyId(companyKey);
@@ -326,9 +326,9 @@ namespace xgca.core.Company
             if (result == null)
             { return _general.Response(null, 400, "Selected company might have been deleted or does not exists", false); }
 
-            var cityResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetCity, result.Addresses.CityId, AuthToken.Contra);
+            var cityResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetCity}/", result.Addresses.CityId, AuthToken.Contra);
             var cityJson = (JObject)cityResponse;
-            var stateResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetState, result.Addresses.StateId, AuthToken.Contra);
+            var stateResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetState}/", result.Addresses.StateId, AuthToken.Contra);
             var stateJson = (JObject)stateResponse;
 
             var companyServices = await _coreCompanyService.ListByCompanyId(companyId);
@@ -463,9 +463,9 @@ namespace xgca.core.Company
             var companyServices = companyServicesResponse.data.companyService;
             var newCompany = await _companyData.Retrieve(companyId);
 
-            var cityResponse = await _httpHelper.GetIdByGuid(_options.Value.BaseUrl, ApiEndpoints.cmsGetCity, newCompany.Addresses.CityId.ToString(), AuthToken.Contra);
+            var cityResponse = await _httpHelper.GetIdByGuid(_options.Value.BaseUrl, $"{_options.Value.GetCity}/", newCompany.Addresses.CityId.ToString(), AuthToken.Contra);
             var cityJson = (JObject)cityResponse;
-            var stateResponse = await _httpHelper.GetIdByGuid(_options.Value.BaseUrl, ApiEndpoints.cmsGetState, newCompany.Addresses.StateId.ToString(), AuthToken.Contra);
+            var stateResponse = await _httpHelper.GetIdByGuid(_options.Value.BaseUrl, $"{_options.Value.GetState}/", newCompany.Addresses.StateId.ToString(), AuthToken.Contra);
             var stateJson = (JObject)stateResponse;
 
             var updatedCompany = CompanyHelper.ReturnUpdatedValue(newCompany, (cityJson)["data"]["cityId"].ToString(), (stateJson)["data"]["stateId"].ToString(), companyServices);

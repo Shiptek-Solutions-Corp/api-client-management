@@ -8,6 +8,7 @@ namespace xgca.core.CompanyUser
     public interface ICompanyUser
     {
         Task<IGeneralModel> ListByCompanyId(string key);
+        Task<IGeneralModel> ListByCompanyId(int companyId);
         Task<IGeneralModel> Create(CreateCompanyUserModel obj);
         Task<int> CreateDefaultCompanyUser(int companyId, int masterUserId, int createdBy);
         Task<IGeneralModel> Update(UpateCompanyUserModel obj);

@@ -17,6 +17,11 @@ namespace xgca.entity.Models
         public int? CompanyServiceId { get; set; }
         public int CompanyUserId { get; set; }
         public int? CompanyServiceRoleId { get; set; }
+        public int CompanyId { get; set; }
+        [System.ComponentModel.DefaultValue(1)]
+        public byte IsActive { get; set; }
+        [System.ComponentModel.DefaultValue(0)]
+        public byte IsLocked { get; set; }
         public int CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
         public int ModifiedBy { get; set; }
@@ -26,7 +31,6 @@ namespace xgca.entity.Models
         public Guid Guid { get; set; }
         [System.ComponentModel.DefaultValue(0)]
         public byte IsDeleted { get; set; }
-
         public virtual CompanyService CompanyServices { get; set; }
         public virtual CompanyUser CompanyUsers { get; set; }
         public virtual CompanyServiceRole CompanyServiceRoles { get; set; }
