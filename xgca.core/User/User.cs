@@ -572,6 +572,7 @@ namespace xgca.core.User
                 data.Status,
                 data.ImageURL,
                 data.EmailAddress,
+                data.IsLocked,
                 ContactDetailId = data.ContactDetails.Guid,
                 Phone = new
                 {

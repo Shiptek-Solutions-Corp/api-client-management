@@ -23,6 +23,7 @@ namespace xgca.data.CompanyServiceUserRole
 
         public async Task<bool> Create(entity.Models.CompanyServiceUserRole obj)
         {
+            obj.Id = Guid.NewGuid();
             await _context.CompanyServiceUserRoles.AddAsync(obj);
             var result = await _context.SaveChangesAuditable();
             return result > 0 ? true : false;

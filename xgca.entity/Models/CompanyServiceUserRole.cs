@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
+using static xgca.entity.Models._Model;
 
 namespace xgca.entity.Models
 {
     [Table("CompanyServiceUserRole", Schema = "Company")]
-    public class CompanyServiceUserRole
+    public class CompanyServiceUserRole : IdentifiableEntity
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
