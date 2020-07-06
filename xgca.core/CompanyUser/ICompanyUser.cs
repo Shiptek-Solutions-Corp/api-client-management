@@ -14,5 +14,7 @@ namespace xgca.core.CompanyUser
         Task<IGeneralModel> Update(UpateCompanyUserModel obj);
         Task<int> GetCompanyIdByUserId(int key);
         Task<IGeneralModel> CreateAndReturnId(CreateCompanyUserModel obj);
+        Task<int> GetIdByUserId(int key);
+
     }
 }

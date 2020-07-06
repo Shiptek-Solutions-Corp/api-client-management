@@ -75,6 +75,19 @@ namespace xgca.data.CompanyServiceUser
             return companyServiceUsers;
         }
 
+        public async Task<List<entity.Models.CompanyServiceUser>> ListByCompanyUserId(int companyUserId)
+        {
+            var companyServiceUsers = await _context.CompanyServiceUsers
+                .Include(cs => cs.CompanyServices)
+                .Include(cu => cu.CompanyUsers)
+                    .ThenInclude(u => u.Users)
+                .Include(csr => csr.CompanyServiceRoles)
+                .Where(csu => csu.CompanyUserId == companyUserId)
+                .ToListAsync();
+
+            return companyServiceUsers;
+        }
+
         public async Task<List<entity.Models.CompanyServiceUser>> ListByCompanyServiceId(int companyServiceId)
         {
             var data = await _context.CompanyServiceUsers

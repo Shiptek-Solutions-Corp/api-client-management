@@ -165,5 +165,10 @@ namespace xgca.core.CompanyUser
             
             return _general.Response(new { companyUsers = data }, 200, "Configurable company users have been listed", true);
         }
+        public async Task<int> GetIdByUserId(int key)
+        {
+            int companyUserId = await _companyUser.GetIdByUserId(key);
+            return companyUserId;
+        }
     }
 }

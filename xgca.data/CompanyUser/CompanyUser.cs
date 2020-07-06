@@ -121,5 +121,13 @@ namespace xgca.data.CompanyUser
                 .FirstOrDefaultAsync();
             return data.CompanyUserId;
         }
+        public async Task<List<entity.Models.CompanyUser>> GetAllIdByUserId(int userId)
+        {
+            var data = await _context.CompanyUsers
+                .Include(u => u.CompanyServiceUsers)
+                .Where(cu => cu.UserId == userId && cu.IsDeleted == 0)
+                .ToListAsync();
+            return data;
+        }
     }
 }
