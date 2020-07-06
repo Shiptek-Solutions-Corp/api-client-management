@@ -108,6 +108,7 @@ namespace xlog_client_management_api
             services.AddScoped<ICompanyServiceUserRole, CompanyServiceUserRole>();
             services.AddScoped<ICompanyServiceUserRoleData, CompanyServiceUserRoleData>();
 
+            services.AddScoped<IUserHelper, UserHelper>();
             services.AddScoped<IGeneralModel, GeneralModel>();
 
             services.AddScoped<IUser, User>();
@@ -124,9 +125,15 @@ namespace xlog_client_management_api
             services.AddScoped<xgca.core.CompanyUser.ICompanyUser, xgca.core.CompanyUser.CompanyUser>();
             services.AddScoped<xgca.core.ContactDetail.IContactDetail, xgca.core.ContactDetail.ContactDetail>();
 
-            services.Configure<GlobalCmsApi>(o =>
+            services.Configure<GlobalCmsService>(o =>
             {
-                o.BaseUrl = Configuration.GetSection("GlobalCMS:BaseUrl").Value;
+                o.BaseUrl = Configuration.GetSection("GlobalCmsService:BaseUrl").Value;
+                o.GetServiceDetails = Configuration.GetSection("GlobalCmsService:GetServiceDetails").Value;
+                o.GetService = Configuration.GetSection("GlobalCmsService:GetService").Value;
+                o.GetCountry = Configuration.GetSection("GlobalCmsService:GetCountry").Value;
+                o.GetState = Configuration.GetSection("GlobalCmsService:GetState").Value;
+                o.GetCity = Configuration.GetSection("GlobalCmsService:GetCity").Value;
+                o.GetUserType = Configuration.GetSection("GlobalCmsService:GetUserType").Value;
             });
 
             services.Configure<OptimusAuthService>(o => {

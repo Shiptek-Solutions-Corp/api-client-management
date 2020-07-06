@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using xgca.entity;
 
 namespace xgca.entity.Migrations
 {
     [DbContext(typeof(XGCAContext))]
-    partial class XGCAContextModelSnapshot : ModelSnapshot
+    [Migration("20200704160444_added_columns_on_CompanyServiceUser")]
+    partial class added_columns_on_CompanyServiceUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -399,14 +401,14 @@ namespace xgca.entity.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<byte>("IsActive")
-                        .HasColumnType("tinyint");
+                    b.Property<int>("IsActive")
+                        .HasColumnType("int");
 
                     b.Property<byte>("IsDeleted")
                         .HasColumnType("tinyint");
 
-                    b.Property<byte>("IsLocked")
-                        .HasColumnType("tinyint");
+                    b.Property<int>("IsLocked")
+                        .HasColumnType("int");
 
                     b.Property<int>("ModifiedBy")
                         .HasColumnType("int");

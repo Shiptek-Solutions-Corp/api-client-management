@@ -28,6 +28,16 @@ namespace xgca.core.Helpers
     {
         public string BaseUrl { get; set; }
     }
+    public class GlobalCmsService : ParentConstant
+    {
+        
+        public string GetServiceDetails { get; set; }
+        public string GetService { get; set; }
+        public string GetCountry { get; set; }
+        public string GetState { get; set; }
+        public string GetCity { get; set; }
+        public string GetUserType { get; set; }
+    }
     public class OptimusAuthService : ParentConstant
     {
         // Client Menu

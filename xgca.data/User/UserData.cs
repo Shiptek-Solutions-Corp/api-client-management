@@ -70,7 +70,6 @@ namespace xgca.data.User
             data.LastName = obj.LastName;
             data.MiddleName = obj.MiddleName;
             data.Title = obj.Title;
-            data.EmailAddress = obj.EmailAddress;
             data.ImageURL = obj.ImageURL;
             data.ModifiedBy = obj.ModifiedBy;
             data.ModifiedOn = DateTime.UtcNow;

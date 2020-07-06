@@ -29,7 +29,6 @@ namespace xgca.entity.Models
 
         public virtual CompanyService CompanyServices { get; set; } 
         public virtual ICollection<CompanyGroupResource> CompanyGroupResources { get; set; }
-
         public virtual ICollection<CompanyServiceUser> CompanyServiceUsers { get; set; }
         public virtual ICollection<CompanyServiceUserRole> CompanyServiceUserRoles { get; set; }
 

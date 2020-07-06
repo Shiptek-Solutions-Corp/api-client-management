@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using xgca.entity;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Z.EntityFramework.Plus;
 
 namespace xgca.data.CompanyUser
 {
