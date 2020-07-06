@@ -6,7 +6,11 @@ using xgca.entity.Models;
 
 namespace xgca.core.Helpers
 {
-    public class UserHelper
+    public interface IUserHelper
+    {
+        string GetUserFullname(entity.Models.User user);
+    }
+    public class UserHelper : IUserHelper
     {
         public static dynamic BuildUserValue(dynamic user)
         {
@@ -73,6 +77,12 @@ namespace xgca.core.Helpers
             };
 
             return data;
+        }
+
+        public string GetUserFullname(entity.Models.User user)
+        {
+            string middlename = (user.MiddleName is null) ? "" : user.MiddleName;
+            return $"{user.FirstName} {middlename} {user.LastName}";
         }
     }
 }

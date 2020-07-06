@@ -25,14 +25,14 @@ namespace xgca.core.CompanyService
         private readonly ICompanyUser _coreCompanyUser;
 
         private readonly IHttpHelper _httpHelpers;
-        private readonly IOptions<GlobalCmsApi> _options;
+        private readonly IOptions<GlobalCmsService> _options;
         private readonly IGeneral _general;
 
         public CompanyService(xgca.data.CompanyService.ICompanyService companyService,
             xgca.data.Company.ICompanyData company,
             xgca.core.User.IUser coreUser, ICompanyUser coreCompanyUser,
             IHttpHelper httpHelpers,
-            IOptions<GlobalCmsApi> options,
+            IOptions<GlobalCmsService> options,
             IGeneral general)
         {
             _companyService = companyService;
@@ -52,9 +52,9 @@ namespace xgca.core.CompanyService
             List<ListCompanyServiceModel> data = new List<ListCompanyServiceModel>();
             foreach(var companyService in companyServices)
             {
-                var serviceKey = await _httpHelpers.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, companyService.ServiceId, AuthToken.Contra);
-                string serviceGuid = serviceKey.data.serviceId;
-                var serviceResponse = await _httpHelpers.Get(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, serviceGuid, AuthToken.Contra);
+                var serviceKey = await _httpHelpers.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetService}/", companyService.ServiceId, AuthToken.Contra);
+                string serviceId = serviceKey.data.serviceId;
+                var serviceResponse = await _httpHelpers.CustomGet(_options.Value.BaseUrl, _options.Value.GetServiceDetails.Replace("{serviceId}", serviceId), AuthToken.Contra);
                 var json = (JObject)serviceResponse;
                 data.Add(new ListCompanyServiceModel
                 {
@@ -80,9 +80,9 @@ namespace xgca.core.CompanyService
 
             foreach (var companyService in companyServices)
             {
-                var serviceKey = await _httpHelpers.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, companyService.ServiceId, AuthToken.Contra);
+                var serviceKey = await _httpHelpers.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetService}/", companyService.ServiceId, AuthToken.Contra);
                 string serviceId = serviceKey.data.serviceId;
-                var serviceResponse = await _httpHelpers.Get(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, serviceId, AuthToken.Contra);
+                var serviceResponse = await _httpHelpers.CustomGet(_options.Value.BaseUrl, _options.Value.GetServiceDetails.Replace("{serviceId}", serviceId), AuthToken.Contra);
 
                 var json = (JObject)serviceResponse;
 
@@ -102,7 +102,7 @@ namespace xgca.core.CompanyService
         public async Task<IGeneralModel> Create(CreateCompanyServiceModel obj)
         {
             int companyId = await _company.GetIdByGuid(Guid.Parse(obj.CompanyId));
-            var service = await _httpHelpers.Get(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, obj.ServiceId, AuthToken.Contra);
+            var service = await _httpHelpers.CustomGet(_options.Value.BaseUrl, _options.Value.GetServiceDetails.Replace("{serviceId}", obj.ServiceId), AuthToken.Contra);
             int userId = 1;
             var companyService = new entity.Models.CompanyService
             {
@@ -174,7 +174,7 @@ namespace xgca.core.CompanyService
             {
                 var serviceObj = (JObject)service;
                 string serviceKey = (serviceObj)["serviceId"].ToString();
-                var serviceResponse = await _httpHelpers.GetIdByGuid(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, serviceKey, AuthToken.Contra);
+                var serviceResponse = await _httpHelpers.GetIdByGuid(_options.Value.BaseUrl, $"{_options.Value.GetService}/", serviceKey, AuthToken.Contra);
                 var serviceJson = (JObject)serviceResponse;
                 string companyServiceKey = (serviceObj)["companyServiceId"].ToString();
                 if (companyServiceKey == "NEW")

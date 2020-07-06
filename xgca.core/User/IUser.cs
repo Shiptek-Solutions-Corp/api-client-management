@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using xgca.core.Models.User;
@@ -27,5 +28,6 @@ namespace xgca.core.User
         Task<int> GetIdByUsername(string username);
         Task<IGeneralModel> GetUserByReferenceId(int id);
         Task<IGeneralModel> ListUserLogs(string? userKey, string? username);
+        Task<IGeneralModel> GetUserCounts(List<int> userIds);
     }
 }

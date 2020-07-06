@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using xgca.entity;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Z.EntityFramework.Plus;
 
 namespace xgca.data.CompanyUser
 {
@@ -119,6 +120,14 @@ namespace xgca.data.CompanyUser
                 .Where(cu => cu.UserId == userId)
                 .FirstOrDefaultAsync();
             return data.CompanyUserId;
+        }
+        public async Task<List<entity.Models.CompanyUser>> GetAllIdByUserId(int userId)
+        {
+            var data = await _context.CompanyUsers
+                .Include(u => u.CompanyServiceUsers)
+                .Where(cu => cu.UserId == userId && cu.IsDeleted == 0)
+                .ToListAsync();
+            return data;
         }
     }
 }

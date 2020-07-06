@@ -36,10 +36,11 @@ namespace xgca.core.User
         private readonly xgca.data.AuditLog.IAuditLogData _auditLog;
         private readonly ITokenHelper _tokenHelper;
         private readonly IHttpHelper _httpHelper;
-        private readonly IOptions<GlobalCmsApi> _options;
+        private readonly IOptions<GlobalCmsService> _options;
         private readonly IOptions<OptimusAuthService> _optimusAuthService;
         private readonly IGeneral _general;
-        private readonly ICompanyServiceUser _companyServiceUser;
+        private readonly xgca.data.CompanyServiceUser.ICompanyServiceUser _companyServiceUser;
+        private readonly xgca.core.CompanyServiceUser.ICompanyServiceUser _coreCompanyServiceUser;
         private readonly xgca.data.CompanyService.ICompanyService _companyService;
         private readonly xgca.data.CompanyServiceRole.ICompanyServiceRole _companyServiceRole;
 
@@ -48,10 +49,11 @@ namespace xgca.core.User
             xgca.core.CompanyUser.ICompanyUser coreCompanyUser,
             xgca.data.AuditLog.IAuditLogData auditLog,
             ITokenHelper tokenHelper,
-            IOptions<GlobalCmsApi> options,
+            IOptions<GlobalCmsService> options,
             IHttpHelper httpHelper,
             IOptions<OptimusAuthService> optimusAuthService,
-            ICompanyServiceUser companyServiceUser,
+            xgca.data.CompanyServiceUser.ICompanyServiceUser companyServiceUser,
+            xgca.core.CompanyServiceUser.ICompanyServiceUser coreCompanyServiceUser,
             xgca.data.CompanyService.ICompanyService companyService,
             xgca.data.CompanyServiceRole.ICompanyServiceRole companyServiceRole,
         IGeneral general)
@@ -66,6 +68,7 @@ namespace xgca.core.User
             _general = general;
             _optimusAuthService = optimusAuthService;
             _companyServiceUser = companyServiceUser;
+            _coreCompanyServiceUser = coreCompanyServiceUser;
             _companyService = companyService;
             _companyServiceRole = companyServiceRole;
         }
@@ -520,10 +523,16 @@ namespace xgca.core.User
         {
             int userId = await _userData.GetIdByGuid(Guid.Parse(key));
             var data = await _userData.Retrieve(userId);
+            int companyUsersId = await _coreCompanyUser.GetIdByUserId(userId);
+            var companyServiceUsers = await _coreCompanyServiceUser.ListUserServiceRolesByCompanyUserId(companyUsersId);
+
+
             if (data == null)
             {
                 return _general.Response(null, 400, "Selected user might have been deleted or does not exists", false);
             }
+
+
 
             var result = new
             {
@@ -548,8 +557,11 @@ namespace xgca.core.User
                     data.ContactDetails.MobilePrefixId,
                     data.ContactDetails.MobilePrefix,
                     data.ContactDetails.Mobile,
-                }
+                },
+                Roles = new { companyServiceUsers.data.data }
             };
+
+
 
             return _general.Response(result, 200, "Configurable information for selected user has been displayed", true);
         }
@@ -691,5 +703,22 @@ namespace xgca.core.User
             return _general.Response(new { Logs = logs }, 200, "Company audit logs has been listed", true);
         }
 
+        public async Task<IGeneralModel> GetUserCounts(List<int> userIds)
+        {
+            int totalUsers = await _userData.GetTotalUsers(userIds);
+            int totalActiveUsers = await _userData.GetTotalActiveUsers(userIds);
+            int totalInactiveUsers = await _userData.GetTotalInactiveUsers(userIds);
+            int totalLockedUsers = await _userData.GetTotalLockedUsers(userIds);
+            int totalUnlockedUsers = await _userData.GetTotalUnlockedUsers(userIds);
+
+            return _general.Response(new
+            {
+                TotalUsers = totalUsers,
+                TotalLockedUsers = totalLockedUsers,
+                TotalUnlockedUsers = totalUnlockedUsers,
+                TotalActiveUsers = totalActiveUsers,
+                TotalInactiveUsers = totalInactiveUsers,
+            }, 200, "Total user counts displayed", true);
+        }
     }
 }

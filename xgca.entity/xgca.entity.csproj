@@ -35,6 +35,14 @@
     <Compile Remove="Migrations\20200625083300_changed_max_characters.Designer.cs" />
     <Compile Remove="Migrations\20200626052220_added_column_CreatedByName.cs" />
     <Compile Remove="Migrations\20200626052220_added_column_CreatedByName.Designer.cs" />
+    <Compile Remove="Migrations\20200704135938_changed_foreign_key_constraint_CompanyUser.cs" />
+    <Compile Remove="Migrations\20200704135938_changed_foreign_key_constraint_CompanyUser.Designer.cs" />
+    <Compile Remove="Migrations\20200704140104_changed_foreign_key_constraint_CompanyUser.cs" />
+    <Compile Remove="Migrations\20200704140104_changed_foreign_key_constraint_CompanyUser.Designer.cs" />
+    <Compile Remove="Migrations\20200704155146_added_columns_on_CompanyServiceUser.cs" />
+    <Compile Remove="Migrations\20200704155146_added_columns_on_CompanyServiceUser.Designer.cs" />
+    <Compile Remove="Migrations\20200704155746_added_columns_on_CompanyServiceUser.cs" />
+    <Compile Remove="Migrations\20200704155746_added_columns_on_CompanyServiceUser.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

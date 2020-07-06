@@ -17,5 +17,6 @@ namespace xgca.data.CompanyUser
         Task<bool> Update(entity.Models.CompanyUser obj);
         Task<bool> ChangeStatus(entity.Models.CompanyUser obj);
         Task<bool> Delete(int key);
+        Task<List<entity.Models.CompanyUser>> GetAllIdByUserId(int userId);
     }
 }

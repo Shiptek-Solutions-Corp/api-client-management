@@ -30,7 +30,7 @@ namespace xgca.core.Profile
 
         private readonly IHttpHelper _httpHelper;
         private readonly ITokenHelper _tokenHelper;
-        private readonly IOptions<GlobalCmsApi> _options;
+        private readonly IOptions<GlobalCmsService> _options;
         private readonly IGeneral _general;
 
         public Profile(xgca.data.User.IUserData userData,
@@ -41,7 +41,7 @@ namespace xgca.core.Profile
             xgca.data.CompanyServiceUser.ICompanyServiceUser companyServiceUserData,
             IHttpHelper httpHelper,
             ITokenHelper tokenHelper,
-            IOptions<GlobalCmsApi> options,
+            IOptions<GlobalCmsService> options,
             IGeneral general)
         {
             _userData = userData;
@@ -65,10 +65,10 @@ namespace xgca.core.Profile
             var company = await _companyData.Retrieve(companyId);
             int companyServiceId = await _companyServiceData.GetIdByGuid(Guid.Parse(companyServiceKey));
             var companyService = await _companyServiceData.Retrieve(companyServiceId);
-            var serviceResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, companyService.ServiceId, AuthToken.Contra);
+            var serviceResponse = await _httpHelper.CustomGet(_options.Value.BaseUrl, $"{_options.Value.GetService}/{companyService.ServiceId}/guid", AuthToken.Contra);
             var json = (JObject)serviceResponse;
             string serviceKey = json["data"]["serviceId"].ToString();
-            var service = await _httpHelper.Get(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, serviceKey, AuthToken.Contra);
+            var service = await _httpHelper.CustomGet(_options.Value.BaseUrl, _options.Value.GetServiceDetails.Replace("serviceId", serviceKey), AuthToken.Contra);
             var serviceJson = (JObject)service;
 
             int companyUserId = user.CompanyUsers.CompanyUserId;

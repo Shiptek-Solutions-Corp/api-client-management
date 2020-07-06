@@ -9,29 +9,28 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-
-namespace xlog_client_management_api.Controllers.CompanyUser
+namespace xlog_client_management_api.Controllers.CompanyServiceUser
 {
     [Route("clients/api/v1")]
     [ApiController]
-    public class CompayUserController : Controller
+    public class CompanyServiceUserController : Controller
     {
-
-        public readonly xgca.core.CompanyUser.ICompanyUser _companyUser;
-        public CompayUserController(xgca.core.CompanyUser.ICompanyUser companyUser)
+        public readonly xgca.core.CompanyServiceUser.ICompanyServiceUser _companyServiceUser;
+        public CompanyServiceUserController(xgca.core.CompanyServiceUser.ICompanyServiceUser companyServiceUser)
         {
-            _companyUser = companyUser;
+            _companyServiceUser = companyServiceUser;
         }
 
-        [Route("company/{companyId}/users")]
+        [Route("company/user-roles")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> ListCompanyUserByCompanyid(string companyId)
+        public async Task<IActionResult> ListCompanyUserByCompanyid()
         {
-            var response = await _companyUser.ListByCompanyId(companyId);
+            var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
+            var response = await _companyServiceUser.ListUserServiceRolesByCompanyId(Convert.ToInt32(companyId));
 
             if (response.statusCode == 400)
             {
@@ -45,16 +44,15 @@ namespace xlog_client_management_api.Controllers.CompanyUser
             return Ok(response);
         }
 
-        [Route("company/users")]
+        [Route("company/{companyId}/user-roles")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> ListCompanyUsersByCompanyId()
+        public async Task<IActionResult> ListCompanyUserByCompanyid(string companyId)
         {
-            var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
-            var response = await _companyUser.ListByCompanyId(Convert.ToInt32(companyId));
+            var response = await _companyServiceUser.ListUserServiceRolesByCompanyId(Convert.ToInt32(companyId));
 
             if (response.statusCode == 400)
             {

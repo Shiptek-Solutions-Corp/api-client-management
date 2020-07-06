@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using xgca.core.Models.User;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -120,7 +121,7 @@ namespace xlog_client_management_api.Controllers.User
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> CreateUser([FromBody] xgca.core.Models.User.CreateUserModel request)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserModel request)
         {
             var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
             var CreatedBy = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
@@ -145,7 +146,7 @@ namespace xlog_client_management_api.Controllers.User
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> UpdateUser([FromBody] xgca.core.Models.User.UpdateUserModel request)
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserModel request)
         {
             var modifiedBy = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
             var response = await _user.Update(request, modifiedBy);
@@ -167,7 +168,7 @@ namespace xlog_client_management_api.Controllers.User
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> SetUsername([FromBody] xgca.core.Models.User.SetUsernameModel request)
+        public async Task<IActionResult> SetUsername([FromBody] SetUsernameModel request)
         {
             var response = await _user.SetUsername(request);
 
@@ -255,7 +256,7 @@ namespace xlog_client_management_api.Controllers.User
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> UpdateStatus([FromBody] xgca.core.Models.User.UpdateUserStatusModel request)
+        public async Task<IActionResult> UpdateStatus([FromBody] UpdateUserStatusModel request)
         {
             var modifiedBy = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
             var authHeader = Request.Headers["Authorization"].ToString();
@@ -279,7 +280,7 @@ namespace xlog_client_management_api.Controllers.User
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> UpdateLock([FromBody] xgca.core.Models.User.UpdateUserLockModel request)
+        public async Task<IActionResult> UpdateLock([FromBody] UpdateUserLockModel request)
         {
             var modifiedBy = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
             var authHeader = Request.Headers["Authorization"].ToString();
@@ -303,7 +304,7 @@ namespace xlog_client_management_api.Controllers.User
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> UpdateMultipleLock([FromBody] xgca.core.Models.User.UpdateMultipleLockModel request)
+        public async Task<IActionResult> UpdateMultipleLock([FromBody] UpdateMultipleLockModel request)
         {
             var modifiedBy = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
             var authHeader = Request.Headers["Authorization"].ToString();
@@ -327,7 +328,7 @@ namespace xlog_client_management_api.Controllers.User
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> UpdateMultipleStatus([FromBody] xgca.core.Models.User.UpdateMultipleStatusModel request)
+        public async Task<IActionResult> UpdateMultipleStatus([FromBody] UpdateMultipleStatusModel request)
         {
             var modifiedBy = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
             var authHeader = Request.Headers["Authorization"].ToString();

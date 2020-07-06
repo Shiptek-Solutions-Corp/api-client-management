@@ -15,6 +15,11 @@ namespace xgca.data.User
         Task<int> GetTotalLockedUsers();
         Task<int> GetTotalUnlockedUsers();
         Task<int> GetTotalUsers();
+        Task<int> GetTotalActiveUsers(List<int> userIds);
+        Task<int> GetTotalInactiveUsers(List<int> userIds);
+        Task<int> GetTotalLockedUsers(List<int> userIds);
+        Task<int> GetTotalUnlockedUsers(List<int> userIds);
+        Task<int> GetTotalUsers(List<int> userIds);
         Task<entity.Models.User> Retrieve(int key);
         Task<entity.Models.User> RetrieveByUsername(string username);
         Task<bool> Update(entity.Models.User obj);
