@@ -12,5 +12,10 @@ namespace xgca.core.Constants
         public static string AuditLogTimeFormat = "yyyy-MM-dd HH:mm";
 
         public static int ActiveServices = 1;
+
+        public static int Active = 1;
+        public static int Inactive = 0;
+        public static int Locked = 1;
+        public static int Unlocked = 0;
     }
 }

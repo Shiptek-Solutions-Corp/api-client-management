@@ -689,5 +689,22 @@ namespace xgca.core.User
             return _general.Response(new { Logs = logs }, 200, "Company audit logs has been listed", true);
         }
 
+        public async Task<IGeneralModel> GetUserCounts(List<int> userIds)
+        {
+            int totalUsers = await _userData.GetTotalUsers(userIds);
+            int totalActiveUsers = await _userData.GetTotalActiveUsers(userIds);
+            int totalInactiveUsers = await _userData.GetTotalInactiveUsers(userIds);
+            int totalLockedUsers = await _userData.GetTotalLockedUsers(userIds);
+            int totalUnlockedUsers = await _userData.GetTotalUnlockedUsers(userIds);
+
+            return _general.Response(new
+            {
+                TotalUsers = totalUsers,
+                TotalLockedUsers = totalLockedUsers,
+                TotalUnlockedUsers = totalUnlockedUsers,
+                TotalActiveUsers = totalActiveUsers,
+                TotalInactiveUsers = totalInactiveUsers,
+            }, 200, "Total user counts displayed", true);
+        }
     }
 }

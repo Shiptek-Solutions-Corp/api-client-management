@@ -16,6 +16,7 @@ using xgca.core.Helpers.Http;
 using xgca.core.Constants;
 using System.Runtime.InteropServices.ComTypes;
 using xgca.data.Company;
+using xgca.data.User;
 
 namespace xgca.core.CompanyServiceUser
 {
@@ -25,6 +26,7 @@ namespace xgca.core.CompanyServiceUser
         private readonly xgca.data.CompanyServiceRole.ICompanyServiceRole _companyServiceRole;
         private readonly xgca.data.CompanyServiceUser.ICompanyServiceUser _companyServiceUser;
         private readonly xgca.data.CompanyService.ICompanyService _companyService;
+        private readonly IUserData _userData;
         private readonly IHttpHelper _httpHelper;
         private readonly IOptions<GlobalCmsService> _options;
         private readonly IUserHelper _userHelper;
@@ -32,13 +34,14 @@ namespace xgca.core.CompanyServiceUser
 
         public CompanyServiceUser(ICompanyData companyData, xgca.data.CompanyServiceRole.ICompanyServiceRole companyServiceRole,
             xgca.data.CompanyServiceUser.ICompanyServiceUser companyServiceUser,
-            xgca.data.CompanyService.ICompanyService companyService,
+            xgca.data.CompanyService.ICompanyService companyService, IUserData userData,
             IHttpHelper httpHelper, IOptions<GlobalCmsService> options, IUserHelper userHelper, IGeneral general)
         {
             _companyData = companyData;
             _companyServiceRole = companyServiceRole;
             _companyServiceUser = companyServiceUser;
             _companyService = companyService;
+            _userData = userData;
             _httpHelper = httpHelper;
             _options = options;
             _userHelper = userHelper;
@@ -80,6 +83,8 @@ namespace xgca.core.CompanyServiceUser
                 return _general.Response(null, 400, "No configurable user service roles found!", false);
             }
             List<ListCompanyServiceUsers> lists = new List<ListCompanyServiceUsers>();
+            List<int> userIds = new List<int>();
+
             foreach(var companyServiceUser in companyServiceUsers)
             {
                 /** For Localhost testing with Dev DB Environment **/
@@ -110,9 +115,27 @@ namespace xgca.core.CompanyServiceUser
                     IsActive = companyServiceUser.IsActive,
                     IsLocked = companyServiceUser.IsLocked
                 });
+
+                userIds.Add(companyServiceUser.CompanyUsers.Users.UserId);
             }
 
-            return _general.Response(new { data = lists }, 200, "Configurable user service roles have been listed", true);
+            int activeUsers = await _userData.GetTotalActiveUsers(userIds);
+            int inactiveUsers = await _userData.GetTotalInactiveUsers(userIds);
+            int lockedUsers = await _userData.GetTotalLockedUsers(userIds);
+            int unlockedUsers = await _userData.GetTotalUnlockedUsers(userIds);
+            int totalUsers = await _userData.GetTotalUsers(userIds);
+
+            var responseData = new
+            {
+                user = lists,
+                TotalUsersCount = totalUsers,
+                TotalActiveUsers = activeUsers,
+                TotalInactiveUsers = inactiveUsers,
+                TotalLockUsers = lockedUsers,
+                TotalUnlockUsers = unlockedUsers
+            };
+
+            return _general.Response(new { data = responseData }, 200, "Configurable user service roles have been listed", true);
         }
 
         public async Task<IGeneralModel> ListUserServiceRolesByCompanyId(string companyKey)
@@ -120,6 +143,7 @@ namespace xgca.core.CompanyServiceUser
             int companyId = await _companyData.GetIdByGuid(Guid.Parse(companyKey));
             var companyServiceUsers = await _companyServiceUser.ListByCompanyId(companyId);
             List<ListCompanyServiceUsers> lists = new List<ListCompanyServiceUsers>();
+            List<int> userIds = new List<int>();
             if (companyServiceUsers.Count == 0)
             {
                 return _general.Response(null, 400, "No configurable user service roles found!", false);
@@ -146,9 +170,27 @@ namespace xgca.core.CompanyServiceUser
                     IsActive = companyServiceUser.IsActive,
                     IsLocked = companyServiceUser.IsLocked
                 });
+
+                userIds.Add(companyServiceUser.CompanyUsers.Users.UserId);
             }
 
-            return _general.Response(new { data = lists }, 200, "Configurable user service roles have been listed", true);
+            int activeUsers = await _userData.GetTotalActiveUsers(userIds);
+            int inactiveUsers = await _userData.GetTotalInactiveUsers(userIds);
+            int lockedUsers = await _userData.GetTotalLockedUsers(userIds);
+            int unlockedUsers = await _userData.GetTotalUnlockedUsers(userIds);
+            int totalUsers = await _userData.GetTotalUsers(userIds);
+
+            var responseData = new
+            {
+                user = lists,
+                TotalUsersCount = totalUsers,
+                TotalActiveUsers = activeUsers,
+                TotalInactiveUsers = inactiveUsers,
+                TotalLockUsers = lockedUsers,
+                TotalUnlockUsers = unlockedUsers
+            };
+
+            return _general.Response(new { data = responseData }, 200, "Configurable user service roles have been listed", true);
         }
     }
 }

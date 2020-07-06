@@ -239,5 +239,45 @@ namespace xgca.data.User
                 .ToListAsync();
             return data.Count;
         }
+
+        public async Task<int> GetTotalActiveUsers(List<int> userIds)
+        {
+            var data = await _context.Users
+                .Where(u => userIds.Contains(u.UserId) && u.Status == 1 && u.IsDeleted == 0)
+                .ToListAsync();
+            return data.Count;
+        }
+
+        public async Task<int> GetTotalInactiveUsers(List<int> userIds)
+        {
+            var data = await _context.Users
+                .Where(u => userIds.Contains(u.UserId) && u.Status == 0 && u.IsDeleted == 0)
+                .ToListAsync();
+            return data.Count;
+        }
+
+        public async Task<int> GetTotalLockedUsers(List<int> userIds)
+        {
+            var data = await _context.Users
+                .Where(u => userIds.Contains(u.UserId) && u.IsLocked == 1 && u.IsDeleted == 0)
+                .ToListAsync();
+            return data.Count;
+        }
+
+        public async Task<int> GetTotalUnlockedUsers(List<int> userIds)
+        {
+            var data = await _context.Users
+                .Where(u => userIds.Contains(u.UserId) && u.IsLocked == 0 && u.IsDeleted == 0)
+                .ToListAsync();
+            return data.Count;
+        }
+
+        public async Task<int> GetTotalUsers(List<int> userIds)
+        {
+            var data = await _context.Users
+                .Where(u => userIds.Contains(u.UserId) && u.IsDeleted == 0)
+                .ToListAsync();
+            return data.Count;
+        }
     }
 }
