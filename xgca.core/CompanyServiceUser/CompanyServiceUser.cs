@@ -150,5 +150,49 @@ namespace xgca.core.CompanyServiceUser
 
             return _general.Response(new { data = lists }, 200, "Configurable user service roles have been listed", true);
         }
+
+        public async Task<IGeneralModel> ListUserServiceRolesByCompanyUserId(int companyUserId)
+        {
+            var companyServiceUsers = await _companyServiceUser.ListByCompanyUserId(companyUserId);
+            if (companyServiceUsers.Count == 0)
+            {
+                return _general.Response(null, 400, "No configurable user service roles found!", false);
+            }
+            List<ListCompanyServiceUsers> lists = new List<ListCompanyServiceUsers>();
+            foreach (var companyServiceUser in companyServiceUsers)
+            {
+                /** For Localhost testing with Dev DB Environment **/
+                //string getDetails = "service/{serviceId}";
+                //string url = "https://localhost:44380/global/cms/api/v1/";
+                //var serviceGuid = await _httpHelper.CustomGet(url, getDetails.Replace("{serviceId}", companyServiceUser.CompanyServices.ServiceId.ToString()) + "/guid", AuthToken.Contra);
+
+                var serviceGuid = await _httpHelper.Get(_options.Value.BaseUrl, _options.Value.GetServiceDetails.Replace("{serviceId}", companyServiceUser.CompanyServices.ServiceId.ToString()) + "/guid");
+                var serviceGuidObj = (JObject)serviceGuid;
+                string serviceKey = (serviceGuidObj)["data"]["serviceId"].ToString();
+
+                /** For Localhost testing with Dev DB Environment **/
+                //var serviceResponse = await _httpHelper.CustomGet(url, getDetails.Replace("{serviceId}", serviceKey), AuthToken.Contra);
+
+                var serviceResponse = await _httpHelper.Get(_options.Value.BaseUrl, _options.Value.GetServiceDetails.Replace("{serviceId}", serviceKey));
+                var serviceObj = (JObject)serviceResponse;
+
+
+                lists.Add(new ListCompanyServiceUsers
+                {
+                    //CompanyServiceuserId = companyServiceUser.Guid.ToString(),
+                    //Fullname = _userHelper.GetUserFullname(companyServiceUser.CompanyUsers.Users),
+                    //EmailAddress = companyServiceUser.CompanyUsers.Users.EmailAddress,
+                    //ImageURL = companyServiceUser.CompanyUsers.Users.ImageURL,
+                    //Username = companyServiceUser.CompanyUsers.Users.Username,
+                    Role = companyServiceUser.CompanyServiceRoles.Name,
+                    Service = (serviceObj)["data"]["service"]["name"].ToString(),
+                    //IsActive = companyServiceUser.IsActive,
+                    //IsLocked = companyServiceUser.IsLocked
+                });
+            }
+
+            return _general.Response(new { data = lists }, 200, "Configurable user service roles have been listed", true);
+        }
+
     }
 }

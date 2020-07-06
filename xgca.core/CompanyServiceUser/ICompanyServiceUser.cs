@@ -11,5 +11,7 @@ namespace xgca.core.CompanyServiceUser
         Task<bool> CreateDefault(int companyId, int companyUserId, int createdBy);
         Task<IGeneralModel> ListUserServiceRolesByCompanyId(int companyId);
         Task<IGeneralModel> ListUserServiceRolesByCompanyId(string companyKey);
+        Task<IGeneralModel> ListUserServiceRolesByCompanyUserId(int companyUserId);
+
     }
 }
