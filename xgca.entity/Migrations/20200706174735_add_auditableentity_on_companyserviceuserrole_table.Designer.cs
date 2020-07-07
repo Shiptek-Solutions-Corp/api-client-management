@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using xgca.entity;
 
 namespace xgca.entity.Migrations
 {
     [DbContext(typeof(XGCAContext))]
-    partial class XGCAContextModelSnapshot : ModelSnapshot
+    [Migration("20200706174735_add_auditableentity_on_companyserviceuserrole_table")]
+    partial class add_auditableentity_on_companyserviceuserrole_table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -377,9 +379,6 @@ namespace xgca.entity.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("CompanyServiceId")
                         .HasColumnType("int");
 
@@ -399,13 +398,7 @@ namespace xgca.entity.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<byte>("IsActive")
-                        .HasColumnType("tinyint");
-
                     b.Property<byte>("IsDeleted")
-                        .HasColumnType("tinyint");
-
-                    b.Property<byte>("IsLocked")
                         .HasColumnType("tinyint");
 
                     b.Property<int>("ModifiedBy")
