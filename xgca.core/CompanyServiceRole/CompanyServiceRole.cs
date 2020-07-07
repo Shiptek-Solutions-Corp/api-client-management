@@ -12,6 +12,8 @@ using xgca.core.Response;
 using xgca.core.Helpers;
 using xgca.core.Models.CompanyService;
 using AutoMapper;
+using xgca.data.Company;
+using xgca.core.Services;
 
 namespace xgca.core.CompanyServiceRole
 {
@@ -19,15 +21,23 @@ namespace xgca.core.CompanyServiceRole
     {
         private readonly xgca.data.CompanyServiceRole.ICompanyServiceRole _companyServiceRole;
         private readonly xgca.data.CompanyService.ICompanyService _companyService;
+        private readonly ICompanyData _companyData;
         private readonly IGeneral _general;
         private readonly IMapper _mapper;
+        private readonly IGLobalCmsService gLobalCmsService;
+
         public CompanyServiceRole(xgca.data.CompanyServiceRole.ICompanyServiceRole companyServiceRole,
-            xgca.data.CompanyService.ICompanyService companyService, IGeneral general, IMapper mapper)
+            xgca.data.CompanyService.ICompanyService companyService, IGeneral general, 
+            IMapper mapper, 
+            ICompanyData companyData,
+            IGLobalCmsService gLobalCmsService)
         {
             _companyServiceRole = companyServiceRole;
             _companyService = companyService;
             _general = general;
             _mapper = mapper;
+            _companyData = companyData;
+            this.gLobalCmsService = gLobalCmsService;
         }
 
         public async Task<IGeneralModel> CreateDefault(int companyId, int userId)
@@ -77,6 +87,19 @@ namespace xgca.core.CompanyServiceRole
             var result = await _companyServiceRole.ListByCompanyServiceId(companyServiceId);
             var data = result.Select(t => new { CompanyServiceRoleId = t.Guid, CompanyServiceId = t.CompanyServices.Guid, t.Name, t.Description });
             return _general.Response(new { companyServiceRole = data }, 200, "Configurable company service roles has been listed", true);
+        }
+
+        public async Task<IGeneralModel> ListByCompany(string key)
+        {
+            int companyId = await _companyData.GetIdByGuid(Guid.Parse(key));
+            var result = await _companyServiceRole.ListByCompanyId(companyId);
+            var services = await gLobalCmsService.GetAllService();
+            var viewCompanyServiceRole = result.Select(c => _mapper.Map<GetCompanyServiceRoleModel>(c)).ToList();
+            foreach (var companyServiceRole in viewCompanyServiceRole)
+            {
+                companyServiceRole.CompanyServices.ServiceName = services.Where(c => c.IntServiceId == companyServiceRole.CompanyServices.ServiceId).FirstOrDefault().ServiceName;
+            }
+            return _general.Response(viewCompanyServiceRole, 200, "success", true);
         }
     }
 }

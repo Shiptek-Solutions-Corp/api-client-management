@@ -57,6 +57,16 @@ namespace xgca.data.CompanyServiceRole
             throw new NotImplementedException();
         }
 
+        public async Task<List<entity.Models.CompanyServiceRole>> ListByCompanyId(int companyID)
+        {
+            var data = await _context.CompanyServiceRoles
+                .Where(c => c.CompanyServices.CompanyId == companyID)
+                .Include(c => c.CompanyServices).ThenInclude(c => c.Companies)
+                .ToListAsync();
+
+            return data;
+        }
+
         public async Task<List<entity.Models.CompanyServiceRole>> ListByCompanyServiceId(int companyServiceId)
         {
             var data = await _context.CompanyServiceRoles

@@ -16,5 +16,6 @@ namespace xgca.data.CompanyServiceRole
         Task<bool> Update(entity.Models.CompanyServiceRole obj);
         Task<bool> ChangeStatus(entity.Models.CompanyServiceRole obj);
         Task<bool> Delete(int key);
+        Task<List<entity.Models.CompanyServiceRole>> ListByCompanyId(int companyID);
     }
 }
