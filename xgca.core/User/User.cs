@@ -642,9 +642,17 @@ namespace xgca.core.User
 
             return _general.Response(result, 200, "Configurable information for selected user has been displayed", true);
         }
-        public async Task<IGeneralModel> Delete(string key)
+        public async Task<IGeneralModel> Delete(string key, string modifiedBy, string auth)
         {
             int userId = await _userData.GetIdByGuid(Guid.Parse(key));
+
+            string url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.DisableUser;
+
+            string token = _tokenHelper.RemoveBearer(auth);
+            var serviceResponse = await _httpHelper.Put($"{url}/{userId}", null, token);
+            var json = (JObject)serviceResponse;
+            var statusCode = json["statusCode"];
+
             var result = await _userData.Delete(userId);
             return result
                 ? _general.Response(true, 200, "User deleted", true)

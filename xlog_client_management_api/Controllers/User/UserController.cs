@@ -192,7 +192,9 @@ namespace xlog_client_management_api.Controllers.User
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> DeleteUser(string userId)
         {
-            var response = await _user.Delete(userId);
+            var modifiedBy = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
+            var authHeader = Request.Headers["Authorization"].ToString();
+            var response = await _user.Delete(userId, modifiedBy, authHeader);
 
             if (response.statusCode == 400)
             {
