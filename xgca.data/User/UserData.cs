@@ -165,6 +165,23 @@ namespace xgca.data.User
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
         }
+
+        public async Task<bool> Delete(List<int> userIds, int modifiedBy)
+        {
+            var data = await _context.Users.Where(u => userIds.Contains(u.UserId))
+                .ToListAsync();
+            if (data == null)
+            {
+                return false;
+            }
+            data.ForEach(t => {
+                t.IsDeleted = 1;
+                t.ModifiedBy = modifiedBy;
+                t.ModifiedOn = DateTime.UtcNow;
+            });
+            var result = await _context.SaveChangesAsync();
+            return result > 0 ? true : false;
+        }
         public async Task<int> GetIdByGuid(Guid key)
         {
             var data = await _context.Users

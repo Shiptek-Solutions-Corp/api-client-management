@@ -394,11 +394,11 @@ namespace xgca.core.User
             string url = "";
             if (obj.IsLocked == 1)
             {
-                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.EnableUser;
+                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.DisableUser;
             }
             else
             {
-                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.DisableUser;
+                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.EnableUser;
             }
             string token = _tokenHelper.RemoveBearer(auth);
             var serviceResponse = await _httpHelper.Put($"{url}/{userId}", null, token);
@@ -421,6 +421,46 @@ namespace xgca.core.User
                 ? _general.Response(null, 200, "User Lock Status updated", true)
                 : _general.Response(null, 400, "Error on updating user", false);
         }
+
+        public async Task<IGeneralModel> DeleteMultipleUser(DeleteMultipleUserModel obj, string modifiedBy, string auth)
+        {
+            if (obj == null)
+            { return _general.Response(null, 400, "Data cannot be null", false); }
+
+            List<int> Ids = new List<int>();
+            foreach (string UserId in obj.UserId)
+            {
+                int userId = await _userData.GetIdByGuid(Guid.Parse(UserId));
+                Ids.Add(userId);
+            }
+
+            var arrIds = new { Ids = Ids };
+            string url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.DisableUserBatch;
+
+            string token = _tokenHelper.RemoveBearer(auth);
+            var serviceResponse = await _httpHelper.Put(url, arrIds, token);
+            var json = (JObject)serviceResponse;
+            var IdsSuccessList = json["data"]["success"];
+
+
+            List<int> newIdsList = new List<int>();
+            foreach (int successUserId in IdsSuccessList)
+            {
+                newIdsList.Add(successUserId);
+            }
+
+
+            int modifiedById = await _userData.GetIdByUsername(modifiedBy);
+
+            var userResult = await _userData.Delete(
+                newIdsList,
+                modifiedById);
+
+            return userResult
+                ? _general.Response(null, 200, "Users has been deleted", true)
+                : _general.Response(null, 400, "Error on updating user", false);
+        }
+
 
 
         public async Task<IGeneralModel> UpdateMultipleLock(UpdateMultipleLockModel obj, string modifiedBy, string auth)
