@@ -29,6 +29,7 @@ namespace xgca.data.User
         Task<bool> UpdateLock(List<int> userIds, int modifiedBy, byte isLock);
         Task<bool> SetUsername(entity.Models.User obj);
         Task<bool> Delete(int key);
+        Task<bool> Delete(List<int> userIds, int modifiedBy);
         Task<int> GetIdByGuid(Guid key);
         Task<Guid> GetGuidById(int key);
         Task<int> GetIdByUsername(string username);
