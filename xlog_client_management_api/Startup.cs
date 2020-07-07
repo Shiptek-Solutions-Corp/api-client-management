@@ -45,6 +45,8 @@ using xgca.data.CompanyGroupResource;
 using AutoMapper;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
+using xgca.core.Helpers.QueryFilter;
+using Z.EntityFramework.Plus;
 
 namespace xlog_client_management_api
 {
@@ -108,6 +110,7 @@ namespace xlog_client_management_api
             services.AddScoped<ICompanyServiceUserRole, CompanyServiceUserRole>();
             services.AddScoped<ICompanyServiceUserRoleData, CompanyServiceUserRoleData>();
 
+            services.AddScoped<IQueryFilterHelper, QueryFilterHelper>();
             services.AddScoped<IUserHelper, UserHelper>();
             services.AddScoped<IGeneralModel, GeneralModel>();
 

@@ -126,7 +126,7 @@ namespace xgca.core.CompanyService
             List<entity.Models.CompanyService> companyServices = new List<entity.Models.CompanyService>();
             foreach(string serviceKey in services)
             {
-                var service = await _httpHelpers.GetIdByGuid(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, serviceKey, AuthToken.Contra);
+                var service = await _httpHelpers.GetIdByGuid(_options.Value.BaseUrl, $"{_options.Value.GetService}/" , serviceKey, AuthToken.Contra);
                 companyServices.Add(new entity.Models.CompanyService
                 {
                     ServiceId = service.data.serviceId,
