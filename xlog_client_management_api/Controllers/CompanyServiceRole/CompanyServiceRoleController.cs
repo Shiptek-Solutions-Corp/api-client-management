@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using xgca.core.CompanyServiceRole;
+using xgca.core.Models.CompanyServiceRole;
 
 namespace xlog_client_management_api.Controllers.CompanyServiceRole
 {
@@ -22,10 +23,25 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
             _companyServiceRole = companyServiceRole;
         }
 
+        [Route("company/services/role")]
+        [HttpPost]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Create([FromBody] CreateCompanyServiceRoleModel createCompanyServiceRoleModel)
+        {
+            var result = await _companyServiceRole.Create(createCompanyServiceRoleModel);
+            if (result.statusCode == 200)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
 
         [Route("company/services/role/{companyServiceId}")]
         [HttpGet]
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

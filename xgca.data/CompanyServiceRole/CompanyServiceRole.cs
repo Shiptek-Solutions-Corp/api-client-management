@@ -32,9 +32,11 @@ namespace xgca.data.CompanyServiceRole
             return result > 0 ? true : false;
         }
 
-        public Task<bool> Create(entity.Models.CompanyServiceRole obj)
+        public async Task<bool> Create(entity.Models.CompanyServiceRole obj)
         {
-            throw new NotImplementedException();
+            await _context.CompanyServiceRoles.AddAsync(obj);
+            var result = await _context.SaveChangesAsync();
+            return result > 0 ? true : false;
         }
 
         public Task<bool> Delete(int key)

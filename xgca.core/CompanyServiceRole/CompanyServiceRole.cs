@@ -11,6 +11,7 @@ using xgca.core.Models.CompanyServiceRole;
 using xgca.core.Response;
 using xgca.core.Helpers;
 using xgca.core.Models.CompanyService;
+using AutoMapper;
 
 namespace xgca.core.CompanyServiceRole
 {
@@ -19,13 +20,14 @@ namespace xgca.core.CompanyServiceRole
         private readonly xgca.data.CompanyServiceRole.ICompanyServiceRole _companyServiceRole;
         private readonly xgca.data.CompanyService.ICompanyService _companyService;
         private readonly IGeneral _general;
-
+        private readonly IMapper _mapper;
         public CompanyServiceRole(xgca.data.CompanyServiceRole.ICompanyServiceRole companyServiceRole,
-            xgca.data.CompanyService.ICompanyService companyService, IGeneral general)
+            xgca.data.CompanyService.ICompanyService companyService, IGeneral general, IMapper mapper)
         {
             _companyServiceRole = companyServiceRole;
             _companyService = companyService;
             _general = general;
+            _mapper = mapper;
         }
 
         public async Task<IGeneralModel> CreateDefault(int companyId, int userId)
@@ -54,9 +56,19 @@ namespace xgca.core.CompanyServiceRole
                 : _general.Response(false, 400, "Error on creating default company service roles", false);
         }
 
-        public Task<IGeneralModel> Create(CreateCompanyServiceRoleModel obj)
+        public async Task<IGeneralModel> Create(CreateCompanyServiceRoleModel obj)
         {
-            throw new NotImplementedException();
+            var request = _mapper.Map<entity.Models.CompanyServiceRole>(obj);
+            request.CreatedBy = 1;
+            request.CreatedOn = DateTime.UtcNow;
+            request.ModifiedBy = 1;
+            request.ModifiedOn = DateTime.UtcNow;
+            request.Guid = Guid.NewGuid();
+            var result = await _companyServiceRole.Create(request);
+
+            return result
+                ? _general.Response(true, 200, "Company Service Role Created", true)
+                : _general.Response(false, 400, "Error on creating company service role", false);
         }
 
         public async Task<IGeneralModel> ListByCompanyServiceId(string key)
