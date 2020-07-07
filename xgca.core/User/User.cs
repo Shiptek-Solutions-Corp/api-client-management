@@ -228,7 +228,7 @@ namespace xgca.core.User
             if (contactDetailId <= 0)
             { return 0; }
 
-            //var userTypeRepsonse = await _httpHelper.CustomGet(_options.Value.BaseUrl, ApiEndpoints.cmsGetUserType + "Master_User/userTypeId", AuthToken.Contra);
+            //var userTypeRepsonse = await _httpHelper.CustomGet(_options.Value.BaseUrl, $"{_options.Value.GetUserType}/" + "Master_User/userTypeId", AuthToken.Contra);
             //var userTypeJson = (JObject)userTypeRepsonse;
             //int userTypeId = Convert.ToInt32((userTypeJson)["data"]["userTypeId"]);
 
@@ -435,7 +435,7 @@ namespace xgca.core.User
                 Ids.Add(userId);
             }
 
-            //var serviceKey = await _httpHelpers.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, companyService.ServiceId, AuthToken.Contra);
+            //var serviceKey = await _httpHelpers.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetService}/", companyService.ServiceId, AuthToken.Contra);
             var arrIds = new { Ids = Ids };
             string url = "";
             if (obj.IsLocked == 1)
@@ -484,7 +484,7 @@ namespace xgca.core.User
                 Ids.Add(userId);
             }
 
-            //var serviceKey = await _httpHelpers.GetGuidById(_options.Value.BaseUrl, ApiEndpoints.cmsGetService, companyService.ServiceId, AuthToken.Contra);
+            //var serviceKey = await _httpHelpers.GetGuidById(_options.Value.BaseUrl,  $"{_options.Value.GetService}/", companyService.ServiceId, AuthToken.Contra);
             var arrIds = new { Ids = Ids };
             string url = "";
             if (obj.Status == 1)
