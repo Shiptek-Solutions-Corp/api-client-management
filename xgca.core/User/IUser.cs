@@ -23,7 +23,7 @@ namespace xgca.core.User
         Task<IGeneralModel> SetUsername(SetUsernameModel obj);
         Task<IGeneralModel> Retrieve(string key);
         Task<IGeneralModel> RetrieveByUsername(string username);
-        Task<IGeneralModel> Delete(string key);
+        Task<IGeneralModel> Delete(string key, string modifiedBy, string auth);
         Task<IGeneralModel> GetIdByGuid(string key);
         Task<int> GetIdByGuid(Guid key);
         Task<int> GetIdByUsername(string username);

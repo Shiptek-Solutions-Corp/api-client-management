@@ -30,6 +30,6 @@ namespace xgca.entity.Models
 
         public virtual User Users { get; set; }
         public virtual Company Companies { get; set; }
-        public virtual CompanyServiceUser CompanyServiceUsers { get; set; }
+        public virtual List<CompanyServiceUser> CompanyServiceUsers { get; set; }
     }
 }
