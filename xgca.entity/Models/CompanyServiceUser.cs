@@ -14,9 +14,9 @@ namespace xgca.entity.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CompanyServiceUserId { get; set; }
-        public int? CompanyServiceId { get; set; }
+        public int CompanyServiceId { get; set; }
         public int CompanyUserId { get; set; }
-        public int? CompanyServiceRoleId { get; set; }
+        public int CompanyServiceRoleId { get; set; }
         public int CompanyId { get; set; }
         [System.ComponentModel.DefaultValue(1)]
         public byte IsActive { get; set; }

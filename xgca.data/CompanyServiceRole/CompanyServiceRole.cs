@@ -76,9 +76,11 @@ namespace xgca.data.CompanyServiceRole
             return data;
         }
 
-        public Task<entity.Models.CompanyServiceRole> Retrieve(int key)
+        public async Task<entity.Models.CompanyServiceRole> Retrieve(int key)
         {
-            throw new NotImplementedException();
+            var data = await _context.CompanyServiceRoles
+                .Where(cs => cs.CompanyServiceRoleId == key && cs.IsDeleted == 0).FirstOrDefaultAsync();
+            return data;
         }
 
         public async Task<int> RetrieveAdministratorId(int key)

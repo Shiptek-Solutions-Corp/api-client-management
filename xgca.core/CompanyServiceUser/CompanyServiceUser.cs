@@ -217,11 +217,14 @@ namespace xgca.core.CompanyServiceUser
 
                 var serviceResponse = await _httpHelper.Get(_options.Value.BaseUrl, _options.Value.GetServiceDetails.Replace("{serviceId}", serviceKey));
                 var serviceObj = (JObject)serviceResponse;
-
+                var companyServiceData = await _companyService.Retrieve(companyServiceUser.CompanyServiceId); //companyServiceUser.CompanyServiceId;
+                var CompanyServiceRoleData = await _companyServiceRole.Retrieve(companyServiceUser.CompanyServiceRoleId); // companyServiceUser.CompanyServiceRoleId;
 
                 lists.Add(new ListCompanyServiceUsers
                 {
                     CompanyServiceuserId = companyServiceUser.Guid.ToString(),
+                    CompanyServiceId = companyServiceData.Guid.ToString(),
+                    CompanyServiceRoleId = CompanyServiceRoleData.Guid.ToString(),
                     //Fullname = _userHelper.GetUserFullname(companyServiceUser.CompanyUsers.Users),
                     //EmailAddress = companyServiceUser.CompanyUsers.Users.EmailAddress,
                     //ImageURL = companyServiceUser.CompanyUsers.Users.ImageURL,

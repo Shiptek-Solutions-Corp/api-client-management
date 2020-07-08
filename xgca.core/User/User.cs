@@ -156,7 +156,7 @@ namespace xgca.core.User
             {
                 var errors = new List<ErrorField>();
                 errors.Add(new ErrorField("EmailAddress", "Email address already exists."));
-                return _general.Response(null, errors, 400, "Error updating user", false);
+                return _general.Response(null, errors, 400, "Email address already exists.", false);
             }
 
             var user = new xgca.entity.Models.User

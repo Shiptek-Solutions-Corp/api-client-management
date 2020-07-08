@@ -151,16 +151,16 @@ namespace xlog_client_management_api.Controllers.User
             var modifiedBy = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
             var response = await _user.Update(request, modifiedBy);
 
-            if (response.statusCode == 400)
+            if (response.statusCode == 200)
             {
-                return BadRequest(response);
+                return Ok(response);
             }
             else if (response.statusCode == 401)
             {
                 return Unauthorized(response);
             }
 
-            return Ok(response);
+            return BadRequest(response);
         }
 
         [Route("user/username")]
