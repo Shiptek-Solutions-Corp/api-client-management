@@ -47,6 +47,7 @@ using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using xgca.core.Helpers.QueryFilter;
 using Z.EntityFramework.Plus;
+using xgca.core.Services;
 
 namespace xlog_client_management_api
 {
@@ -127,8 +128,9 @@ namespace xlog_client_management_api
             services.AddScoped<xgca.core.CompanyServiceUser.ICompanyServiceUser, xgca.core.CompanyServiceUser.CompanyServiceUser>();
             services.AddScoped<xgca.core.CompanyUser.ICompanyUser, xgca.core.CompanyUser.CompanyUser>();
             services.AddScoped<xgca.core.ContactDetail.IContactDetail, xgca.core.ContactDetail.ContactDetail>();
+            services.AddScoped<IGLobalCmsService, xgca.core.Services.GlobalCmsService>();
 
-            services.Configure<GlobalCmsService>(o =>
+            services.Configure<xgca.core.Helpers.GlobalCmsService>(o =>
             {
                 o.BaseUrl = Configuration.GetSection("GlobalCmsService:BaseUrl").Value;
                 o.GetServiceDetails = Configuration.GetSection("GlobalCmsService:GetServiceDetails").Value;

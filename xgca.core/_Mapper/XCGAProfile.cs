@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using xgca.core.Models.AuditLog;
+using xgca.core.Models.Company;
 using xgca.core.Models.CompanyGroupResource;
+using xgca.core.Models.CompanyService;
 using xgca.core.Models.CompanyServiceRole;
 using xgca.core.Models.CompanyServiceUser;
 using xgca.core.Models.CompanyServiceUserRole;
@@ -25,13 +27,15 @@ namespace xgca.core._Mapper
             CreateMap<CreateCompanyServiceUserRole, entity.Models.CompanyServiceUserRole>();
             CreateMap<entity.Models.CompanyServiceUserRole, GetCompanyServiceUserRole>();
 
-            CreateMap<entity.Models.CompanyServiceRole, GetCompanyServiceRoleModel>();
-
             CreateMap<entity.Models.CompanyServiceUser, GetCompanyServiceUser>();
 
             CreateMap<entity.Models.CompanyServiceRole, GetCompanyServiceRoleModel>();
 
+            CreateMap<CreateCompanyServiceRoleModel, entity.Models.CompanyServiceRole>();
 
+            CreateMap<entity.Models.CompanyService, GetCompanyService>();
+
+            CreateMap<entity.Models.Company, GetCompanyModel>();
 
         }
     }

@@ -11,5 +11,7 @@ namespace xgca.core.CompanyServiceRole
         Task<IGeneralModel> Create(CreateCompanyServiceRoleModel obj);
         Task<IGeneralModel> CreateDefault(int companyId, int userId);
         Task<IGeneralModel> ListByCompanyServiceId(string key);
+        Task<IGeneralModel> ListByCompany(string key);
+
     }
 }

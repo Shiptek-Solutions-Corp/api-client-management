@@ -32,9 +32,11 @@ namespace xgca.data.CompanyServiceRole
             return result > 0 ? true : false;
         }
 
-        public Task<bool> Create(entity.Models.CompanyServiceRole obj)
+        public async Task<bool> Create(entity.Models.CompanyServiceRole obj)
         {
-            throw new NotImplementedException();
+            await _context.CompanyServiceRoles.AddAsync(obj);
+            var result = await _context.SaveChangesAsync();
+            return result > 0 ? true : false;
         }
 
         public Task<bool> Delete(int key)
@@ -53,6 +55,16 @@ namespace xgca.data.CompanyServiceRole
         public Task<List<entity.Models.CompanyServiceRole>> List()
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<List<entity.Models.CompanyServiceRole>> ListByCompanyId(int companyID)
+        {
+            var data = await _context.CompanyServiceRoles
+                .Where(c => c.CompanyServices.CompanyId == companyID)
+                .Include(c => c.CompanyServices).ThenInclude(c => c.Companies)
+                .ToListAsync();
+
+            return data;
         }
 
         public async Task<List<entity.Models.CompanyServiceRole>> ListByCompanyServiceId(int companyServiceId)
