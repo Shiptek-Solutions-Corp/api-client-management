@@ -128,16 +128,16 @@ namespace xlog_client_management_api.Controllers.User
             var authHeader = Request.Headers["Authorization"].ToString();
             var response = await _user.Create(request, companyId, authHeader, CreatedBy);
 
-            if (response.statusCode == 400)
+            if (response.statusCode == 200)
             {
-                return BadRequest(response);
+                return Ok(response);
             }
             else if (response.statusCode == 401)
             {
                 return Unauthorized(response);
             }
 
-            return Ok(response);
+            return BadRequest(response);
         }
 
         [Route("user")]
