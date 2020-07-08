@@ -124,5 +124,20 @@ namespace xgca.data.CompanyServiceUser
         {
             throw new NotImplementedException();
         }
+
+        public async Task<bool> UpdateServiceAndRole(int companyServiceUserId, int companyServiceId, int companyServiceRoleId, int modifiedById)
+        {
+            var data = await _context.CompanyServiceUsers.Where(u => u.CompanyServiceId == companyServiceUserId).FirstOrDefaultAsync();
+            if (data == null)
+            {
+                return false;
+            }
+            data.CompanyServiceId = companyServiceId;
+            data.CompanyServiceRoleId = companyServiceRoleId;
+            data.ModifiedBy = modifiedById;
+            data.ModifiedOn = DateTime.UtcNow;
+            var result = await _context.SaveChangesAsync();
+            return result > 0 ? true : false;
+        }
     }
 }

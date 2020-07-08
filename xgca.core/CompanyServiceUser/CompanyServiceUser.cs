@@ -221,7 +221,7 @@ namespace xgca.core.CompanyServiceUser
 
                 lists.Add(new ListCompanyServiceUsers
                 {
-                    //CompanyServiceuserId = companyServiceUser.Guid.ToString(),
+                    CompanyServiceuserId = companyServiceUser.Guid.ToString(),
                     //Fullname = _userHelper.GetUserFullname(companyServiceUser.CompanyUsers.Users),
                     //EmailAddress = companyServiceUser.CompanyUsers.Users.EmailAddress,
                     //ImageURL = companyServiceUser.CompanyUsers.Users.ImageURL,

@@ -1,9 +1,12 @@
-﻿namespace xgca.core.Models.User
+﻿using System;
+using System.Collections.Generic;
+
+namespace xgca.core.Models.User
 {
     public class UpdateUserModel
     {
         public string UserId { get; set; }
-        public string CompanyId { get; set; }
+        //public string CompanyId { get; set; }
         public string LastName { get; set; }
         public string FirstName { get; set; }
         public string MiddleName { get; set; }
@@ -19,5 +22,13 @@
         //public string EmailAddress { get; set; }
         public string ContactDetailId { get; set; }
         public string ModifiedBy { get; set; }
+        public List<RolePropertyUpdate> Roles { get; set; }
+    }
+
+    public class RolePropertyUpdate
+    {
+        public string companyServiceUserId { get; set; }
+        public string companyServiceRoleId { get; set; }
+        public string companyServiceId{ get; set; }
     }
 }

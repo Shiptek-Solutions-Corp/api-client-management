@@ -16,6 +16,7 @@ namespace xgca.data.CompanyServiceUser
         Task<entity.Models.CompanyServiceUser> Retrieve(int companyUserId, int companyServiceId);
         Task<int> GetIdByGuid(Guid guid);
         Task<bool> Update(entity.Models.CompanyServiceUser obj);
+        Task<bool> UpdateServiceAndRole(int companyServiceUserId,int companyServiceId,int companyServiceRoleId,int modifiedById);
         Task<bool> Delete(int key);
     }
 }
