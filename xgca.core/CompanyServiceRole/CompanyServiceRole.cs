@@ -101,5 +101,40 @@ namespace xgca.core.CompanyServiceRole
             }
             return _general.Response(viewCompanyServiceRole, 200, "success", true);
         }
+
+        public async Task<IGeneralModel> Show(Guid companyServiceRoleId)
+        {
+            var result = await _companyServiceRole.Retrieve(companyServiceRoleId);
+            if (result == null)
+            {
+                return _general.Response(null, 400, "Invalid Company Service Role", false);
+            }
+            var services = await gLobalCmsService.GetAllService();
+            var viewCompanyServiceRole = _mapper.Map<GetCompanyServiceRoleModel>(result);
+            viewCompanyServiceRole.CompanyServices.ServiceName = services.Where(c => c.IntServiceId == viewCompanyServiceRole.CompanyServices.ServiceId).FirstOrDefault().ServiceName;
+            
+            return _general.Response(viewCompanyServiceRole, 200, "Success", true);
+        }
+
+        public async Task<IGeneralModel> Update(UpdateCompanyServiceRoleModel updateCompanyServiceRoleModel, Guid companyServiceRoleId)
+        {
+            var result = await _companyServiceRole.Retrieve(companyServiceRoleId);
+            if (result == null)
+            {
+                return _general.Response(null, 400, "Invalid Company Service Role", false);
+            }
+            _mapper.Map(updateCompanyServiceRoleModel, result);
+
+            bool updateResult = await _companyServiceRole.Update(result);
+
+            var services = await gLobalCmsService.GetAllService();
+            var viewCompanyServiceRole = _mapper.Map<GetCompanyServiceRoleModel>(result);
+            viewCompanyServiceRole.CompanyServices.ServiceName = services.Where(c => c.IntServiceId == viewCompanyServiceRole.CompanyServices.ServiceId).FirstOrDefault().ServiceName;
+            
+            return updateResult ?
+                _general.Response(viewCompanyServiceRole, 200, "Updated successfuly", true)
+                :
+                _general.Response(null, 400, "An error has occured", false);
+        }
     }
 }

@@ -8,6 +8,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace xgca.data.CompanyServiceRole
 {
+    public interface ICompanyServiceRole
+    {
+        Task<bool> Create(List<entity.Models.CompanyServiceRole> obj);
+        Task<bool> Create(entity.Models.CompanyServiceRole obj);
+        Task<List<entity.Models.CompanyServiceRole>> List();
+        Task<List<entity.Models.CompanyServiceRole>> ListByCompanyServiceId(int companyServiceId);
+        Task<entity.Models.CompanyServiceRole> Retrieve(int key);
+        Task<entity.Models.CompanyServiceRole> Retrieve(Guid key);
+        Task<int> RetrieveAdministratorId(int key);
+        Task<int> GetIdByGuid(Guid guid);
+        Task<bool> Update(entity.Models.CompanyServiceRole obj);
+        Task<bool> ChangeStatus(entity.Models.CompanyServiceRole obj);
+        Task<bool> Delete(int key);
+        Task<List<entity.Models.CompanyServiceRole>> ListByCompanyId(int companyID);
+    }
+
     public class CompanyServiceRole : IMaintainable<entity.Models.CompanyServiceRole>, ICompanyServiceRole
     {
         private readonly IXGCAContext _context;
@@ -83,6 +99,17 @@ namespace xgca.data.CompanyServiceRole
             return data;
         }
 
+        public async Task<entity.Models.CompanyServiceRole> Retrieve(Guid key)
+        {
+            var data = await _context.CompanyServiceRoles
+                .Where(cs => cs.Guid == key && cs.IsDeleted == 0)
+                .Include(c => c.CompanyServices)
+                .ThenInclude(c => c.Companies)
+                .FirstOrDefaultAsync();
+
+            return data;
+        }
+
         public async Task<int> RetrieveAdministratorId(int key)
         {
             var data = await _context.CompanyServiceRoles
@@ -91,9 +118,12 @@ namespace xgca.data.CompanyServiceRole
             return data.CompanyServiceRoleId;
         }
 
-        public Task<bool> Update(entity.Models.CompanyServiceRole obj)
+        public async Task<bool> Update(entity.Models.CompanyServiceRole obj)
         {
-            throw new NotImplementedException();
+            _context.CompanyServiceRoles.Update(obj);
+            var result = await _context.SaveChangesAsync();
+
+            return result > 0 ? true : false;
         }
     }
 }

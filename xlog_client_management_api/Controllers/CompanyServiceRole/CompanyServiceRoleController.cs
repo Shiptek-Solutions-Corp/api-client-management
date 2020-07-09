@@ -82,5 +82,49 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
 
             return Ok(response);
         }
+
+        [Route("company-service-role/{companyServiceRoleId}")]
+        [HttpGet]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Show(string companyServiceRoleId)
+        {
+            var isValidGuid = Guid.TryParse(companyServiceRoleId, out var guid);
+            if (!isValidGuid) return BadRequest("Invalid id");
+
+            var result = await _companyServiceRole.Show(guid);
+            if (result.statusCode == 200)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [Route("company-service-role/{companyServiceRoleId}")]
+        [HttpPut]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Update([FromBody] UpdateCompanyServiceRoleModel updateCompanyServiceRoleModel, string companyServiceRoleId)
+        {
+            var isValidGuid = Guid.TryParse(companyServiceRoleId, out var guid);
+            if (!isValidGuid) return BadRequest("Invalid id");
+
+            var response = await _companyServiceRole.Update(updateCompanyServiceRoleModel, guid);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
     }
 }
