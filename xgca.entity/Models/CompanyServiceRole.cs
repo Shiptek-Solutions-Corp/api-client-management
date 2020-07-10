@@ -26,7 +26,8 @@ namespace xgca.entity.Models
         public Guid Guid { get; set; }
         [System.ComponentModel.DefaultValue(0)]
         public byte IsDeleted { get; set; }
-
+        [System.ComponentModel.DefaultValue(1)]
+        public byte IsActive { get; set; }
         public virtual CompanyService CompanyServices { get; set; } 
         public virtual ICollection<CompanyGroupResource> CompanyGroupResources { get; set; }
         public virtual ICollection<CompanyServiceUser> CompanyServiceUsers { get; set; }
