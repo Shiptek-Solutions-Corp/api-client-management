@@ -23,6 +23,7 @@ using xgca.core.Models.AuditLog;
 using xgca.data.CompanyServiceUser;
 using xgca.core.Models.CompanyService;
 using xgca.core.Models.CompanyServiceRole;
+using xgca.data.Company;
 
 
 namespace xgca.core.User
@@ -43,6 +44,7 @@ namespace xgca.core.User
         private readonly xgca.core.CompanyServiceUser.ICompanyServiceUser _coreCompanyServiceUser;
         private readonly xgca.data.CompanyService.ICompanyService _companyService;
         private readonly xgca.data.CompanyServiceRole.ICompanyServiceRole _companyServiceRole;
+        private readonly ICompanyData _companyData;
 
         public User(xgca.data.User.IUserData userData,
             xgca.core.ContactDetail.IContactDetail coreContactDetail,
@@ -56,6 +58,7 @@ namespace xgca.core.User
             xgca.core.CompanyServiceUser.ICompanyServiceUser coreCompanyServiceUser,
             xgca.data.CompanyService.ICompanyService companyService,
             xgca.data.CompanyServiceRole.ICompanyServiceRole companyServiceRole,
+            ICompanyData companyData,
         IGeneral general)
         {
             _userData = userData;
@@ -71,6 +74,7 @@ namespace xgca.core.User
             _coreCompanyServiceUser = coreCompanyServiceUser;
             _companyService = companyService;
             _companyServiceRole = companyServiceRole;
+            _companyData = companyData;
         }
 
         public async Task<IGeneralModel> List()
@@ -179,9 +183,9 @@ namespace xgca.core.User
 
             int newUserId = await _userData.CreateAndReturnId(user);
             var newUserGuid = await _userData.GetGuidById(newUserId);
-
+            var getCompany = await _companyData.Retrieve(Convert.ToInt32(companyId));
             // integration of registration to auth
-            var postvals = new { Email = obj.EmailAddress, ReferenceId = newUserId, CompanyReferenceId = Convert.ToInt32(companyId), FirstName = obj.FirstName, LastName = obj.LastName };
+            var postvals = new { Email = obj.EmailAddress, ReferenceId = newUserId, CompanyReferenceId = Convert.ToInt32(companyId), FirstName = obj.FirstName, LastName = obj.LastName, CompanyName = getCompany.CompanyName };
             string url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.SingleRegisterUser;
 
             string token = _tokenHelper.RemoveBearer(auth);
