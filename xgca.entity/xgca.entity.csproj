@@ -45,6 +45,8 @@
     <Compile Remove="Migrations\20200704155746_added_columns_on_CompanyServiceUser.Designer.cs" />
     <Compile Remove="Migrations\20200707173159_changed_foreign_key_relation_ship.cs" />
     <Compile Remove="Migrations\20200707173159_changed_foreign_key_relation_ship.Designer.cs" />
+    <Compile Remove="Migrations\20200710133356_test.cs" />
+    <Compile Remove="Migrations\20200710133356_test.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
