@@ -12,6 +12,7 @@ namespace xgca.core.Models.CompanyServiceRole
         public string Name { get; set; }
         public string Description { get; set; }
         public Guid Guid { get; set; }
+        public byte IsActive { get; set; }
         public GetCompanyService CompanyServices { get; set; }
     }
 }
