@@ -15,5 +15,6 @@ namespace xgca.core.CompanyServiceRole
         Task<IGeneralModel> ListByCompany(string key);
         Task<IGeneralModel> Show(Guid companyServiceRoleId);
         Task<IGeneralModel> Update(UpdateCompanyServiceRoleModel updateCompanyServiceRoleModel, Guid companyServiceRoleId);
+        Task<IGeneralModel> CreateWithCompanyService(CreateCompanyServiceRoleWithCompanyService obj);
     }
 }

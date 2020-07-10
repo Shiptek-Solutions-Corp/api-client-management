@@ -14,6 +14,7 @@ using xgca.core.Models.CompanyService;
 using AutoMapper;
 using xgca.data.Company;
 using xgca.core.Services;
+using xgca.entity.Models;
 
 namespace xgca.core.CompanyServiceRole
 {
@@ -135,6 +136,41 @@ namespace xgca.core.CompanyServiceRole
                 _general.Response(viewCompanyServiceRole, 200, "Updated successfuly", true)
                 :
                 _general.Response(null, 400, "An error has occured", false);
+        }
+
+        public async Task<IGeneralModel> CreateWithCompanyService(CreateCompanyServiceRoleWithCompanyService obj)
+        {
+            var services = await gLobalCmsService.GetAllService();
+
+            int serviceId = services.Where(s => s.ServiceId == Guid.Parse(obj.ServiceId)).FirstOrDefault().IntServiceId;
+            if (serviceId > 0 == false)
+            {
+                return _general.Response(null, 400, "Invalid Service Id", false);
+            }
+
+            int companyId = await _companyData.GetIdByGuid(Guid.Parse(obj.CompanyId));
+            if (companyId > 0 == false)
+            {
+                return _general.Response(null, 400, "Invalid Company Id", false);
+            }
+
+            entity.Models.CompanyService companyService = new entity.Models.CompanyService
+            {
+                CompanyId = companyId,
+                ServiceId = serviceId
+            };
+            var companyServiceCreated = await _companyService.Create(companyService);
+
+            entity.Models.CompanyServiceRole companyServiceRole = new entity.Models.CompanyServiceRole
+            {
+                CompanyServiceId = companyService.CompanyServiceId,
+                Name = obj.Name,
+                Description = obj.Description,
+                Guid = Guid.NewGuid()
+            };
+            var companyServiceRoleCreated = await _companyServiceRole.Create(companyServiceRole);
+
+            return _general.Response(null, 200, "Created successfuly", true);
         }
     }
 }

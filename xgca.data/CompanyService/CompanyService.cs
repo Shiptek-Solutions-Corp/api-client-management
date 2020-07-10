@@ -106,9 +106,12 @@ namespace xgca.data.CompanyService
             return result > 0 ? true : false;
         }
 
-        public Task<bool> Create(entity.Models.CompanyService obj)
+        public async Task<bool> Create(entity.Models.CompanyService obj)
         {
-            throw new NotImplementedException();
+            obj.Guid = Guid.NewGuid();
+            await _context.CompanyServices.AddAsync(obj);
+            var result = await _context.SaveChangesAsync();
+            return result > 0 ? true : false;
         }
         public Task<bool> Update(entity.Models.CompanyService obj)
         {
