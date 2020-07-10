@@ -340,15 +340,18 @@ namespace xgca.core.User
 
             //Update company service user
             List<entity.Models.CompanyServiceUser> companyServiceUsers = new List<entity.Models.CompanyServiceUser>();
-            foreach (var role in obj.Roles)
+            if (obj.Roles != null)
             {
-                //    //int companyServiceRoleId = await _companyServiceRole.RetrieveAdministratorId(companyService.CompanyServiceId);
-                int companyServiceId = await _companyService.GetIdByGuid(Guid.Parse(role.companyServiceId));
-                int companyServiceRoleId = await _companyServiceRole.GetIdByGuid(Guid.Parse(role.companyServiceRoleId));
-                int companyServiceUserId = await _companyServiceUser.GetIdByGuid(Guid.Parse(role.companyServiceUserId));
+                foreach (var role in obj.Roles)
+                {
+                    //    //int companyServiceRoleId = await _companyServiceRole.RetrieveAdministratorId(companyService.CompanyServiceId);
+                    int companyServiceId = await _companyService.GetIdByGuid(Guid.Parse(role.companyServiceId));
+                    int companyServiceRoleId = await _companyServiceRole.GetIdByGuid(Guid.Parse(role.companyServiceRoleId));
+                    int companyServiceUserId = await _companyServiceUser.GetIdByGuid(Guid.Parse(role.companyServiceUserId));
 
-                var result = await _companyServiceUser.UpdateServiceAndRole(companyServiceUserId, companyServiceId, companyServiceRoleId, modifiedById);
+                    var result = await _companyServiceUser.UpdateServiceAndRole(companyServiceUserId, companyServiceId, companyServiceRoleId, modifiedById);
 
+                }
             }
 
 
