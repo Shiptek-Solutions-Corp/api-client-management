@@ -133,12 +133,14 @@ namespace xlog_company_service_api.Controllers.Company
 
         [Route("company/{companyId}")]
         [HttpDelete]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> DeleteCompany(string companyId)
         {
-            var response = await _company.Delete(companyId);
+            var username = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
+            var response = await _company.Delete(companyId, username);
 
             if (response.statusCode == 400)
             {
