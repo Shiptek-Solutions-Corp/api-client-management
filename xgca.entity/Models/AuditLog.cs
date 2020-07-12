@@ -20,7 +20,7 @@ namespace xgca.entity.Models
         public string NewValue { get; set; }
         public string OldValue { get; set; }
         public int CreatedBy { get; set; }
-        public int CreatedByName { get; set; }
+        public string CreatedByName { get; set; }
         public DateTime CreatedOn { get; set; }
         public Guid Guid { get; set; }
     }

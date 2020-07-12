@@ -47,6 +47,8 @@
     <Compile Remove="Migrations\20200707173159_changed_foreign_key_relation_ship.Designer.cs" />
     <Compile Remove="Migrations\20200710133356_test.cs" />
     <Compile Remove="Migrations\20200710133356_test.Designer.cs" />
+    <Compile Remove="Migrations\20200712161248_added_column_changed_datatyp.cs" />
+    <Compile Remove="Migrations\20200712161248_added_column_changed_datatyp.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
