@@ -13,6 +13,7 @@ using xgca.entity.Models;
 using xgca.data.User;
 using xgca.data.ContactDetail;
 using xgca.data.AuditLog;
+using xgca.core.AuditLog;
 using xgca.core.Helpers;
 using xgca.core.Helpers.Token;
 using xgca.core.Validators.User;
@@ -24,7 +25,7 @@ using xgca.data.CompanyServiceUser;
 using xgca.core.Models.CompanyService;
 using xgca.core.Models.CompanyServiceRole;
 using xgca.data.Company;
-
+using Microsoft.IdentityModel.Tokens;
 
 namespace xgca.core.User
 {
@@ -35,6 +36,7 @@ namespace xgca.core.User
         private readonly xgca.core.ContactDetail.IContactDetail _coreContactDetail;
         private readonly xgca.core.CompanyUser.ICompanyUser _coreCompanyUser;
         private readonly xgca.data.AuditLog.IAuditLogData _auditLog;
+        private readonly IAuditLogCore _coreAuditLog;
         private readonly ITokenHelper _tokenHelper;
         private readonly IHttpHelper _httpHelper;
         private readonly IOptions<GlobalCmsService> _options;
@@ -50,6 +52,7 @@ namespace xgca.core.User
             xgca.core.ContactDetail.IContactDetail coreContactDetail,
             xgca.core.CompanyUser.ICompanyUser coreCompanyUser,
             xgca.data.AuditLog.IAuditLogData auditLog,
+            IAuditLogCore coreAuditLog,
             ITokenHelper tokenHelper,
             IOptions<GlobalCmsService> options,
             IHttpHelper httpHelper,
@@ -145,9 +148,9 @@ namespace xgca.core.User
                 return _general.Response(false, 400, "Data cannot be null", false);
             }
 
-            int userId = 1;
+            int createdById = GlobalVariables.SystemUserId;
             if (CreatedBy != null)
-            { userId = await _userData.GetIdByUsername(CreatedBy); }
+            { createdById = await _userData.GetIdByUsername(CreatedBy); }
 
             int contactDetailId = await _coreContactDetail.CreateAndReturnId(obj, GlobalVariables.SystemUserId);
             if (contactDetailId <= 0)
@@ -173,9 +176,9 @@ namespace xgca.core.User
                 ContactDetailId = contactDetailId,
                 ImageURL = obj.ImageURL,
                 EmailAddress = obj.EmailAddress,
-                CreatedBy = userId,
+                CreatedBy = createdById,
                 CreatedOn = DateTime.UtcNow,
-                ModifiedBy = userId,
+                ModifiedBy = createdById,
                 ModifiedOn = DateTime.UtcNow,
                 Status = 1,
                 Guid = Guid.NewGuid()
@@ -209,17 +212,18 @@ namespace xgca.core.User
                     CompanyServiceId = companyServiceId,
                     CompanyServiceRoleId = companyServiceRoleId,
                     CompanyUserId = companyUserId,
-                    CreatedBy = userId,
+                    CreatedBy = createdById,
                     CreatedOn = DateTime.UtcNow,
-                    ModifiedBy = userId,
+                    ModifiedBy = createdById,
                     ModifiedOn = DateTime.UtcNow,
                     Guid = Guid.NewGuid()
                 });
             }
             var result = await _companyServiceUser.Create(companyServiceUsers);
 
-            var auditLog = AuditLogHelper.BuildAuditLog(obj, "Create", user.GetType().Name, newUserId, GlobalVariables.SystemUserId);
-            await _auditLog.Create(auditLog);
+            // Create audit log
+            await _coreAuditLog.CreateAuditLog("Create", user.GetType().Name, newUserId, createdById, obj, null);
+
             return newUserId > 0
                 ? _general.Response(new { userGuid = newUserGuid }, 200, "User created", false)
                 : _general.Response(false, 400, "Data cannot be null", false);
@@ -255,8 +259,10 @@ namespace xgca.core.User
             var masterUserId = await _userData.CreateAndReturnId(user);
             var masterUserGuid = await _userData.GetGuidById(masterUserId);
             var userLog = UserHelper.BuildUserLogValue(user, masterUserId, GlobalVariables.SystemUserId);
-            var auditLog = AuditLogHelper.BuildAuditLog(userLog, "Create", user.GetType().Name, masterUserId, GlobalVariables.SystemUserId);
-            await _auditLog.Create(auditLog);
+
+            // Create audit log
+            await _coreAuditLog.CreateAuditLog("Create", user.GetType().Name, masterUserId, GlobalVariables.SystemUserId, obj, null);
+
             return new { MasterUserId = masterUserId, MasterUserGuid = masterUserGuid };
         }
         public async Task<int> CreateAndReturnId(CreateUserModel obj)
@@ -288,8 +294,10 @@ namespace xgca.core.User
             };
 
             var newUserId = await _userData.CreateAndReturnId(user);
-            var auditLog = AuditLogHelper.BuildAuditLog(obj, "Create", user.GetType().Name, newUserId, GlobalVariables.SystemUserId);
-            await _auditLog.Create(auditLog);
+
+            // Create audit log
+            await _coreAuditLog.CreateAuditLog("Create", user.GetType().Name, newUserId, GlobalVariables.SystemUserId, obj, null);
+
             return newUserId;
         }
 
@@ -360,8 +368,10 @@ namespace xgca.core.User
 
 
             var newValue = UserHelper.BuildUserLogValue(oldUser, userId, modifiedById);
-            var auditLog = AuditLogHelper.BuildAuditLog(oldValue, newValue, "Update", user.GetType().Name, user.UserId, modifiedById);
-            await _auditLog.Create(auditLog);
+
+            // Create audit log
+            await _coreAuditLog.CreateAuditLog("Update", user.GetType().Name, userId, modifiedById, oldValue, newValue);
+
             return userResult
                 ? _general.Response(null, 200, "User updated", true)
                 : _general.Response(null, 400, "Error on updating user", false);
