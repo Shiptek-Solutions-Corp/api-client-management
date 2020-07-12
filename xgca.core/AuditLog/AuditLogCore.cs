@@ -11,22 +11,57 @@ using xgca.entity.Models;
 using xgca.core.Models.AuditLog;
 using xgca.data.AuditLog;
 using xgca.data.User;
+using xgca.core.Helpers;
 using xgca.core.Response;
 using xgca.core.Constants;
+using System.ComponentModel.Design;
+using Amazon.Runtime.Internal.Transform;
+using Microsoft.VisualBasic;
 
 namespace xgca.core.AuditLog
 {
-    public class AuditLog : IAuditLog
+    public class AuditLogCore : IAuditLogCore
     {
         private readonly IAuditLogData _auditLog;
+        private readonly IAuditLogHelper _auditLogHelper;
         private readonly IUserData _user;
         private readonly IGeneral _general;
 
-        public AuditLog(IAuditLogData auditLog, IUserData user, IGeneral general)
+        public AuditLogCore(IAuditLogData auditLog, IAuditLogHelper auditLogHelper, IUserData user, IGeneral general)
         {
             _auditLog = auditLog;
+            _auditLogHelper = auditLogHelper;
             _user = user;
             _general = general;
+        }
+
+        public async Task<IGeneralModel> CreateAuditLog(string auditLogAction, string tableName, int keyFieldId, int createdBy, dynamic oldObj, dynamic newObj = null)
+        {
+            string createdByName = "";
+            if (createdBy == 0)
+            { createdByName = "System"; }
+            else
+            {
+                var user = await _user.Retrieve(createdBy);
+                createdByName = $"{user.FirstName} {user.LastName}";
+            }
+            
+            var auditLog = new entity.Models.AuditLog
+            {
+                AuditLogAction = auditLogAction,
+                TableName = tableName,
+                KeyFieldId = keyFieldId,
+                OldValue = oldObj,
+                NewValue = newObj,
+                CreatedBy = createdBy,
+                CreatedByName = createdByName,
+                CreatedOn = DateTime.UtcNow,
+            };
+
+            var result = await _auditLog.Create(auditLog);
+            return result
+                ? _general.Response(null, 200, "Audit log data created!", true)
+                : _general.Response(null, 400, "Failed in creating audit log data!", false);
         }
 
         public async Task<IGeneralModel> ListByTableNameAndKeyFieldId(string tableName, int keyFieldId)
@@ -38,6 +73,7 @@ namespace xgca.core.AuditLog
                 AuditLogId = logs.Guid,
                 logs.AuditLogAction,
                 logs.CreatedBy,
+                logs.CreatedByName,
                 logs.CreatedOn
             });
 
@@ -51,7 +87,7 @@ namespace xgca.core.AuditLog
                 {
                     AuditLogId = auditLog.AuditLogId.ToString(),
                     AuditLogAction = auditLog.AuditLogAction,
-                    CreatedBy = (auditLog.CreatedBy == 0) ? "System" : String.Concat(user.FirstName, " ", user.LastName),
+                    CreatedBy = (auditLog.CreatedBy == 0) ? "System" : auditLog.CreatedByName,
                     Username = !(user.Username is null) ? (auditLog.CreatedBy == 0 ? "system" : user.Username) : "Not Set",
                     CreatedOn = auditLog.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat)
                 });
@@ -76,7 +112,7 @@ namespace xgca.core.AuditLog
             {
                 var user = await _user.Retrieve(data.CreatedBy);
                 username = !(user.Username is null) ? user.Username : "Not Set";
-                createdBy = String.Concat(user.FirstName, " ", user.LastName);
+                createdBy = data.CreatedByName;
             }
             
             var log = new
