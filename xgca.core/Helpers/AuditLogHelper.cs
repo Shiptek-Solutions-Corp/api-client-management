@@ -6,26 +6,14 @@ using Newtonsoft.Json;
 
 namespace xgca.core.Helpers
 {
-    public class AuditLogHelper
+    public interface IAuditLogHelper
     {
-        public static entity.Models.AuditLog BuildAuditLog(dynamic obj, string auditLogAction, string tableName, int keyFieldId, int createdBy)
-        {
-            var auditLog = new entity.Models.AuditLog
-            {
-                AuditLogAction = auditLogAction,
-                TableName = tableName,
-                KeyFieldId = keyFieldId,
-                NewValue = JsonConvert.SerializeObject(obj),
-                OldValue = null,
-                CreatedBy = createdBy,
-                CreatedOn = DateTime.UtcNow,
-                Guid = Guid.NewGuid()
-            };
+        entity.Models.AuditLog BuildAuditLog(string auditLogAction, string tableName, int keyFieldId, int createdBy, dynamic oldObj, dynamic newObj = null);
+    }
+    public class AuditLogHelper : IAuditLogHelper
+    {
 
-            return auditLog;
-        }
-
-        public static entity.Models.AuditLog BuildAuditLog(dynamic oldObj, dynamic newObj, string auditLogAction, string tableName, int keyFieldId, int createdBy)
+        public entity.Models.AuditLog BuildAuditLog(string auditLogAction, string tableName, int keyFieldId, int createdBy, dynamic oldObj, dynamic newObj = null)
         {
             var auditLog = new entity.Models.AuditLog
             {
