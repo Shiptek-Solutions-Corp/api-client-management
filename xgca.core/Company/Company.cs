@@ -14,6 +14,7 @@ using xgca.data.Company;
 using xgca.data.CompanyService;
 using xgca.data.AuditLog;
 using xgca.data.User;
+using xgca.core.AuditLog;
 using xgca.core.User;
 using xgca.core.CompanyServiceRole;
 using xgca.core.CompanyServiceUser;
@@ -34,7 +35,8 @@ namespace xgca.core.Company
         private readonly xgca.core.Address.IAddress _coreAddress;
         private readonly xgca.core.ContactDetail.IContactDetail _coreContactDetail;
         private readonly IUser _coreUser;
-        private readonly IAuditLogData _auditLog;        
+        private readonly IAuditLogData _auditLog;
+        private readonly IAuditLogCore _coreAuditLog;
         private readonly xgca.core.CompanyService.ICompanyService _coreCompanyService;
         private readonly ICompanyServiceRole _coreCompanyServiceRole;
         private readonly ICompanyServiceUser _coreCompanyServiceUser;
@@ -53,6 +55,7 @@ namespace xgca.core.Company
             xgca.core.User.IUser coreUser,
             xgca.data.AuditLog.IAuditLogData auditLog,
             xgca.core.CompanyService.ICompanyService coreCompanyService,
+            IAuditLogCore coreAuditLog,
             ICompanyServiceRole coreCompanyServiceRole,
             ICompanyServiceUser coreCompanyServiceUser,
             ICompanyUser coreCompanyUser,
@@ -67,6 +70,7 @@ namespace xgca.core.Company
             _coreContactDetail = coreContactDetail;
             _coreUser = coreUser;
             _auditLog = auditLog;
+            _coreAuditLog = coreAuditLog;
             _coreCompanyService = coreCompanyService;
             _coreCompanyServiceRole = coreCompanyServiceRole;
             _coreCompanyServiceUser = coreCompanyServiceUser;
@@ -123,8 +127,10 @@ namespace xgca.core.Company
             if (companyId <= 0)
             { return _general.Response(null, 400, "Error on creating company", true); }
             await _coreCompanyService.CreateBatch(obj.Services, companyId, createdById);
-            var auditLog = AuditLogHelper.BuildAuditLog(obj, "Create", company.GetType().Name, companyId, createdById);
-            await _auditLog.Create(auditLog);
+            
+            // Create audit log
+            await _coreAuditLog.CreateAuditLog("Create", company.GetType().Name, companyId, createdById, obj, null);
+            
             return companyId > 0
                 ? _general.Response(new { companyId = companyId }, 200, "Company created", true)
                 : _general.Response(null, 400, "Error on creating company", true);
@@ -176,8 +182,9 @@ namespace xgca.core.Company
             var newCompanyServices = newCompanyServicesResponse.data.companyService;
             var companyLog = CompanyHelper.BuildCompanyValue(newCompany, newCompanyServices);
 
-            var auditLog = AuditLogHelper.BuildAuditLog(companyLog, "Create", company.GetType().Name, companyId, GlobalVariables.SystemUserId);
-            await _auditLog.Create(auditLog);
+            // Create audit log
+            await _coreAuditLog.CreateAuditLog("Create", company.GetType().Name, companyId, GlobalVariables.SystemUserId, obj, null);
+            
             return companyId > 0
                 ? _general.Response(new { CompanyId = companyId, MasterUserId = masterUser.MasterUserId }, 200, "Company registration successful", true)
                 : _general.Response(false, 400, "Error on registration", true);
@@ -239,8 +246,9 @@ namespace xgca.core.Company
             var updatedCompany = CompanyHelper.ReturnUpdatedValue(newCompany, (cityJson)["data"]["cityId"].ToString(), (stateJson)["data"]["stateId"].ToString(), companyServices);
 
             var newValue = CompanyHelper.BuildCompanyValue(newCompany, companyServices);
-            var auditLog = AuditLogHelper.BuildAuditLog(oldValue, newValue, "Update", company.GetType().Name, company.CompanyId, modifiedById);
-            await _auditLog.Create(auditLog);
+
+            // Create audit log
+            await _coreAuditLog.CreateAuditLog("Create", company.GetType().Name, companyId, modifiedById, oldValue, newValue);
 
             return companyResult
                 ? _general.Response(new { company = updatedCompany }, 200, "Company updated", true)
@@ -387,12 +395,18 @@ namespace xgca.core.Company
 
             return _general.Response(new { company = data }, 200, "Configurable information for selected company has been displayed", true);
         }
-        public async Task<IGeneralModel> Delete(string key)
+        public async Task<IGeneralModel> Delete(string key, string username)
         {
             int companyId = await _companyData.GetIdByGuid(Guid.Parse(key));
+            int deletedById = await _userData.GetIdByUsername(username);
             if (companyId == 0)
             { return _general.Response(false, 400, "Error on deleting company", true); }
+
             var result = await _companyData.Delete(companyId);
+
+            // Create audit log
+            await _coreAuditLog.CreateAuditLog("Delete", "Company", companyId, deletedById, null, null);
+
             return result
                 ? _general.Response(true, 200, "Company deleted", true)
                 : _general.Response(false, 400, "Error on deleting company", true);
@@ -471,8 +485,9 @@ namespace xgca.core.Company
             var updatedCompany = CompanyHelper.ReturnUpdatedValue(newCompany, (cityJson)["data"]["cityId"].ToString(), (stateJson)["data"]["stateId"].ToString(), companyServices);
 
             var newValue = CompanyHelper.BuildCompanyValue(newCompany, companyServices);
-            var auditLog = AuditLogHelper.BuildAuditLog(oldValue, newValue, "Update", company.GetType().Name, company.CompanyId, 0);
-            await _auditLog.Create(auditLog);
+
+            // Create audit log
+            await _coreAuditLog.CreateAuditLog("Update", company.GetType().Name, companyId, GlobalVariables.SystemUserId, null, null);
 
             return companyResult
                 ? _general.Response(new { company = updatedCompany }, 200, "Company updated", true)

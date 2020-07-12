@@ -16,7 +16,7 @@ namespace xgca.core.Company
         Task<IGeneralModel> Update(UpdateCompanyModel obj, string modifiedBy);
         Task<IGeneralModel> Retrieve(int companyId);
         Task<IGeneralModel> Retrieve(string companyId);
-        Task<IGeneralModel> Delete(string key);
+        Task<IGeneralModel> Delete(string key, string username);
         Task<IGeneralModel> GetIdByGuid(string key);
         Task<int> GetIdByGuid(Guid key);
         Task<IGeneralModel> ListCompanyLogs(int companyId);
