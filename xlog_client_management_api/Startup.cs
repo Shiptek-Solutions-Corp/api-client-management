@@ -122,7 +122,7 @@ namespace xlog_client_management_api
             services.AddScoped<xgca.core.Address.IAddress, xgca.core.Address.Address>();
             services.AddScoped<xgca.core.AddressType.IAddressType, xgca.core.AddressType.AddressType>();
             services.AddScoped<ICompany, Company>();
-            services.AddScoped<IAuditLog, AuditLog>();
+            services.AddScoped<IAuditLogCore, AuditLogCore>();
             services.AddScoped<IProfile, xgca.core.Profile.Profile>();
             services.AddScoped<IHttpHelper, HttpHelper>();
             services.AddScoped<ITokenHelper, TokenHelper>();

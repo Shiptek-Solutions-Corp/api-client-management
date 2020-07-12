@@ -14,8 +14,8 @@ namespace xlog_client_management_api.Controllers.AuditLog
     [Route("clients/api/v1")]
     public class AuditLogController : Controller
     {
-        public readonly xgca.core.AuditLog.IAuditLog _auditLog;
-        public AuditLogController(xgca.core.AuditLog.IAuditLog auditLog)
+        public readonly xgca.core.AuditLog.IAuditLogCore _auditLog;
+        public AuditLogController(xgca.core.AuditLog.IAuditLogCore auditLog)
         {
             _auditLog = auditLog;
         }
