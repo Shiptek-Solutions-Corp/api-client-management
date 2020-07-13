@@ -130,7 +130,7 @@ namespace xgca.core.CompanyServiceRole
                 return _general.Response(null, 400, "Invalid Company Service Role", false);
             }
             _mapper.Map(updateCompanyServiceRoleModel, result);
-
+            result.CompanyServiceId = await _companyService.GetIdByGuid(Guid.Parse(updateCompanyServiceRoleModel.CompanyServiceGuid));
             bool updateResult = await _companyServiceRole.Update(result);
 
             var services = await gLobalCmsService.GetAllService();
