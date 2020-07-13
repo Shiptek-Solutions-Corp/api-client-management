@@ -25,7 +25,7 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
 
         [Route("company/services/role")]
         [HttpPost]
-        //[Authorize(AuthenticationSchemes = "Bearer")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -41,7 +41,7 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
 
         [Route("company/services/role/{companyServiceId}")]
         [HttpGet]
-        //[Authorize(AuthenticationSchemes = "Bearer")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -63,7 +63,7 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
 
         [Route("company/services/role/company/{companyId}")]
         [HttpGet]
-        //[Authorize(AuthenticationSchemes = "Bearer")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -85,7 +85,7 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
 
         [Route("company-service-role/{companyServiceRoleId}")]
         [HttpGet]
-        //[Authorize(AuthenticationSchemes = "Bearer")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -104,7 +104,7 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
 
         [Route("company-service-role/{companyServiceRoleId}")]
         [HttpPut]
-        //[Authorize(AuthenticationSchemes = "Bearer")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -114,28 +114,6 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
             if (!isValidGuid) return BadRequest("Invalid id");
 
             var response = await _companyServiceRole.Update(updateCompanyServiceRoleModel, guid);
-
-            if (response.statusCode == 400)
-            {
-                return BadRequest(response);
-            }
-            else if (response.statusCode == 401)
-            {
-                return Unauthorized(response);
-            }
-
-            return Ok(response);
-        }
-
-        [Route("company-service-role")]
-        [HttpPost]
-        //[Authorize(AuthenticationSchemes = "Bearer")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> CreateWithCompanyService([FromBody] CreateCompanyServiceRoleWithCompanyService obj)
-        {
-            var response = await _companyServiceRole.CreateWithCompanyService(obj);
 
             if (response.statusCode == 400)
             {

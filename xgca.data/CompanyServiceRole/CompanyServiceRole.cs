@@ -51,6 +51,12 @@ namespace xgca.data.CompanyServiceRole
         public async Task<bool> Create(entity.Models.CompanyServiceRole obj)
         {
             obj.IsActive = 1;
+            obj.CreatedBy = 1;
+            obj.CreatedOn = DateTime.UtcNow;
+            obj.ModifiedBy = 1;
+            obj.ModifiedOn = DateTime.UtcNow;
+            obj.Guid = Guid.NewGuid();
+
             await _context.CompanyServiceRoles.AddAsync(obj);
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
