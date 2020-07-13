@@ -68,6 +68,7 @@ namespace xgca.core.User
             _coreContactDetail = coreContactDetail;
             _coreCompanyUser = coreCompanyUser;
             _auditLog = auditLog;
+            _coreAuditLog = coreAuditLog;
             _tokenHelper = tokenHelper;
             _httpHelper = httpHelper;
             _options = options;
@@ -261,7 +262,7 @@ namespace xgca.core.User
             var userLog = UserHelper.BuildUserLogValue(user, masterUserId, GlobalVariables.SystemUserId);
 
             // Create audit log
-            await _coreAuditLog.CreateAuditLog("Create", user.GetType().Name, masterUserId, GlobalVariables.SystemUserId, obj, null);
+            await _coreAuditLog.CreateAuditLog("Create", user.GetType().Name, masterUserId, GlobalVariables.SystemUserId, userLog, null);
 
             return new { MasterUserId = masterUserId, MasterUserGuid = masterUserGuid };
         }
@@ -307,7 +308,11 @@ namespace xgca.core.User
             { return _general.Response(null, 400, "Data cannot be null", false); }
 
             int userId = await _userData.GetIdByGuid(Guid.Parse(obj.UserId));
-           int modifiedById = await _userData.GetIdByUsername(modifiedBy);
+            if (userId <= 0)
+            {
+                return _general.Response(null, 400, "User may have been deleted or does not exists!", false);
+            }
+            int modifiedById = await _userData.GetIdByUsername(modifiedBy);
 
             var validator = new UpdateUserValidator(_userData);
             var validationResult = validator.Validate(obj);

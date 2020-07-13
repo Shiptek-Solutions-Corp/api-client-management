@@ -183,7 +183,7 @@ namespace xgca.core.Company
             var companyLog = CompanyHelper.BuildCompanyValue(newCompany, newCompanyServices);
 
             // Create audit log
-            await _coreAuditLog.CreateAuditLog("Create", company.GetType().Name, companyId, GlobalVariables.SystemUserId, obj, null);
+            await _coreAuditLog.CreateAuditLog("Create", company.GetType().Name, companyId, GlobalVariables.SystemUserId, companyLog, null);
             
             return companyId > 0
                 ? _general.Response(new { CompanyId = companyId, MasterUserId = masterUser.MasterUserId }, 200, "Company registration successful", true)
@@ -487,7 +487,7 @@ namespace xgca.core.Company
             var newValue = CompanyHelper.BuildCompanyValue(newCompany, companyServices);
 
             // Create audit log
-            await _coreAuditLog.CreateAuditLog("Update", company.GetType().Name, companyId, GlobalVariables.SystemUserId, null, null);
+            await _coreAuditLog.CreateAuditLog("Update", company.GetType().Name, companyId, GlobalVariables.SystemUserId, oldValue, newValue);
 
             return companyResult
                 ? _general.Response(new { company = updatedCompany }, 200, "Company updated", true)
