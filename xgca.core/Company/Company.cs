@@ -183,7 +183,7 @@ namespace xgca.core.Company
             var companyLog = CompanyHelper.BuildCompanyValue(newCompany, newCompanyServices);
 
             // Create audit log
-            await _coreAuditLog.CreateAuditLog("Create", company.GetType().Name, companyId, GlobalVariables.SystemUserId, obj, null);
+            await _coreAuditLog.CreateAuditLog("Create", company.GetType().Name, companyId, GlobalVariables.SystemUserId, companyLog, null);
             
             return companyId > 0
                 ? _general.Response(new { CompanyId = companyId, MasterUserId = masterUser.MasterUserId }, 200, "Company registration successful", true)
@@ -248,7 +248,7 @@ namespace xgca.core.Company
             var newValue = CompanyHelper.BuildCompanyValue(newCompany, companyServices);
 
             // Create audit log
-            await _coreAuditLog.CreateAuditLog("Create", company.GetType().Name, companyId, modifiedById, oldValue, newValue);
+            await _coreAuditLog.CreateAuditLog("Update", company.GetType().Name, companyId, modifiedById, oldValue, newValue);
 
             return companyResult
                 ? _general.Response(new { company = updatedCompany }, 200, "Company updated", true)
@@ -487,7 +487,7 @@ namespace xgca.core.Company
             var newValue = CompanyHelper.BuildCompanyValue(newCompany, companyServices);
 
             // Create audit log
-            await _coreAuditLog.CreateAuditLog("Update", company.GetType().Name, companyId, GlobalVariables.SystemUserId, null, null);
+            await _coreAuditLog.CreateAuditLog("Update", company.GetType().Name, companyId, GlobalVariables.SystemUserId, oldValue, newValue);
 
             return companyResult
                 ? _general.Response(new { company = updatedCompany }, 200, "Company updated", true)
@@ -531,28 +531,20 @@ namespace xgca.core.Company
             int companyKey = await _companyData.GetIdByGuid(Guid.Parse(companyId));
             var data = await _auditLog.ListByTableNameAndKeyFieldId("Company", companyKey);
 
-            var auditLogs = data.Select(logs => new
-            {
-                AuditLogId = logs.Guid,
-                logs.AuditLogAction,
-                logs.CreatedBy,
-                logs.CreatedOn
-            });
-
             List<ListAuditLogModel> logs = new List<ListAuditLogModel>();
 
-            foreach (var auditLog in auditLogs)
+            foreach (var d in data)
             {
-                var user = await _userData.Retrieve(auditLog.CreatedBy);
+                var user = await _userData.Retrieve(d.CreatedBy);
 
                 logs.Add(new ListAuditLogModel
                 {
-                    AuditLogId = auditLog.AuditLogId.ToString(),
-                    AuditLogAction = auditLog.AuditLogAction,
-                    CreatedBy = (auditLog.CreatedBy == 0) ? "System" : String.Concat(user.FirstName, " ", user.LastName),
-                    Username = auditLog.CreatedBy != 0 ? (!(user.Username is null) ? user.Username : "Not Set") : "system",
+                    AuditLogId = d.AuditLogId.ToString(),
+                    AuditLogAction = d.AuditLogAction,
+                    CreatedBy = (d.CreatedBy == 0) ? "System" : d.CreatedByName,
+                    Username = d.CreatedBy != 0 ? (!(user.Username is null) ? user.Username : "Not Set") : "system",
                     //Username = !(user.Username is null) ? (auditLog.CreatedBy == 0 ? "system" : user.Username) : "Not Set",
-                    CreatedOn = auditLog.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat)
+                    CreatedOn = d.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat)
                 });
             }
 

@@ -8,12 +8,11 @@ namespace xgca.core.Models.CompanyServiceRole
     public class CreateCompanyServiceRoleWithCompanyService
     {
         [Required]
-        public string CompanyId { get; set; }
-        [Required]
-        public string ServiceId { get; set; }
+        public string CompanyServiceGuid { get; set; }
         [Required]
         public string Name { get; set; }
         [Required]
         public string Description { get; set; }
+        public int CompanyServiceId { get; set; }
     }
 }
