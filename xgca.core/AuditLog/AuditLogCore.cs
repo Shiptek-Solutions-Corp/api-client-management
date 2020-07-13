@@ -46,19 +46,20 @@ namespace xgca.core.AuditLog
                 createdByName = $"{user.FirstName} {user.LastName}";
             }
             
-            var auditLog = new entity.Models.AuditLog
+            var data = new entity.Models.AuditLog
             {
                 AuditLogAction = auditLogAction,
                 TableName = tableName,
                 KeyFieldId = keyFieldId,
-                OldValue = oldObj,
-                NewValue = newObj,
+                OldValue = JsonConvert.SerializeObject(oldObj),
+                NewValue = JsonConvert.SerializeObject(newObj),
                 CreatedBy = createdBy,
                 CreatedByName = createdByName,
                 CreatedOn = DateTime.UtcNow,
+                Guid = Guid.NewGuid()
             };
 
-            var result = await _auditLog.Create(auditLog);
+            var result = await _auditLog.Create(data);
             return result
                 ? _general.Response(null, 200, "Audit log data created!", true)
                 : _general.Response(null, 400, "Failed in creating audit log data!", false);
