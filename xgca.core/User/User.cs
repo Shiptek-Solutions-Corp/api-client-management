@@ -760,28 +760,20 @@ namespace xgca.core.User
 
             var data = await _auditLog.ListByTableNameAndKeyFieldId("User", userId);
 
-            var auditLogs = data.Select(logs => new
-            {
-                AuditLogId = logs.Guid,
-                logs.AuditLogAction,
-                logs.CreatedBy,
-                logs.CreatedOn
-            });
-
             List<ListAuditLogModel> logs = new List<ListAuditLogModel>();
 
-            foreach (var auditLog in auditLogs)
+            foreach (var d in data)
             {
-                var user = await _userData.Retrieve(auditLog.CreatedBy);
+                var user = await _userData.Retrieve(d.CreatedBy);
 
                 logs.Add(new ListAuditLogModel
                 {
-                    AuditLogId = auditLog.AuditLogId.ToString(),
-                    AuditLogAction = auditLog.AuditLogAction,
-                    CreatedBy = (auditLog.CreatedBy == 0) ? "System" : String.Concat(user.FirstName, " ", user.LastName),
-                    Username = auditLog.CreatedBy != 0 ? (!(user.Username is null) ? user.Username : "Not Set") : "system",
+                    AuditLogId = d.AuditLogId.ToString(),
+                    AuditLogAction = d.AuditLogAction,
+                    CreatedBy = (d.CreatedBy == 0) ? "System" : d.CreatedByName,
+                    Username = d.CreatedBy != 0 ? (!(user.Username is null) ? user.Username : "Not Set") : "system",
                     //Username = !(user.Username is null) ? (auditLog.CreatedBy == 0 ? "system" : user.Username) : "Not Set",
-                    CreatedOn = auditLog.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat)
+                    CreatedOn = d.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat)
                 });
             }
 
