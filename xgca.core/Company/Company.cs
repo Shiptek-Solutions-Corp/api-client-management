@@ -248,7 +248,7 @@ namespace xgca.core.Company
             var newValue = CompanyHelper.BuildCompanyValue(newCompany, companyServices);
 
             // Create audit log
-            await _coreAuditLog.CreateAuditLog("Create", company.GetType().Name, companyId, modifiedById, oldValue, newValue);
+            await _coreAuditLog.CreateAuditLog("Update", company.GetType().Name, companyId, modifiedById, oldValue, newValue);
 
             return companyResult
                 ? _general.Response(new { company = updatedCompany }, 200, "Company updated", true)
