@@ -114,6 +114,7 @@ namespace xlog_client_management_api
             services.AddScoped<ICompanyServiceUserRole, CompanyServiceUserRole>();
             services.AddScoped<ICompanyServiceUserRoleData, CompanyServiceUserRoleData>();
 
+            services.AddScoped<IAuditLogHelper, AuditLogHelper>();
             services.AddScoped<IQueryFilterHelper, QueryFilterHelper>();
             services.AddScoped<IUserHelper, UserHelper>();
             services.AddScoped<IGeneralModel, GeneralModel>();
