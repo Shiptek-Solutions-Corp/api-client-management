@@ -186,7 +186,7 @@ namespace xgca.data.User
         {
             var data = await _context.Users
                 .Where(u => u.Guid == key && u.IsDeleted == 0).FirstOrDefaultAsync();
-            return data.UserId;
+            return (data is null) ? 0 : data.UserId;
         }
         public async Task<Guid> GetGuidById(int key)
         {
