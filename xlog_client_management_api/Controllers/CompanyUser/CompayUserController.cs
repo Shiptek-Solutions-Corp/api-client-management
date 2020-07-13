@@ -67,5 +67,28 @@ namespace xlog_client_management_api.Controllers.CompanyUser
 
             return Ok(response);
         }
+
+        [Route("company/users/filter")]
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> ListCompanyUsersByCompanyIdFilter([FromQuery(Name = "query")] string query)
+        {
+            var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
+            var response = await _companyUser.ListByCompanyIdAndFilter(query, Convert.ToInt32(companyId));
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
     }
 }
