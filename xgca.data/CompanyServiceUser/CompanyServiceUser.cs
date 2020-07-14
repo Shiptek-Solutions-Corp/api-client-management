@@ -6,9 +6,26 @@ using xgca.entity;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Immutable;
+using LinqKit;
 
 namespace xgca.data.CompanyServiceUser
 {
+    public interface ICompanyServiceUser
+    {
+        Task<bool> Create(List<entity.Models.CompanyServiceUser> obj);
+        Task<bool> Create(entity.Models.CompanyServiceUser obj);
+        Task<List<entity.Models.CompanyServiceUser>> List();
+        Task<List<entity.Models.CompanyServiceUser>> ListByCompanyServiceId(int companyServiceId);
+        Task<List<entity.Models.CompanyServiceUser>> ListByCompanyId(int companyId);
+        Task<List<entity.Models.CompanyServiceUser>> ListByCompanyUserId(int companyUserId);
+        Task<entity.Models.CompanyServiceUser> Retrieve(int companyServiceUserId);
+        Task<entity.Models.CompanyServiceUser> Retrieve(int companyUserId, int companyServiceId);
+        Task<int> GetIdByGuid(Guid guid);
+        Task<bool> Update(entity.Models.CompanyServiceUser obj);
+        Task<bool> UpdateServiceAndRole(int companyServiceUserId, int companyServiceId, int companyServiceRoleId, int modifiedById);
+        Task<bool> Delete(int key);
+        Task<List<entity.Models.CompanyServiceUser>> ListUserWithNoDuplicateRole(int companyId, int companyServiceRoleId = 0, string groupName = null);
+    }
     public class CompanyServiceUser : IMaintainable<entity.Models.CompanyServiceUser>, ICompanyServiceUser
     {
         private readonly IXGCAContext _context;
@@ -132,12 +149,36 @@ namespace xgca.data.CompanyServiceUser
             {
                 return false;
             }
+
             data.CompanyServiceId = companyServiceId;
             data.CompanyServiceRoleId = companyServiceRoleId;
             data.ModifiedBy = modifiedById;
             data.ModifiedOn = DateTime.UtcNow;
             var result = await _context.SaveChangesAsync();
+
             return result > 0 ? true : false;
+        }
+
+        public async Task<List<entity.Models.CompanyServiceUser>> ListUserWithNoDuplicateRole(int companyId, int companyServiceRoleId = 0, string groupName = null)
+        {
+            var data = _context.CompanyServiceUsers;
+            var predicate = PredicateBuilder.New<entity.Models.CompanyServiceUser>();
+            if (groupName != null && groupName != "")
+            {
+                predicate = predicate.And(c => c.CompanyServiceRoles.Name != groupName);
+            }
+
+            if (companyServiceRoleId > 1)
+            {
+                predicate = predicate.And(c => c.CompanyServiceRoleId != companyServiceRoleId);
+            }
+
+            return await data
+                .Where(predicate)
+                .Where(c => c.CompanyServices.CompanyId == companyId)
+                .Include(c => c.CompanyServices)
+                .Include(c => c.CompanyUsers).ThenInclude(c => c.Users)
+                .ToListAsync();
         }
     }
 }

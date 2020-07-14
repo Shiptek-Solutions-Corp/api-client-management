@@ -8,9 +8,11 @@ using xgca.core.Models.CompanyService;
 using xgca.core.Models.CompanyServiceRole;
 using xgca.core.Models.CompanyServiceUser;
 using xgca.core.Models.CompanyServiceUserRole;
+using xgca.core.Models.CompanyUser;
 using xgca.core.Models.GroupResource;
 using xgca.core.Models.MenuModule;
 using xgca.core.Models.ModuleGroup;
+using xgca.core.Models.User;
 
 namespace xgca.core._Mapper
 {
@@ -37,6 +39,11 @@ namespace xgca.core._Mapper
             CreateMap<entity.Models.CompanyService, GetCompanyService>();
 
             CreateMap<entity.Models.Company, GetCompanyModel>();
+
+            CreateMap<entity.Models.CompanyUser, GetCompanyUserModel>();
+
+            CreateMap<entity.Models.User, GetUserModel>();
+
 
         }
     }
