@@ -17,9 +17,20 @@ using xgca.core.Constants;
 using System.Runtime.InteropServices.ComTypes;
 using xgca.data.Company;
 using xgca.data.User;
+using AutoMapper;
 
 namespace xgca.core.CompanyServiceUser
 {
+    public interface ICompanyServiceUser
+    {
+        Task<bool> CreateDefault(int companyId, int companyUserId, int createdBy);
+        Task<IGeneralModel> ListUserServiceRolesByCompanyId(int companyId);
+        Task<IGeneralModel> ListUserServiceRolesByCompanyId(string companyKey);
+        Task<IGeneralModel> ListUserServiceRolesByCompanyUserId(int companyUserId);
+        Task<IGeneralModel> ListUserWithNoDuplicateRole(string companyGuidId, string companyServiceRoleGuid = "", string groupName = "");
+
+
+    }
     public class CompanyServiceUser : ICompanyServiceUser
     {
         private readonly ICompanyData _companyData;
@@ -31,11 +42,13 @@ namespace xgca.core.CompanyServiceUser
         private readonly IOptions<GlobalCmsService> _options;
         private readonly IUserHelper _userHelper;
         private readonly IGeneral _general;
+        private readonly IMapper mapper;
 
         public CompanyServiceUser(ICompanyData companyData, xgca.data.CompanyServiceRole.ICompanyServiceRole companyServiceRole,
             xgca.data.CompanyServiceUser.ICompanyServiceUser companyServiceUser,
             xgca.data.CompanyService.ICompanyService companyService, IUserData userData,
-            IHttpHelper httpHelper, IOptions<GlobalCmsService> options, IUserHelper userHelper, IGeneral general)
+            IHttpHelper httpHelper, IOptions<GlobalCmsService> options, IUserHelper userHelper, IGeneral general,
+            IMapper mapper)
         {
             _companyData = companyData;
             _companyServiceRole = companyServiceRole;
@@ -46,6 +59,7 @@ namespace xgca.core.CompanyServiceUser
             _options = options;
             _userHelper = userHelper;
             _general = general;
+            this.mapper = mapper;
         }
 
         public async Task<bool> CreateDefault(int companyId, int companyUserId, int createdBy)
@@ -239,5 +253,26 @@ namespace xgca.core.CompanyServiceUser
             return _general.Response(new { data = lists }, 200, "Configurable user service roles have been listed", true);
         }
 
+        public async Task<IGeneralModel> ListUserWithNoDuplicateRole(string companyGuidId, string companyServiceRoleGuid = "", string groupName = "")
+        {
+            int companyServiceRoleId = 0;
+
+            var companyId = await _companyData.GetIdByGuid(Guid.Parse(companyGuidId));
+
+            if (companyId > 0 == false)
+            {
+                return _general.Response(null, 400, "Invalid company guid", false);
+            }
+
+            if (companyServiceRoleGuid != null && companyServiceRoleGuid != "")
+            {
+                companyServiceRoleId = await _companyServiceRole.GetIdByGuid(Guid.Parse(companyServiceRoleGuid));
+            }
+
+            var result = await _companyServiceUser.ListUserWithNoDuplicateRole(companyId, companyServiceRoleId, groupName);
+            var list = result.Select(u => mapper.Map<GetCompanyServiceUser>(u)).ToList();
+
+            return _general.Response(list, 200, "List of Company Service user with no existing role", true);
+        }
     }
 }

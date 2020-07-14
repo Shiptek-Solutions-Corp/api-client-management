@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using xgca.core.Models.CompanyService;
+using xgca.core.Models.CompanyUser;
 
 namespace xgca.core.Models.CompanyServiceUser
 {
@@ -11,7 +13,7 @@ namespace xgca.core.Models.CompanyServiceUser
         public int CompanyUserId { get; set; }
         public int? CompanyServiceRoleId { get; set; }
         public Guid Guid { get; set; }
-        public  entity.Models.CompanyService CompanyServices { get; set; }
-        public entity.Models.CompanyUser CompanyUsers { get; set; }
+        public  GetCompanyService CompanyServices { get; set; }
+        public GetCompanyUserModel CompanyUsers { get; set; }
     }
 }

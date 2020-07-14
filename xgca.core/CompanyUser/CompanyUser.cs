@@ -182,21 +182,51 @@ namespace xgca.core.CompanyUser
                 return _general.Response(false, 400, "Error on listing company users", false);
             }
 
-            List<int> userIds = new List<int>();
+            List<dynamic> newCompanyUsers = new List<dynamic>();
+            int totalUsersCount = 0;
+            int totalActiveUsers = 0;
+            int totalInactiveUsers = 0;
+            int totalLockedUsers = 0;
+            int totalUnlockedUsers = 0;
             foreach (var companyUser in companyUsers)
             {
-                userIds.Add(companyUser.UserId);
+                if (companyUser.Users.IsDeleted == 0)
+                {
+                    newCompanyUsers.Add(companyUser);
+                    //Total Users 
+                    totalUsersCount++;
+                }
+
+                //Total Active Users
+                if (companyUser.Users.Status == 1 && companyUser.Users.IsDeleted == 0)
+                {
+                    totalActiveUsers++;
+                }
+
+                //Total Inactive Users
+                if (companyUser.Users.Status == 0 && companyUser.Users.IsDeleted == 0)
+                {
+                    totalInactiveUsers++;
+                }
+
+                //Total Locked Users
+                if (companyUser.Users.IsLocked == 1 && companyUser.Users.IsDeleted == 0)
+                {
+                    totalLockedUsers++;
+                }
+
+                //Total UnLocked Users
+                if (companyUser.Users.IsLocked == 0 && companyUser.Users.IsDeleted == 0)
+                {
+                    totalUnlockedUsers++;
+                }
+
             }
 
-            int totalUsersCount = await _userData.GetTotalUsers(userIds);
-            int totalActiveUsers = await _userData.GetTotalActiveUsers(userIds);
-            int totalInactiveUsers = await _userData.GetTotalInactiveUsers(userIds);
-            int totalLockedUsers = await _userData.GetTotalLockedUsers(userIds);
-            int totalUnlockedUsers = await _userData.GetTotalUnlockedUsers(userIds);
 
             var data = new
             {
-                companyUsers = companyUsers.Select(t => new
+                companyUsers = newCompanyUsers.Select(t => new
                 {
                     CompanyUserId = t.Guid,
                     UserId = t.Users.Guid,
@@ -217,6 +247,98 @@ namespace xgca.core.CompanyUser
 
             return _general.Response(new { companyUsers = data }, 200, "Configurable company users have been listed", true);
         }
+
+
+        public async Task<IGeneralModel> ListByCompanyIdAndFilter(string query, int companyId)
+        {
+            //Start: Please move this on helpers
+            var queryParams = query.Split(",")
+                                    .Select(p => p.Split(':'))
+                                    .ToDictionary(p => p[0], p => p.Length > 1 ? Uri.EscapeDataString(p[1]) : null).FirstOrDefault();
+            //End
+            var companyUsers = await _companyUser.ListByCompanyId(companyId);
+            if (companyUsers == null)
+            {
+                return _general.Response(false, 400, "Error on listing company users", false);
+            }
+
+            List<dynamic> newCompanyUsers = new List<dynamic>();
+            int totalUsersCount = 0;
+            int totalActiveUsers = 0;
+            int totalInactiveUsers = 0;
+            int totalLockedUsers = 0;
+            int totalUnlockedUsers = 0;
+            foreach (var companyUser in companyUsers)
+            {
+                if (queryParams.Key == "Status") {
+                    if (companyUser.Users.Status == Convert.ToInt32(queryParams.Value) && companyUser.Users.IsDeleted == 0)
+                    {
+                        newCompanyUsers.Add(companyUser);
+                    }
+                }
+                if (queryParams.Key == "IsLocked")
+                {
+                    if (companyUser.Users.IsLocked == Convert.ToInt32(queryParams.Value) && companyUser.Users.IsDeleted == 0)
+                    {
+                        newCompanyUsers.Add(companyUser);
+                    }
+                }
+
+                //Total Users 
+                if (companyUser.Users.IsDeleted == 0)
+                {
+                    totalUsersCount++;
+                }
+
+                //Total Active Users
+                if (companyUser.Users.Status == 1 && companyUser.Users.IsDeleted == 0)
+                {
+                    totalActiveUsers ++;
+                }
+
+                //Total Inactive Users
+                if (companyUser.Users.Status == 0 && companyUser.Users.IsDeleted == 0)
+                {
+                    totalInactiveUsers++;
+                }
+
+                //Total Locked Users
+                if (companyUser.Users.IsLocked == 1 && companyUser.Users.IsDeleted == 0)
+                {
+                    totalLockedUsers++;
+                }
+
+                //Total UnLocked Users
+                if (companyUser.Users.IsLocked == 0 && companyUser.Users.IsDeleted == 0)
+                {
+                    totalUnlockedUsers++;
+                }
+
+            }
+
+            var data = new
+            {
+                companyUsers = newCompanyUsers.Select(t => new
+                {
+                    CompanyUserId = t.Guid,
+                    UserId = t.Users.Guid,
+                    Fullname = _userHelper.GetUserFullname(t.Users),
+                    ImageURL = (t.Users.ImageURL is null) ? "No Image" : t.Users.ImageURL,
+                    EmailAddress = (t.Users.EmailAddress is null) ? "Email not set" : t.Users.EmailAddress,
+                    t.Users.Status,
+                    t.Users.IsLocked,
+                    Username = (t.Users.Username is null) ? "Not set" : t.Users.Username,
+                }),
+                TotalUsersCount = totalUsersCount,
+                TotalActiveUsers = totalActiveUsers,
+                TotalInactiveUsers = totalInactiveUsers,
+                TotalLockUsers = totalLockedUsers,
+                TotalUnlockUsers = totalUnlockedUsers
+            };
+
+            return _general.Response(new { companyUsers = data }, 200, "Configurable company users have been listed", true);
+        }
+
         public async Task<int> GetIdByUserId(int key)
         {
             int companyUserId = await _companyUser.GetIdByUserId(key);
