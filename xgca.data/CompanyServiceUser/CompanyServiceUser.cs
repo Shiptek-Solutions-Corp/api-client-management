@@ -182,6 +182,7 @@ namespace xgca.data.CompanyServiceUser
             return await data
                 .Where(predicate)
                 .Where(c => c.CompanyUsers.CompanyId == companyId)
+                .Where(c => c.CompanyUsers.Users.IsDeleted == 0)
                 .Include(c => c.CompanyServices)
                 .Include(c => c.CompanyUsers).ThenInclude(c => c.Users)
                 .ToListAsync();
