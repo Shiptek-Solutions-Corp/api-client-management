@@ -30,8 +30,11 @@ namespace xgca.core._Mapper
             CreateMap<entity.Models.CompanyServiceUserRole, GetCompanyServiceUserRole>();
 
             CreateMap<entity.Models.CompanyServiceUser, GetCompanyServiceUser>();
+            CreateMap<CreateNewUserPerGroupModuleModel, entity.Models.CompanyServiceUser>();
+
 
             CreateMap<entity.Models.CompanyServiceRole, GetCompanyServiceRoleModel>();
+            CreateMap<CreateGroupPermissionUserModel, entity.Models.CompanyServiceRole>();
 
             CreateMap<CreateCompanyServiceRoleModel, entity.Models.CompanyServiceRole>();
             CreateMap<UpdateCompanyServiceRoleModel, entity.Models.CompanyServiceRole>();
