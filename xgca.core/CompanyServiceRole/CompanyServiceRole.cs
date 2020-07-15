@@ -15,6 +15,7 @@ using AutoMapper;
 using xgca.data.Company;
 using xgca.core.Services;
 using xgca.entity.Models;
+using xgca.core.CompanyServiceUser;
 
 namespace xgca.core.CompanyServiceRole
 {
@@ -26,22 +27,25 @@ namespace xgca.core.CompanyServiceRole
         Task<IGeneralModel> ListByCompany(string key);
         Task<IGeneralModel> Show(Guid companyServiceRoleId);
         Task<IGeneralModel> Update(UpdateCompanyServiceRoleModel updateCompanyServiceRoleModel, Guid companyServiceRoleId);
+        Task<IGeneralModel> CreateGroupPermissionUser(CreateGroupPermissionUserModel createGroupPermissionUser);
     }
 
     public class CompanyServiceRole : ICompanyServiceRole
     {
-        private readonly xgca.data.CompanyServiceRole.ICompanyServiceRole _companyServiceRole;
-        private readonly xgca.data.CompanyService.ICompanyService _companyService;
+        private readonly data.CompanyServiceRole.ICompanyServiceRole _companyServiceRole;
+        private readonly data.CompanyService.ICompanyService _companyService;
         private readonly ICompanyData _companyData;
         private readonly IGeneral _general;
         private readonly IMapper _mapper;
         private readonly IGLobalCmsService gLobalCmsService;
+        private readonly data.CompanyServiceUser.ICompanyServiceUser companyServiceUser;
 
         public CompanyServiceRole(xgca.data.CompanyServiceRole.ICompanyServiceRole companyServiceRole,
             xgca.data.CompanyService.ICompanyService companyService, IGeneral general, 
             IMapper mapper, 
             ICompanyData companyData,
-            IGLobalCmsService gLobalCmsService)
+            IGLobalCmsService gLobalCmsService,
+            data.CompanyServiceUser.ICompanyServiceUser companyServiceUser)
         {
             _companyServiceRole = companyServiceRole;
             _companyService = companyService;
@@ -49,6 +53,7 @@ namespace xgca.core.CompanyServiceRole
             _mapper = mapper;
             _companyData = companyData;
             this.gLobalCmsService = gLobalCmsService;
+            this.companyServiceUser = companyServiceUser;
         }
 
         public async Task<IGeneralModel> CreateDefault(int companyId, int userId)
@@ -141,6 +146,31 @@ namespace xgca.core.CompanyServiceRole
                 _general.Response(viewCompanyServiceRole, 200, "Updated successfuly", true)
                 :
                 _general.Response(null, 400, "An error has occured", false);
+        }
+
+        public async Task<IGeneralModel> CreateGroupPermissionUser(CreateGroupPermissionUserModel createGroupPermissionUser)
+        {
+            var companyServiceId = await _companyService.GetIdByGuid(Guid.Parse(createGroupPermissionUser.CompanyServiceGuid));
+            if (companyServiceId > 0 == false)
+            {
+                return _general.Response(null, 400, "Invalid company service guid", false);
+            }
+            createGroupPermissionUser.CompanyServiceId = companyServiceId;
+            var companyServiceRole = _mapper.Map<entity.Models.CompanyServiceRole>(createGroupPermissionUser);
+            var companyServiceRoleResult = await _companyServiceRole.Create(companyServiceRole);
+
+            List<entity.Models.CompanyServiceUser> companyServiceUsers = new List<entity.Models.CompanyServiceUser>();
+
+            foreach (CreateNewUserPerGroupModuleModel obj in createGroupPermissionUser.CompanyServiceUsersArray)
+            {
+                obj.CompanyServiceRoleId = companyServiceRole.CompanyServiceRoleId;
+                var companyServiceUser = _mapper.Map<entity.Models.CompanyServiceUser>(obj);
+                companyServiceUsers.Add(companyServiceUser);
+            }
+
+            var companyServiceUserResult = await companyServiceUser.BulkCreate(companyServiceUsers);
+
+            return _general.Response(null, 200, "Created successfuly", true);
         }
     }
 }

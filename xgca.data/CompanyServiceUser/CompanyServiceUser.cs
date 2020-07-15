@@ -12,6 +12,7 @@ namespace xgca.data.CompanyServiceUser
 {
     public interface ICompanyServiceUser
     {
+        Task<bool> BulkCreate(List<entity.Models.CompanyServiceUser> obj);
         Task<bool> Create(List<entity.Models.CompanyServiceUser> obj);
         Task<bool> Create(entity.Models.CompanyServiceUser obj);
         Task<List<entity.Models.CompanyServiceUser>> List();
@@ -47,6 +48,12 @@ namespace xgca.data.CompanyServiceUser
 
         public async Task<bool> Create(entity.Models.CompanyServiceUser obj)
         {
+            obj.IsActive = 1;
+            obj.CreatedBy = 1;
+            obj.CreatedOn = DateTime.UtcNow;
+            obj.ModifiedBy = 1;
+            obj.ModifiedOn = DateTime.UtcNow;
+            obj.Guid = Guid.NewGuid();
             await _context.CompanyServiceUsers.AddAsync(obj);
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
@@ -179,6 +186,14 @@ namespace xgca.data.CompanyServiceUser
                 .Include(c => c.CompanyServices)
                 .Include(c => c.CompanyUsers).ThenInclude(c => c.Users)
                 .ToListAsync();
+        }
+
+        public async Task<bool> BulkCreate(List<entity.Models.CompanyServiceUser> obj)
+        {
+            _context.CompanyServiceUsers.BulkInsert(obj);
+            var result = await _context.SaveChangesAsync();
+
+            return result > 0 ? true : false;
         }
     }
 }
