@@ -72,9 +72,13 @@ namespace xlog_client_management_api.Controllers.CompanyServiceUser
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> GetUserWithNoExistingRole(string companyId,[FromQuery] string groupName = "", [FromQuery] string companyServiceRoleGuid = "")
+        public async Task<IActionResult> GetUserWithNoExistingRole(
+            string companyId,
+            [FromQuery] string groupName = "", 
+            [FromQuery] string companyServiceRoleGuid = "", 
+            [FromQuery] string companyServiceGuid = "")
         {
-            var response = await _companyServiceUser.ListUserWithNoDuplicateRole(companyId, companyServiceRoleGuid, groupName);
+            var response = await _companyServiceUser.ListUserWithNoDuplicateRole(companyId, companyServiceRoleGuid, groupName, companyServiceGuid);
 
             if (response.statusCode == 400)
             {

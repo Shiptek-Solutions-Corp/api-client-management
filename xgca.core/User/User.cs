@@ -465,9 +465,15 @@ namespace xgca.core.User
             { return _general.Response(null, 400, "Data cannot be null", false); }
 
             List<int> Ids = new List<int>();
+            List<int> NoUserNameList = new List<int>();
             foreach (string UserId in obj.UserId)
             {
                 int userId = await _userData.GetIdByGuid(Guid.Parse(UserId));
+                var getUserName = await _userData.Retrieve(userId);
+                if (getUserName.Username == null || getUserName.Username == "")
+                {
+                    NoUserNameList.Add(userId);
+                }
                 Ids.Add(userId);
             }
 
@@ -480,7 +486,7 @@ namespace xgca.core.User
             var IdsSuccessList = json["data"]["success"];
 
 
-            List<int> newIdsList = new List<int>();
+            List<int> newIdsList = new List<int>(NoUserNameList);
             foreach (int successUserId in IdsSuccessList)
             {
                 newIdsList.Add(successUserId);
@@ -506,9 +512,15 @@ namespace xgca.core.User
             { return _general.Response(null, 400, "Data cannot be null", false); }
 
             List<int> Ids = new List<int>();
+            List<int> NoUserNameList = new List<int>();
             foreach (string UserId in obj.UserId)
             {
                 int userId = await _userData.GetIdByGuid(Guid.Parse(UserId));
+                var getUserName = await _userData.Retrieve(userId);
+                if (getUserName.Username == null || getUserName.Username == "")
+                {
+                    NoUserNameList.Add(userId);
+                }
                 Ids.Add(userId);
             }
 
@@ -529,7 +541,7 @@ namespace xgca.core.User
             var IdsSuccessList = json["data"]["success"];
 
 
-            List<int> newIdsList = new List<int>();
+            List<int> newIdsList = new List<int>(NoUserNameList);
             foreach (int successUserId in IdsSuccessList)
             {
                 newIdsList.Add(successUserId);
@@ -555,9 +567,14 @@ namespace xgca.core.User
             { return _general.Response(null, 400, "Data cannot be null", false); }
 
             List<int> Ids = new List<int>();
+            List<int> NoUserNameList = new List<int>();
             foreach (string UserId in obj.UserId)
             {
                 int userId = await _userData.GetIdByGuid(Guid.Parse(UserId));
+                var getUserName = await _userData.Retrieve(userId);
+                if (getUserName.Username == null || getUserName.Username == "") {
+                    NoUserNameList.Add(userId);
+                }
                 Ids.Add(userId);
             }
 
@@ -577,7 +594,7 @@ namespace xgca.core.User
             var IdsSuccessList = json["data"]["success"];
 
 
-            List<int> newIdsList = new List<int>();
+            List<int> newIdsList = new List<int>(NoUserNameList);
             foreach (int successUserId in IdsSuccessList)
             {
                 newIdsList.Add(successUserId);

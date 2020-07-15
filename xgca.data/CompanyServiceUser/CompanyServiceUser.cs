@@ -24,7 +24,7 @@ namespace xgca.data.CompanyServiceUser
         Task<bool> Update(entity.Models.CompanyServiceUser obj);
         Task<bool> UpdateServiceAndRole(int companyServiceUserId, int companyServiceId, int companyServiceRoleId, int modifiedById);
         Task<bool> Delete(int key);
-        Task<List<entity.Models.CompanyServiceUser>> ListUserWithNoDuplicateRole(int companyId, int companyServiceRoleId = 0, string groupName = null);
+        Task<List<entity.Models.CompanyServiceUser>> ListUserWithNoDuplicateRole(int companyId, int companyServiceRoleId = 0, string groupName = null, int companyServiceId = 0);
     }
     public class CompanyServiceUser : IMaintainable<entity.Models.CompanyServiceUser>, ICompanyServiceUser
     {
@@ -159,10 +159,16 @@ namespace xgca.data.CompanyServiceUser
             return result > 0 ? true : false;
         }
 
-        public async Task<List<entity.Models.CompanyServiceUser>> ListUserWithNoDuplicateRole(int companyId, int companyServiceRoleId = 0, string groupName = null)
+        public async Task<List<entity.Models.CompanyServiceUser>> ListUserWithNoDuplicateRole(int companyId, int companyServiceRoleId = 0, string groupName = null, int companyServiceId = 0)
         {
             var data = _context.CompanyServiceUsers;
             var predicate = PredicateBuilder.New<entity.Models.CompanyServiceUser>();
+
+            if (companyServiceId > 1)
+            {
+                predicate = predicate.And(c => c.CompanyServiceId == companyServiceId);
+            }
+
             if (groupName != null && groupName != "")
             {
                 predicate = predicate.And(c => c.CompanyServiceRoles.Name != groupName);
@@ -175,7 +181,8 @@ namespace xgca.data.CompanyServiceUser
 
             return await data
                 .Where(predicate)
-                .Where(c => c.CompanyServices.CompanyId == companyId)
+                .Where(c => c.CompanyUsers.CompanyId == companyId)
+                .Where(c => c.CompanyUsers.Users.IsDeleted == 0)
                 .Include(c => c.CompanyServices)
                 .Include(c => c.CompanyUsers).ThenInclude(c => c.Users)
                 .ToListAsync();

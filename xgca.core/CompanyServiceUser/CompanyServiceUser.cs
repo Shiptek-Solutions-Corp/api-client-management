@@ -27,7 +27,11 @@ namespace xgca.core.CompanyServiceUser
         Task<IGeneralModel> ListUserServiceRolesByCompanyId(int companyId);
         Task<IGeneralModel> ListUserServiceRolesByCompanyId(string companyKey);
         Task<IGeneralModel> ListUserServiceRolesByCompanyUserId(int companyUserId);
-        Task<IGeneralModel> ListUserWithNoDuplicateRole(string companyGuidId, string companyServiceRoleGuid = "", string groupName = "");
+        Task<IGeneralModel> ListUserWithNoDuplicateRole(
+            string companyGuidId, 
+            string companyServiceRoleGuid = "", 
+            string groupName = "",
+            string companyServiceGuid = "");
 
 
     }
@@ -253,9 +257,14 @@ namespace xgca.core.CompanyServiceUser
             return _general.Response(new { data = lists }, 200, "Configurable user service roles have been listed", true);
         }
 
-        public async Task<IGeneralModel> ListUserWithNoDuplicateRole(string companyGuidId, string companyServiceRoleGuid = "", string groupName = "")
+        public async Task<IGeneralModel> ListUserWithNoDuplicateRole(
+            string companyGuidId, 
+            string companyServiceRoleGuid = "", 
+            string groupName = "",
+            string companyServiceGuid = "")
         {
             int companyServiceRoleId = 0;
+            int companyServiceId = 0;
 
             var companyId = await _companyData.GetIdByGuid(Guid.Parse(companyGuidId));
 
@@ -268,8 +277,11 @@ namespace xgca.core.CompanyServiceUser
             {
                 companyServiceRoleId = await _companyServiceRole.GetIdByGuid(Guid.Parse(companyServiceRoleGuid));
             }
-
-            var result = await _companyServiceUser.ListUserWithNoDuplicateRole(companyId, companyServiceRoleId, groupName);
+            if (companyServiceGuid != null && companyServiceGuid != "")
+            {
+                companyServiceId = await _companyService.GetIdByGuid(Guid.Parse(companyServiceGuid));
+            }
+            var result = await _companyServiceUser.ListUserWithNoDuplicateRole(companyId, companyServiceRoleId, groupName, companyServiceId);
             var list = result.Select(u => mapper.Map<GetCompanyServiceUser>(u)).ToList();
 
             return _general.Response(list, 200, "List of Company Service user with no existing role", true);
