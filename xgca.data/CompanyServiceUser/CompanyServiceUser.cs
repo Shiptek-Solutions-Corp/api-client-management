@@ -24,7 +24,7 @@ namespace xgca.data.CompanyServiceUser
         Task<bool> Update(entity.Models.CompanyServiceUser obj);
         Task<bool> UpdateServiceAndRole(int companyServiceUserId, int companyServiceId, int companyServiceRoleId, int modifiedById);
         Task<bool> Delete(int key);
-        Task<List<entity.Models.CompanyServiceUser>> ListUserWithNoDuplicateRole(int companyId, int companyServiceRoleId = 0, string groupName = null, int companyServiceId = 0);
+        Task<List<entity.Models.CompanyUser>> ListUserWithNoDuplicateRole(int companyId, int companyServiceRoleId = 0, string groupName = null, int companyServiceId = 0);
     }
     public class CompanyServiceUser : IMaintainable<entity.Models.CompanyServiceUser>, ICompanyServiceUser
     {
@@ -159,33 +159,60 @@ namespace xgca.data.CompanyServiceUser
             return result > 0 ? true : false;
         }
 
-        public async Task<List<entity.Models.CompanyServiceUser>> ListUserWithNoDuplicateRole(int companyId, int companyServiceRoleId = 0, string groupName = null, int companyServiceId = 0)
+        public async Task<List<entity.Models.CompanyUser>> ListUserWithNoDuplicateRole(int companyId, int companyServiceRoleId = 0, string groupName = null, int companyServiceId = 0)
         {
-            var data = _context.CompanyServiceUsers;
-            var predicate = PredicateBuilder.New<entity.Models.CompanyServiceUser>();
+            var data = _context.CompanyUsers;
+
+            var predicate = PredicateBuilder.New<entity.Models.CompanyUser>();
 
             if (companyServiceId > 1)
             {
-                predicate = predicate.And(c => c.CompanyServiceId == companyServiceId);
+                predicate = predicate.And(c => c.CompanyServiceUsers.Any(c => c.CompanyServiceId == companyServiceId));
             }
 
             if (groupName != null && groupName != "")
             {
-                predicate = predicate.And(c => c.CompanyServiceRoles.Name != groupName);
+                predicate = predicate.And(c => c.CompanyServiceUsers.Any(c => c.CompanyServiceRoles.Name != groupName));
             }
 
             if (companyServiceRoleId > 1)
             {
-                predicate = predicate.And(c => c.CompanyServiceRoleId != companyServiceRoleId);
+                predicate = predicate.And(c => c.CompanyServiceUsers.Any(c => c.CompanyServiceRoleId != companyServiceRoleId));
             }
 
             return await data
                 .Where(predicate)
-                .Where(c => c.CompanyUsers.CompanyId == companyId)
-                .Where(c => c.CompanyUsers.Users.IsDeleted == 0)
-                .Include(c => c.CompanyServices)
-                .Include(c => c.CompanyUsers).ThenInclude(c => c.Users)
+                .Where(c => c.CompanyId == companyId)
+                .Where(c => c.Users.IsDeleted == 0)
+                .Include(c => c.Users)
+                .Include(c => c.CompanyServiceUsers)
                 .ToListAsync();
+
+            //var data = _context.CompanyServiceUsers;
+            //var predicate = PredicateBuilder.New<entity.Models.CompanyServiceUser>();
+
+            //if (companyServiceId > 1)
+            //{
+            //    predicate = predicate.And(c => c.CompanyServiceRoles.CompanyServiceId != companyServiceId);
+            //}
+
+            //if (groupName != null && groupName != "")
+            //{
+            //    predicate = predicate.And(c => c.CompanyServiceRoles.Name != groupName);
+            //}
+
+            //if (companyServiceRoleId > 1)
+            //{
+            //    predicate = predicate.And(c => c.CompanyServiceRoleId != companyServiceRoleId);
+            //}
+
+            //return await data
+            //    .Where(predicate)
+            //    .Where(c => c.CompanyUsers.CompanyId == companyId)
+            //    .Where(c => c.CompanyUsers.Users.IsDeleted == 0)
+            //    .Include(c => c.CompanyServices)
+            //    .Include(c => c.CompanyUsers).ThenInclude(c => c.Users)
+            //    .ToListAsync();
         }
     }
 }
