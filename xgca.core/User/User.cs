@@ -768,7 +768,7 @@ namespace xgca.core.User
 
                 logs.Add(new ListAuditLogModel
                 {
-                    AuditLogId = d.AuditLogId.ToString(),
+                    AuditLogId = d.Guid.ToString(),
                     AuditLogAction = d.AuditLogAction,
                     CreatedBy = (d.CreatedBy == 0) ? "System" : d.CreatedByName,
                     Username = d.CreatedBy != 0 ? (!(user.Username is null) ? user.Username : "Not Set") : "system",
