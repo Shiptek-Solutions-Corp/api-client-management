@@ -174,13 +174,13 @@ namespace xgca.data.CompanyServiceUser
 
             if (companyServiceId > 1)
             {
-                predicate = predicate.And(c => c.CompanyServiceUsers.Any(c => c.CompanyServiceId == companyServiceId));
+                predicate = predicate.And(c => !c.CompanyServiceUsers.Any(c => c.CompanyServiceId == companyServiceId));
             }
 
-            if (groupName != null && groupName != "")
-            {
-                predicate = predicate.And(c => c.CompanyServiceUsers.Any(c => c.CompanyServiceRoles.Name != groupName));
-            }
+            //if (groupName != null && groupName != "")
+            //{
+            //    predicate = predicate.And(c => c.CompanyServiceUsers.Any(c => c.CompanyServiceRoles.Name != groupName));
+            //}
 
             if (companyServiceRoleId > 1)
             {
