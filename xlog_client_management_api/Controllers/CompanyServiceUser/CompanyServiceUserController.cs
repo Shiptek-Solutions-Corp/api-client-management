@@ -76,9 +76,15 @@ namespace xlog_client_management_api.Controllers.CompanyServiceUser
             string companyId,
             [FromQuery] string groupName = "", 
             [FromQuery] string companyServiceRoleGuid = "", 
-            [FromQuery] string companyServiceGuid = "")
+            [FromQuery] string companyServiceGuid = "",
+            [FromQuery] string fullName = "")
         {
-            var response = await _companyServiceUser.ListUserWithNoDuplicateRole(companyId, companyServiceRoleGuid, groupName, companyServiceGuid);
+            var response = await _companyServiceUser.ListUserWithNoDuplicateRole(
+                companyId, 
+                companyServiceRoleGuid, 
+                groupName, 
+                companyServiceGuid,
+                fullName);
 
             if (response.statusCode == 400)
             {

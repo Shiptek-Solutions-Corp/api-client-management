@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
@@ -23,6 +24,21 @@ namespace xgca.entity.Models
         public string FirstName { get; set; }
         [StringLength(100)]
         public string MiddleName { get; set; }
+
+        [NotMapped]
+        [DisplayName("Full Name")]
+        public string FullName
+        {
+            get
+            {
+                string tempName =
+                    (!string.IsNullOrEmpty(FirstName) ? FirstName + " " : "") +
+                    (!string.IsNullOrEmpty(MiddleName) ? MiddleName + " " : "") +
+                    (!string.IsNullOrEmpty(LastName) ? LastName + " " : "");
+
+                return tempName.Trim();
+            }
+        }
         [StringLength(50)]
         public string Title { get; set; }
         [StringLength(100)]
