@@ -31,7 +31,8 @@ namespace xgca.core.CompanyServiceUser
             string companyGuidId, 
             string companyServiceRoleGuid = "", 
             string groupName = "",
-            string companyServiceGuid = "");
+            string companyServiceGuid = "",
+            string fullname = "");
 
 
     }
@@ -261,7 +262,8 @@ namespace xgca.core.CompanyServiceUser
             string companyGuidId, 
             string companyServiceRoleGuid = "", 
             string groupName = "",
-            string companyServiceGuid = "")
+            string companyServiceGuid = "", 
+            string fullName = "")
         {
             int companyServiceRoleId = 0;
             int companyServiceId = 0;
@@ -281,7 +283,13 @@ namespace xgca.core.CompanyServiceUser
             {
                 companyServiceId = await _companyService.GetIdByGuid(Guid.Parse(companyServiceGuid));
             }
-            var result = await _companyServiceUser.ListUserWithNoDuplicateRole(companyId, companyServiceRoleId, groupName, companyServiceId);
+            var result = await _companyServiceUser.ListUserWithNoDuplicateRole(
+                companyId, 
+                companyServiceRoleId, 
+                groupName, 
+                companyServiceId,
+                fullName);
+
             var list = result.Select(u => mapper.Map<Models.CompanyUser.GetCompanyUserModel>(u)).ToList();
 
             return _general.Response(list, 200, "List of Company Service user with no existing role", true);
