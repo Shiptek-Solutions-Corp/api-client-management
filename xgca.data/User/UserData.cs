@@ -296,5 +296,13 @@ namespace xgca.data.User
                 .ToListAsync();
             return data.Count;
         }
+
+        public async Task<List<entity.Models.User>> FilterWithCompanyUsersId(string columnFilter, string userIds)
+        {
+            var queryString = $"Select * from [Users].[User] where {columnFilter} isDeleted = 0 AND userId IN ({userIds})";
+
+            var data = await _context.Users.FromSqlRaw(queryString).ToListAsync();
+            return data;
+        }
     }
 }

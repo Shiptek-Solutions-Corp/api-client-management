@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,10 @@ using xgca.core.Company;
 using xgca.core.Helpers;
 using xgca.core.Models.CompanyUser;
 using xgca.core.User;
+using System.Data;
+using ClosedXML.Excel;
+using CsvHelper;
+
 
 namespace xgca.core.CompanyUser
 {
@@ -337,6 +342,48 @@ namespace xgca.core.CompanyUser
             };
 
             return _general.Response(new { companyUsers = data }, 200, "Configurable company users have been listed", true);
+        }
+
+
+        public async Task<byte[]> DownloadUsersExcel(string query, int companyId)
+        {
+            //Start: Please move this on helpers
+            var queryParams = query.Split(",")
+                                    .Select(p => p.Split(':'))
+                                    .ToDictionary(p => p[0], p => p.Length > 1 ? Uri.EscapeDataString(p[1]) : null);
+
+            var queryString = "";
+
+            foreach (var v in queryParams)
+            {
+                queryString += $"{v.Key} = '{v.Value}' and ";
+            }
+            //End
+
+            var companyUsers = await _companyUser.ListByCompanyId(companyId);
+            List<int> userIds = new List<int>();
+            foreach (var companyUser in companyUsers)
+            {
+                userIds.Add(companyUser.UserId);
+            }
+            var userDetails = await _userData.FilterWithCompanyUsersId(queryString, string.Join(",",userIds));
+            int counttest = userDetails.Count();
+
+            var table = new DataTable { TableName = "ServiceRates" };
+            table.Columns.Add("Name", typeof(string));
+            table.Columns.Add("UserName", typeof(string));
+            table.Columns.Add("EmailAddress", typeof(string));
+            table.Columns.Add("Title", typeof(string));
+
+            foreach (var companyUser in userDetails)
+            {
+                table.Rows.Add(companyUser.FirstName +" "+ companyUser.LastName, companyUser.Username, companyUser.EmailAddress, companyUser.Title + ";");
+            }
+            var wb = new XLWorkbook();
+            wb.Worksheets.Add(table);
+            await using var memoryStream = new MemoryStream();
+            wb.SaveAs(memoryStream);
+            return memoryStream.ToArray();
         }
 
         public async Task<int> GetIdByUserId(int key)
