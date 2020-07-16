@@ -24,7 +24,7 @@ namespace xgca.core.CompanyServiceRole
         Task<IGeneralModel> Create(CreateCompanyServiceRoleModel obj);
         Task<IGeneralModel> CreateDefault(int companyId, int userId);
         Task<IGeneralModel> ListByCompanyServiceId(string key);
-        Task<IGeneralModel> ListByCompany(string key);
+        Task<IGeneralModel> ListByCompany(string key, int status);
         Task<IGeneralModel> Show(Guid companyServiceRoleId);
         Task<IGeneralModel> Update(UpdateCompanyServiceRoleModel updateCompanyServiceRoleModel, Guid companyServiceRoleId);
         Task<IGeneralModel> CreateGroupPermissionUser(CreateGroupPermissionUserModel createGroupPermissionUser);
@@ -100,17 +100,18 @@ namespace xgca.core.CompanyServiceRole
             return _general.Response(new { companyServiceRole = data }, 200, "Configurable company service roles has been listed", true);
         }
 
-        public async Task<IGeneralModel> ListByCompany(string key)
+        public async Task<IGeneralModel> ListByCompany(string key, int status = -1)
         {
             int companyId = await _companyData.GetIdByGuid(Guid.Parse(key));
-            var result = await _companyServiceRole.ListByCompanyId(companyId);
+            var result = await _companyServiceRole.ListByCompanyId(companyId, status);
             var services = await gLobalCmsService.GetAllService();
-            var viewCompanyServiceRole = result.Select(c => _mapper.Map<GetCompanyServiceRoleModel>(c)).ToList();
+            var viewCompanyServiceRole = result.CompanyServiceRoles.Select(c => _mapper.Map<GetCompanyServiceRoleModel>(c)).ToList();
             foreach (var companyServiceRole in viewCompanyServiceRole)
             {
                 companyServiceRole.CompanyServices.ServiceName = services.Where(c => c.IntServiceId == companyServiceRole.CompanyServices.ServiceId).FirstOrDefault().ServiceName;
             }
-            return _general.Response(viewCompanyServiceRole, 200, "success", true);
+
+            return _general.Response(new { viewCompanyServiceRole, result.TotalGroups, result.TotalActive, result.TotalInactive }, 200, "success", true);
         }
 
         public async Task<IGeneralModel> Show(Guid companyServiceRoleId)
