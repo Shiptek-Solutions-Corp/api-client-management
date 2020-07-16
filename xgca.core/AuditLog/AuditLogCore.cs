@@ -116,7 +116,7 @@ namespace xgca.core.AuditLog
                 NewValue = JsonConvert.DeserializeObject(data.NewValue),
                 CreatedBy = createdBy,
                 Username = username,
-                CratedOn = data.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat)
+                CreatedOn = data.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat)
             };
 
             return _general.Response(new { AuditLog = log }, 200, "Audit log details has been displayed", true);
