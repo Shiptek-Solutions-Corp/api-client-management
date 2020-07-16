@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using xgca.entity;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using LinqKit;
 
 namespace xgca.data.CompanyServiceRole
 {
@@ -21,9 +22,16 @@ namespace xgca.data.CompanyServiceRole
         Task<bool> Update(entity.Models.CompanyServiceRole obj);
         Task<bool> ChangeStatus(entity.Models.CompanyServiceRole obj);
         Task<bool> Delete(int key);
-        Task<List<entity.Models.CompanyServiceRole>> ListByCompanyId(int companyID);
+        Task<ReturnObject> ListByCompanyId(int companyID, int status);
     }
 
+    public class ReturnObject
+    {
+        public List<entity.Models.CompanyServiceRole> CompanyServiceRoles { get; set; }
+        public int TotalGroups { get; set; }
+        public int TotalActive { get; set; }
+        public int TotalInactive { get; set; }
+    }
     public class CompanyServiceRole : IMaintainable<entity.Models.CompanyServiceRole>, ICompanyServiceRole
     {
         private readonly IXGCAContext _context;
@@ -80,14 +88,35 @@ namespace xgca.data.CompanyServiceRole
             throw new NotImplementedException();
         }
 
-        public async Task<List<entity.Models.CompanyServiceRole>> ListByCompanyId(int companyID)
+        public async Task<ReturnObject> ListByCompanyId(int companyID, int status)
         {
-            var data = await _context.CompanyServiceRoles
-                .Where(c => c.CompanyServices.CompanyId == companyID)
-                .Include(c => c.CompanyServices).ThenInclude(c => c.Companies)
-                .ToListAsync();
+            var data = _context.CompanyServiceRoles;
+            var predicate = PredicateBuilder.New<entity.Models.CompanyServiceRole>();
 
-            return data;
+            predicate.And(c => c.CompanyServices.CompanyId == companyID);
+
+            var query = data.Where(predicate)
+                .Include(c => c.CompanyServices)
+                    .ThenInclude(c => c.Companies);
+
+            int totalGroups = query.Select(c => c.CompanyServiceRoleId).Count();
+            int totalActive = query.Where(c => c.IsActive == 1).Select(c => c.CompanyServiceRoleId).Count();
+            int totalInactive = query.Where(c => c.IsActive == 0).Select(c => c.CompanyServiceRoleId).Count();
+
+            if (status > -1)
+            {
+                predicate = predicate.And(c => c.IsActive == status);
+            }
+
+            ReturnObject returnObject = new ReturnObject
+            {
+                CompanyServiceRoles = await query.Where(predicate).ToListAsync(),
+                TotalGroups = totalGroups,
+                TotalActive = totalActive,
+                TotalInactive = totalInactive
+            };
+
+            return returnObject;
         }
 
         public async Task<List<entity.Models.CompanyServiceRole>> ListByCompanyServiceId(int companyServiceId)

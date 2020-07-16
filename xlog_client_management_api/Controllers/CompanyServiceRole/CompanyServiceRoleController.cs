@@ -67,9 +67,9 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> ListByCompanyID(string companyId)
+        public async Task<IActionResult> ListByCompanyID(string companyId, [FromQuery] int status = -1)
         {
-            var response = await _companyServiceRole.ListByCompany(companyId);
+            var response = await _companyServiceRole.ListByCompany(companyId, status);
 
             if (response.statusCode == 400)
             {
