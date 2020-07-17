@@ -16,6 +16,7 @@ using xgca.data.Company;
 using xgca.core.Services;
 using xgca.entity.Models;
 using xgca.core.CompanyServiceUser;
+using Castle.Core.Internal;
 
 namespace xgca.core.CompanyServiceRole
 {
@@ -124,7 +125,7 @@ namespace xgca.core.CompanyServiceRole
             var services = await gLobalCmsService.GetAllService();
             var viewCompanyServiceRole = _mapper.Map<GetCompanyServiceRoleModel>(result);
             viewCompanyServiceRole.CompanyServices.ServiceName = services.Where(c => c.IntServiceId == viewCompanyServiceRole.CompanyServices.ServiceId).FirstOrDefault().ServiceName;
-            
+
             return _general.Response(viewCompanyServiceRole, 200, "Success", true);
         }
 
@@ -156,20 +157,37 @@ namespace xgca.core.CompanyServiceRole
             {
                 return _general.Response(null, 400, "Invalid company service guid", false);
             }
+            var isGroupNameUnique = await _companyServiceRole.CheckGroupNameIfExists(companyServiceId, createGroupPermissionUser.Name);
+            if (isGroupNameUnique)
+            {
+                return _general.Response(null, 400, "Group name already exists. Please enter other group name", false);
+            }
             createGroupPermissionUser.CompanyServiceId = companyServiceId;
             var companyServiceRole = _mapper.Map<entity.Models.CompanyServiceRole>(createGroupPermissionUser);
             var companyServiceRoleResult = await _companyServiceRole.Create(companyServiceRole);
 
-            List<entity.Models.CompanyServiceUser> companyServiceUsers = new List<entity.Models.CompanyServiceUser>();
-
-            foreach (CreateNewUserPerGroupModuleModel obj in createGroupPermissionUser.CompanyServiceUsersArray)
+            if (!createGroupPermissionUser.CompanyServiceUsersArray.IsNullOrEmpty())
             {
-                obj.CompanyServiceRoleId = companyServiceRole.CompanyServiceRoleId;
-                var companyServiceUser = _mapper.Map<entity.Models.CompanyServiceUser>(obj);
-                companyServiceUsers.Add(companyServiceUser);
-            }
+                List<entity.Models.CompanyServiceUser> companyServiceUsers = new List<entity.Models.CompanyServiceUser>();
 
-            var companyServiceUserResult = await companyServiceUser.BulkCreate(companyServiceUsers);
+                foreach (CreateNewUserPerGroupModuleModel obj in createGroupPermissionUser.CompanyServiceUsersArray)
+                {
+                    obj.CompanyServiceId = companyServiceId;
+                    obj.CompanyServiceRoleId = companyServiceRole.CompanyServiceRoleId;
+                    var companyServiceUser = _mapper.Map<entity.Models.CompanyServiceUser>(obj);
+
+                    // TODO: Change createdBy by logged in user
+                    companyServiceUser.IsActive = 1;
+                    companyServiceUser.CreatedBy = 1;
+                    companyServiceUser.CreatedOn = DateTime.UtcNow;
+                    companyServiceUser.ModifiedBy = 1;
+                    companyServiceUser.ModifiedOn = DateTime.UtcNow;
+                    companyServiceUser.Guid = Guid.NewGuid();
+                    companyServiceUsers.Add(companyServiceUser);
+                }
+
+                var companyServiceUserResult = await companyServiceUser.BulkCreate(companyServiceUsers);
+            }
 
             return _general.Response(null, 200, "Created successfuly", true);
         }
