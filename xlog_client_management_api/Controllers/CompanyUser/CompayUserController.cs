@@ -90,20 +90,5 @@ namespace xlog_client_management_api.Controllers.CompanyUser
 
             return Ok(response);
         }
-
-        [Route("company/users/download/csv")]
-        [HttpGet]
-        [Authorize(AuthenticationSchemes = "Bearer")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> downloadUsersExcel([FromQuery(Name = "query")] string query)
-        {
-            var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
-            var response = await _companyUser.DownloadUsersExcel(query, Convert.ToInt32(companyId));
-            var fileName = $"Users_{DateTime.Now:yyyyMMddhhmmss}.xlsx";
-
-            return File(response, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
-        }
     }
 }

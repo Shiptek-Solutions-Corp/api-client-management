@@ -10,7 +10,6 @@ namespace xgca.data.User
         Task<int> CreateAndReturnId(entity.Models.User obj);
         Task<List<entity.Models.User>> List();
         Task<List<entity.Models.User>> List(string columnFilter, string isActive, string isLock);
-        Task<List<entity.Models.User>> FilterWithCompanyUsersId(string columnFilter, string userIds);
         Task<int> GetTotalActiveUsers();
         Task<int> GetTotalInactiveUsers();
         Task<int> GetTotalLockedUsers();
