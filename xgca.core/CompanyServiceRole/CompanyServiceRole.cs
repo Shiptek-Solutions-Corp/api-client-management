@@ -157,6 +157,11 @@ namespace xgca.core.CompanyServiceRole
             {
                 return _general.Response(null, 400, "Invalid company service guid", false);
             }
+            var isGroupNameUnique = await _companyServiceRole.CheckGroupNameIfExists(companyServiceId, createGroupPermissionUser.Name);
+            if (isGroupNameUnique)
+            {
+                return _general.Response(null, 400, "Group name already exists. Please enter other group name", false);
+            }
             createGroupPermissionUser.CompanyServiceId = companyServiceId;
             var companyServiceRole = _mapper.Map<entity.Models.CompanyServiceRole>(createGroupPermissionUser);
             var companyServiceRoleResult = await _companyServiceRole.Create(companyServiceRole);
