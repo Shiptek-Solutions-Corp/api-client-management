@@ -151,6 +151,9 @@ namespace xgca.data.CompanyServiceRole
         {
             var data = await _context.CompanyServiceRoles
                 .Where(cs => cs.Guid == key && cs.IsDeleted == 0)
+                .Include(c => c.CompanyServiceUsers)
+                    .ThenInclude(c => c.CompanyUsers)
+                    .ThenInclude(c => c.Users)
                 .Include(c => c.CompanyServices)
                 .ThenInclude(c => c.Companies)
                 .FirstOrDefaultAsync();
