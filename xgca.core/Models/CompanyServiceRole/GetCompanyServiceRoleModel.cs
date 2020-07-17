@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using xgca.core.Models.CompanyService;
+using xgca.core.Models.CompanyServiceUser;
 
 namespace xgca.core.Models.CompanyServiceRole
 {
@@ -14,5 +15,6 @@ namespace xgca.core.Models.CompanyServiceRole
         public Guid Guid { get; set; }
         public byte IsActive { get; set; }
         public GetCompanyService CompanyServices { get; set; }
+        public ICollection<GetCompanyServiceUser > CompanyServiceUsers { get; set; }
     }
 }

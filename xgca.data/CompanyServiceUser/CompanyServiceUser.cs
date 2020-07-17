@@ -208,7 +208,8 @@ namespace xgca.data.CompanyServiceUser
 
         public async Task<bool> BulkCreate(List<entity.Models.CompanyServiceUser> obj)
         {
-            _context.CompanyServiceUsers.BulkInsert(obj);
+             _context.CompanyServiceUsers.AddRange(obj);
+
             var result = await _context.SaveChangesAsync();
 
             return result > 0 ? true : false;

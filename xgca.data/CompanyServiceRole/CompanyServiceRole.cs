@@ -23,6 +23,7 @@ namespace xgca.data.CompanyServiceRole
         Task<bool> ChangeStatus(entity.Models.CompanyServiceRole obj);
         Task<bool> Delete(int key);
         Task<ReturnObject> ListByCompanyId(int companyID, int status);
+        Task<bool> CheckGroupNameIfExists(int companyServiceId, string groupName);
     }
 
     public class ReturnObject
@@ -44,6 +45,17 @@ namespace xgca.data.CompanyServiceRole
         public Task<bool> ChangeStatus(entity.Models.CompanyServiceRole obj)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<bool> CheckGroupNameIfExists(int companyServiceId, string groupName)
+        {
+            var result = await _context.CompanyServiceRoles
+                .Where(c => c.CompanyServiceId == companyServiceId)
+                .Where(c => c.Name == groupName)
+                .Select(c => c.CompanyServiceRoleId)
+                .FirstOrDefaultAsync();
+
+            return result > 1 ? true : false;
         }
 
         public async Task<bool> Create(List<entity.Models.CompanyServiceRole> obj)
@@ -139,6 +151,9 @@ namespace xgca.data.CompanyServiceRole
         {
             var data = await _context.CompanyServiceRoles
                 .Where(cs => cs.Guid == key && cs.IsDeleted == 0)
+                .Include(c => c.CompanyServiceUsers)
+                    .ThenInclude(c => c.CompanyUsers)
+                    .ThenInclude(c => c.Users)
                 .Include(c => c.CompanyServices)
                 .ThenInclude(c => c.Companies)
                 .FirstOrDefaultAsync();
