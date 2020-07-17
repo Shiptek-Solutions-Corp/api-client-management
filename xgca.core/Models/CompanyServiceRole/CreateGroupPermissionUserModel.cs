@@ -10,14 +10,13 @@ namespace xgca.core.Models.CompanyServiceRole
         [Required]
         public string CompanyServiceGuid { get; set; }
 
-        [Required]
         public ICollection<CreateNewUserPerGroupModuleModel> CompanyServiceUsersArray { get; set; }
     }
 
     public class CreateNewUserPerGroupModuleModel
     {
-        [Required]
         public int CompanyServiceId { get; set; }
+
         [Required]
         public int CompanyUserId { get; set; }
         [Required]
