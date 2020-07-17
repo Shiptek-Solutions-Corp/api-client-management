@@ -147,7 +147,7 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
                 return Unauthorized(response);
             }
 
-            return Ok();
+            return Ok(response);
         }
     }
 }

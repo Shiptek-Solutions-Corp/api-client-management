@@ -170,6 +170,14 @@ namespace xgca.core.CompanyServiceRole
                     obj.CompanyServiceId = companyServiceId;
                     obj.CompanyServiceRoleId = companyServiceRole.CompanyServiceRoleId;
                     var companyServiceUser = _mapper.Map<entity.Models.CompanyServiceUser>(obj);
+
+                    // TODO: Change createdBy by logged in user
+                    companyServiceUser.IsActive = 1;
+                    companyServiceUser.CreatedBy = 1;
+                    companyServiceUser.CreatedOn = DateTime.UtcNow;
+                    companyServiceUser.ModifiedBy = 1;
+                    companyServiceUser.ModifiedOn = DateTime.UtcNow;
+                    companyServiceUser.Guid = Guid.NewGuid();
                     companyServiceUsers.Add(companyServiceUser);
                 }
 
