@@ -354,7 +354,9 @@ namespace xgca.core.CompanyUser
 
             foreach (var v in queryParams)
             {
-                queryString += $"{v.Key} = '{v.Value}' and ";
+                if (v.Key != "download" && v.Value != "all") {
+                    queryString += $"{v.Key} = '{v.Value}' and ";
+                }
             }
             //End
 
