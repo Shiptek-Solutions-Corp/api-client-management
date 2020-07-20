@@ -142,8 +142,34 @@ namespace xgca.core.CompanyServiceRole
 
             var services = await gLobalCmsService.GetAllService();
             var viewCompanyServiceRole = _mapper.Map<GetCompanyServiceRoleModel>(result);
-            viewCompanyServiceRole.CompanyServices.ServiceName = services.Where(c => c.IntServiceId == viewCompanyServiceRole.CompanyServices.ServiceId).FirstOrDefault().ServiceName;
             
+            viewCompanyServiceRole.CompanyServices.ServiceName = services.Where(c => c.IntServiceId == viewCompanyServiceRole.CompanyServices.ServiceId).FirstOrDefault().ServiceName;
+
+            bool deleteResult = await companyServiceUser.BulkDeleteByCompanyServiceRole(result.CompanyServiceRoleId);
+
+            if (!updateCompanyServiceRoleModel.CompanyServiceUsersArray.IsNullOrEmpty())
+            {
+                List<entity.Models.CompanyServiceUser> companyServiceUsers = new List<entity.Models.CompanyServiceUser>();
+
+                foreach (CreateNewUserPerGroupModuleModel obj in updateCompanyServiceRoleModel.CompanyServiceUsersArray)
+                {
+                    obj.CompanyServiceId = (int) result.CompanyServiceId;
+                    obj.CompanyServiceRoleId = result.CompanyServiceRoleId;
+                    var companyServiceUser = _mapper.Map<entity.Models.CompanyServiceUser>(obj);
+
+                    // TODO: Change createdBy by logged in user
+                    companyServiceUser.IsActive = 1;
+                    companyServiceUser.CreatedBy = 1;
+                    companyServiceUser.CreatedOn = DateTime.UtcNow;
+                    companyServiceUser.ModifiedBy = 1;
+                    companyServiceUser.ModifiedOn = DateTime.UtcNow;
+                    companyServiceUser.Guid = Guid.NewGuid();
+                    companyServiceUsers.Add(companyServiceUser);
+                }
+
+                var companyServiceUserResult = await companyServiceUser.BulkCreate(companyServiceUsers);
+            }
+
             return updateResult ?
                 _general.Response(viewCompanyServiceRole, 200, "Updated successfuly", true)
                 :

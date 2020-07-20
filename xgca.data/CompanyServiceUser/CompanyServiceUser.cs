@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Immutable;
 using LinqKit;
+using Z.EntityFramework.Plus;
 
 namespace xgca.data.CompanyServiceUser
 {
@@ -25,6 +26,7 @@ namespace xgca.data.CompanyServiceUser
         Task<bool> Update(entity.Models.CompanyServiceUser obj);
         Task<bool> UpdateServiceAndRole(int companyServiceUserId, int companyServiceId, int companyServiceRoleId, int modifiedById);
         Task<bool> Delete(int key);
+        Task<bool> BulkDeleteByCompanyServiceRole(int companyServiceRoleId);
         Task<List<entity.Models.CompanyUser>> ListUserWithNoDuplicateRole(
             int companyId, 
             int companyServiceRoleId = 0, 
@@ -211,6 +213,17 @@ namespace xgca.data.CompanyServiceUser
              _context.CompanyServiceUsers.AddRange(obj);
 
             var result = await _context.SaveChangesAsync();
+
+            return result > 0 ? true : false;
+        }
+
+        public async Task<bool> BulkDeleteByCompanyServiceRole(int companyServiceRoleId)
+        {
+           var data =  _context.CompanyServiceUsers
+               .Where(c => c.CompanyServiceRoleId == companyServiceRoleId);
+            _context.CompanyServiceUsers.RemoveRange(data);
+
+            var result = await  _context.SaveChangesAsync();
 
             return result > 0 ? true : false;
         }
