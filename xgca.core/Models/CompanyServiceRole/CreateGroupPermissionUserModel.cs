@@ -63,12 +63,32 @@ namespace xgca.core.Models.CompanyServiceRole
         public int ModuleGroupId { get; set; }
         public int ModuleId { get; set; }
         public int ResourceGroupId { get; set; }
+        public bool IsChecked { get; set; }
         public ResourceGroupModel ResourceGroups { get; set; }
+        public ICollection<GroupResourceModel> GroupResources { get; set; }
     }
     public class ResourceGroupModel
     {
         public int ResourceGroupId { get; set; }
         public string ResourceGroupName { get; set; }
+        public string Description { get; set; }
+        public string Guid { get; set; }
+    }
+    public class GroupResourceModel
+    {
+        public int GroupResourceId { get; set; }
+        public int ModuleGroupId { get; set; }
+        public int ResourceId { get; set; }
+        public string Guid { get; set; }
+        public ResourceModel Resources { get; set; }
+    }
+    public class ResourceModel
+    {
+        public int ResourceId { get; set; }
+        public string ResourceName { get; set; }
+        public string Path { get; set; }
+        public string method { get; set; }
+        public int AllowAnonymous { get; set; }
         public string Description { get; set; }
         public string Guid { get; set; }
     }

@@ -20,7 +20,7 @@ namespace xgca.core.CompanyGroupResource
     {
         Task<IGeneralModel> Create(CreateCompanyGroupResource createCompanyGroupResource);
         Task<IGeneralModel> Get(int id);
-        Task<IGeneralModel> GetAll();
+        Task<IGeneralModel> GetAll(string companyServiceRoleGuid);
     }
     public class CompanyGroupResource : ICompanyGroupResource
     {
@@ -68,9 +68,16 @@ namespace xgca.core.CompanyGroupResource
             return _general.Response(null, 400, "Invalid Module Group", false);
         }
 
-        public async Task<IGeneralModel> GetAll()
+        public async Task<IGeneralModel> GetAll(string companyServiceRoleGuid)
         {
-            var result = await _companyGroupResourceData.List();
+            int companyServiceRoleId = 0;
+
+            if (companyServiceRoleGuid != "")
+            {
+                companyServiceRoleId = await _companyServiceRoleData.GetIdByGuid(Guid.Parse(companyServiceRoleGuid));
+            }
+
+            var result = await _companyGroupResourceData.List(companyServiceRoleId);
             var viewModuleGroups = result.Select(d => _mapper.Map<GetCompanyGroupResource>(d)).ToList();
 
             return _general.Response(viewModuleGroups, 200, "Module Groups listed successfuly", true);
