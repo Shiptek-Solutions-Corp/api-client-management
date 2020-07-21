@@ -68,11 +68,16 @@ namespace xgca.core.Profile
             var serviceResponse = await _httpHelper.CustomGet(_options.Value.BaseUrl, $"{_options.Value.GetService}/{companyService.ServiceId}/guid", AuthToken.Contra);
             var json = (JObject)serviceResponse;
             string serviceKey = json["data"]["serviceId"].ToString();
-            var service = await _httpHelper.CustomGet(_options.Value.BaseUrl, _options.Value.GetServiceDetails.Replace("serviceId", serviceKey), AuthToken.Contra);
+            var service = await _httpHelper.CustomGet(_options.Value.BaseUrl, _options.Value.GetServiceDetails.Replace("{serviceId}", serviceKey), AuthToken.Contra);
             var serviceJson = (JObject)service;
 
             int companyUserId = user.CompanyUsers.CompanyUserId;
             var companyServiceUser = await _companyServiceUserData.Retrieve(companyUserId, companyServiceId);
+
+            if (companyServiceUser is null)
+            {
+                return _general.Response(null, 400, "No user role registered for selected service", false);
+            }
 
             dynamic data = new
             {
