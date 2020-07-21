@@ -41,6 +41,7 @@ namespace xgca.data.CompanyGroupResource
         {
             var data = _context.CompanyGroupResources
                 .Where(c => c.CompanyServiceRoleId == companyServiceRoleId);
+            _context.CompanyGroupResources.RemoveRange(data);
 
             var result = await _context.SaveChangesAsync();
 
