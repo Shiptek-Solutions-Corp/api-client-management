@@ -8,6 +8,7 @@ using xgca.core.CompanyService;
 using xgca.core.CompanyServiceRole;
 using xgca.core.Models.CompanyGroupResource;
 using xgca.core.Response;
+using xgca.core.Services;
 using xgca.data.CompanyGroupResource;
 using xgca.data.CompanyService;
 using xgca.data.CompanyServiceRole;
@@ -21,6 +22,8 @@ namespace xgca.core.CompanyGroupResource
         Task<IGeneralModel> Create(CreateCompanyGroupResource createCompanyGroupResource);
         Task<IGeneralModel> Get(int id);
         Task<IGeneralModel> GetAll(string companyServiceRoleGuid);
+        Task<IGeneralModel> GetAuthorizationDetails(string username, string token);
+
     }
     public class CompanyGroupResource : ICompanyGroupResource
     {
@@ -30,14 +33,15 @@ namespace xgca.core.CompanyGroupResource
         private readonly data.CompanyService.ICompanyService _companyServiceData;
         private readonly data.CompanyServiceRole.ICompanyServiceRole _companyServiceRoleData;
         private readonly ICompanyServiceUser _companyServiceUserData;
-
+        private readonly IGLobalCmsService gLobalCmsService;
         public CompanyGroupResource(
             ICompanyGroupResourceData companyGroupResourceData, 
             IMapper mapper, 
             IGeneral general,
             data.CompanyService.ICompanyService companyService,
             data.CompanyServiceRole.ICompanyServiceRole companyServiceRole,
-            ICompanyServiceUser companyServiceUser
+            ICompanyServiceUser companyServiceUser,
+            IGLobalCmsService gLobalCmsService
             )
         {
             _companyGroupResourceData = companyGroupResourceData;
@@ -46,6 +50,7 @@ namespace xgca.core.CompanyGroupResource
             _companyServiceData = companyService;
             _companyServiceRoleData = companyServiceRole;
             _companyServiceUserData = companyServiceUser;
+            this.gLobalCmsService = gLobalCmsService;
         }
 
         public async Task<IGeneralModel> Create(CreateCompanyGroupResource createCompanyGroupResource)
@@ -81,6 +86,13 @@ namespace xgca.core.CompanyGroupResource
             var viewModuleGroups = result.Select(d => _mapper.Map<GetCompanyGroupResource>(d)).ToList();
 
             return _general.Response(viewModuleGroups, 200, "Module Groups listed successfuly", true);
+        }
+
+        public async Task<IGeneralModel> GetAuthorizationDetails(string username, string token)
+        {
+            var result = await _companyGroupResourceData.GetAuthorizationDetails(username);
+            var resources = await gLobalCmsService.GetAllResourceByGroupResourceIds(result, token);
+            return _general.Response(resources, 200, "Success", true);
         }
     }
 }

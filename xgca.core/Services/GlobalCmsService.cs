@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using xgca.core.Helpers.Http;
+using xgca.core.Models.CompanyServiceRole;
 using xgca.core.Models.GlobalCms;
 using xgca.core.Models.RestApi;
 
@@ -14,6 +15,7 @@ namespace xgca.core.Services
     public interface IGLobalCmsService
     {
         Task<List<ServicesModel>> GetAllService();
+        Task<JArray> GetAllResourceByGroupResourceIds(int[] ids, string token);
     }
     public class GlobalCmsService : IGLobalCmsService
     {
@@ -31,9 +33,16 @@ namespace xgca.core.Services
             this.mapper = mapper;
         }
 
+        public async Task<JArray> GetAllResourceByGroupResourceIds(int[] ids, string token)
+        {
+            var response = await httpHelper.GetWithToken(options.Value.BaseUrl, options.Value.GetResourcesForAuthorization, new { ids = ids}, token);
+            var services = response.data["resources"] as JArray;
+            return services;
+        }
+
         public async Task<List<ServicesModel>> GetAllService()
         {
-            var response = await httpHelper.Get(this.options.Value.BaseUrl, this.options.Value.GetService);
+            var response = await httpHelper.Get(options.Value.BaseUrl, options.Value.GetService);
             var services = (response.data["services"] as JArray)?.ToObject<List<ServicesModel>>();
             return services;
         }

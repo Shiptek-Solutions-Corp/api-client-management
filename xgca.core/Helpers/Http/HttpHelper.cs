@@ -7,9 +7,29 @@ using System.Text;
 using System.Threading.Tasks;
 using xgca.core.Helpers.Http;
 using System.Net.Http.Headers;
+using xgca.core.Constants;
 
 namespace xgca.core.Helpers.Http
 {
+    public interface IHttpHelper
+    {
+        public Task<dynamic> Post(string endpointUrl, dynamic data, string token);
+
+        public Task<dynamic> CustomGet(string environment, string endpointUrl, string token);
+        public Task<dynamic> CustomGet(string environment, string endpointUrl);
+
+        public Task<dynamic> Get(string environment, string endpointUrl, string key);
+        public Task<dynamic> Get(string environment, string endpointUrl, string key, string token);
+        public Task<dynamic> Get(string environment, string endpointUrl);
+        public Task<dynamic> GetWithToken(string environment, string endpointUrl, dynamic data, string token);
+
+        public Task<dynamic> GetIdByGuid(string environment, string endpointUrl, string guid);
+        public Task<dynamic> GetIdByGuid(string environment, string endpointUrl, string guid, string token);
+        public Task<dynamic> GetGuidById(string environment, string endpointUrl, int id);
+        public Task<dynamic> GetGuidById(string environment, string endpointUrl, int id, string token);
+        public Task<dynamic> Put(string endpointUrl, dynamic data, string token);
+
+    }
     public class HttpHelper : IHttpHelper
     {
         private static HttpClient _httpClient = new HttpClient();
@@ -144,5 +164,22 @@ namespace xgca.core.Helpers.Http
             return responseData;
         }
 
+        public async Task<dynamic> GetWithToken(string environment, string endpointUrl, dynamic data, string token)
+        {
+            string apiUrl = environment + endpointUrl;
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            string json = JsonConvert.SerializeObject(data, Formatting.Indented);
+            var httpContent = new StringContent(json,
+                                    Encoding.UTF8,
+                                    "application/json");
+
+            var response = await _httpClient.PostAsync(apiUrl, httpContent);
+
+            var result = await response.Content.ReadAsStringAsync();
+            var responseData = JsonConvert.DeserializeObject(result);
+
+            return responseData;
+        }
     }
 }

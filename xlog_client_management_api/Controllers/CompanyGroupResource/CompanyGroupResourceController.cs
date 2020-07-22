@@ -56,5 +56,21 @@ namespace xlog_client_management_api.Controllers.CompanyGroupResource
             }
             return BadRequest(result);
         }
+
+        [HttpGet("authorization")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetAuthorizationDetails()
+        {
+            var token = Request.Headers["Authorization"].ToString();
+            var username = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
+            var result = await _companyGroupResource.GetAuthorizationDetails(username, token);
+
+            if (result.statusCode == 200)
+            {
+                return Ok(result);
+            }
+
+            return BadRequest(result);
+        }
     }
 }
