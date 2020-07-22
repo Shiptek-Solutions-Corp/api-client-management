@@ -143,6 +143,7 @@ namespace xlog_client_management_api
                 o.GetState = Configuration.GetSection("GlobalCmsService:GetState").Value;
                 o.GetCity = Configuration.GetSection("GlobalCmsService:GetCity").Value;
                 o.GetUserType = Configuration.GetSection("GlobalCmsService:GetUserType").Value;
+                o.GetResourcesForAuthorization = Configuration.GetSection("GlobalCmsService:GetResourcesForAuthorization").Value;
             });
 
             services.Configure<OptimusAuthService>(o => {

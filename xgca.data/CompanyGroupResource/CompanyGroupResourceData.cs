@@ -18,6 +18,7 @@ namespace xgca.data.CompanyGroupResource
         Task<bool> BlukCreate(List<entity.Models.CompanyGroupResource> obj);
         Task<bool> BulkDeleteByCompanyServiceRole(int companyServiceRoleId);
 
+        Task<int[]> GetAuthorizationDetails(string username);
 
     }
     public class CompanyGroupResourceData : IMaintainable<entity.Models.CompanyGroupResource>, ICompanyGroupResourceData
@@ -59,6 +60,20 @@ namespace xgca.data.CompanyGroupResource
             var result = await _context.SaveChangesAsync();
 
             return result > 0 ? true : false;
+        }
+
+        public async Task<int[]> GetAuthorizationDetails(string username)
+        {
+            var test = await _context.Users
+                .Where(u => u.Username == username)
+                .Select(u => u.CompanyUsers)
+                .SelectMany(cu => cu.CompanyServiceUsers)
+                .Select(cu => cu.CompanyServiceRoles)
+                .SelectMany(csr => csr.CompanyGroupResources)
+                .Select(csr => csr.GroupResourceId)
+                .ToArrayAsync();
+
+            return test;
         }
 
         public async Task<List<entity.Models.CompanyGroupResource>> List(int companyServiceRoleGuid)
