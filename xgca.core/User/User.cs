@@ -662,6 +662,7 @@ namespace xgca.core.User
         public async Task<IGeneralModel> RetrieveByUsername(string username)
         {
             var data = await _userData.RetrieveByUsername(username);
+            var companyServiceUsers = await _coreCompanyServiceUser.ListUserServiceRolesByCompanyUserId(data.CompanyUsers.CompanyUserId);
             if (data == null)
             {
                 return _general.Response(null, 400, "Selected user might have been deleted or does not exists", false);
@@ -691,7 +692,8 @@ namespace xgca.core.User
                     data.ContactDetails.MobilePrefixId,
                     data.ContactDetails.MobilePrefix,
                     data.ContactDetails.Mobile,
-                }
+                },
+                Roles = new { companyServiceUsers.data.data }
             };
 
             return _general.Response(result, 200, "Configurable information for selected user has been displayed", true);
