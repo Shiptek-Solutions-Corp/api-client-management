@@ -22,7 +22,7 @@ namespace xgca.core.CompanyGroupResource
         Task<IGeneralModel> Create(CreateCompanyGroupResource createCompanyGroupResource);
         Task<IGeneralModel> Get(int id);
         Task<IGeneralModel> GetAll(string companyServiceRoleGuid);
-        Task<IGeneralModel> GetAuthorizationDetails(string username, string token);
+        Task<IGeneralModel> GetAuthorizationDetails(string username);
 
     }
     public class CompanyGroupResource : ICompanyGroupResource
@@ -88,10 +88,10 @@ namespace xgca.core.CompanyGroupResource
             return _general.Response(viewModuleGroups, 200, "Module Groups listed successfuly", true);
         }
 
-        public async Task<IGeneralModel> GetAuthorizationDetails(string username, string token)
+        public async Task<IGeneralModel> GetAuthorizationDetails(string username)
         {
             var result = await _companyGroupResourceData.GetAuthorizationDetails(username);
-            var resources = await gLobalCmsService.GetAllResourceByGroupResourceIds(result, token);
+            var resources = await gLobalCmsService.GetAllResourceByGroupResourceIds(result);
             return _general.Response(resources, 200, "Success", true);
         }
     }
