@@ -126,7 +126,9 @@ namespace xgca.core.CompanyServiceRole
             }
             var services = await gLobalCmsService.GetAllService();
             var viewCompanyServiceRole = _mapper.Map<GetCompanyServiceRoleModel>(result);
-            viewCompanyServiceRole.CompanyServices.ServiceName = services.Where(c => c.IntServiceId == viewCompanyServiceRole.CompanyServices.ServiceId).FirstOrDefault().ServiceName;
+            var service = services.Where(c => c.IntServiceId == viewCompanyServiceRole.CompanyServices.ServiceId).FirstOrDefault();
+            viewCompanyServiceRole.CompanyServices.ServiceName = service.ServiceName;
+            viewCompanyServiceRole.CompanyServices.Guid = service.ServiceId;
 
             return _general.Response(viewCompanyServiceRole, 200, "Success", true);
         }
