@@ -36,8 +36,12 @@ namespace xgca.core.Services
         public async Task<JArray> GetAllResourceByGroupResourceIds(int[] ids, string token)
         {
             var response = await httpHelper.GetWithToken(options.Value.BaseUrl, options.Value.GetResourcesForAuthorization, new { ids = ids}, token);
-            var services = response.data["resources"] as JArray;
-            return services;
+            if (response.data != null)
+            {
+                var services = response.data?["resources"] as JArray;
+                return services;
+            }
+            return new JArray { };
         }
 
         public async Task<List<ServicesModel>> GetAllService()
