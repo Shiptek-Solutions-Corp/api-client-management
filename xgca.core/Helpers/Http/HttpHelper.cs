@@ -21,7 +21,7 @@ namespace xgca.core.Helpers.Http
         public Task<dynamic> Get(string environment, string endpointUrl, string key);
         public Task<dynamic> Get(string environment, string endpointUrl, string key, string token);
         public Task<dynamic> Get(string environment, string endpointUrl);
-        public Task<dynamic> GetWithToken(string environment, string endpointUrl, dynamic data, string token);
+        public Task<dynamic> PostGetResource(string environment, string endpointUrl, dynamic data);
 
         public Task<dynamic> GetIdByGuid(string environment, string endpointUrl, string guid);
         public Task<dynamic> GetIdByGuid(string environment, string endpointUrl, string guid, string token);
@@ -164,10 +164,9 @@ namespace xgca.core.Helpers.Http
             return responseData;
         }
 
-        public async Task<dynamic> GetWithToken(string environment, string endpointUrl, dynamic data, string token)
+        public async Task<dynamic> PostGetResource(string environment, string endpointUrl, dynamic data)
         {
             string apiUrl = environment + endpointUrl;
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Replace("Bearer ", ""));
 
             string json = JsonConvert.SerializeObject(data, Formatting.Indented);
             var httpContent = new StringContent(json,

@@ -15,7 +15,7 @@ namespace xgca.core.Services
     public interface IGLobalCmsService
     {
         Task<List<ServicesModel>> GetAllService();
-        Task<JArray> GetAllResourceByGroupResourceIds(int[] ids, string token);
+        Task<JArray> GetAllResourceByGroupResourceIds(int[] ids);
     }
     public class GlobalCmsService : IGLobalCmsService
     {
@@ -33,9 +33,9 @@ namespace xgca.core.Services
             this.mapper = mapper;
         }
 
-        public async Task<JArray> GetAllResourceByGroupResourceIds(int[] ids, string token)
+        public async Task<JArray> GetAllResourceByGroupResourceIds(int[] ids)
         {
-            var response = await httpHelper.GetWithToken(options.Value.BaseUrl, options.Value.GetResourcesForAuthorization, new { ids = ids}, token);
+            var response = await httpHelper.PostGetResource(options.Value.BaseUrl, options.Value.GetResourcesForAuthorization, new { ids = ids});
             if (response.data != null)
             {
                 var services = response.data?["resources"] as JArray;
