@@ -167,7 +167,7 @@ namespace xgca.core.Helpers.Http
         public async Task<dynamic> GetWithToken(string environment, string endpointUrl, dynamic data, string token)
         {
             string apiUrl = environment + endpointUrl;
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Replace("Bearer ", ""));
 
             string json = JsonConvert.SerializeObject(data, Formatting.Indented);
             var httpContent = new StringContent(json,
