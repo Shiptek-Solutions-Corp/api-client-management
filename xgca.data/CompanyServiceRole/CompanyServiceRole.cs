@@ -46,27 +46,28 @@ namespace xgca.data.CompanyServiceRole
 
         public async Task<bool> BulkUpdate(ICollection<Guid> guids, string type)
         {
-            var action = new entity.Models.CompanyServiceRole();
+            int result = 0;
 
             switch (type.ToLower())
             {
                 case "enable":
-                    action = new entity.Models.CompanyServiceRole() { IsActive = 1 };
+                    result =  _context.CompanyServiceRoles
+                       .Where(csr => guids.Contains(csr.Guid))
+                       .Update(csr => new entity.Models.CompanyServiceRole() { IsActive = 1 });
                     break;
                 case "disable":
-                    action = new entity.Models.CompanyServiceRole() { IsActive = 0 };
+                    result = _context.CompanyServiceRoles
+                       .Where(csr => guids.Contains(csr.Guid))
+                       .Update(csr => new entity.Models.CompanyServiceRole() { IsActive = 0 });
                     break;
                 case "delete":
-                    action = new entity.Models.CompanyServiceRole() { IsDeleted = 1 };
+                    result = _context.CompanyServiceRoles
+                       .Where(csr => guids.Contains(csr.Guid))
+                       .Update(csr => new entity.Models.CompanyServiceRole() { IsDeleted = 1 });
                     break;
                 default:
                     break;
             }
-
-             _context.CompanyServiceRoles
-                .Where(csr => guids.Contains(csr.Guid))
-                .Update(csr => action);
-            var result = await _context.SaveChangesAsync();
 
             return result > 0 ? true : false;
         }
@@ -134,7 +135,8 @@ namespace xgca.data.CompanyServiceRole
             var data = _context.CompanyServiceRoles;
             var predicate = PredicateBuilder.New<entity.Models.CompanyServiceRole>();
 
-            predicate.And(c => c.CompanyServices.CompanyId == companyID);
+            predicate.And(c => c.CompanyServices.CompanyId == companyID)
+                .And(c => c.IsDeleted == 0);
 
             var query = data.Where(predicate)
                 .Include(c => c.CompanyServices)
