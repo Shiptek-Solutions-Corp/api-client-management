@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using xgca.core.CompanyServiceRole;
 using xgca.core.Models.CompanyServiceRole;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 
 namespace xlog_client_management_api.Controllers.CompanyServiceRole
 {
@@ -137,6 +138,28 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
         {
 
             var response = await _companyServiceRole.CreateGroupPermissionUser(createGroupPermissionUserModel);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Route("company-service-role")]
+        [HttpPut]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> BatchUpdate([FromBody] BatchUpdateCompanyServiceRoleModel batchUpdateCompanyServiceRoleModel)
+        {
+            var response = await _companyServiceRole.BatchUpdate(batchUpdateCompanyServiceRoleModel);
 
             if (response.statusCode == 400)
             {

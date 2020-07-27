@@ -6,6 +6,7 @@ using xgca.entity;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using LinqKit;
+using Z.EntityFramework.Plus;
 
 namespace xgca.data.CompanyServiceRole
 {
@@ -24,6 +25,7 @@ namespace xgca.data.CompanyServiceRole
         Task<bool> Delete(int key);
         Task<ReturnObject> ListByCompanyId(int companyID, int status);
         Task<bool> CheckGroupNameIfExists(int companyServiceId, string groupName);
+        Task<bool> BulkUpdate(ICollection<Guid> ids, string type);
     }
 
     public class ReturnObject
@@ -40,6 +42,33 @@ namespace xgca.data.CompanyServiceRole
         public CompanyServiceRole(IXGCAContext context)
         {
             _context = context;
+        }
+
+        public async Task<bool> BulkUpdate(ICollection<Guid> guids, string type)
+        {
+            var action = new entity.Models.CompanyServiceRole();
+
+            switch (type.ToLower())
+            {
+                case "enable":
+                    action = new entity.Models.CompanyServiceRole() { IsActive = 1 };
+                    break;
+                case "disable":
+                    action = new entity.Models.CompanyServiceRole() { IsActive = 0 };
+                    break;
+                case "delete":
+                    action = new entity.Models.CompanyServiceRole() { IsDeleted = 1 };
+                    break;
+                default:
+                    break;
+            }
+
+             _context.CompanyServiceRoles
+                .Where(csr => guids.Contains(csr.Guid))
+                .Update(csr => action);
+            var result = await _context.SaveChangesAsync();
+
+            return result > 0 ? true : false;
         }
 
         public Task<bool> ChangeStatus(entity.Models.CompanyServiceRole obj)
