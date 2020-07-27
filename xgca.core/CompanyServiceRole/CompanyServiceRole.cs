@@ -29,6 +29,8 @@ namespace xgca.core.CompanyServiceRole
         Task<IGeneralModel> Show(Guid companyServiceRoleId);
         Task<IGeneralModel> Update(UpdateCompanyServiceRoleModel updateCompanyServiceRoleModel, Guid companyServiceRoleId);
         Task<IGeneralModel> CreateGroupPermissionUser(CreateGroupPermissionUserModel createGroupPermissionUser);
+        Task<IGeneralModel> BatchUpdate(BatchUpdateCompanyServiceRoleModel batchUpdateCompanyServiceRoleModel);
+
     }
 
     public class CompanyServiceRole : ICompanyServiceRole
@@ -280,6 +282,17 @@ namespace xgca.core.CompanyServiceRole
             }
 
             return companyGroupResources;
+        }
+
+        public async Task<IGeneralModel> BatchUpdate(BatchUpdateCompanyServiceRoleModel batchUpdateCompanyServiceRoleModel)
+        {
+            ICollection<Guid> guids = batchUpdateCompanyServiceRoleModel.Guids.Select(x => Guid.Parse(x)).ToList();
+
+            bool result = await _companyServiceRole.BulkUpdate(guids, batchUpdateCompanyServiceRoleModel.Type);
+
+            return result 
+                ? _general.Response(null, 200, "Updated Successfuly", true) 
+                : _general.Response(null, 400, "An error occured", true);
         }
     }
 }
