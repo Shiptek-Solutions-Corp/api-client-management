@@ -135,8 +135,8 @@ namespace xgca.data.CompanyServiceRole
             var data = _context.CompanyServiceRoles;
             var predicate = PredicateBuilder.New<entity.Models.CompanyServiceRole>();
 
-            predicate.And(c => c.CompanyServices.CompanyId == companyID)
-                .And(c => c.IsDeleted == 0);
+            predicate.And(c => c.IsDeleted == 0)
+                .And(c => c.CompanyServices.CompanyId == companyID);
 
             var query = data.Where(predicate)
                 .Include(c => c.CompanyServices)
