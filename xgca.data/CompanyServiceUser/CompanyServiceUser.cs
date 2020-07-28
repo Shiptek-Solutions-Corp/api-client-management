@@ -113,6 +113,7 @@ namespace xgca.data.CompanyServiceUser
                 .Include(cu => cu.CompanyUsers)
                     .ThenInclude(u => u.Users)
                 .Include(csr => csr.CompanyServiceRoles)
+                .Where(csr => csr.CompanyServiceRoles.IsDeleted == 0)
                 .Where(csu => csu.CompanyUserId == companyUserId)
                 .ToListAsync();
 
