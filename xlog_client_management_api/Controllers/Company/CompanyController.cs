@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using xlog_client_management_api;
 
 namespace xlog_company_service_api.Controllers.Company
 {
@@ -44,6 +45,7 @@ namespace xlog_company_service_api.Controllers.Company
         [Route("company/details")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
+        [TokenAuthorize("scope", "companyInformation.get")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -111,6 +113,7 @@ namespace xlog_company_service_api.Controllers.Company
         [Route("company")]
         [HttpPut]
         [Authorize(AuthenticationSchemes = "Bearer")]
+        [TokenAuthorize("scope", "companyInformation.put")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
