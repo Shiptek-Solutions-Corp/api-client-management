@@ -78,6 +78,9 @@ namespace xgca.data.CompanyServiceRole
                             .Where(c => c.CompanyServiceRoleId == item.CompanyServiceRoleId);
                         _context.CompanyServiceUsers.RemoveRange(companyServiceUser);
                     }
+                    _context.CompanyServiceRoles.RemoveRange(test);
+
+                     result = await _context.SaveChangesAsync();
 
                     break;
                 default:
