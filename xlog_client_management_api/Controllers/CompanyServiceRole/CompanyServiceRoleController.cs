@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using xgca.core.CompanyServiceRole;
 using xgca.core.Models.CompanyServiceRole;
 using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+using xgca.core.Helpers;
 
 namespace xlog_client_management_api.Controllers.CompanyServiceRole
 {
@@ -22,6 +23,7 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
         public CompanyServiceRoleController(ICompanyServiceRole companyServiceRole)
         {
             _companyServiceRole = companyServiceRole;
+            Constant.loggedInUserName =  Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
         }
 
         [Route("company/services/role")]

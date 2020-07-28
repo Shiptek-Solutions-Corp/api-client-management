@@ -19,6 +19,7 @@ using xgca.core.CompanyServiceUser;
 using Castle.Core.Internal;
 using xgca.core.AuditLog;
 using xgca.data.AuditLog;
+using xgca.data.User;
 
 namespace xgca.core.CompanyServiceRole
 {
@@ -45,8 +46,8 @@ namespace xgca.core.CompanyServiceRole
         private readonly IGLobalCmsService gLobalCmsService;
         private readonly data.CompanyServiceUser.ICompanyServiceUser companyServiceUser;
         private readonly data.CompanyGroupResource.ICompanyGroupResourceData companyGroupResourceData;
-        private readonly IAuditLogHelper auditLogHelper;
-        private readonly IAuditLogData auditLogData;
+        private readonly IUserData userData;
+        private readonly IAuditLogCore auditLogCore;
         public CompanyServiceRole(xgca.data.CompanyServiceRole.ICompanyServiceRole companyServiceRole,
             xgca.data.CompanyService.ICompanyService companyService, IGeneral general, 
             IMapper mapper, 
@@ -55,7 +56,9 @@ namespace xgca.core.CompanyServiceRole
             data.CompanyServiceUser.ICompanyServiceUser companyServiceUser,
             data.CompanyGroupResource.ICompanyGroupResourceData companyGroupResourceData,
             IAuditLogHelper auditLogHelper,
-            IAuditLogData auditLogData)
+            IAuditLogData auditLogData,
+            IUserData userData,
+            IAuditLogCore auditLogCore)
         {
             _companyServiceRole = companyServiceRole;
             _companyService = companyService;
@@ -65,8 +68,8 @@ namespace xgca.core.CompanyServiceRole
             this.gLobalCmsService = gLobalCmsService;
             this.companyServiceUser = companyServiceUser;
             this.companyGroupResourceData = companyGroupResourceData;
-            this.auditLogHelper = auditLogHelper;
-            this.auditLogData = auditLogData;
+            this.userData = userData;
+            this.auditLogCore = auditLogCore;
         }
 
         public async Task<IGeneralModel> CreateDefault(int companyId, int userId)
@@ -240,7 +243,15 @@ namespace xgca.core.CompanyServiceRole
 
                 var companyServiceUserResult = await companyServiceUser.BulkCreate(companyServiceUsers);
             }
-
+            
+            await auditLogCore.CreateAuditLog(
+                "Create", 
+                companyServiceRole.GetType().Name, 
+                companyServiceRole.CompanyServiceRoleId, 
+                await userData.GetIdByUsername(Constant.loggedInUserName), 
+                companyServiceRole, 
+                null);
+            
             return _general.Response(null, 200, "Created successfuly", true);
         }
 

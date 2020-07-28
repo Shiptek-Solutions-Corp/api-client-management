@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace xgca.core.Helpers
 {
-    public static class Constants
+    public static class Constant
     {
+        public static string loggedInUserName;
+
         public static bool IsPropertyExist(dynamic settings, string name)
         {
             if (settings is ExpandoObject)
