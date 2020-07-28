@@ -243,7 +243,8 @@ namespace xgca.core.CompanyServiceUser
                 {
                     CompanyServiceuserId = companyServiceUser.Guid.ToString(),
                     CompanyServiceId = companyServiceData.Guid.ToString(),
-                    CompanyServiceRoleId = CompanyServiceRoleData.Guid.ToString(),
+                    CompanyServiceRoleId = CompanyServiceRoleData != null ? CompanyServiceRoleData.Guid.ToString() : null,
+                    ServiceId = (serviceObj)["data"]["service"]["serviceId"].ToString(),
                     //Fullname = _userHelper.GetUserFullname(companyServiceUser.CompanyUsers.Users),
                     //EmailAddress = companyServiceUser.CompanyUsers.Users.EmailAddress,
                     //ImageURL = companyServiceUser.CompanyUsers.Users.ImageURL,
