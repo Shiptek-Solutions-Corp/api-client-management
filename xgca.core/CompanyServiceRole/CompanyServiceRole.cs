@@ -17,6 +17,8 @@ using xgca.core.Services;
 using xgca.entity.Models;
 using xgca.core.CompanyServiceUser;
 using Castle.Core.Internal;
+using xgca.core.AuditLog;
+using xgca.data.AuditLog;
 
 namespace xgca.core.CompanyServiceRole
 {
@@ -43,13 +45,17 @@ namespace xgca.core.CompanyServiceRole
         private readonly IGLobalCmsService gLobalCmsService;
         private readonly data.CompanyServiceUser.ICompanyServiceUser companyServiceUser;
         private readonly data.CompanyGroupResource.ICompanyGroupResourceData companyGroupResourceData;
+        private readonly IAuditLogHelper auditLogHelper;
+        private readonly IAuditLogData auditLogData;
         public CompanyServiceRole(xgca.data.CompanyServiceRole.ICompanyServiceRole companyServiceRole,
             xgca.data.CompanyService.ICompanyService companyService, IGeneral general, 
             IMapper mapper, 
             ICompanyData companyData,
             IGLobalCmsService gLobalCmsService,
             data.CompanyServiceUser.ICompanyServiceUser companyServiceUser,
-            data.CompanyGroupResource.ICompanyGroupResourceData companyGroupResourceData)
+            data.CompanyGroupResource.ICompanyGroupResourceData companyGroupResourceData,
+            IAuditLogHelper auditLogHelper,
+            IAuditLogData auditLogData)
         {
             _companyServiceRole = companyServiceRole;
             _companyService = companyService;
@@ -59,6 +65,8 @@ namespace xgca.core.CompanyServiceRole
             this.gLobalCmsService = gLobalCmsService;
             this.companyServiceUser = companyServiceUser;
             this.companyGroupResourceData = companyGroupResourceData;
+            this.auditLogHelper = auditLogHelper;
+            this.auditLogData = auditLogData;
         }
 
         public async Task<IGeneralModel> CreateDefault(int companyId, int userId)

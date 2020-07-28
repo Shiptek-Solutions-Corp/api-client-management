@@ -61,9 +61,24 @@ namespace xgca.data.CompanyServiceRole
                        .Update(csr => new entity.Models.CompanyServiceRole() { IsActive = 0 });
                     break;
                 case "delete":
-                    result = _context.CompanyServiceRoles
+                    //result = _context.CompanyServiceRoles
+                    //   .Where(csr => guids.Contains(csr.Guid))
+                    //   .Update(csr => new entity.Models.CompanyServiceRole() { IsDeleted = 1 });
+                    var test = _context.CompanyServiceRoles
                        .Where(csr => guids.Contains(csr.Guid))
-                       .Update(csr => new entity.Models.CompanyServiceRole() { IsDeleted = 1 });
+                       .ToList();
+
+                    foreach (var item in test)
+                    {
+                        var groupResources = _context.CompanyGroupResources
+                            .Where(c => c.CompanyServiceRoleId == item.CompanyServiceRoleId);
+                        _context.CompanyGroupResources.RemoveRange(groupResources);
+
+                        var companyServiceUser = _context.CompanyServiceUsers
+                            .Where(c => c.CompanyServiceRoleId == item.CompanyServiceRoleId);
+                        _context.CompanyServiceUsers.RemoveRange(companyServiceUser);
+                    }
+
                     break;
                 default:
                     break;

@@ -191,7 +191,7 @@ namespace xgca.data.CompanyServiceUser
             }
             if (companyServiceId > 1)
             {
-                predicate = predicate.And(c => !c.CompanyServiceUsers.Any(c => c.CompanyServiceId == companyServiceId));
+                predicate = predicate.And(c => !c.CompanyServiceUsers.Any(c => c.CompanyServiceId == companyServiceId) || c.CompanyServiceUsers == null);
             }
 
             if (companyServiceRoleId > 1)
