@@ -69,6 +69,7 @@ namespace xgca.data.CompanyGroupResource
                 .Select(u => u.CompanyUsers)
                 .SelectMany(cu => cu.CompanyServiceUsers)
                 .Select(cu => cu.CompanyServiceRoles)
+                .Where(cu => cu.IsActive == 1)
                 .SelectMany(csr => csr.CompanyGroupResources)
                 .Select(csr => csr.GroupResourceId)
                 .ToArrayAsync();
