@@ -86,6 +86,7 @@ namespace xgca.core.Profile
                     CompanyId = company.Guid,
                     Name = company.CompanyName,
                     Image = company.ImageURL,
+                    CompanyServiceId = companyService.Guid,
                     ServiceId = serviceKey,
                     Service = serviceJson["data"]["service"]["name"],
                 },
