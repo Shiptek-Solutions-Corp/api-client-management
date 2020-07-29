@@ -108,8 +108,27 @@ namespace xgca.core.AuditLog
                 ids,
                 companyServiceRoleId);
 
+
+            List<ListAuditLogModel> logs = new List<ListAuditLogModel>();
+
+            foreach (var d in result)
+            {
+                var user = await _user.Retrieve(d.CreatedBy);
+
+                logs.Add(new ListAuditLogModel
+                {
+                    AuditLogId = d.AuditLogId.ToString(),
+                    AuditLogAction = d.AuditLogAction,
+                    CreatedBy = (d.CreatedBy == 0) ? "System" : d.CreatedByName,
+                    Username = !(user.Username is null) ? (d.CreatedBy == 0 ? "system" : user.Username) : "Not Set",
+                    CreatedOn = d.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat),
+                    OldValue = d.OldValue,
+                    NewValue = d.NewValue
+                });
+            }
+
             // TODO: Use automapper to map result
-            return _general.Response(result, 200, "Success", false);
+            return _general.Response(new { Logs = logs }, 200, "Success", false);
         }
 
         public async Task<IGeneralModel> ListByTableNameAndKeyFieldId(string tableName, int keyFieldId)

@@ -29,6 +29,22 @@ using Amazon.Runtime.Internal;
 
 namespace xgca.core.Company
 {
+    public interface ICompany
+    {
+        Task<IGeneralModel> List();
+        Task<IGeneralModel> Create(CreateCompanyModel obj, string createdBy);
+        Task<IGeneralModel> CreateAndReturnId(CreateCompanyModel obj);
+        Task<IGeneralModel> InitialRegistration(InitialRegistrationModel obj);
+        Task<IGeneralModel> Update(UpdateCompanyModel obj);
+        Task<IGeneralModel> Update(UpdateCompanyModel obj, string modifiedBy);
+        Task<IGeneralModel> Retrieve(int companyId);
+        Task<IGeneralModel> Retrieve(string companyId);
+        Task<IGeneralModel> Delete(string key, string username);
+        Task<IGeneralModel> GetIdByGuid(string key);
+        Task<int> GetIdByGuid(Guid key);
+        Task<IGeneralModel> ListCompanyLogs(int companyId);
+        Task<IGeneralModel> ListCompanyLogs(string companyId);
+    }
     public class Company : ICompany
     {
         private readonly ICompanyData _companyData;
