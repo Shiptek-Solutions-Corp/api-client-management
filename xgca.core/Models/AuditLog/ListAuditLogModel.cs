@@ -9,5 +9,7 @@ namespace xgca.core.Models.AuditLog
         public string CreatedBy { get; set; }
         public string Username { get; set; }
         public string CreatedOn { get; set; }
+        public string OldValue { get; set; }
+        public string NewValue { get; set; }
     }
 }
