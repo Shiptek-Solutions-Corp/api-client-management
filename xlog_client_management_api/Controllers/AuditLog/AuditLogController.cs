@@ -63,5 +63,30 @@ namespace xlog_client_management_api.Controllers.AuditLog
 
             return Ok(response);
         }
+
+        [Route("audit-logs")]
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetCompanyServiceRoleLogs(
+            [FromQuery] string type, 
+            [FromQuery] string companyServiceGuid = "", 
+            [FromQuery] string keyGuid = "")
+        {
+            var response = await _auditLog.GetCompanyServiceRoleLogs(type, companyServiceGuid, keyGuid);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
     }
 }

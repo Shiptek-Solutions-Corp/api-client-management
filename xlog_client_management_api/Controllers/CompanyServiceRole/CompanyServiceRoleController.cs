@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using xgca.core.CompanyServiceRole;
 using xgca.core.Models.CompanyServiceRole;
 using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+using xgca.core.Helpers;
 
 namespace xlog_client_management_api.Controllers.CompanyServiceRole
 {
@@ -119,6 +120,7 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
             var isValidGuid = Guid.TryParse(companyServiceRoleId, out var guid);
             if (!isValidGuid) return BadRequest("Invalid id");
 
+            Constant.loggedInUserName = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
             var response = await _companyServiceRole.Update(updateCompanyServiceRoleModel, guid);
 
             if (response.statusCode == 400)
@@ -143,6 +145,8 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
         public async Task<IActionResult> CreateGroupPermissionUser([FromBody] CreateGroupPermissionUserModel createGroupPermissionUserModel)
         {
 
+            Constant.loggedInUserName = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
+
             var response = await _companyServiceRole.CreateGroupPermissionUser(createGroupPermissionUserModel);
 
             if (response.statusCode == 400)
@@ -166,6 +170,8 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> BatchUpdate([FromBody] BatchUpdateCompanyServiceRoleModel batchUpdateCompanyServiceRoleModel)
         {
+            Constant.loggedInUserName = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
+
             var response = await _companyServiceRole.BatchUpdate(batchUpdateCompanyServiceRoleModel);
 
             if (response.statusCode == 400)
