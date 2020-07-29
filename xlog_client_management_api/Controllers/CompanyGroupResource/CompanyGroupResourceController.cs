@@ -19,7 +19,7 @@ namespace xlog_client_management_api.Controllers.CompanyGroupResource
         }
 
         [HttpPost]
-        //[Authorize(AuthenticationSchemes = "Bearer")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> Create([FromBody] CreateCompanyGroupResource createCompanyGroupResource)
         {
             var result = await _companyGroupResource.Create(createCompanyGroupResource);
@@ -33,9 +33,9 @@ namespace xlog_client_management_api.Controllers.CompanyGroupResource
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] string companyServiceRoleGuid = "")
         {
-            var result = await _companyGroupResource.GetAll();
+            var result = await _companyGroupResource.GetAll(companyServiceRoleGuid);
 
             if (result.statusCode == 200)
             {
@@ -54,6 +54,19 @@ namespace xlog_client_management_api.Controllers.CompanyGroupResource
             {
                 return Ok(result);
             }
+            return BadRequest(result);
+        }
+
+        [HttpGet("authorization/{username}")]
+        public async Task<IActionResult> GetAuthorizationDetails([FromRoute] string username)
+        {
+            var result = await _companyGroupResource.GetAuthorizationDetails(username);
+
+            if (result.statusCode == 200)
+            {
+                return Ok(result);
+            }
+
             return BadRequest(result);
         }
     }

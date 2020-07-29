@@ -6,6 +6,7 @@ using xgca.entity;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using LinqKit;
+using Z.EntityFramework.Plus;
 
 namespace xgca.data.CompanyServiceRole
 {
@@ -24,6 +25,7 @@ namespace xgca.data.CompanyServiceRole
         Task<bool> Delete(int key);
         Task<ReturnObject> ListByCompanyId(int companyID, int status);
         Task<bool> CheckGroupNameIfExists(int companyServiceId, string groupName);
+        Task<bool> BulkUpdate(ICollection<Guid> ids, string type);
     }
 
     public class ReturnObject
@@ -40,6 +42,52 @@ namespace xgca.data.CompanyServiceRole
         public CompanyServiceRole(IXGCAContext context)
         {
             _context = context;
+        }
+
+        public async Task<bool> BulkUpdate(ICollection<Guid> guids, string type)
+        {
+            int result = 0;
+
+            switch (type.ToLower())
+            {
+                case "enable":
+                    result =  _context.CompanyServiceRoles
+                       .Where(csr => guids.Contains(csr.Guid))
+                       .Update(csr => new entity.Models.CompanyServiceRole() { IsActive = 1 });
+                    break;
+                case "disable":
+                    result = _context.CompanyServiceRoles
+                       .Where(csr => guids.Contains(csr.Guid))
+                       .Update(csr => new entity.Models.CompanyServiceRole() { IsActive = 0 });
+                    break;
+                case "delete":
+                    //result = _context.CompanyServiceRoles
+                    //   .Where(csr => guids.Contains(csr.Guid))
+                    //   .Update(csr => new entity.Models.CompanyServiceRole() { IsDeleted = 1 });
+                    var test = _context.CompanyServiceRoles
+                       .Where(csr => guids.Contains(csr.Guid))
+                       .ToList();
+
+                    foreach (var item in test)
+                    {
+                        var groupResources = _context.CompanyGroupResources
+                            .Where(c => c.CompanyServiceRoleId == item.CompanyServiceRoleId);
+                        _context.CompanyGroupResources.RemoveRange(groupResources);
+
+                        var companyServiceUser = _context.CompanyServiceUsers
+                            .Where(c => c.CompanyServiceRoleId == item.CompanyServiceRoleId);
+                        _context.CompanyServiceUsers.RemoveRange(companyServiceUser);
+                    }
+                    _context.CompanyServiceRoles.RemoveRange(test);
+
+                     result = await _context.SaveChangesAsync();
+
+                    break;
+                default:
+                    break;
+            }
+
+            return result > 0 ? true : false;
         }
 
         public Task<bool> ChangeStatus(entity.Models.CompanyServiceRole obj)
@@ -108,6 +156,7 @@ namespace xgca.data.CompanyServiceRole
             predicate.And(c => c.CompanyServices.CompanyId == companyID);
 
             var query = data.Where(predicate)
+                .Where(c => c.IsDeleted == 0)
                 .Include(c => c.CompanyServices)
                     .ThenInclude(c => c.Companies);
 

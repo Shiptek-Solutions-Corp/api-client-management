@@ -17,6 +17,8 @@ using xgca.core.Services;
 using xgca.entity.Models;
 using xgca.core.CompanyServiceUser;
 using Castle.Core.Internal;
+using xgca.core.AuditLog;
+using xgca.data.AuditLog;
 
 namespace xgca.core.CompanyServiceRole
 {
@@ -29,6 +31,8 @@ namespace xgca.core.CompanyServiceRole
         Task<IGeneralModel> Show(Guid companyServiceRoleId);
         Task<IGeneralModel> Update(UpdateCompanyServiceRoleModel updateCompanyServiceRoleModel, Guid companyServiceRoleId);
         Task<IGeneralModel> CreateGroupPermissionUser(CreateGroupPermissionUserModel createGroupPermissionUser);
+        Task<IGeneralModel> BatchUpdate(BatchUpdateCompanyServiceRoleModel batchUpdateCompanyServiceRoleModel);
+
     }
 
     public class CompanyServiceRole : ICompanyServiceRole
@@ -40,13 +44,18 @@ namespace xgca.core.CompanyServiceRole
         private readonly IMapper _mapper;
         private readonly IGLobalCmsService gLobalCmsService;
         private readonly data.CompanyServiceUser.ICompanyServiceUser companyServiceUser;
-
+        private readonly data.CompanyGroupResource.ICompanyGroupResourceData companyGroupResourceData;
+        private readonly IAuditLogHelper auditLogHelper;
+        private readonly IAuditLogData auditLogData;
         public CompanyServiceRole(xgca.data.CompanyServiceRole.ICompanyServiceRole companyServiceRole,
             xgca.data.CompanyService.ICompanyService companyService, IGeneral general, 
             IMapper mapper, 
             ICompanyData companyData,
             IGLobalCmsService gLobalCmsService,
-            data.CompanyServiceUser.ICompanyServiceUser companyServiceUser)
+            data.CompanyServiceUser.ICompanyServiceUser companyServiceUser,
+            data.CompanyGroupResource.ICompanyGroupResourceData companyGroupResourceData,
+            IAuditLogHelper auditLogHelper,
+            IAuditLogData auditLogData)
         {
             _companyServiceRole = companyServiceRole;
             _companyService = companyService;
@@ -55,6 +64,9 @@ namespace xgca.core.CompanyServiceRole
             _companyData = companyData;
             this.gLobalCmsService = gLobalCmsService;
             this.companyServiceUser = companyServiceUser;
+            this.companyGroupResourceData = companyGroupResourceData;
+            this.auditLogHelper = auditLogHelper;
+            this.auditLogData = auditLogData;
         }
 
         public async Task<IGeneralModel> CreateDefault(int companyId, int userId)
@@ -124,7 +136,9 @@ namespace xgca.core.CompanyServiceRole
             }
             var services = await gLobalCmsService.GetAllService();
             var viewCompanyServiceRole = _mapper.Map<GetCompanyServiceRoleModel>(result);
-            viewCompanyServiceRole.CompanyServices.ServiceName = services.Where(c => c.IntServiceId == viewCompanyServiceRole.CompanyServices.ServiceId).FirstOrDefault().ServiceName;
+            var service = services.Where(c => c.IntServiceId == viewCompanyServiceRole.CompanyServices.ServiceId).FirstOrDefault();
+            viewCompanyServiceRole.CompanyServices.ServiceName = service.ServiceName;
+            viewCompanyServiceRole.CompanyServices.Guid = service.ServiceId;
 
             return _general.Response(viewCompanyServiceRole, 200, "Success", true);
         }
@@ -145,7 +159,14 @@ namespace xgca.core.CompanyServiceRole
             
             viewCompanyServiceRole.CompanyServices.ServiceName = services.Where(c => c.IntServiceId == viewCompanyServiceRole.CompanyServices.ServiceId).FirstOrDefault().ServiceName;
 
-            bool deleteResult = await companyServiceUser.BulkDeleteByCompanyServiceRole(result.CompanyServiceRoleId);
+            await companyGroupResourceData.BulkDeleteByCompanyServiceRole(result.CompanyServiceRoleId);
+            
+            if (!updateCompanyServiceRoleModel.Permissions.IsNullOrEmpty())
+            {
+                bool bulkResult = await companyGroupResourceData.BlukCreate(MapPermissions(updateCompanyServiceRoleModel.Permissions, result));
+            }
+
+            await companyServiceUser.BulkDeleteByCompanyServiceRole(result.CompanyServiceRoleId);
 
             if (!updateCompanyServiceRoleModel.CompanyServiceUsersArray.IsNullOrEmpty())
             {
@@ -192,6 +213,11 @@ namespace xgca.core.CompanyServiceRole
             var companyServiceRole = _mapper.Map<entity.Models.CompanyServiceRole>(createGroupPermissionUser);
             var companyServiceRoleResult = await _companyServiceRole.Create(companyServiceRole);
 
+            if (!createGroupPermissionUser.Permissions.IsNullOrEmpty())
+            {
+                bool result = await companyGroupResourceData.BlukCreate(MapPermissions(createGroupPermissionUser.Permissions, companyServiceRole));
+            }
+
             if (!createGroupPermissionUser.CompanyServiceUsersArray.IsNullOrEmpty())
             {
                 List<entity.Models.CompanyServiceUser> companyServiceUsers = new List<entity.Models.CompanyServiceUser>();
@@ -216,6 +242,65 @@ namespace xgca.core.CompanyServiceRole
             }
 
             return _general.Response(null, 200, "Created successfuly", true);
+        }
+
+        private List<entity.Models.CompanyGroupResource> MapPermissions(
+            ICollection<ClientMenuModel> clientMenuModels, 
+            entity.Models.CompanyServiceRole companyServiceRole)
+        {
+            List<entity.Models.CompanyGroupResource> companyGroupResources = new List<entity.Models.CompanyGroupResource>();
+
+            ICollection<GroupResourceModel> moduleGroupsMenu = clientMenuModels
+            .SelectMany(p => p.ClientMenuModules)
+            .Select(m => m.Module)
+            .SelectMany(mg => mg.ModuleGroups)
+            .Where(mg => mg.IsChecked == true)
+            .SelectMany(gr => gr.GroupResources)
+            .ToList();
+
+            foreach (GroupResourceModel groupResource in moduleGroupsMenu)
+            {
+                companyGroupResources.Add(new entity.Models.CompanyGroupResource
+                {
+                    CompanyServiceRoleId = companyServiceRole.CompanyServiceRoleId,
+                    GroupResourceId = groupResource.GroupResourceId,
+                    Guid = Guid.NewGuid(),
+                    IsAllowed = 1
+                });
+            }
+
+            ICollection<GroupResourceModel> moduleGroupsSubMenu = clientMenuModels
+                .SelectMany(cs => cs.ClientSubMenus)
+                .SelectMany(p => p.ClientMenuModules)
+                .Select(m => m.Module)
+                .SelectMany(mg => mg.ModuleGroups)
+                .Where(mg => mg.IsChecked == true)
+                .SelectMany(gr => gr.GroupResources)
+                .ToList();
+
+            foreach (GroupResourceModel groupResource in moduleGroupsSubMenu)
+            {
+                companyGroupResources.Add(new entity.Models.CompanyGroupResource
+                {
+                    CompanyServiceRoleId = companyServiceRole.CompanyServiceRoleId,
+                    GroupResourceId = groupResource.GroupResourceId,
+                    Guid = Guid.NewGuid(),
+                    IsAllowed = 1
+                });
+            }
+
+            return companyGroupResources;
+        }
+
+        public async Task<IGeneralModel> BatchUpdate(BatchUpdateCompanyServiceRoleModel batchUpdateCompanyServiceRoleModel)
+        {
+            ICollection<Guid> guids = batchUpdateCompanyServiceRoleModel.Guids.Select(x => Guid.Parse(x)).ToList();
+
+            bool result = await _companyServiceRole.BulkUpdate(guids, batchUpdateCompanyServiceRoleModel.Type);
+
+            return result 
+                ? _general.Response(null, 200, "Updated Successfuly", true) 
+                : _general.Response(null, 400, "An error occured", true);
         }
     }
 }

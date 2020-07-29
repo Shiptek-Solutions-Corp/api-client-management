@@ -24,6 +24,7 @@ namespace xlog_client_management_api.Controllers.Profile
         [Route("profile/service/{companyServiceKey}")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
+        //[TokenAuthorize("scope", "companyInformation.get")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

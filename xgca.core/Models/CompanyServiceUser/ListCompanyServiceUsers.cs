@@ -9,6 +9,7 @@ namespace xgca.core.Models.CompanyServiceUser
         public string CompanyServiceuserId { get; set; }
         public string CompanyServiceId { get; set; }
         public string CompanyServiceRoleId { get; set; }
+        public string ServiceId { get; set; }
         public string Fullname { get; set; }
         public string Username { get; set; }
         public string EmailAddress { get; set; }

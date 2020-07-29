@@ -113,6 +113,7 @@ namespace xgca.data.CompanyServiceUser
                 .Include(cu => cu.CompanyUsers)
                     .ThenInclude(u => u.Users)
                 .Include(csr => csr.CompanyServiceRoles)
+                .Where(csr => csr.CompanyServiceRoles.IsDeleted == 0)
                 .Where(csu => csu.CompanyUserId == companyUserId)
                 .ToListAsync();
 
@@ -191,7 +192,9 @@ namespace xgca.data.CompanyServiceUser
             }
             if (companyServiceId > 1)
             {
+                //predicate = predicate.And(c => !c.CompanyServiceUsers.Any(c => c.CompanyServiceId == companyServiceId));
                 predicate = predicate.And(c => !c.CompanyServiceUsers.Any(c => c.CompanyServiceId == companyServiceId));
+
             }
 
             if (companyServiceRoleId > 1)

@@ -37,6 +37,7 @@ namespace xgca.core.Helpers
         public string GetState { get; set; }
         public string GetCity { get; set; }
         public string GetUserType { get; set; }
+        public string GetResourcesForAuthorization { get; set; }
     }
     public class OptimusAuthService : ParentConstant
     {

@@ -9,6 +9,27 @@ using static xgca.entity.Models._Model;
 
 namespace xgca.entity
 {
+    public interface IXGCAContext
+    {
+        Task<int> SaveChangesAsync();
+        Task<int> SaveChangesAuditable();
+        DbSet<User> Users { get; set; }
+
+        DbSet<Address> Addresses { get; set; }
+        DbSet<AddressType> AddressTypes { get; set; }
+        DbSet<AuditLog> AuditLogs { get; set; }
+        DbSet<Company> Companies { get; set; }
+        DbSet<ContactDetail> ContactDetails { get; set; }
+
+        DbSet<CompanyService> CompanyServices { get; set; }
+        DbSet<CompanyServiceRole> CompanyServiceRoles { get; set; }
+        DbSet<CompanyServiceUser> CompanyServiceUsers { get; set; }
+        DbSet<CompanyUser> CompanyUsers { get; set; }
+        DbSet<CompanyGroupResource> CompanyGroupResources { get; set; }
+        DbSet<CompanyServiceUserRole> CompanyServiceUserRoles { get; set; }
+
+    }
+
     public class XGCAContext : DbContext, IXGCAContext
     {
         public XGCAContext(DbContextOptions options)
@@ -38,6 +59,30 @@ namespace xgca.entity
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<CompanyGroupResource>()
+                .Property(cgr => cgr.Guid)
+                .HasDefaultValue(Guid.NewGuid());
+
+            modelBuilder.Entity<CompanyGroupResource>()
+                .Property(cgr => cgr.CreatedBy)
+                .HasDefaultValue(1);
+
+            modelBuilder.Entity<CompanyGroupResource>()
+                .Property(cgr => cgr.CreatedOn)
+                .HasDefaultValueSql("getutcdate()");
+
+            modelBuilder.Entity<CompanyGroupResource>()
+                .Property(cgr => cgr.ModifiedOn)
+                .HasDefaultValueSql("getutcdate()");
+
+            modelBuilder.Entity<CompanyGroupResource>()
+                .Property(cgr => cgr.ModifiedBy)
+                .HasDefaultValue(1);
+
+            modelBuilder.Entity<CompanyGroupResource>()
+                .Property(cgr => cgr.IsDeleted)
+                .HasDefaultValue(0);
+
             base.OnModelCreating(modelBuilder);
         }
         private void UpdateAuditEntities()

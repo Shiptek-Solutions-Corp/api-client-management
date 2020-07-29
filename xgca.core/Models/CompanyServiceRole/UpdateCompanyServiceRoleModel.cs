@@ -15,5 +15,7 @@ namespace xgca.core.Models.CompanyServiceRole
         public string Description { get; set; }
         [Required]
         public ICollection<CreateNewUserPerGroupModuleModel> CompanyServiceUsersArray { get; set; }
+        [Required]
+        public ICollection<ClientMenuModel> Permissions { get; set; }
     }
 }
