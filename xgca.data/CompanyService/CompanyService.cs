@@ -8,6 +8,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace xgca.data.CompanyService
 {
+    public interface ICompanyService
+    {
+        Task<bool> Create(List<entity.Models.CompanyService> obj);
+        Task<bool> Create(entity.Models.CompanyService obj);
+        Task<List<entity.Models.CompanyService>> List();
+        Task<List<entity.Models.CompanyService>> ListByCompanyId(int companyId);
+        Task<List<entity.Models.CompanyService>> ListByCompanyId(int companyId, int status);
+        Task<entity.Models.CompanyService> Retrieve(int key);
+        Task<int> GetIdByGuid(Guid guid);
+        Task<bool> Update(entity.Models.CompanyService obj);
+        Task<bool> Update(List<entity.Models.CompanyService> obj);
+        Task<bool> ChangeStatus(entity.Models.CompanyService obj);
+        Task<bool> Delete(int key);
+        Task<int[]> GetUserByCompanyServiceGuid(Guid guid);
+
+    }
+
     public class CompanyService : IMaintainable<entity.Models.CompanyService>, ICompanyService
     {
         private readonly IXGCAContext _context;
@@ -116,6 +133,19 @@ namespace xgca.data.CompanyService
         public Task<bool> Update(entity.Models.CompanyService obj)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<int[]> GetUserByCompanyServiceGuid(Guid guid)
+        {
+            var result = await _context.CompanyServices
+                .Where(cs => cs.Guid == guid)
+                .SelectMany(cs => cs.CompanyServiceUsers)
+                .Select(cs => cs.CompanyUsers)
+                .Select(cu => cu.Users)
+                .Select(cu => cu.UserId)
+                .ToArrayAsync();
+
+            return result;
         }
     }
 }

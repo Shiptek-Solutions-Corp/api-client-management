@@ -5,9 +5,21 @@ using System.Threading.Tasks;
 using xgca.entity;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using LinqKit;
 
 namespace xgca.data.AuditLog
 {
+    public interface IAuditLogData
+    {
+        Task<bool> Create(entity.Models.AuditLog obj);
+        Task<List<entity.Models.AuditLog>> List();
+        Task<entity.Models.AuditLog> Retrieve(int key);
+        Task<int> GetIdByGuid(Guid key);
+        Task<List<entity.Models.AuditLog>> ListByTableName(string tableName);
+        Task<List<entity.Models.AuditLog>> ListByTableNameAndKeyFieldId(string tableName, int keyFieldId);
+        Task<List<entity.Models.AuditLog>> GetCompanyServiceRoleLogs(string type, int[] ids, int keyField);
+
+    }
     public class AuditLogData : IMaintainable<entity.Models.AuditLog>, IAuditLogData
     {
         private readonly IXGCAContext _context;
@@ -29,6 +41,28 @@ namespace xgca.data.AuditLog
                 .Where(al => al.Guid == key)
                 .FirstOrDefaultAsync();
             return auditLogs.AuditLogId;
+        }
+
+        public async Task<List<entity.Models.AuditLog>> GetCompanyServiceRoleLogs(string type, int[] ids, int keyField)
+        {
+            var predicate = PredicateBuilder.New<entity.Models.AuditLog>();
+
+            if (ids.Length > 0)
+            {
+                predicate = predicate.And(a => ids.Contains(a.CreatedBy));
+            }
+
+            if (keyField > 0)
+            {
+                predicate = predicate.And(a => a.KeyFieldId == keyField);
+            }
+
+            List<entity.Models.AuditLog> auditLogs = await _context.AuditLogs
+                .Where(predicate)
+                .Where(a => a.TableName == type)
+                .ToListAsync();
+
+            return auditLogs;
         }
 
         public async Task<List<entity.Models.AuditLog>> List()

@@ -17,22 +17,45 @@ using xgca.core.Constants;
 using System.ComponentModel.Design;
 using Amazon.Runtime.Internal.Transform;
 using Microsoft.VisualBasic;
+using DocumentFormat.OpenXml.Office2013.PowerPoint.Roaming;
+using xgca.data.CompanyService;
+using xgca.data.CompanyServiceRole;
 
 namespace xgca.core.AuditLog
 {
+    public interface IAuditLogCore
+    {
+        Task<IGeneralModel> ListByTableNameAndKeyFieldId(string tableName, int keyFieldId);
+
+        Task<IGeneralModel> RetrieveDetails(string key);
+
+        Task<IGeneralModel> CreateAuditLog(string auditLogAction, string tableName, int keyFieldId, int createdBy, dynamic oldObj, dynamic newObj = null);
+        Task<IGeneralModel> GetCompanyServiceRoleLogs(string type, string companyServiceGuid, string keyGuid);
+    }
+
     public class AuditLogCore : IAuditLogCore
     {
         private readonly IAuditLogData _auditLog;
         private readonly IAuditLogHelper _auditLogHelper;
         private readonly IUserData _user;
         private readonly IGeneral _general;
+        private readonly ICompanyService companyService;
+        private readonly ICompanyServiceRole companyServiceRole;
 
-        public AuditLogCore(IAuditLogData auditLog, IAuditLogHelper auditLogHelper, IUserData user, IGeneral general)
+        public AuditLogCore(
+            IAuditLogData auditLog, 
+            IAuditLogHelper auditLogHelper, 
+            IUserData user, 
+            IGeneral general, 
+            ICompanyService companyService,
+            ICompanyServiceRole companyServiceRole)
         {
             _auditLog = auditLog;
             _auditLogHelper = auditLogHelper;
             _user = user;
             _general = general;
+            this.companyService = companyService;
+            this.companyServiceRole = companyServiceRole;
         }
 
         public async Task<IGeneralModel> CreateAuditLog(string auditLogAction, string tableName, int keyFieldId, int createdBy, dynamic oldObj, dynamic newObj = null)
@@ -63,6 +86,30 @@ namespace xgca.core.AuditLog
             return result
                 ? _general.Response(null, 200, "Audit log data created!", true)
                 : _general.Response(null, 400, "Failed in creating audit log data!", false);
+        }
+
+        public async Task<IGeneralModel> GetCompanyServiceRoleLogs(string type, string companyServiceGuid, string keyGuid)
+        {
+            int[] ids = new int[] { };
+            int companyServiceRoleId = 0;
+
+            if (!companyServiceGuid.Equals(""))
+            {
+                ids = await companyService.GetUserByCompanyServiceGuid(Guid.Parse(companyServiceGuid));
+            }
+
+            if (!keyGuid.Equals(""))
+            {
+                companyServiceRoleId = await companyServiceRole.GetIdByGuid(Guid.Parse(keyGuid));
+            }
+
+            var result = await _auditLog.GetCompanyServiceRoleLogs(
+                type,
+                ids,
+                companyServiceRoleId);
+
+            // TODO: Use automapper to map result
+            return _general.Response(result, 200, "Success", false);
         }
 
         public async Task<IGeneralModel> ListByTableNameAndKeyFieldId(string tableName, int keyFieldId)
