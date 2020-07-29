@@ -26,6 +26,7 @@ namespace xgca.data.CompanyServiceRole
         Task<ReturnObject> ListByCompanyId(int companyID, int status);
         Task<bool> CheckGroupNameIfExists(int companyServiceId, string groupName);
         Task<bool> BulkUpdate(ICollection<Guid> ids, string type);
+        Task<List<entity.Models.CompanyServiceRole>> GetAllByGuid(ICollection<Guid> ids);
     }
 
     public class ReturnObject
@@ -64,11 +65,11 @@ namespace xgca.data.CompanyServiceRole
                     //result = _context.CompanyServiceRoles
                     //   .Where(csr => guids.Contains(csr.Guid))
                     //   .Update(csr => new entity.Models.CompanyServiceRole() { IsDeleted = 1 });
-                    var test = _context.CompanyServiceRoles
+                    var companyServiceRoles = _context.CompanyServiceRoles
                        .Where(csr => guids.Contains(csr.Guid))
                        .ToList();
 
-                    foreach (var item in test)
+                    foreach (var item in companyServiceRoles)
                     {
                         var groupResources = _context.CompanyGroupResources
                             .Where(c => c.CompanyServiceRoleId == item.CompanyServiceRoleId);
@@ -78,7 +79,7 @@ namespace xgca.data.CompanyServiceRole
                             .Where(c => c.CompanyServiceRoleId == item.CompanyServiceRoleId);
                         _context.CompanyServiceUsers.RemoveRange(companyServiceUser);
                     }
-                    _context.CompanyServiceRoles.RemoveRange(test);
+                    _context.CompanyServiceRoles.RemoveRange(companyServiceRoles);
 
                      result = await _context.SaveChangesAsync();
 
@@ -133,6 +134,15 @@ namespace xgca.data.CompanyServiceRole
         public Task<bool> Delete(int key)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<List<entity.Models.CompanyServiceRole>> GetAllByGuid(ICollection<Guid> ids)
+        {
+            var companyServiceRoles = await _context.CompanyServiceRoles
+               .Where(csr => ids.Contains(csr.Guid))
+               .ToListAsync();
+
+            return companyServiceRoles;
         }
 
         public async Task<int> GetIdByGuid(Guid guid)

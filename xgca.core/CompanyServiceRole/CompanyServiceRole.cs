@@ -149,6 +149,7 @@ namespace xgca.core.CompanyServiceRole
         public async Task<IGeneralModel> Update(UpdateCompanyServiceRoleModel updateCompanyServiceRoleModel, Guid companyServiceRoleId)
         {
             var result = await _companyServiceRole.Retrieve(companyServiceRoleId);
+            var oldData = result;
             if (result == null)
             {
                 return _general.Response(null, 400, "Invalid Company Service Role", false);
@@ -156,7 +157,7 @@ namespace xgca.core.CompanyServiceRole
             _mapper.Map(updateCompanyServiceRoleModel, result);
             result.CompanyServiceId = await _companyService.GetIdByGuid(Guid.Parse(updateCompanyServiceRoleModel.CompanyServiceGuid));
             bool updateResult = await _companyServiceRole.Update(result);
-
+             
             var services = await gLobalCmsService.GetAllService();
             var viewCompanyServiceRole = _mapper.Map<GetCompanyServiceRoleModel>(result);
             
@@ -194,6 +195,14 @@ namespace xgca.core.CompanyServiceRole
                 var companyServiceUserResult = await companyServiceUser.BulkCreate(companyServiceUsers);
             }
 
+            await auditLogCore.CreateAuditLog(
+                "Update",
+                _companyServiceRole.GetType().Name,
+                result.CompanyServiceRoleId,
+                await userData.GetIdByUsername(Constant.loggedInUserName),
+                _mapper.Map<GetCompanyServiceRoleModel>(oldData),
+                _mapper.Map<GetCompanyServiceRoleModel>(result));
+
             return updateResult ?
                 _general.Response(viewCompanyServiceRole, 200, "Updated successfuly", true)
                 :
@@ -223,6 +232,7 @@ namespace xgca.core.CompanyServiceRole
 
             if (!createGroupPermissionUser.CompanyServiceUsersArray.IsNullOrEmpty())
             {
+
                 List<entity.Models.CompanyServiceUser> companyServiceUsers = new List<entity.Models.CompanyServiceUser>();
 
                 foreach (CreateNewUserPerGroupModuleModel obj in createGroupPermissionUser.CompanyServiceUsersArray)
@@ -233,7 +243,7 @@ namespace xgca.core.CompanyServiceRole
 
                     // TODO: Change createdBy by logged in user
                     companyServiceUser.IsActive = 1;
-                    companyServiceUser.CreatedBy = 1;
+                    companyServiceUser.CreatedBy = await userData.GetIdByUsername(Constant.loggedInUserName);
                     companyServiceUser.CreatedOn = DateTime.UtcNow;
                     companyServiceUser.ModifiedBy = 1;
                     companyServiceUser.ModifiedOn = DateTime.UtcNow;
@@ -243,13 +253,12 @@ namespace xgca.core.CompanyServiceRole
 
                 var companyServiceUserResult = await companyServiceUser.BulkCreate(companyServiceUsers);
             }
-            
             await auditLogCore.CreateAuditLog(
                 "Create", 
                 companyServiceRole.GetType().Name, 
                 companyServiceRole.CompanyServiceRoleId, 
-                await userData.GetIdByUsername(Constant.loggedInUserName), 
-                companyServiceRole, 
+                await userData.GetIdByUsername(Constant.loggedInUserName),
+                _mapper.Map<GetCompanyServiceRoleModel>(companyServiceRole), 
                 null);
             
             return _general.Response(null, 200, "Created successfuly", true);
@@ -306,8 +315,23 @@ namespace xgca.core.CompanyServiceRole
         public async Task<IGeneralModel> BatchUpdate(BatchUpdateCompanyServiceRoleModel batchUpdateCompanyServiceRoleModel)
         {
             ICollection<Guid> guids = batchUpdateCompanyServiceRoleModel.Guids.Select(x => Guid.Parse(x)).ToList();
-
+            var oldValues = await _companyServiceRole.GetAllByGuid(guids);
             bool result = await _companyServiceRole.BulkUpdate(guids, batchUpdateCompanyServiceRoleModel.Type);
+            var newValues = await _companyServiceRole.GetAllByGuid(guids);
+
+            //TODO: Remove foreach. Change to bulk insert
+            int i = -1;
+            foreach (var item in oldValues)
+            {
+                i++;
+                await auditLogCore.CreateAuditLog(
+                    batchUpdateCompanyServiceRoleModel.Type == "delete" ? "Delete" : "Update",
+                    _companyServiceRole.GetType().Name,
+                    item.CompanyServiceRoleId,
+                    await userData.GetIdByUsername(Constant.loggedInUserName),
+                    _mapper.Map<GetCompanyServiceRoleModel>(item),
+                    _mapper.Map<GetCompanyServiceRoleModel>(newValues[i]));
+            }
 
             return result 
                 ? _general.Response(null, 200, "Updated Successfuly", true) 
