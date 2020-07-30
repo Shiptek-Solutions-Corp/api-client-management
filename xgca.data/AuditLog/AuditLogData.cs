@@ -60,6 +60,7 @@ namespace xgca.data.AuditLog
             List<entity.Models.AuditLog> auditLogs = await _context.AuditLogs
                 .Where(predicate)
                 .Where(a => a.TableName == type)
+                .OrderByDescending(c => c.CreatedOn)
                 .ToListAsync();
 
             return auditLogs;

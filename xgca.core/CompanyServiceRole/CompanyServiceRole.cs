@@ -330,7 +330,7 @@ namespace xgca.core.CompanyServiceRole
                     item.CompanyServiceRoleId,
                     await userData.GetIdByUsername(Constant.loggedInUserName),
                     _mapper.Map<GetCompanyServiceRoleModel>(item),
-                    _mapper.Map<GetCompanyServiceRoleModel>(newValues[i]));
+                    newValues.Count > 0 ? _mapper.Map<GetCompanyServiceRoleModel>(newValues[i]) : null);
             }
 
             return result 
