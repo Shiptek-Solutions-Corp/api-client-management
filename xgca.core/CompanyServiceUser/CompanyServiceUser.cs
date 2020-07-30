@@ -252,6 +252,7 @@ namespace xgca.core.CompanyServiceUser
                     //Username = companyServiceUser.CompanyUsers.Users.Username,
                     Role = companyServiceUser.CompanyServiceRoles.Name,
                     Service = (serviceObj)["data"]["service"]["name"].ToString(),
+                    IsMasterUser = companyServiceUser.IsMasterUser
                     //IsActive = companyServiceUser.IsActive,
                     //IsLocked = companyServiceUser.IsLocked
                 });
