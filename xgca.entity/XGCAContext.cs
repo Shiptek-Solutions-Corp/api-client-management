@@ -83,6 +83,10 @@ namespace xgca.entity
                 .Property(cgr => cgr.IsDeleted)
                 .HasDefaultValue(0);
 
+            modelBuilder.Entity<CompanyServiceUser>()
+                .Property(cgr => cgr.IsMasterUser)
+                .HasDefaultValue(0);
+
             base.OnModelCreating(modelBuilder);
         }
         private void UpdateAuditEntities()

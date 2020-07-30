@@ -86,7 +86,8 @@ namespace xgca.core.CompanyServiceUser
                     CreatedOn = DateTime.UtcNow,
                     ModifiedBy = createdBy,
                     ModifiedOn = DateTime.UtcNow,
-                    Guid = Guid.NewGuid()
+                    Guid = Guid.NewGuid(),
+                    IsMasterUser = 1
                 });
             }
 

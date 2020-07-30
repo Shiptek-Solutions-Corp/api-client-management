@@ -17,6 +17,7 @@ namespace xgca.entity.Models
         public int CompanyServiceId { get; set; }
         public int CompanyUserId { get; set; }
         public int CompanyServiceRoleId { get; set; }
+        public int IsMasterUser { get; set; }
         public int CompanyId { get; set; }
         [System.ComponentModel.DefaultValue(1)]
         public byte IsActive { get; set; }
