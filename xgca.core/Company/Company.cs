@@ -172,7 +172,7 @@ namespace xgca.core.Company
                 ContactDetailId = contactDetailId,
                 ImageURL = obj.ImageURL,
                 WebsiteURL = obj.WebsiteURL,
-                EmailAddress = obj.EmailAddress,
+                EmailAddress = obj.EmailAddress, 
                 CreatedBy = GlobalVariables.SystemUserId,
                 CreatedOn = DateTime.UtcNow,
                 ModifiedBy = GlobalVariables.SystemUserId,

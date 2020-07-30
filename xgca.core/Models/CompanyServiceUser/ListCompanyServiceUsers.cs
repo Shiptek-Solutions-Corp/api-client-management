@@ -18,5 +18,6 @@ namespace xgca.core.Models.CompanyServiceUser
         public string Service { get; set; }
         public byte IsActive { get; set; }
         public byte IsLocked { get; set; }
+        public int IsMasterUser { get; set; }
     }
 }

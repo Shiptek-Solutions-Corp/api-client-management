@@ -29,6 +29,30 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace xgca.core.User
 {
+    public interface IUser
+    {
+        Task<IGeneralModel> List();
+        Task<IGeneralModel> List(string columnFilter, string isActive, string isLock);
+        Task<IGeneralModel> Create(CreateUserModel obj, string companyId, string auth, string CreatedBy);
+        Task<int> CreateAndReturnId(CreateUserModel obj);
+        Task<dynamic> CreateMasterUser(CreateUserModel obj, int createdBy);
+        Task<IGeneralModel> Update(UpdateUserModel obj, string modifiedBy);
+        Task<IGeneralModel> UpdateStatus(UpdateUserStatusModel obj, string modifiedBy, string auth);
+        Task<IGeneralModel> UpdateLock(UpdateUserLockModel obj, string modifiedBy, string auth);
+        Task<IGeneralModel> UpdateMultipleLock(UpdateMultipleLockModel obj, string modifiedBy, string auth);
+        Task<IGeneralModel> DeleteMultipleUser(DeleteMultipleUserModel obj, string modifiedBy, string auth);
+        Task<IGeneralModel> UpdateMultipleStatus(UpdateMultipleStatusModel obj, string modifiedBy, string auth);
+        Task<IGeneralModel> SetUsername(SetUsernameModel obj);
+        Task<IGeneralModel> Retrieve(string key);
+        Task<IGeneralModel> RetrieveByUsername(string username);
+        Task<IGeneralModel> Delete(string key, string modifiedBy, string auth);
+        Task<IGeneralModel> GetIdByGuid(string key);
+        Task<int> GetIdByGuid(Guid key);
+        Task<int> GetIdByUsername(string username);
+        Task<IGeneralModel> GetUserByReferenceId(int id);
+        Task<IGeneralModel> ListUserLogs(string? userKey, string? username);
+        Task<IGeneralModel> GetUserCounts(List<int> userIds);
+    }
     public class User : 
         IUser
     {
@@ -726,6 +750,7 @@ namespace xgca.core.User
         }
         public async Task<IGeneralModel> SetUsername(SetUsernameModel obj)
         {
+            bool isUserMaster = false;
             var data = new entity.Models.User
             {
                 UserId = obj.UserId,
@@ -735,8 +760,17 @@ namespace xgca.core.User
             };
 
             var result = await _userData.SetUsername(data);
-            return result
-                ? _general.Response(true, 200, "Username updated", true)
+
+            foreach (int item in result.IsUserMaster)
+            {
+                if (item == 1)
+                {
+                    isUserMaster = true;
+                }
+            }
+
+            return result.Result
+                ? _general.Response(new { isUserMaster = isUserMaster}, 200, "Username updated", true)
                 : _general.Response(false, 400, "Error on updating username", true);
         }
         public async Task<int> GetIdByGuid(Guid key)

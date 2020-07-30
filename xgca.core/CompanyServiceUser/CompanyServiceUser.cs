@@ -86,7 +86,8 @@ namespace xgca.core.CompanyServiceUser
                     CreatedOn = DateTime.UtcNow,
                     ModifiedBy = createdBy,
                     ModifiedOn = DateTime.UtcNow,
-                    Guid = Guid.NewGuid()
+                    Guid = Guid.NewGuid(),
+                    IsMasterUser = 1
                 });
             }
 
@@ -251,6 +252,7 @@ namespace xgca.core.CompanyServiceUser
                     //Username = companyServiceUser.CompanyUsers.Users.Username,
                     Role = companyServiceUser.CompanyServiceRoles.Name,
                     Service = (serviceObj)["data"]["service"]["name"].ToString(),
+                    IsMasterUser = companyServiceUser.IsMasterUser
                     //IsActive = companyServiceUser.IsActive,
                     //IsLocked = companyServiceUser.IsLocked
                 });
