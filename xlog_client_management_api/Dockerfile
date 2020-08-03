@@ -7,7 +7,7 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
-COPY ["xlog_client_management_api/xlog_client_management_api.csproj", "xlog_client_management_api/"]
+COPY ["xlog_client_management_api.csproj", "xlog_client_management_api/"]
 RUN dotnet restore "xlog_client_management_api/xlog_client_management_api.csproj"
 COPY . .
 WORKDIR "/src/xlog_client_management_api"
