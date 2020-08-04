@@ -9,6 +9,10 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <NullableReferenceTypes>true</NullableReferenceTypes>
+  </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="Amazon.AspNetCore.Identity.Cognito" Version="1.0.4" />
     <PackageReference Include="Amazon.Extensions.CognitoAuthentication" Version="1.0.3" />
