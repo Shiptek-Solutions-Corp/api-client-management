@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using xgca.core.Models.Company;
+using xgca.core.Response;
 using xlog_client_management_api;
 
 namespace xlog_company_service_api.Controllers.Company
@@ -16,9 +18,12 @@ namespace xlog_company_service_api.Controllers.Company
     public class CompanyController : Controller
     {
         public readonly xgca.core.Company.ICompany _company;
-        public CompanyController(xgca.core.Company.ICompany company)
+        private readonly IGeneral _general;
+
+        public CompanyController(xgca.core.Company.ICompany company, IGeneral general)
         {
             _company = company;
+            _general = general;
         }
 
         [Route("company")]
@@ -29,6 +34,35 @@ namespace xlog_company_service_api.Controllers.Company
         public async Task<IActionResult> ListCompany()
         {
             var response = await _company.List();
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Route("company/service/{serviceId}")]
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> ListCompany([FromRoute]int serviceId, [FromQuery]int page, [FromQuery]int rows)
+        {
+
+            if (page == 0 || rows == 0)
+            {
+                return BadRequest(_general.Response(null, 400, "Queryparams 'page' and 'rows' must not be zero", false));
+            }
+
+
+            var response = await _company.ListByService(serviceId, page, rows);
 
             if (response.statusCode == 400)
             {
@@ -88,6 +122,28 @@ namespace xlog_company_service_api.Controllers.Company
             return Ok(response);
         }
 
+        [Route("company/id/{companyId}/details")]
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> ViewCompanyById(int companyId)
+        {
+            var response = await _company.GetGuidById(companyId);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
 
         [Route("company/registration")]
         [HttpPost]
@@ -113,7 +169,7 @@ namespace xlog_company_service_api.Controllers.Company
         [Route("company")]
         [HttpPut]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        //[TokenAuthorize("scope", "companyInformation.put")]
+        [TokenAuthorize("scope", "companyInformation.put")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -210,6 +266,71 @@ namespace xlog_company_service_api.Controllers.Company
         public async Task<IActionResult> CompanyLogs([FromRoute] string companyId)
         {
             var response = await _company.ListCompanyLogs(companyId);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Route("company/reservation-actors")]
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetReservationActors([FromBody] GetReservationActorsListModel getReservationActorsListModel)
+        {
+            var response = await _company.GetReservationActors(getReservationActorsListModel.Actors);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Route("company/list")]
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> ListCompaniesByIDs([FromBody] GetCompanyIDs obj)
+        {
+            var response = await _company.ListCompaniesByIDs(obj);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Route("company/list/details")]
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> ListCompanyDetailsByIds([FromBody] GetCompanyIDs obj)
+        {
+            var response = await _company.ListCompanyDetailsByIds(obj);
 
             if (response.statusCode == 400)
             {

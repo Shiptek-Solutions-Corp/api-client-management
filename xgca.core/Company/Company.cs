@@ -26,12 +26,15 @@ using xgca.core.Models.CompanyService;
 using xgca.core.Models.AuditLog;
 using xgca.core.Helpers.Token;
 using Amazon.Runtime.Internal;
+using xgca.entity.Migrations;
 
 namespace xgca.core.Company
 {
     public interface ICompany
     {
         Task<IGeneralModel> List();
+
+        Task<IGeneralModel> ListByService(int serviceId, int page, int rowCount);
         Task<IGeneralModel> Create(CreateCompanyModel obj, string createdBy);
         Task<IGeneralModel> CreateAndReturnId(CreateCompanyModel obj);
         Task<IGeneralModel> InitialRegistration(InitialRegistrationModel obj);
@@ -42,8 +45,14 @@ namespace xgca.core.Company
         Task<IGeneralModel> Delete(string key, string username);
         Task<IGeneralModel> GetIdByGuid(string key);
         Task<int> GetIdByGuid(Guid key);
+        Task<IGeneralModel> GetGuidById(int key);
+
         Task<IGeneralModel> ListCompanyLogs(int companyId);
         Task<IGeneralModel> ListCompanyLogs(string companyId);
+        Task<IGeneralModel> GetReservationActors(List<GetReservationActorsModel> getReservationActorsModel);
+        Task<IGeneralModel> ListCompaniesByIDs(GetCompanyIDs obj);
+        Task<IGeneralModel> ListCompanyDetailsByIds(GetCompanyIDs obj);
+
     }
     public class Company : ICompany
     {
@@ -97,12 +106,18 @@ namespace xgca.core.Company
             _options = options;
             _general = general;
         }
-        
+
         public async Task<IGeneralModel> List()
         {
             var company = await _companyData.List();
             var data = company.Select(c => new { CompanyId = c.Guid, c.CompanyName, c.Status });
             return _general.Response(new { companty = data }, 200, "Configurable companies has been listed", true);
+        }
+
+        public async Task<IGeneralModel> ListByService(int serviceId, int page, int rowCount)
+        {
+            var data = await _companyData.ListByService(serviceId, page, rowCount);
+            return _general.Response(data, 200, "Company Has been listed!", true);
         }
 
         public async Task<IGeneralModel> Create(CreateCompanyModel obj, string createdBy)
@@ -143,10 +158,10 @@ namespace xgca.core.Company
             if (companyId <= 0)
             { return _general.Response(null, 400, "Error on creating company", true); }
             await _coreCompanyService.CreateBatch(obj.Services, companyId, createdById);
-            
+
             // Create audit log
             await _coreAuditLog.CreateAuditLog("Create", company.GetType().Name, companyId, createdById, obj, null);
-            
+
             return companyId > 0
                 ? _general.Response(new { companyId = companyId }, 200, "Company created", true)
                 : _general.Response(null, 400, "Error on creating company", true);
@@ -172,7 +187,7 @@ namespace xgca.core.Company
                 ContactDetailId = contactDetailId,
                 ImageURL = obj.ImageURL,
                 WebsiteURL = obj.WebsiteURL,
-                EmailAddress = obj.EmailAddress, 
+                EmailAddress = obj.EmailAddress,
                 CreatedBy = GlobalVariables.SystemUserId,
                 CreatedOn = DateTime.UtcNow,
                 ModifiedBy = GlobalVariables.SystemUserId,
@@ -200,7 +215,7 @@ namespace xgca.core.Company
 
             // Create audit log
             await _coreAuditLog.CreateAuditLog("Create", company.GetType().Name, companyId, GlobalVariables.SystemUserId, companyLog, null);
-            
+
             return companyId > 0
                 ? _general.Response(new { CompanyId = companyId, MasterUserId = masterUser.MasterUserId }, 200, "Company registration successful", true)
                 : _general.Response(false, 400, "Error on registration", true);
@@ -219,12 +234,12 @@ namespace xgca.core.Company
             var oldCompanyServices = oldCompanyServicesResponse.data.companyService;
             var oldValue = CompanyHelper.BuildCompanyValue(oldCompany, oldCompanyServices);
 
-            
+
             int addressId = await _coreAddress.UpdateAndReturnId(obj, modifiedById);
             if (addressId <= 0)
             { return _general.Response(false, 400, "Error on updating company", true); }
-           
-            int contactDetailId  = await _coreContactDetail.UpdateAndReturnId(obj, modifiedById);
+
+            int contactDetailId = await _coreContactDetail.UpdateAndReturnId(obj, modifiedById);
             if (contactDetailId <= 0)
             { return _general.Response(false, 400, "Error on updating company", true); }
 
@@ -436,6 +451,15 @@ namespace xgca.core.Company
             return _general.Response(new { CompanyId = companyId }, 200, "Company id retrieved", true);
         }
 
+        public async Task<IGeneralModel> GetGuidById(int key)
+        {
+            string companyId = await _companyData.GetGuidById(key);
+            if (companyId == "")
+            { return _general.Response(new { CompanyId = companyId }, 400, "Error on retrieving company id", true); }
+            return _general.Response(new { CompanyId = companyId }, 200, "Company id retrieved", true);
+        }
+
+
         public async Task<int> GetIdByGuid(Guid key)
         {
             int companyId = await _companyData.GetIdByGuid(key);
@@ -565,6 +589,117 @@ namespace xgca.core.Company
             }
 
             return _general.Response(new { Logs = logs }, 200, "Company audit logs has been listed", true);
+        }
+
+        public async Task<IGeneralModel> GetReservationActors(List<GetReservationActorsModel> getReservationActorsModel)
+        {
+            List<dynamic> response = new List<dynamic>();
+
+            var companies = await _companyData.GetAll();
+
+            foreach (var item in getReservationActorsModel)
+            {
+                List<dynamic> notifyParties = new List<dynamic>();
+
+                if (item.NotifyPartyIds != null)
+                {
+                    if (item.NotifyPartyIds.Contains(","))
+                    {
+                        var ids = Constant.SplitByComma(item.NotifyPartyIds);
+                        foreach (string id in ids)
+                        {
+                            notifyParties.Add(companies.Where(c => c.Guid == Constant.CheckIfGuid(id)).FirstOrDefault());
+                        }
+                    }
+                    else
+                    {
+                        notifyParties.Add(companies.Where(c => c.Guid == Constant.CheckIfGuid(item.NotifyPartyIds)).FirstOrDefault());
+                    }
+
+                }
+
+                response.Add(new
+                {
+                    Shipper = companies.Where(c => c.Guid == Constant.CheckIfGuid(item.ShipperId)).FirstOrDefault(),
+                    Consignee = companies.Where(c => c.Guid == Constant.CheckIfGuid(item.ConsigneeId)).FirstOrDefault(),
+                    ShippingLine = companies.Where(c => c.Guid == Constant.CheckIfGuid(item.ShippingLineId)).FirstOrDefault(),
+                    NotifyParties = notifyParties
+                });
+            }
+            return _general.Response(new { actors = response }, 200, "Retreive success", true);
+        }
+
+        public async Task<IGeneralModel> ListCompaniesByIDs(GetCompanyIDs obj)
+        {
+            var data = await _companyData.ListCompaniesByIDs(obj.CompanyIDs);
+
+            var companies = data.Select(c => new
+            {
+                CompanyId = c.Guid,
+                c.CompanyName,
+                c.ImageURL
+            });
+
+            return _general.Response(new { Companies = companies }, 200, "Get Successful", true);
+        }
+
+        public async Task<IGeneralModel> ListCompanyDetailsByIds(GetCompanyIDs obj)
+        {
+            var data = await _companyData.ListCompaniesByIDs(obj.CompanyIDs);
+
+
+
+            var companies = data.Select(c => new
+            {
+
+                CompanyId = c.Guid,
+                c.CompanyName,
+                c.ImageURL,
+                AddressId = c.Addresses.Guid,
+                c.Addresses.AddressLine,
+                City = new
+                {
+                    c.Addresses.CityId,
+                    c.Addresses.CityName,
+                },
+                State = new
+                {
+                    c.Addresses.StateId,
+                    c.Addresses.StateName,
+                },
+                Country = new
+                {
+                    c.Addresses.CountryId,
+                    c.Addresses.CountryName,
+                },
+                c.Addresses.ZipCode,
+                c.Addresses.FullAddress,
+                c.Addresses.Longitude,
+                c.Addresses.Latitude,
+                c.WebsiteURL,
+                c.EmailAddress,
+                ContactDetailId = c.ContactDetails.Guid,
+                Phone = new
+                {
+                    c.ContactDetails.PhonePrefixId,
+                    c.ContactDetails.PhonePrefix,
+                    c.ContactDetails.Phone,
+                },
+                Mobile = new
+                {
+                    c.ContactDetails.MobilePrefixId,
+                    c.ContactDetails.MobilePrefix,
+                    c.ContactDetails.Mobile,
+                },
+                Fax = new
+                {
+                    c.ContactDetails.FaxPrefixId,
+                    c.ContactDetails.FaxPrefix,
+                    c.ContactDetails.Fax,
+                }
+            });
+
+            return _general.Response(new { Companies = companies }, 200, "Get Successful", true);
         }
     }
 }

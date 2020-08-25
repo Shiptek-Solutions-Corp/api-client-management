@@ -27,6 +27,8 @@ namespace xgca.data.CompanyServiceRole
         Task<bool> CheckGroupNameIfExists(int companyServiceId, string groupName);
         Task<bool> BulkUpdate(ICollection<Guid> ids, string type);
         Task<List<entity.Models.CompanyServiceRole>> GetAllByGuid(ICollection<Guid> ids);
+        Task<entity.Models.CompanyServiceRole> Get(Guid key);
+
     }
 
     public class ReturnObject
@@ -75,13 +77,23 @@ namespace xgca.data.CompanyServiceRole
                             .Where(c => c.CompanyServiceRoleId == item.CompanyServiceRoleId);
                         _context.CompanyGroupResources.RemoveRange(groupResources);
 
-                        var companyServiceUser = _context.CompanyServiceUsers
-                            .Where(c => c.CompanyServiceRoleId == item.CompanyServiceRoleId);
-                        _context.CompanyServiceUsers.RemoveRange(companyServiceUser);
-                    }
-                    _context.CompanyServiceRoles.RemoveRange(companyServiceRoles);
+                        var companyServiceUsers = _context.CompanyServiceUsers
+                            .Where(c => c.CompanyServiceRoleId == item.CompanyServiceRoleId).ToList();
 
-                     result = await _context.SaveChangesAsync();
+                        // To avoid deletion of master user
+                        foreach (var companyServiceUser in companyServiceUsers)
+                        {
+                            if (companyServiceUser.IsMasterUser != 1)
+                            {
+                                _context.CompanyServiceUsers.Remove(companyServiceUser);
+                            }
+                        }
+                    }
+                    result = _context.CompanyServiceRoles
+                        .Where(c => companyServiceRoles.Select(c => c.CompanyServiceRoleId).ToList().Contains(c.CompanyServiceRoleId))
+                        .Update(c => new entity.Models.CompanyServiceRole { IsDeleted = 1});
+
+                    await _context.SaveChangesAsync();
 
                     break;
                 default:
@@ -101,6 +113,7 @@ namespace xgca.data.CompanyServiceRole
             var result = await _context.CompanyServiceRoles
                 .Where(c => c.CompanyServiceId == companyServiceId)
                 .Where(c => c.Name == groupName)
+                .Where(c => c.IsDeleted == 0)
                 .Select(c => c.CompanyServiceRoleId)
                 .FirstOrDefaultAsync();
 
@@ -134,6 +147,15 @@ namespace xgca.data.CompanyServiceRole
         public Task<bool> Delete(int key)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<entity.Models.CompanyServiceRole> Get(Guid key)
+        {
+            var data = await _context.CompanyServiceRoles
+                .Where(cs => cs.Guid == key && cs.IsDeleted == 0)
+                .FirstOrDefaultAsync();
+
+            return data;
         }
 
         public async Task<List<entity.Models.CompanyServiceRole>> GetAllByGuid(ICollection<Guid> ids)
@@ -216,6 +238,11 @@ namespace xgca.data.CompanyServiceRole
                 .Include(c => c.CompanyServices)
                 .ThenInclude(c => c.Companies)
                 .FirstOrDefaultAsync();
+
+            foreach (var item in data.CompanyServiceUsers)
+            {
+                data.CompanyServiceUsers = data.CompanyServiceUsers.Where(c => c.IsMasterUser == 0).ToList();
+            }
 
             return data;
         }

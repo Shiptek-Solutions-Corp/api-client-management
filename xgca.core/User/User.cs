@@ -26,6 +26,7 @@ using xgca.core.Models.CompanyService;
 using xgca.core.Models.CompanyServiceRole;
 using xgca.data.Company;
 using Microsoft.IdentityModel.Tokens;
+using Castle.Core.Internal;
 
 namespace xgca.core.User
 {
@@ -413,20 +414,23 @@ namespace xgca.core.User
 
             int userId = await _userData.GetIdByGuid(Guid.Parse(obj.UserId));
 
-            //var arrIds = new { Ids = new List<int>(userId) };
-            string url = "";
-            if (obj.Status == 1)
+            var getUserName = await _userData.Retrieve(userId);
+            if (!getUserName.Username.IsNullOrEmpty())
             {
-                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.EnableUser;
+                string url = "";
+                if (obj.Status == 1)
+                {
+                    url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.EnableUser;
+                }
+                else
+                {
+                    url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.DisableUser;
+                }
+                string token = _tokenHelper.RemoveBearer(auth);
+                var serviceResponse = await _httpHelper.Put($"{url}/{userId}", null, token);
+                var json = (JObject)serviceResponse;
+                var statusCode = json["statusCode"];
             }
-            else
-            {
-                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.DisableUser;
-            }
-            string token = _tokenHelper.RemoveBearer(auth);
-            var serviceResponse = await _httpHelper.Put($"{url}/{userId}", null, token);
-            var json = (JObject)serviceResponse;
-            var statusCode = json["statusCode"];
 
             int modifiedById = await _userData.GetIdByUsername(modifiedBy);
 
@@ -452,19 +456,23 @@ namespace xgca.core.User
 
             int userId = await _userData.GetIdByGuid(Guid.Parse(obj.UserId));
 
-            string url = "";
-            if (obj.IsLocked == 1)
+            var getUserName = await _userData.Retrieve(userId);
+            if (!getUserName.Username.IsNullOrEmpty())
             {
-                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.DisableUser;
+                string url = "";
+                if (obj.IsLocked == 1)
+                {
+                    url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.DisableUser;
+                }
+                else
+                {
+                    url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.EnableUser;
+                }
+                string token = _tokenHelper.RemoveBearer(auth);
+                var serviceResponse = await _httpHelper.Put($"{url}/{userId}", null, token);
+                var json = (JObject)serviceResponse;
+                var statusCode = json["statusCode"];
             }
-            else
-            {
-                url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.EnableUser;
-            }
-            string token = _tokenHelper.RemoveBearer(auth);
-            var serviceResponse = await _httpHelper.Put($"{url}/{userId}", null, token);
-            var json = (JObject)serviceResponse;
-            var statusCode = json["statusCode"];
 
             int modifiedById = await _userData.GetIdByUsername(modifiedBy);
 
@@ -725,13 +733,16 @@ namespace xgca.core.User
         public async Task<IGeneralModel> Delete(string key, string modifiedBy, string auth)
         {
             int userId = await _userData.GetIdByGuid(Guid.Parse(key));
+            var user = await _userData.Retrieve(userId);
 
-            string url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.DisableUser;
-
-            string token = _tokenHelper.RemoveBearer(auth);
-            var serviceResponse = await _httpHelper.Put($"{url}/{userId}", null, token);
-            var json = (JObject)serviceResponse;
-            var statusCode = json["statusCode"];
+            if (!user.Username.IsNullOrEmpty())
+            {
+                string url = _optimusAuthService.Value.BaseUrl + _optimusAuthService.Value.DisableUser;
+                string token = _tokenHelper.RemoveBearer(auth);
+                var serviceResponse = await _httpHelper.Put($"{url}/{userId}", null, token);
+                var json = (JObject)serviceResponse;
+                var statusCode = json["statusCode"];
+            }
 
             var result = await _userData.Delete(userId);
             return result
@@ -756,7 +767,8 @@ namespace xgca.core.User
                 UserId = obj.UserId,
                 Username = obj.Username,
                 ModifiedBy = GlobalVariables.SystemUserId,
-                ModifiedOn = DateTime.UtcNow
+                ModifiedOn = DateTime.UtcNow,
+                Status = 1
             };
 
             var result = await _userData.SetUsername(data);

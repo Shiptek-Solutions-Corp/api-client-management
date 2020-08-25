@@ -113,7 +113,7 @@ namespace xgca.data.CompanyServiceUser
                 .Include(cu => cu.CompanyUsers)
                     .ThenInclude(u => u.Users)
                 .Include(csr => csr.CompanyServiceRoles)
-                .Where(csr => csr.CompanyServiceRoles.IsDeleted == 0)
+                //.Where(csr => csr.CompanyServiceRoles.IsDeleted == 0)
                 .Where(csu => csu.CompanyUserId == companyUserId)
                 .ToListAsync();
 
@@ -193,13 +193,15 @@ namespace xgca.data.CompanyServiceUser
             if (companyServiceId > 1)
             {
                 //predicate = predicate.And(c => !c.CompanyServiceUsers.Any(c => c.CompanyServiceId == companyServiceId));
-                predicate = predicate.And(c => !c.CompanyServiceUsers.Any(c => c.CompanyServiceId == companyServiceId));
-
+                predicate = predicate
+                    .And(c => !c.CompanyServiceUsers.Any(c => c.CompanyServiceId == companyServiceId))
+                    .And(c => c.CompanyServiceUsers.Any(c => c.IsMasterUser == 0));
             }
 
             if (companyServiceRoleId > 1)
             {
-                predicate = predicate.And(c => c.CompanyServiceUsers.Any(c => c.CompanyServiceRoleId != companyServiceRoleId));
+                predicate = predicate
+                    .And(c => c.CompanyServiceUsers.Any(c => c.CompanyServiceRoleId != companyServiceRoleId || c.IsMasterUser == 0));
             }
 
             return await data
@@ -222,8 +224,9 @@ namespace xgca.data.CompanyServiceUser
 
         public async Task<bool> BulkDeleteByCompanyServiceRole(int companyServiceRoleId)
         {
-           var data =  _context.CompanyServiceUsers
-               .Where(c => c.CompanyServiceRoleId == companyServiceRoleId);
+            var data = _context.CompanyServiceUsers
+                .Where(c => c.IsMasterUser == 0 && c.CompanyServiceRoleId == companyServiceRoleId);
+
             _context.CompanyServiceUsers.RemoveRange(data);
 
             var result = await  _context.SaveChangesAsync();

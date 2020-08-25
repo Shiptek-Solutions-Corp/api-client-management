@@ -148,7 +148,7 @@ namespace xgca.core.CompanyServiceRole
 
         public async Task<IGeneralModel> Update(UpdateCompanyServiceRoleModel updateCompanyServiceRoleModel, Guid companyServiceRoleId)
         {
-            var result = await _companyServiceRole.Retrieve(companyServiceRoleId);
+            var result = await _companyServiceRole.Get(companyServiceRoleId);
             var oldData = result;
             if (result == null)
             {

@@ -52,6 +52,12 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.IO;
 using xlog_client_management_api.Middlewares;
+using xgca.core.Helpers.Guest;
+using xgca.core.Guest;
+using xgca.data.Guest;
+using xgca.core.Helpers.Utility;
+using xgca.data.PreferredContact;
+using xgca.core.PreferredContact;
 
 namespace xlog_client_management_api
 {
@@ -107,6 +113,8 @@ namespace xlog_client_management_api
             services.AddScoped<ICompanyServiceUser, CompanyServiceUser>();
             services.AddScoped<ICompanyUser, CompanyUser>();
             services.AddScoped<IContactDetail, ContactDetail>();
+            services.AddScoped<IGuestData, GuestData>();
+            services.AddScoped<IPreferredContactData, PreferredContactData>();
             services.AddScoped<IGeneral, General>();
 
             services.AddScoped<ICompanyGroupResource, CompanyGroupResource>();
@@ -116,23 +124,29 @@ namespace xlog_client_management_api
             services.AddScoped<ICompanyServiceUserRoleData, CompanyServiceUserRoleData>();
 
             services.AddScoped<IAuditLogHelper, AuditLogHelper>();
+            services.AddScoped<IGuestHelper, GuestHelper>();
             services.AddScoped<IQueryFilterHelper, QueryFilterHelper>();
             services.AddScoped<IUserHelper, UserHelper>();
             services.AddScoped<IGeneralModel, GeneralModel>();
-
-            services.AddScoped<IUser, User>();
-            services.AddScoped<xgca.core.Address.IAddress, xgca.core.Address.Address>();
-            services.AddScoped<xgca.core.AddressType.IAddressType, xgca.core.AddressType.AddressType>();
-            services.AddScoped<ICompany, Company>();
-            services.AddScoped<IAuditLogCore, AuditLogCore>();
+            services.AddScoped<IPagedResponse, PagedResponse>();
+            services.AddScoped<IPreferredContactHelper, PreferredContactHelper>();
             services.AddScoped<IProfile, xgca.core.Profile.Profile>();
             services.AddScoped<IHttpHelper, HttpHelper>();
             services.AddScoped<ITokenHelper, TokenHelper>();
+
+            services.AddScoped<IAuditLogCore, AuditLogCore>();
+            services.AddScoped<ICompany, Company>();
+            services.AddScoped<IGuestCore, GuestCore>();
+            services.AddScoped<IUser, User>();
+            services.AddScoped<xgca.core.Address.IAddress, xgca.core.Address.Address>();
+            services.AddScoped<xgca.core.AddressType.IAddressType, xgca.core.AddressType.AddressType>();
             services.AddScoped<xgca.core.CompanyService.ICompanyService, xgca.core.CompanyService.CompanyService>();
             services.AddScoped<xgca.core.CompanyServiceRole.ICompanyServiceRole, xgca.core.CompanyServiceRole.CompanyServiceRole>();
             services.AddScoped<xgca.core.CompanyServiceUser.ICompanyServiceUser, xgca.core.CompanyServiceUser.CompanyServiceUser>();
             services.AddScoped<xgca.core.CompanyUser.ICompanyUser, xgca.core.CompanyUser.CompanyUser>();
             services.AddScoped<xgca.core.ContactDetail.IContactDetail, xgca.core.ContactDetail.ContactDetail>();
+            services.AddScoped<IPreferredContactCore, PreferredContactCore>();
+
             services.AddScoped<IGLobalCmsService, xgca.core.Services.GlobalCmsService>();
 
             services.Configure<xgca.core.Helpers.GlobalCmsService>(o =>
@@ -179,6 +193,10 @@ namespace xlog_client_management_api
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     return Task.CompletedTask;
                 };
+                options.Events.OnRedirectToAccessDenied = context =>
+                {
+                    return Task.CompletedTask;
+                };
             });
 
             services.AddSwaggerGen(c =>
@@ -207,13 +225,15 @@ namespace xlog_client_management_api
 
             app.UseHttpsRedirection();
 
-            app.UseRouting();
+            app.UseCors();
 
             app.UseCors("AllowAllPolicy");
 
+            app.UseRouting();
+
             //app.UseMiddleware<HttpInterceptor>();
 
-            app.UseAuthentication();
+            //app.UseAuthentication();
 
             app.UseAuthorization();
 

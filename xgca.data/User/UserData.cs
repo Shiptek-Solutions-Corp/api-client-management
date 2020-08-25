@@ -186,6 +186,7 @@ namespace xgca.data.User
             data.Username = obj.Username;
             data.ModifiedBy = obj.ModifiedBy;
             data.ModifiedOn = DateTime.UtcNow;
+            data.Status = obj.Status;
             var result = await _context.SaveChangesAsync();
             List<int> isUserMaster = await _context.Users.Where(u => u.UserId == obj.UserId && u.IsDeleted == 0)
                 .Select(u => u.CompanyUsers).SelectMany(c => c.CompanyServiceUsers).Select(c => c.IsMasterUser).ToListAsync();

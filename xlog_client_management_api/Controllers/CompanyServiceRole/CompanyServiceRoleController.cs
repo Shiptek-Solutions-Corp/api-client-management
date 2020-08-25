@@ -28,7 +28,7 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
         [Route("company/services/role")]
         [HttpPost]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        //[TokenAuthorize("scope", "groupUser.post")]
+        [TokenAuthorize("scope", "groupUser.post")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -45,7 +45,7 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
         [Route("company/services/role/{companyServiceId}")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        //[TokenAuthorize("scope", "groupUser.get")]
+        [TokenAuthorize("scope", "groupUser.get")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -68,10 +68,11 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
         [Route("company/services/role/company/{companyId}")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        //[TokenAuthorize("scope", "groupUser.get")]
+        [TokenAuthorize("scope", "groupUser.get")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> ListByCompanyID(string companyId, [FromQuery] int status = -1)
         {
             var response = await _companyServiceRole.ListByCompany(companyId, status);
@@ -91,7 +92,7 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
         [Route("company-service-role/{companyServiceRoleId}")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        //[TokenAuthorize("scope", "groupUser.get")]
+        [TokenAuthorize("scope", "groupUser.get")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -111,7 +112,7 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
         [Route("company-service-role/{companyServiceRoleId}")]
         [HttpPut]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        //[TokenAuthorize("scope", "groupUser.get")]
+        [TokenAuthorize("scope", "groupUser.put")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -138,7 +139,7 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
         [Route("company-service-group-user")]
         [HttpPost]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        //[TokenAuthorize("scope", "groupUser.post")]
+        [TokenAuthorize("scope", "groupUser.post")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -164,11 +165,36 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
         [Route("company-service-role")]
         [HttpPut]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        //[TokenAuthorize("scope", "groupUser.put")]
+        [TokenAuthorize("scope", "groupUser.put")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> BatchUpdate([FromBody] BatchUpdateCompanyServiceRoleModel batchUpdateCompanyServiceRoleModel)
+        {
+            Constant.loggedInUserName = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
+
+            var response = await _companyServiceRole.BatchUpdate(batchUpdateCompanyServiceRoleModel);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Route("company-service-role")]
+        [HttpDelete]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [TokenAuthorize("scope", "groupUser.delete")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> BatchDelete([FromBody] BatchUpdateCompanyServiceRoleModel batchUpdateCompanyServiceRoleModel)
         {
             Constant.loggedInUserName = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
 

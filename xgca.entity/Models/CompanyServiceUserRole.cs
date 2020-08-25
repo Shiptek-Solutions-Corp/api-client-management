@@ -8,7 +8,7 @@ using static xgca.entity.Models._Model;
 namespace xgca.entity.Models
 {
     [Table("CompanyServiceUserRole", Schema = "Company")]
-    public class CompanyServiceUserRole : IdentifiableEntity
+    public class CompanyServiceUserRole : SoftDeletableEntity
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

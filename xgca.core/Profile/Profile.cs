@@ -19,6 +19,11 @@ using xgca.core.Constants;
 
 namespace xgca.core.Profile
 {
+    public interface IProfile
+    {
+        Task<dynamic> LoadProfile(string username, string companyServiceKey);
+    }
+
     public class Profile : IProfile
     {
         private readonly IUserData _userData;
@@ -98,6 +103,7 @@ namespace xgca.core.Profile
                     Image = user.ImageURL,
                     Email = user.EmailAddress,
                     ServiceRole = companyServiceUser.CompanyServiceRoles.Name,
+                    companyServiceUser.IsMasterUser
                 }
             };
 

@@ -49,6 +49,34 @@
     <Compile Remove="Migrations\20200710133356_test.Designer.cs" />
     <Compile Remove="Migrations\20200712161248_added_column_changed_datatyp.cs" />
     <Compile Remove="Migrations\20200712161248_added_column_changed_datatyp.Designer.cs" />
+    <Compile Remove="Migrations\20200730073438_added_entity_Guest.cs" />
+    <Compile Remove="Migrations\20200730073438_added_entity_Guest.Designer.cs" />
+    <Compile Remove="Migrations\20200730093348_added_entity_Guest.cs" />
+    <Compile Remove="Migrations\20200730093348_added_entity_Guest.Designer.cs" />
+    <Compile Remove="Migrations\20200730094814_added_entity_Guest.cs" />
+    <Compile Remove="Migrations\20200730094814_added_entity_Guest.Designer.cs" />
+    <Compile Remove="Migrations\20200730110636_added_entity_Guest.cs" />
+    <Compile Remove="Migrations\20200730110636_added_entity_Guest.Designer.cs" />
+    <Compile Remove="Migrations\20200730110933_added_entity_Guest.cs" />
+    <Compile Remove="Migrations\20200730110933_added_entity_Guest.Designer.cs" />
+    <Compile Remove="Migrations\20200730112032_added_entity_Guest.cs" />
+    <Compile Remove="Migrations\20200730112032_added_entity_Guest.Designer.cs" />
+    <Compile Remove="Migrations\20200730113244_added_entity_Guest.cs" />
+    <Compile Remove="Migrations\20200730113244_added_entity_Guest.Designer.cs" />
+    <Compile Remove="Migrations\20200804074224_added_entity_for_PreferredContacts.cs" />
+    <Compile Remove="Migrations\20200804074224_added_entity_for_PreferredContacts.Designer.cs" />
+    <Compile Remove="Migrations\20200804080855_added_entity_for_PreferredContacts.cs" />
+    <Compile Remove="Migrations\20200804080855_added_entity_for_PreferredContacts.Designer.cs" />
+    <Compile Remove="Migrations\20200806085412_added_default_value_for_CompanyId_GuestId_GuestType.cs" />
+    <Compile Remove="Migrations\20200806085412_added_default_value_for_CompanyId_GuestId_GuestType.Designer.cs" />
+    <Compile Remove="Migrations\20200807083923_changed_column_back_to_int_data_type.cs" />
+    <Compile Remove="Migrations\20200807083923_changed_column_back_to_int_data_type.Designer.cs" />
+    <Compile Remove="Migrations\20200810033619_removed_default_value_CompanyId_GuestId.cs" />
+    <Compile Remove="Migrations\20200810033619_removed_default_value_CompanyId_GuestId.Designer.cs" />
+    <Compile Remove="Migrations\20200815085255_test.cs" />
+    <Compile Remove="Migrations\20200815085255_test.Designer.cs" />
+    <Compile Remove="Migrations\20200815125824_test.cs" />
+    <Compile Remove="Migrations\20200815125824_test.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

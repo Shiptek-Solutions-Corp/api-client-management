@@ -17,5 +17,9 @@ namespace xgca.core.Constants
         public static int Inactive = 0;
         public static int Locked = 1;
         public static int Unlocked = 0;
+
+        public static int GuestShipper = 0;
+        public static int GuestConsignee = 1;
+        public static int GuestNotifyParty = 2;
     }
 }

@@ -28,6 +28,9 @@ namespace xgca.entity
         DbSet<CompanyGroupResource> CompanyGroupResources { get; set; }
         DbSet<CompanyServiceUserRole> CompanyServiceUserRoles { get; set; }
 
+        DbSet<Guest> Guests { get; set; }
+        DbSet<PreferredContact> PreferredContacts { get; set; }
+
     }
 
     public class XGCAContext : DbContext, IXGCAContext
@@ -50,6 +53,9 @@ namespace xgca.entity
         public DbSet<CompanyUser> CompanyUsers { get; set; }
         public DbSet<CompanyGroupResource> CompanyGroupResources { get; set; }
         public DbSet<CompanyServiceUserRole> CompanyServiceUserRoles { get; set; }
+
+        public DbSet<Guest> Guests { get; set; }
+        public DbSet<PreferredContact> PreferredContacts { get; set; }
 
         public Task<int> SaveChangesAsync() => base.SaveChangesAsync();
         public Task<int> SaveChangesAuditable()
@@ -122,7 +128,7 @@ namespace xgca.entity
                     // if deleted state, change to Modified
                     entry.State = EntityState.Modified;
                     var entityDel = (ISoftDeletableEntity)entry.Entity;
-                    entityDel.IsDeleted = true;
+                    entityDel.IsDeleted = 1;
                     entityDel.DeletedOn = now;
                     entityDel.DeletedBy = "calicubilly";
                 }

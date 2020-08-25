@@ -21,6 +21,25 @@ namespace xgca.core.Helpers
         {
             return data.GetType().GetProperty(key).GetValue(data, null);
         }
+
+        public static string[] SplitByComma(string values)
+        {
+            if (values != null)
+            {
+
+                return values.Split(",");
+            }
+            return new string[] { };
+        }
+        public static Guid CheckIfGuid(string guidString)
+        {
+            var isValidGuid = Guid.TryParse(guidString, out var guid);
+
+            if (!isValidGuid) 
+                return new Guid();
+            else 
+                return guid;
+        } 
     }
     public interface IParentConstant
     {

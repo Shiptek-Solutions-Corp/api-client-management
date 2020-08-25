@@ -10,6 +10,7 @@ using xgca.core.Models.CompanyServiceUser;
 using xgca.core.Models.CompanyServiceUserRole;
 using xgca.core.Models.CompanyUser;
 using xgca.core.Models.GroupResource;
+using xgca.core.Models.Guest;
 using xgca.core.Models.MenuModule;
 using xgca.core.Models.ModuleGroup;
 using xgca.core.Models.User;
@@ -48,6 +49,8 @@ namespace xgca.core._Mapper
             CreateMap<entity.Models.User, GetUserModel>();
 
 
+            CreateMap<CreateGuest, entity.Models.Guest>();
+            CreateMap<UpdateGuestContact, entity.Models.Guest>();
         }
     }
 }
