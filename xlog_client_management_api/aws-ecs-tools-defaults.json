@@ -18,7 +18,7 @@
     "skip-image-push"                 : false,
     "cluster-service"                 : "xlogclientmanagementapi-dev",
     "desired-count"                   : 1,
-    "deployment-minimum-healthy-percent" : 50,
+    "deployment-minimum-healthy-percent" : 0,
     "deployment-maximum-percent"         : 200,
     "elb-target-group"                   : "arn:aws:elasticloadbalancing:us-east-1:101749551814:targetgroup/xlogclientmanagementapi-tg/286281c00bac2f59",
     "elb-container-port"                 : 80,

@@ -70,4 +70,21 @@ namespace xgca.core.Helpers
         public string SingleRegisterUser { get; set; }
 
     }
+
+    public class EmailApi : ParentConstant
+    {
+
+    }
+
+    public class EmailTemplate
+    {
+        public string BaseTemplate { get; set; }
+        public string SendContactInviteTemplate { get; set; }
+        public string SendProviderInviteTemplate { get; set; }
+    }
+
+    public class WebsiteLinks
+    {
+        public string Login { get; set; }
+    }
 }

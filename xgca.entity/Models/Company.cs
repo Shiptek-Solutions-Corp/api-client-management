@@ -14,6 +14,8 @@ namespace xgca.entity.Models
         public int CompanyId { get; set; }
         [System.ComponentModel.DefaultValue(1)]
         public int ClientId { get; set; }
+        [StringLength(10)]
+        public string CompanyCode { get; set; }
         [Required]
         [StringLength(160)]
         public string CompanyName { get; set; }
@@ -31,12 +33,14 @@ namespace xgca.entity.Models
         public byte IsDeleted { get; set; }
         public byte TaxExemption { get; set; }
         public byte TaxExemptionStatus { get; set; }
+        public string UCCCode { get; set; }
         public int CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
         public int ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Guid { get; set; }
+        public string AccreditedBy { get; set; }
 
         public virtual Address Addresses { get; set; }
         public virtual ContactDetail ContactDetails { get; set; }

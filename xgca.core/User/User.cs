@@ -50,6 +50,7 @@ namespace xgca.core.User
         Task<IGeneralModel> GetIdByGuid(string key);
         Task<int> GetIdByGuid(Guid key);
         Task<int> GetIdByUsername(string username);
+        Task<entity.Models.User> GetUserByEmail(string email);
         Task<IGeneralModel> GetUserByReferenceId(int id);
         Task<IGeneralModel> ListUserLogs(string? userKey, string? username);
         Task<IGeneralModel> GetUserCounts(List<int> userIds);
@@ -861,6 +862,12 @@ namespace xgca.core.User
                 TotalActiveUsers = totalActiveUsers,
                 TotalInactiveUsers = totalInactiveUsers,
             }, 200, "Total user counts displayed", true);
+        }
+
+        public async Task<entity.Models.User> GetUserByEmail(string email)
+        {
+            var user = await _userData.GetUserByEmail(email);
+            return user;
         }
     }
 }

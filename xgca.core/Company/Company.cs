@@ -34,7 +34,7 @@ namespace xgca.core.Company
     {
         Task<IGeneralModel> List();
 
-        Task<IGeneralModel> ListByService(int serviceId, int page, int rowCount);
+        Task<IGeneralModel> ListByService(int serviceId, string companyName, int page, int rowCount);
         Task<IGeneralModel> Create(CreateCompanyModel obj, string createdBy);
         Task<IGeneralModel> CreateAndReturnId(CreateCompanyModel obj);
         Task<IGeneralModel> InitialRegistration(InitialRegistrationModel obj);
@@ -52,6 +52,12 @@ namespace xgca.core.Company
         Task<IGeneralModel> GetReservationActors(List<GetReservationActorsModel> getReservationActorsModel);
         Task<IGeneralModel> ListCompaniesByIDs(GetCompanyIDs obj);
         Task<IGeneralModel> ListCompanyDetailsByIds(GetCompanyIDs obj);
+
+        Task<IGeneralModel> BatchUpdateCompanyCode(string username);
+        Task<IGeneralModel> UpdateAccreditedBy(UpdateAccreditedByModel obj, string username);
+
+        Task<IGeneralModel> ListByCompanyName(string companyName);
+        Task<IGeneralModel> CheckIfExistsByCompanyName(string companyName);
 
     }
     public class Company : ICompany
@@ -114,9 +120,19 @@ namespace xgca.core.Company
             return _general.Response(new { companty = data }, 200, "Configurable companies has been listed", true);
         }
 
-        public async Task<IGeneralModel> ListByService(int serviceId, int page, int rowCount)
+        public async Task<IGeneralModel> ListByService(int serviceId, string companyName, int page, int rowCount)
         {
-            var data = await _companyData.ListByService(serviceId, page, rowCount);
+            dynamic data = null;
+
+            if (companyName is null)
+            {
+                data = await _companyData.ListByService(serviceId, page, rowCount);
+            }
+            else
+            {
+                data = await _companyData.ListByService(serviceId, companyName, page, rowCount);
+            }
+
             return _general.Response(data, 200, "Company Has been listed!", true);
         }
 
@@ -135,10 +151,21 @@ namespace xgca.core.Company
             if (contactDetailId <= 0)
             { return _general.Response(false, 400, "Error on creating company", true); }
 
+            string companyCode = "";
+            bool isExists = true;
+            int tries = 0;
+            while (isExists)
+            {
+                companyCode = CompanyHelper.GenerateCompanyCode(obj.CompanyName, tries, 5);
+                isExists = await _companyData.CheckCompanyCode(companyCode);
+                tries++;
+            }
+
             var company = new xgca.entity.Models.Company
             {
                 ClientId = 1,
                 CompanyName = obj.CompanyName,
+                CompanyCode = companyCode,
                 AddressId = addressId,
                 ContactDetailId = contactDetailId,
                 ImageURL = obj.ImageURL,
@@ -179,10 +206,21 @@ namespace xgca.core.Company
             if (contactDetailId <= 0)
             { return _general.Response(false, 400, "Error on creating company", true); }
 
-            var company = new xgca.entity.Models.Company
+            string companyCode = "";
+            bool isExists = true;
+            int tries = 0;
+            while(isExists)
+            {
+                companyCode = CompanyHelper.GenerateCompanyCode(obj.CompanyName, tries, 5);
+                isExists = await _companyData.CheckCompanyCode(companyCode);
+                tries++;
+            }
+
+            var company = new entity.Models.Company
             {
                 ClientId = 1,
                 CompanyName = obj.CompanyName,
+                CompanyCode = companyCode,
                 AddressId = addressId,
                 ContactDetailId = contactDetailId,
                 ImageURL = obj.ImageURL,
@@ -217,7 +255,7 @@ namespace xgca.core.Company
             await _coreAuditLog.CreateAuditLog("Create", company.GetType().Name, companyId, GlobalVariables.SystemUserId, companyLog, null);
 
             return companyId > 0
-                ? _general.Response(new { CompanyId = companyId, MasterUserId = masterUser.MasterUserId }, 200, "Company registration successful", true)
+                ? _general.Response(new { CompanyId = companyId, MasterUserId = masterUser.MasterUserId, CompanyGuid = company.Guid }, 200, "Company registration successful", true)
                 : _general.Response(false, 400, "Error on registration", true);
         }
 
@@ -258,6 +296,7 @@ namespace xgca.core.Company
                 ModifiedBy = modifiedById,
                 ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.Parse(obj.CompanyId),
+                UCCCode = obj.UCCCode
             };
 
             var companyResult = await _companyData.Update(company);
@@ -348,6 +387,7 @@ namespace xgca.core.Company
                     result.ContactDetails.FaxPrefix,
                     result.ContactDetails.Fax,
                 },
+                result.UCCCode,
                 result.TaxExemption,
                 result.TaxExemptionStatus,
                 CompanyServices = companyServices.data.companyService,
@@ -376,6 +416,7 @@ namespace xgca.core.Company
             {
                 CompanyId = result.Guid,
                 result.CompanyName,
+                result.CompanyCode,
                 result.ImageURL,
                 AddressId = result.Addresses.Guid,
                 result.Addresses.AddressLine,
@@ -419,6 +460,7 @@ namespace xgca.core.Company
                     result.ContactDetails.FaxPrefix,
                     result.ContactDetails.Fax,
                 },
+                result.UCCCode,
                 result.TaxExemption,
                 result.TaxExemptionStatus,
                 CompanyServices = companyServices.data.companyService,
@@ -496,6 +538,7 @@ namespace xgca.core.Company
             {
                 CompanyId = companyId,
                 CompanyName = obj.CompanyName,
+                UCCCode = obj.UCCCode,
                 AddressId = addressId,
                 ContactDetailId = contactDetailId,
                 ImageURL = obj.ImageURL,
@@ -631,12 +674,13 @@ namespace xgca.core.Company
 
         public async Task<IGeneralModel> ListCompaniesByIDs(GetCompanyIDs obj)
         {
-            var data = await _companyData.ListCompaniesByIDs(obj.CompanyIDs);
+            var data = await _companyData.ListCompaniesByGuids(obj.CompanyIDs);
 
             var companies = data.Select(c => new
             {
                 CompanyId = c.Guid,
                 c.CompanyName,
+                c.CompanyCode,
                 c.ImageURL
             });
 
@@ -645,7 +689,7 @@ namespace xgca.core.Company
 
         public async Task<IGeneralModel> ListCompanyDetailsByIds(GetCompanyIDs obj)
         {
-            var data = await _companyData.ListCompaniesByIDs(obj.CompanyIDs);
+            var data = await _companyData.ListCompaniesByGuids(obj.CompanyIDs);
 
 
 
@@ -654,6 +698,7 @@ namespace xgca.core.Company
 
                 CompanyId = c.Guid,
                 c.CompanyName,
+                c.CompanyCode,
                 c.ImageURL,
                 AddressId = c.Addresses.Guid,
                 c.Addresses.AddressLine,
@@ -696,10 +741,62 @@ namespace xgca.core.Company
                     c.ContactDetails.FaxPrefixId,
                     c.ContactDetails.FaxPrefix,
                     c.ContactDetails.Fax,
-                }
+                },
+                c.UCCCode
             });
 
             return _general.Response(new { Companies = companies }, 200, "Get Successful", true);
+        }
+
+        public async Task<IGeneralModel> BatchUpdateCompanyCode(string username)
+        {
+            int modifiedById = GlobalVariables.SystemUserId; //await _userData.GetIdByUsername(username);
+            List<entity.Models.Company> woCompanyCode = await _companyData.GetCompanyWithNullCompanyCodes();
+
+            foreach (var company in woCompanyCode)
+            {
+                string companyCode = "";
+                bool isExists = true;
+                int tries = 0;
+                while (isExists)
+                {
+                    companyCode = CompanyHelper.GenerateCompanyCode(company.CompanyName, tries, 5);
+                    isExists = await _companyData.CheckCompanyCode(companyCode);
+                    tries++;
+                }
+                company.CompanyCode = companyCode;
+                company.ModifiedBy = modifiedById;
+                company.ModifiedOn = DateTime.UtcNow;
+
+                var result = await _companyData.Update(company);
+            }
+
+            return _general.Response(null, 200, "Company code for existing companies has been generated and updated", true);
+        }
+
+        public async Task<IGeneralModel> UpdateAccreditedBy(UpdateAccreditedByModel obj, string username)
+        {
+            int modifiedBy = await _coreUser.GetIdByUsername(username);
+            var result = await _companyData.SetAccreditedBy(obj.CompanyId, obj.AccreditedBy, modifiedBy);
+
+            return result
+                ? _general.Response(null, 200, "Accreditation Successful", true)
+                : _general.Response(null, 400, "Error on accrediting process", true);
+        }
+
+        public async Task<IGeneralModel> ListByCompanyName(string companyName)
+        {
+            companyName = companyName.Replace("%20", " ");
+            var companies = await _companyData.ListByCompanyName(companyName);
+            return _general.Response(new { Companies = companies.Select(x => new { x.Guid, x.CompanyName }) }, 200, "Configurable companies has been listed", true);
+        }
+
+        public async Task<IGeneralModel> CheckIfExistsByCompanyName(string companyName)
+        {
+            companyName = companyName.Replace("%20", " ");
+            bool isExist = await _companyData.CheckIfExistsByCompanyName(companyName);
+            string message = (isExist) ? "Company exists" : "Company does not exists";
+            return _general.Response(isExist, 200, message, true);
         }
     }
 }

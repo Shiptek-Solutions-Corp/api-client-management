@@ -9,10 +9,27 @@ namespace xgca.core.Helpers.QueryFilter
     public interface IQueryFilterHelper
     {
         dynamic ParseQueryParams(string query, string delimeter = ",", string queryOperator = "=");
+        List<KeyValuePair<string, string>> ParseFilter(String filters);
     }
     public class QueryFilterHelper : IQueryFilterHelper
     {
         public QueryFilterHelper() { }
+
+        public List<KeyValuePair<string, string>> ParseFilter(String filter)
+        {
+            var list = new List<KeyValuePair<string, string>>();
+            if (!string.IsNullOrEmpty(filter))
+            {
+                string[] words = filter.Split(',');
+                foreach (string word in words)
+                {
+                    string[] val = word.Split(':');
+                    list.Add(new KeyValuePair<string, string>(val[0], val[1]));
+                }
+            }
+
+            return list;
+        }
 
         public dynamic ParseQueryParams(string query, string delimeter = ",", string queryOperator = "=")
         {
@@ -36,5 +53,7 @@ namespace xgca.core.Helpers.QueryFilter
 
             return queryString;
         }
+
+        
     }
 }

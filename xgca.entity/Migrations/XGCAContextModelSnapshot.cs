@@ -95,6 +95,30 @@ namespace xgca.entity.Migrations
                     b.HasIndex("AddressTypeId");
 
                     b.ToTable("Address","General");
+
+                    b.HasData(
+                        new
+                        {
+                            AddressId = 1,
+                            AddressLine = "None",
+                            AddressTypeId = 1,
+                            CityId = 1,
+                            CityName = "None",
+                            CountryId = 1,
+                            CountryName = "Global",
+                            CreatedBy = 0,
+                            CreatedOn = new DateTime(2020, 9, 2, 17, 7, 9, 514, DateTimeKind.Utc).AddTicks(1418),
+                            FullAddress = "None",
+                            Guid = new Guid("21716a6c-4dee-422b-b2d9-74bf4b12e242"),
+                            IsDeleted = (byte)1,
+                            Latitude = "None",
+                            Longitude = "None",
+                            ModifiedBy = 0,
+                            ModifiedOn = new DateTime(2020, 9, 2, 17, 7, 9, 514, DateTimeKind.Utc).AddTicks(3939),
+                            StateId = 1,
+                            StateName = "None",
+                            ZipCode = "None"
+                        });
                 });
 
             modelBuilder.Entity("xgca.entity.Models.AddressType", b =>
@@ -131,6 +155,30 @@ namespace xgca.entity.Migrations
                     b.HasKey("AddressTypeId");
 
                     b.ToTable("AddressType","Settings");
+
+                    b.HasData(
+                        new
+                        {
+                            AddressTypeId = 1,
+                            CreatedBy = 0,
+                            CreatedOn = new DateTime(2020, 9, 2, 17, 7, 9, 509, DateTimeKind.Utc).AddTicks(8389),
+                            Guid = new Guid("1e0621b2-b7ea-4d48-8be2-f09980694816"),
+                            IsDeleted = (byte)0,
+                            ModifiedBy = 0,
+                            ModifiedOn = new DateTime(2020, 9, 2, 17, 7, 9, 510, DateTimeKind.Utc).AddTicks(346),
+                            Name = "Company"
+                        },
+                        new
+                        {
+                            AddressTypeId = 2,
+                            CreatedBy = 0,
+                            CreatedOn = new DateTime(2020, 9, 2, 17, 7, 9, 512, DateTimeKind.Utc).AddTicks(7434),
+                            Guid = new Guid("95ec682b-074f-42bb-9fed-d4dbde41e41d"),
+                            IsDeleted = (byte)0,
+                            ModifiedBy = 0,
+                            ModifiedOn = new DateTime(2020, 9, 2, 17, 7, 9, 512, DateTimeKind.Utc).AddTicks(7474),
+                            Name = "Residential"
+                        });
                 });
 
             modelBuilder.Entity("xgca.entity.Models.AuditLog", b =>
@@ -181,11 +229,18 @@ namespace xgca.entity.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("AccreditedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("AddressId")
                         .HasColumnType("int");
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
+
+                    b.Property<string>("CompanyCode")
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
 
                     b.Property<string>("CompanyName")
                         .IsRequired()
@@ -231,6 +286,9 @@ namespace xgca.entity.Migrations
                     b.Property<byte>("TaxExemptionStatus")
                         .HasColumnType("tinyint");
 
+                    b.Property<string>("UCCCode")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("WebsiteURL")
                         .HasColumnType("nvarchar(50)")
                         .HasMaxLength(50);
@@ -242,6 +300,28 @@ namespace xgca.entity.Migrations
                     b.HasIndex("ContactDetailId");
 
                     b.ToTable("Company","Company");
+
+                    b.HasData(
+                        new
+                        {
+                            CompanyId = 1,
+                            AddressId = 1,
+                            ClientId = 1,
+                            CompanyName = "None",
+                            ContactDetailId = 1,
+                            CreatedBy = 0,
+                            CreatedOn = new DateTime(2020, 9, 2, 17, 7, 9, 517, DateTimeKind.Utc).AddTicks(6055),
+                            EmailAddress = "None",
+                            Guid = new Guid("3608a083-fbe5-44d5-afef-c7814100aec7"),
+                            ImageURL = "None",
+                            IsDeleted = (byte)1,
+                            ModifiedBy = 0,
+                            ModifiedOn = new DateTime(2020, 9, 2, 17, 7, 9, 517, DateTimeKind.Utc).AddTicks(7971),
+                            Status = (byte)0,
+                            TaxExemption = (byte)0,
+                            TaxExemptionStatus = (byte)0,
+                            WebsiteURL = "None"
+                        });
                 });
 
             modelBuilder.Entity("xgca.entity.Models.CompanyGroupResource", b =>
@@ -270,7 +350,7 @@ namespace xgca.entity.Migrations
                     b.Property<Guid>("Guid")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasDefaultValue(new Guid("0f4e21e7-298a-4167-aab0-a48170deb211"));
+                        .HasDefaultValue(new Guid("c4deab30-7c05-47a7-84ad-3c63b9b9ddb8"));
 
                     b.Property<byte>("IsAllowed")
                         .HasColumnType("tinyint");
@@ -605,6 +685,27 @@ namespace xgca.entity.Migrations
                     b.HasKey("ContactDetailId");
 
                     b.ToTable("ContactDetail","General");
+
+                    b.HasData(
+                        new
+                        {
+                            ContactDetailId = 1,
+                            CreatedBy = 0,
+                            CreatedOn = new DateTime(2020, 9, 2, 17, 7, 9, 516, DateTimeKind.Utc).AddTicks(1150),
+                            Fax = "None",
+                            FaxPrefix = "None",
+                            FaxPrefixId = 1,
+                            Guid = new Guid("1f5cb3b9-992b-4279-acf7-7f0273abbf03"),
+                            IsDeleted = (byte)1,
+                            Mobile = "None",
+                            MobilePrefix = "None",
+                            MobilePrefixId = 1,
+                            ModifiedBy = 0,
+                            ModifiedOn = new DateTime(2020, 9, 2, 17, 7, 9, 516, DateTimeKind.Utc).AddTicks(3070),
+                            Phone = "None",
+                            PhonePrefix = "None",
+                            PhonePrefixId = 1
+                        });
                 });
 
             modelBuilder.Entity("xgca.entity.Models.Guest", b =>
@@ -716,6 +817,85 @@ namespace xgca.entity.Migrations
                     b.HasKey("GuestId");
 
                     b.ToTable("Guest","Company");
+
+                    b.HasData(
+                        new
+                        {
+                            GuestId = 1,
+                            AddressLine = "None",
+                            CityId = "None",
+                            CityName = "None",
+                            CompanyId = 1,
+                            CountryId = 1,
+                            CountryName = "Global",
+                            CreatedBy = 0,
+                            CreatedOn = new DateTime(2020, 9, 2, 17, 7, 9, 521, DateTimeKind.Utc).AddTicks(9540),
+                            DeletedBy = 0,
+                            DeletedOn = new DateTime(2020, 9, 2, 17, 7, 9, 522, DateTimeKind.Utc).AddTicks(6610),
+                            EmailAddress = "None",
+                            FaxNumber = "None",
+                            FaxNumberPrefix = "None",
+                            FaxNumberPrefixId = "None",
+                            FirstName = "None",
+                            GuestName = "None",
+                            GuestType = 0,
+                            Id = new Guid("7bbe1f11-e04a-4a8b-afe1-ec55eba13d66"),
+                            IsDeleted = (byte)1,
+                            IsGuest = false,
+                            LastName = "None",
+                            MobileNumber = "None",
+                            MobileNumberPrefix = "None",
+                            MobileNumberPrefixId = "None",
+                            ModifiedBy = 0,
+                            ModifiedOn = new DateTime(2020, 9, 2, 17, 7, 9, 522, DateTimeKind.Utc).AddTicks(2513),
+                            PhoneNumber = "None",
+                            PhoneNumberPrefix = "None",
+                            PhoneNumberPrefixId = "None",
+                            StateId = "None",
+                            StateName = "None",
+                            ZipCode = "None"
+                        });
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.Invite", b =>
+                {
+                    b.Property<int>("InviteId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("InviteCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("InviteType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReceiverEmail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReceiverId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("InviteId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("Invite","Company");
                 });
 
             modelBuilder.Entity("xgca.entity.Models.PreferredContact", b =>
@@ -764,6 +944,54 @@ namespace xgca.entity.Migrations
                     b.HasKey("PreferredContactId");
 
                     b.ToTable("PreferredContact","Company");
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.PreferredProvider", b =>
+                {
+                    b.Property<int>("PreferredProviderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CompanyId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompanyServiceId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DeletedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("IsDeleted")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProfileId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ServiceId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("PreferredProviderId");
+
+                    b.ToTable("PreferredProvider","Company");
                 });
 
             modelBuilder.Entity("xgca.entity.Models.User", b =>
@@ -934,6 +1162,15 @@ namespace xgca.entity.Migrations
                     b.HasOne("xgca.entity.Models.User", "Users")
                         .WithOne("CompanyUsers")
                         .HasForeignKey("xgca.entity.Models.CompanyUser", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.Invite", b =>
+                {
+                    b.HasOne("xgca.entity.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

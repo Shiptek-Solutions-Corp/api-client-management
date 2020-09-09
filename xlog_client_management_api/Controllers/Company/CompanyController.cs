@@ -53,16 +53,16 @@ namespace xlog_company_service_api.Controllers.Company
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> ListCompany([FromRoute]int serviceId, [FromQuery]int page, [FromQuery]int rows)
+        public async Task<IActionResult> ListCompany([FromRoute]int serviceId,[FromQuery] string companyName, [FromQuery]int page = 0, [FromQuery]int rows = 10)
         {
 
-            if (page == 0 || rows == 0)
-            {
-                return BadRequest(_general.Response(null, 400, "Queryparams 'page' and 'rows' must not be zero", false));
-            }
+            //if (page == 0 || rows == 0)
+            //{
+            //    return BadRequest(_general.Response(null, 400, "Queryparams 'page' and 'rows' must not be zero", false));
+            //}
 
 
-            var response = await _company.ListByService(serviceId, page, rows);
+            var response = await _company.ListByService(serviceId, companyName, page, rows);
 
             if (response.statusCode == 400)
             {
@@ -173,7 +173,7 @@ namespace xlog_company_service_api.Controllers.Company
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> UpdateCompany([FromBody]xgca.core.Models.Company.UpdateCompanyModel request)
+        public async Task<IActionResult> UpdateCompany([FromBody] UpdateCompanyModel request)
         {
             var username = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
             var response = await _company.Update(request, username);
@@ -343,5 +343,94 @@ namespace xlog_company_service_api.Controllers.Company
 
             return Ok(response);
         }
+
+        [Route("company/accredit")]
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> UpdateAccreditedBy([FromBody]UpdateAccreditedByModel obj)
+        {
+            var username = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
+            var response = await _company.UpdateAccreditedBy(obj, username);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Route("company/{companyName}/exists")]
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> CheckIfExists([FromRoute] string companyName)
+        {
+            var response = await _company.CheckIfExistsByCompanyName(companyName);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Route("company/list")]
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> ListByCompanyName([FromQuery] string companyName)
+        {
+            var response = await _company.ListByCompanyName(companyName);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
+        //[Route("company/update-company-code")]
+        //[HttpGet]
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        //public async Task<IActionResult> BatchUpdateCompanyCode([FromBody] GetCompanyIDs obj)
+        //{
+        //    //var username = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
+        //    var response = await _company.BatchUpdateCompanyCode("username");
+
+        //    if (response.statusCode == 400)
+        //    {
+        //        return BadRequest(response);
+        //    }
+        //    else if (response.statusCode == 401)
+        //    {
+        //        return Unauthorized(response);
+        //    }
+
+        //    return Ok(response);
+        //}
     }
 }

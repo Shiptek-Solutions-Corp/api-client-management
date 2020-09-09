@@ -249,5 +249,12 @@ namespace xgca.core.Guest
                 ? _general.Response(null, 200, "Guest updated successfully", true)
                 : _general.Response(null, 400, "Error on updating guest", false);
         }
+
+        public async Task<IGeneralModel> QuickSearch(string search)
+        {
+            var guests = await _guest.QuickSearch(search);
+
+            return _general.Response( guests, 200, "Quick search", true);
+        }
     }
 }

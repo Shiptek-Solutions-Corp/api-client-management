@@ -34,6 +34,7 @@ namespace xgca.core.Models.Company
         public byte TaxExemption { get; set; }
         public byte TaxExemptionStatus { get; set; }
         public List<dynamic> CompanyServices { get; set; }
+        public string UCCCode { get; set; }
 
         public string ModifiedBy { get; set; }
     }

@@ -41,6 +41,7 @@ namespace xgca.data.User
         Task<int> GetIdByUsername(string username);
         bool UsernameExists(string username);
         Task<bool> EmailAddressExists(string emailAddress);
+        Task<entity.Models.User> GetUserByEmail(string email);
     }
     public class SetUserNameReturnObject
     {
@@ -346,5 +347,13 @@ namespace xgca.data.User
             return data;
         }
 
+        public async Task<entity.Models.User> GetUserByEmail(string email)
+        {
+            var user = await _context.Users.AsNoTracking()
+                .Where(x => x.EmailAddress == email)
+                .FirstOrDefaultAsync();
+
+            return user;
+        }
     }
 }

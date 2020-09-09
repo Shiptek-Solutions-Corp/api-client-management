@@ -31,5 +31,15 @@ namespace xgca.core.Helpers
 
             return fullAddress;
         }
+
+        public static string GetCityState(dynamic obj)
+        {
+            string cityState = "";
+
+            cityState = (obj.CityName is null) ? "" : obj.CityName;
+            cityState += (obj.StateName is null) ? "" : $", {obj.StateName}";
+
+            return cityState;
+        }
     }
 }

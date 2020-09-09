@@ -118,12 +118,72 @@ namespace xgca.core.Helpers
                     companyObj.ContactDetails.FaxPrefix,
                     companyObj.ContactDetails.Fax,
                 },
+                UCCCode = companyObj.UCCCode,
                 companyObj.TaxExemption,
                 companyObj.TaxExemptionStatus,
                 CompanyServices = companyServicesObj
             };
 
             return data;
+        }
+
+        public static string GenerateCompanyCode(string companyName, int tries, int numOfChar = 5)
+        {
+            string[] names = companyName.Split(" ");
+            string companyCode = "";
+
+            string GetPadZeroes(int num, int len)
+            {
+                return num.ToString().PadLeft(len, '0');
+            }
+
+            foreach (string name in names)
+            {
+                companyCode += name;
+                if (companyCode.Length > numOfChar)
+                {
+                    continue;
+                }
+            }
+
+            
+            if (companyCode.Length > numOfChar)
+            {
+                if (tries == 0)
+                {
+                    companyCode = companyCode.Substring(0, numOfChar);
+                }
+                else
+                {
+                    int len = Convert.ToString(tries).Length;
+                    companyCode = $"{companyCode.Substring(0, (numOfChar - len))}{Convert.ToString(tries)}";
+                }
+            }
+            else
+            {
+                int missingLen = numOfChar - names[0].Length;
+
+                companyCode = $"{companyCode}{GetPadZeroes(tries, missingLen)}";
+            }
+
+           
+
+            return companyCode.ToUpper();
+        }
+
+        public static string ParseCompanydAddress(dynamic obj)
+        {
+            string companyAddress = "";
+
+            companyAddress = (!(obj.Addresses.AddressLine is null) ? obj.Addresses.AddressLine : "");
+            companyAddress += companyAddress.Length != 0 ? ", " : "";
+            companyAddress += (!(obj.Addresses.CityName is null) ? obj.Addresses.CityName : "");
+            companyAddress += companyAddress.Length != 0 ? ", " : "";
+            companyAddress += (!(obj.Addresses.StateName is null) ? obj.Addresses.StateName : "");
+            companyAddress += companyAddress.Length != 0 ? ", " : "";
+            companyAddress += obj.Addresses.CountryName;
+
+            return companyAddress;
         }
     }
 }

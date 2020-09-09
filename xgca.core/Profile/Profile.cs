@@ -90,6 +90,7 @@ namespace xgca.core.Profile
                 {
                     CompanyId = company.Guid,
                     Name = company.CompanyName,
+                    Code = company.CompanyCode,
                     Image = company.ImageURL,
                     CompanyServiceId = companyService.Guid,
                     ServiceId = serviceKey,

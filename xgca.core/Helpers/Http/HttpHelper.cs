@@ -129,17 +129,26 @@ namespace xgca.core.Helpers.Http
         }
         public async Task<dynamic> Post(string endpointUrl, dynamic data, string token)
         {
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            if (!(token is null))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
 
-            string json = JsonConvert.SerializeObject(data, Formatting.Indented);
+            var json = JsonConvert.SerializeObject(data);
+            var stringContent = new StringContent(json, UnicodeEncoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync(endpointUrl, stringContent);
 
-            var httpContent = new StringContent(json,
-                                    Encoding.UTF8,
-                                    "application/json");
+            if (!response.IsSuccessStatusCode)
+            {
+                return new
+                {
+                    Message = "Error encountered on sending email",
+                    StatusCode = (int)response.StatusCode,
+                    Status = false
+                };
+            }
 
-            var httpResponce = await _httpClient.PostAsync(endpointUrl, httpContent);
-
-            var result = await httpResponce.Content.ReadAsStringAsync();
+            var result = await response.Content.ReadAsStringAsync();
             var responseData = JsonConvert.DeserializeObject(result);
 
             return responseData;

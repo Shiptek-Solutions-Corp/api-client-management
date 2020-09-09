@@ -19,5 +19,7 @@ namespace xgca.data.Guest
         Task<string> GetGuidById(int id);
         Task<bool> Update(entity.Models.Guest obj);
         Task<bool> Delete(entity.Models.Guest obj);
+        Task<List<entity.Models.Guest>> QuickSearch(string search);
+        Task<List<string>> QuickSearch(string search, List<string> guestIds);
     }
 }

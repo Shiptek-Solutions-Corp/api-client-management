@@ -9,6 +9,8 @@ using xgca.core.Response;
 using xgca.data.Company;
 using xgca.data.PreferredContact;
 using xgca.entity.Migrations;
+using xgca.core.User;
+using xgca.core.Helpers.QueryFilter;
 
 namespace xgca.core.PreferredContact
 {
@@ -19,10 +21,13 @@ namespace xgca.core.PreferredContact
         private readonly IPagedResponse _pagedResponse;
         private readonly IPreferredContactData _preferredContact;
         private readonly IPreferredContactHelper _prefConHelper;
+        private readonly IUser _user;
         private readonly IGeneral _general;
+        private readonly IQueryFilterHelper _query;
+        private readonly IUtilityHelper _utility;
 
         public PreferredContactCore(ICompanyData company, IGuestData guest, IPagedResponse pagedResponse,
-            IPreferredContactData preferredContact, IPreferredContactHelper prefConhelper, IGeneral general)
+            IPreferredContactData preferredContact, IPreferredContactHelper prefConhelper, IGeneral general, IQueryFilterHelper query, IUtilityHelper utility)
         {
             _company = company;
             _guest = guest;
@@ -30,10 +35,17 @@ namespace xgca.core.PreferredContact
             _preferredContact = preferredContact;
             _prefConHelper = prefConhelper;
             _general = general;
+            _query = query;
+            _utility = utility;
         }
 
         public async Task<IGeneralModel> Create(entity.Models.PreferredContact obj)
         {
+            if (obj is null)
+            {
+                return _general.Response(null, 400, "Error in creating preferred contact", false);
+            }
+
             var data = new entity.Models.PreferredContact
             {
                 GuestId = obj.GuestId,
@@ -52,6 +64,17 @@ namespace xgca.core.PreferredContact
             return result
                 ? _general.Response(null, 200, "Preferred contact created successfully", true)
                 : _general.Response(null, 400, "Error in creating preferred contact", false);
+        }
+
+        public async Task<IGeneralModel> DeleteContact(string key)
+        {
+            var result = await _preferredContact.Delete(key);
+            if(!result)
+            {
+                return _general.Response(null, 400, "Contact does not exists or may have already been deleted", false);
+            }
+
+            return _general.Response(null, 200, "Contact deleted successfully", true);
         }
 
         public async Task<IGeneralModel> List(string companyId, int pageNumber, int pageSize)
@@ -80,6 +103,16 @@ namespace xgca.core.PreferredContact
                         {
                             var company = await _company.Retrieve(Guid.Parse(d.CompanyId));
 
+                            if (company is null)
+                            {
+                                contactId = "00000000-0000-0000-000000000000";
+                                contactName = "-";
+                                imageURL = "No Image";
+                                cityProvince = "-";
+                                country = "-";
+                                break;
+                            }
+
                             contactId = company.Guid.ToString();
                             contactName = company.CompanyName;
                             imageURL = company.ImageURL;
@@ -91,6 +124,16 @@ namespace xgca.core.PreferredContact
                     case 2:
                         {
                             var guest = await _guest.Retrieve(Guid.Parse(d.GuestId));
+
+                            if (guest is null)
+                            {
+                                contactId = "00000000-0000-0000-000000000000";
+                                contactName = "-";
+                                imageURL = "No Image";
+                                cityProvince = "-";
+                                country = "-";
+                                break;
+                            }
 
                             contactId = guest.Id.ToString();
                             contactName = guest.GuestName;
@@ -142,6 +185,16 @@ namespace xgca.core.PreferredContact
                         {
                             var company = await _company.Retrieve(Guid.Parse(d.CompanyId));
 
+                            if(company is null)
+                            {
+                                contactId = "00000000-0000-0000-000000000000";
+                                contactName = "-";
+                                imageURL = "No Image";
+                                cityProvince = "-";
+                                country = "-";
+                                break;
+                            }
+
                             contactId = company.Guid.ToString();
                             contactName = company.CompanyName;
                             imageURL = company.ImageURL;
@@ -153,6 +206,16 @@ namespace xgca.core.PreferredContact
                     case 2:
                         {
                             var guest = await _guest.Retrieve(Guid.Parse(d.GuestId));
+
+                            if (guest is null)
+                            {
+                                contactId = "00000000-0000-0000-000000000000";
+                                contactName = "-";
+                                imageURL = "No Image";
+                                cityProvince = "-";
+                                country = "-";
+                                break;
+                            }
 
                             contactId = guest.Id.ToString();
                             contactName = guest.GuestName;
@@ -176,6 +239,104 @@ namespace xgca.core.PreferredContact
             }
 
             var pagedResponse = _pagedResponse.Paginate(preferredContacts, recordCount, pageNumber, pageSize);
+            return _general.Response(pagedResponse, 200, "Configurable preferred contacts has been listed", true);
+        }
+
+        public async Task<IGeneralModel> QuickSearch(string search, int profileId, int pageNumber, int pageSize, int recordCount)
+        {
+            var guestIds = await _preferredContact.GetGuestIds(Convert.ToInt32(profileId));
+            var registeredIds = await _preferredContact.GetRegisteredIds(Convert.ToInt32(profileId));
+
+            var filteredGuestIds = await _guest.QuickSearch(search, guestIds);
+            var filteredRegisteredIds = await _company.QuickSearch(search, registeredIds);
+
+            var data = new List<entity.Models.PreferredContact>();
+
+            if (filteredGuestIds is null && filteredRegisteredIds is null)
+            {
+                data = await _preferredContact.List(profileId, pageNumber, pageSize);
+            }
+            else
+            {
+                data = await _preferredContact.GetContactsByQuickSearch(profileId, filteredGuestIds, filteredRegisteredIds, pageNumber, pageSize);
+            }
+
+            if (data is null)
+            {
+                return _general.Response(null, 200, "Configurable preferred contacts has been listed", true);
+            }
+
+            List<ViewPreferredContact> preferredContacts = new List<ViewPreferredContact>();
+            foreach (entity.Models.PreferredContact d in data)
+            {
+                string contactId = "";
+                string contactName = "";
+                string imageURL = "";
+                string cityProvince = "";
+                string country = "";
+
+                switch (d.ContactType)
+                {
+                    case 1:
+                        {
+                            var company = await _company.Retrieve(Guid.Parse(d.CompanyId));
+
+                            if (company is null)
+                            {
+                                contactId = "00000000-0000-0000-000000000000";
+                                contactName = "-";
+                                imageURL = "No Image";
+                                cityProvince = "-";
+                                country = "-";
+                                break;
+                            }
+
+                            contactId = company.Guid.ToString();
+                            contactName = company.CompanyName;
+                            imageURL = company.ImageURL;
+                            cityProvince = _prefConHelper.RegisteredCityState(company);
+                            country = company.Addresses.CountryName;
+                            break;
+                        }
+
+                    case 2:
+                        {
+                            var guest = await _guest.Retrieve(Guid.Parse(d.GuestId));
+
+                            if (guest is null)
+                            {
+                                contactId = "00000000-0000-0000-000000000000";
+                                contactName = "-";
+                                imageURL = "No Image";
+                                cityProvince = "-";
+                                country = "-";
+                                break;
+                            }
+
+                            contactId = guest.Id.ToString();
+                            contactName = guest.GuestName;
+                            imageURL = guest.Image;
+                            cityProvince = _prefConHelper.GuestCityState(guest);
+                            country = guest.CountryName;
+                            break;
+                        }
+                }
+
+                preferredContacts.Add(new ViewPreferredContact
+                {
+                    PreferredContactId = d.Guid.ToString(),
+                    ContactId = contactId,
+                    ContactName = contactName,
+                    ImageURL = imageURL,
+                    CityProvince = cityProvince,
+                    Country = country,
+                    ContactType = d.ContactType
+                });
+            }
+
+            pageSize = (pageSize < data.Count) ? data.Count : pageSize;
+
+            var pagedResponse = _pagedResponse.Paginate(preferredContacts, data.Count, pageNumber, pageSize);
             return _general.Response(pagedResponse, 200, "Configurable preferred contacts has been listed", true);
         }
 

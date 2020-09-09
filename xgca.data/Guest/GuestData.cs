@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using xgca.entity;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace xgca.data.Guest
 {
@@ -155,6 +156,44 @@ namespace xgca.data.Guest
 
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
+        }
+
+        public async Task<List<string>> QuickSearch(string search, List<string> guestIds)
+        {
+            string searcHValue = $"%{search}%";
+
+            var guests = await _context.Guests.AsNoTracking()
+                .Where(x => (EF.Functions.Like(x.AddressLine, searcHValue)
+                    || EF.Functions.Like(x.CityName, searcHValue)
+                    || EF.Functions.Like(x.CountryName, searcHValue)
+                    || EF.Functions.Like(x.EmailAddress, searcHValue)
+                    || EF.Functions.Like(x.FirstName, searcHValue)
+                    || EF.Functions.Like(x.GuestName, searcHValue)
+                    || EF.Functions.Like(x.LastName, searcHValue)
+                    || EF.Functions.Like(x.StateName, searcHValue))
+                    && guestIds.Contains(x.Id.ToString()))
+                .Select(x => x.Id.ToString())
+                .ToListAsync();
+
+            return guests;
+        }
+
+        public async Task<List<entity.Models.Guest>> QuickSearch(string search)
+        {
+            string searcHValue = $"%{search}%";
+
+            var guests = await _context.Guests.AsNoTracking()
+                .Where(x => EF.Functions.Like(x.AddressLine, searcHValue)
+                    || EF.Functions.Like(x.CityName, searcHValue)
+                    || EF.Functions.Like(x.CountryName, searcHValue)
+                    || EF.Functions.Like(x.EmailAddress, searcHValue)
+                    || EF.Functions.Like(x.FirstName, searcHValue)
+                    || EF.Functions.Like(x.GuestName, searcHValue)
+                    || EF.Functions.Like(x.LastName, searcHValue)
+                    || EF.Functions.Like(x.StateName, searcHValue))
+                .ToListAsync();
+
+            return guests;
         }
     }
 }

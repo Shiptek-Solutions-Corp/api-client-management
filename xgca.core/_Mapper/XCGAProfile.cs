@@ -13,6 +13,7 @@ using xgca.core.Models.GroupResource;
 using xgca.core.Models.Guest;
 using xgca.core.Models.MenuModule;
 using xgca.core.Models.ModuleGroup;
+using xgca.core.Models.PreferredProvider;
 using xgca.core.Models.User;
 
 namespace xgca.core._Mapper
@@ -51,6 +52,8 @@ namespace xgca.core._Mapper
 
             CreateMap<CreateGuest, entity.Models.Guest>();
             CreateMap<UpdateGuestContact, entity.Models.Guest>();
+
+            CreateMap<CreatePreferredProvider, entity.Models.PreferredProvider>();
         }
     }
 }

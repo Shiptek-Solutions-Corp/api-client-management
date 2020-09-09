@@ -58,6 +58,12 @@ using xgca.data.Guest;
 using xgca.core.Helpers.Utility;
 using xgca.data.PreferredContact;
 using xgca.core.PreferredContact;
+using xgca.data.Invite;
+using xgca.core.Invite;
+using xgca.core.Email;
+using xgca.data.PreferredProvider;
+using xgca.core.PreferredProvider;
+using xgca.core.Helpers.PreferredProvider;
 
 namespace xlog_client_management_api
 {
@@ -113,8 +119,11 @@ namespace xlog_client_management_api
             services.AddScoped<ICompanyServiceUser, CompanyServiceUser>();
             services.AddScoped<ICompanyUser, CompanyUser>();
             services.AddScoped<IContactDetail, ContactDetail>();
+            services.AddScoped<IEmail, Email>();
             services.AddScoped<IGuestData, GuestData>();
+            services.AddScoped<IInviteData, InviteData>();
             services.AddScoped<IPreferredContactData, PreferredContactData>();
+            services.AddScoped<IPreferredProviderData, PreferredProviderData>();
             services.AddScoped<IGeneral, General>();
 
             services.AddScoped<ICompanyGroupResource, CompanyGroupResource>();
@@ -130,9 +139,11 @@ namespace xlog_client_management_api
             services.AddScoped<IGeneralModel, GeneralModel>();
             services.AddScoped<IPagedResponse, PagedResponse>();
             services.AddScoped<IPreferredContactHelper, PreferredContactHelper>();
+            services.AddScoped<IPreferredProviderHelper, PreferredProviderHelper>();
             services.AddScoped<IProfile, xgca.core.Profile.Profile>();
             services.AddScoped<IHttpHelper, HttpHelper>();
             services.AddScoped<ITokenHelper, TokenHelper>();
+            services.AddScoped<IUtilityHelper, UtilityHelper>();
 
             services.AddScoped<IAuditLogCore, AuditLogCore>();
             services.AddScoped<ICompany, Company>();
@@ -145,7 +156,9 @@ namespace xlog_client_management_api
             services.AddScoped<xgca.core.CompanyServiceUser.ICompanyServiceUser, xgca.core.CompanyServiceUser.CompanyServiceUser>();
             services.AddScoped<xgca.core.CompanyUser.ICompanyUser, xgca.core.CompanyUser.CompanyUser>();
             services.AddScoped<xgca.core.ContactDetail.IContactDetail, xgca.core.ContactDetail.ContactDetail>();
+            services.AddScoped<IInviteCore, InviteCore>();
             services.AddScoped<IPreferredContactCore, PreferredContactCore>();
+            services.AddScoped<IPreferredProviderCore, PreferredProviderCore>();
 
             services.AddScoped<IGLobalCmsService, xgca.core.Services.GlobalCmsService>();
 
@@ -168,6 +181,23 @@ namespace xlog_client_management_api
                 o.EnableUser = Configuration.GetSection("OptimusAuthService:EnableUser").Value;
                 o.DisableUser = Configuration.GetSection("OptimusAuthService:DisableUser").Value;
                 o.SingleRegisterUser = Configuration.GetSection("OptimusAuthService:SingleRegisterUser").Value;
+            });
+
+            services.Configure<WebsiteLinks>(o =>
+            {
+                o.Login = Configuration.GetSection("WebsiteLinks:Login").Value;
+            });
+
+            services.Configure<EmailApi>(o =>
+            {
+                o.BaseUrl = Configuration.GetSection("EmailApi:BaseUrl").Value;
+            });
+
+            services.Configure<EmailTemplate>(o =>
+            {
+                o.BaseTemplate = Configuration.GetSection("EmailTemplate:BaseTemplate").Value;
+                o.SendContactInviteTemplate = Configuration.GetSection("EmailTemplate:SendContactInviteTemplate").Value;
+                o.SendProviderInviteTemplate = Configuration.GetSection("EmailTemplate:SendProviderInviteTemplate").Value;
             });
 
             services.AddHttpClient();
@@ -199,6 +229,15 @@ namespace xlog_client_management_api
                 };
             });
 
+            //services.AddSwaggerGen(c =>
+            //{
+            //    c.SwaggerDoc("v1", new OpenApiInfo { Title = "XLOG Client Management API", Version = "v1" });
+            //    // Set the comments path for the Swagger JSON and UI.
+            //    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            //    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+            //    c.IncludeXmlComments(xmlPath);
+            //});
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "XLOG Client Management API", Version = "v1" });
@@ -206,6 +245,32 @@ namespace xlog_client_management_api
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "Cognito Access Token",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Scheme = "oauth2",
+                            Name = "Bearer",
+                            In = ParameterLocation.Header
+                        },
+                        new List<string>()
+                    }
+                });
             });
         }
 
@@ -216,10 +281,9 @@ namespace xlog_client_management_api
 
             app.UseSwagger();
 
-
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", name: "XLOG Auth API V1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", name: "Client Management API V1");
                 c.RoutePrefix = string.Empty;
             });
 

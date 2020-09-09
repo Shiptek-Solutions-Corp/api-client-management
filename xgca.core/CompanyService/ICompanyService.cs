@@ -7,6 +7,8 @@ namespace xgca.core.CompanyService
 {
     public interface ICompanyService
     {
+        //Task<IGeneralModel> ListProviders(int companyId, string serviceId, int pageNumber, int pageSize, int recordCount);
+        Task<IGeneralModel> ListProviders(int companyId, string search, string serviceId, int pageNumber, int pageSize, int recordCount);
         Task<IGeneralModel> ListByCompanyId(string key);
         Task<IGeneralModel> ListByCompanyUserId(int key);
         Task<IGeneralModel> Create(CreateCompanyServiceModel obj);

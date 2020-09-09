@@ -77,6 +77,10 @@
     <Compile Remove="Migrations\20200815085255_test.Designer.cs" />
     <Compile Remove="Migrations\20200815125824_test.cs" />
     <Compile Remove="Migrations\20200815125824_test.Designer.cs" />
+    <Compile Remove="Migrations\20200819180047_added_seeder_for_default_value.cs" />
+    <Compile Remove="Migrations\20200819180047_added_seeder_for_default_value.Designer.cs" />
+    <Compile Remove="Migrations\20200825065601_removed_seeder_data_for_dev_deployment.cs" />
+    <Compile Remove="Migrations\20200825065601_removed_seeder_data_for_dev_deployment.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

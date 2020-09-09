@@ -22,6 +22,7 @@ namespace xgca.core.Guest
         Task<IGeneralModel> Delete(string key, string username);
         Task<IGeneralModel> GetGuidById(int key);
         Task<IGeneralModel> GetIdByGuid(string key);
+        Task<IGeneralModel> QuickSearch(string search);
 
     }
 }
