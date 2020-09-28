@@ -38,6 +38,7 @@ namespace xgca.entity.Models
         public string CityName { get; set; }
         public string ZipCode { get; set; }
         public bool IsGuest { get; set; }
+        public string CUCC { get; set; }
 
         public Guid Id { get; set; }
         public int CreatedBy { get; set; }

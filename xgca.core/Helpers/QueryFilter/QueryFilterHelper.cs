@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using xgca.core.Models.Service;
 
 namespace xgca.core.Helpers.QueryFilter
 {
@@ -10,6 +11,7 @@ namespace xgca.core.Helpers.QueryFilter
     {
         dynamic ParseQueryParams(string query, string delimeter = ",", string queryOperator = "=");
         List<KeyValuePair<string, string>> ParseFilter(String filters);
+        List<int> CheckForFilterForService(List<KeyValuePair<string, string>> filterList, List<ListServiceModel> services);
     }
     public class QueryFilterHelper : IQueryFilterHelper
     {
@@ -29,6 +31,32 @@ namespace xgca.core.Helpers.QueryFilter
             }
 
             return list;
+        }
+
+        public List<int> CheckForFilterForService(List<KeyValuePair<string, string>> filterList, List<ListServiceModel> services)
+        {
+            List<int> serviceIds = new List<int>();
+
+            foreach (var filter in filterList)
+            {
+                if (filter.Key.ToLower().Equals("service"))
+                {
+                    var serviceFilters = services.Where(x => x.ServiceName.Contains(filter.Value) || x.ServiceName.StartsWith(filter.Value) || x.ServiceName.EndsWith(filter.Value)).ToList();
+                    if (serviceFilters.Count == 0)
+                    {
+                        serviceIds.Add(0);
+                    }
+                    else
+                    {
+                        foreach(var service in serviceFilters)
+                        {
+                            serviceIds.Add(service.IntServiceId);
+                        }
+                    }
+                }
+            }
+
+            return serviceIds;
         }
 
         public dynamic ParseQueryParams(string query, string delimeter = ",", string queryOperator = "=")

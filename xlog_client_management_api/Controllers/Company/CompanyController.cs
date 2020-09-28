@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using xgca.core.Company.DTO;
 using xgca.core.Models.Company;
 using xgca.core.Response;
 using xlog_client_management_api;
@@ -102,7 +103,7 @@ namespace xlog_company_service_api.Controllers.Company
 
         [Route("company/{companyId}/details")]
         [HttpGet]
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -153,6 +154,29 @@ namespace xlog_company_service_api.Controllers.Company
         public async Task<IActionResult> InitialRegistration([FromBody]xgca.core.Models.Company.InitialRegistrationModel request)
         {
             var response = await _company.InitialRegistration(request);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Route("company/registration/bulk")]
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> BulkRegistration([FromBody] InitialRegistrationListModel request)
+        {
+            var username = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
+            var response = await _company.BulkCompanyRegistration(request, username);
 
             if (response.statusCode == 400)
             {
@@ -389,6 +413,28 @@ namespace xlog_company_service_api.Controllers.Company
             return Ok(response);
         }
 
+        [Route("company/companyNames")]
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> BulkCheckIfExistsByCompanyName([FromBody]CompanyNamesDTO companyNamesDTO)
+        {
+            var response = await _company.BulkCheckIfExistsByCompanyName(companyNamesDTO.CompanyNames);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
         [Route("company/list")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -398,6 +444,28 @@ namespace xlog_company_service_api.Controllers.Company
         public async Task<IActionResult> ListByCompanyName([FromQuery] string companyName)
         {
             var response = await _company.ListByCompanyName(companyName);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Route("company/set-cucc")]
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> BatchUpdateCompanyCode([FromBody] UpdateCUCCCodeDTO obj)
+        {
+            //var username = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
+            var response = await _company.SetCUCC(obj);
 
             if (response.statusCode == 400)
             {

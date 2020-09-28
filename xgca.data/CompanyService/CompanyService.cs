@@ -34,7 +34,8 @@ namespace xgca.data.CompanyService
         Task<bool> Delete(int key);
         Task<int[]> GetUserByCompanyServiceGuid(Guid guid);
         Task<List<string>> QuickSearch(string search, List<string> companyServiceId);
-        Task<List<entity.Models.CompanyService>> ListCompanyServicesByGuids(List<string> guids, List<KeyValuePair<string, string>> filterList, int serviceId);
+        Task<List<entity.Models.CompanyService>> ListCompanyServicesByGuids(List<string> guids, List<KeyValuePair<string, string>> filterList, List<int> serviceIds);
+        Task<List<string>> SearchAndFilterProvider(string search, List<KeyValuePair<string, string>> filterList, List<string> guids, List<int> serviceIds);
     }
 
     public class CompanyService : IMaintainable<entity.Models.CompanyService>, ICompanyService
@@ -330,7 +331,7 @@ namespace xgca.data.CompanyService
             return data;
         }
 
-        public async Task<List<entity.Models.CompanyService>> ListCompanyServicesByGuids(List<string> guids, List<KeyValuePair<string, string>> filterList, int serviceId)
+        public async Task<List<entity.Models.CompanyService>> ListCompanyServicesByGuids(List<string> guids, List<KeyValuePair<string, string>> filterList, List<int> serviceIds)
         {
             var predicate = PredicateBuilder.New<entity.Models.CompanyService>();
 
@@ -340,24 +341,24 @@ namespace xgca.data.CompanyService
                 {
                     if (element.Key.ToLower().Equals("companyname") && !(element.Value.Equals("") || element.Value is null))
                     {
-                        predicate = predicate.Or(x => EF.Functions.Like(x.Companies.CompanyName, $"%{element.Value}%"));
+                        predicate = predicate.And(x => EF.Functions.Like(x.Companies.CompanyName, $"%{element.Value}%"));
                     }
 
                     if (element.Key.ToLower().Equals("country") && !(element.Value.Equals("") || element.Value is null))
                     {
-                        predicate = predicate.Or(x => EF.Functions.Like(x.Companies.Addresses.CountryName, $"%{element.Value}%"));
+                        predicate = predicate.And(x => EF.Functions.Like(x.Companies.Addresses.CountryName, $"%{element.Value}%"));
                     }
 
                     if (element.Key.ToLower().Equals("state") && !(element.Value.Equals("") || element.Value is null))
                     {
-                        predicate = predicate.Or(x => EF.Functions.Like(x.Companies.Addresses.StateName, $"%{element.Value}%"));
+                        predicate = predicate.And(x => EF.Functions.Like(x.Companies.Addresses.StateName, $"%{element.Value}%") || EF.Functions.Like(x.Companies.Addresses.CityName, $"%{element.Value}%"));
                     }
                 }
             }
 
-            if (serviceId != 0)
+            if (serviceIds.Count != 0)
             {
-                predicate = predicate.Or(x => x.ServiceId == serviceId);
+                predicate = predicate.Or(x => serviceIds.Contains(x.ServiceId));
             }
 
             predicate = predicate.And(x => guids.Contains(x.Guid.ToString()));
@@ -378,6 +379,59 @@ namespace xgca.data.CompanyService
                 .ToListAsync();
 
             return companyServices;
+        }
+
+        public async Task<List<string>> SearchAndFilterProvider(string search, List<KeyValuePair<string, string>> filterList, List<string> guids, List<int> serviceIds)
+        {
+            var predicate = PredicateBuilder.New<entity.Models.CompanyService>();
+
+            if (!(search is null || search.Equals("")))
+            {
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.CompanyCode, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.CompanyName, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.Addresses.AddressLine, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.Addresses.CityName, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.Addresses.StateName, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.Addresses.CountryName, $"%{search}%")));
+            }
+
+            if (filterList.Count != 0)
+            {
+                foreach (var element in filterList)
+                {
+                    if (element.Key.ToLower().Equals("companyname") && !(element.Value.Equals("") || element.Value is null))
+                    {
+                        predicate = predicate.And(x => EF.Functions.Like(x.Companies.CompanyName, $"%{element.Value}%"));
+                    }
+
+                    if (element.Key.ToLower().Equals("country") && !(element.Value.Equals("") || element.Value is null))
+                    {
+                        predicate = predicate.And(x => EF.Functions.Like(x.Companies.Addresses.CountryName, $"%{element.Value}%"));
+                    }
+
+                    if (element.Key.ToLower().Equals("state") && !(element.Value.Equals("") || element.Value is null))
+                    {
+                        predicate = predicate.And(x => (EF.Functions.Like(x.Companies.Addresses.StateName, $"%{element.Value}%") || EF.Functions.Like(x.Companies.Addresses.CityName, $"%{element.Value}%")));
+                    }
+                }
+            }
+
+            if (serviceIds.Count != 0)
+            {
+                predicate = predicate.And(x => serviceIds.Contains(x.ServiceId));
+            }
+
+            predicate = predicate.And(x => guids.Contains(x.Guid.ToString()));
+
+            List<string> providers = await _context.CompanyServices
+                .Include(c => c.Companies)
+                    .ThenInclude(a => a.Addresses)
+                .Where(predicate)
+                .Select(x => x.Guid.ToString())
+                .ToListAsync();
+
+            return providers;
+
         }
     }
 }

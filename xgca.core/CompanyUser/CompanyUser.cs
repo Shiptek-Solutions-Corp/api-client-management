@@ -391,5 +391,10 @@ namespace xgca.core.CompanyUser
             int companyUserId = await _companyUser.GetIdByUserId(key);
             return companyUserId;
         }
+
+        public Task<IGeneralModel> GetCompanyMasterUser(int companyId, int userTypeId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

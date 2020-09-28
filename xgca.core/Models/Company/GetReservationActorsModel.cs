@@ -11,6 +11,7 @@ namespace xgca.core.Models.Company
 
     public class GetReservationActorsModel
     {
+        public string BookingPartyId { get; set; }
         public string ShipperId { get; set; }
         public string ConsigneeId { get; set; }
         public string ShippingLineId { get; set; }

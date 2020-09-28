@@ -16,6 +16,7 @@ using xgca.data.Company;
 using System.Linq;
 using xgca.core.Helpers.QueryFilter;
 using xgca.core.Helpers.PreferredProvider;
+using xgca.core.Helpers.Service;
 
 namespace xgca.core.PreferredProvider
 {
@@ -32,9 +33,10 @@ namespace xgca.core.PreferredProvider
         private readonly IGeneral _general;
         private readonly IQueryFilterHelper _query;
         private readonly IPreferredProviderHelper _prefProv;
+        private readonly IServiceHelper _serviceHelper;
         public PreferredProviderCore(IPreferredProviderData preferredProvider, ICompanyData company, ICompanyService companyService, IUserData user,
             IHttpHelper httpHelper, IMapper mapper, IOptions<GlobalCmsService> options, IPagedResponse pagedResponse, IGeneral general, IQueryFilterHelper query,
-            IPreferredProviderHelper prefProv)
+            IPreferredProviderHelper prefProv, IServiceHelper serviceHelper)
         {
             _company = company;
             _companyService = companyService;
@@ -47,6 +49,7 @@ namespace xgca.core.PreferredProvider
             _general = general;
             _query = query;
             _prefProv = prefProv;
+            _serviceHelper = serviceHelper;
         }
 
         public async Task<IGeneralModel> AddPreferredProviders(BatchCreatePreferredProvider providers, int profileId, string createdBy)
@@ -137,16 +140,9 @@ namespace xgca.core.PreferredProvider
             List<string> companyServiceGuids = await _preferredProvider.ListCompanyServiceIdsByProfileId(profileId, result);
             List<KeyValuePair<string, string>> filterList = new List<KeyValuePair<string, string>>();
             filterList = _query.ParseFilter(filters);
-            int serviceId = 0;
-            foreach (var filter in filterList)
-            {
-                if (filter.Key.ToLower().Equals("service"))
-                {
-                    var service = services.Find(x => x.ServiceName == filter.Value);
-                    serviceId = (service is null) ? 0 : service.IntServiceId;
-                }
-            }
-            var companiesServices = await _companyService.ListCompanyServicesByGuids(companyServiceGuids, filterList, serviceId);
+            List<int> serviceIds = _query.CheckForFilterForService(filterList, services);
+
+            var companiesServices = await _companyService.ListCompanyServicesByGuids(companyServiceGuids, filterList, serviceIds);
 
             List<ListPreferredProvider> providers = new List<ListPreferredProvider>();
             foreach (var provider in companiesServices)
@@ -186,13 +182,6 @@ namespace xgca.core.PreferredProvider
         {
             var companyServiceIds = await _preferredProvider.GetCompanyServiceIdByProfileId(profileId);
 
-            var filteredIds = await _companyService.QuickSearch(search, companyServiceIds);
-
-            if (filteredIds is null)
-            {
-                return _general.Response(null, 200, "Configurable preferred providers have been listed", true);
-            }
-
             var serviceResponse = await _httpHelper.Get(_options.Value.BaseUrl, _options.Value.GetService, null, AuthToken.Contra);
             string statusCode = serviceResponse.statusCode;
 
@@ -200,18 +189,18 @@ namespace xgca.core.PreferredProvider
             {
                 return _general.Response(null, 400, "Error in fetching services", false);
             }
+            List<ListServiceModel> services = _serviceHelper.ParseServiceResponse(serviceResponse.data.services);
 
-            List<ListServiceModel> services = new List<ListServiceModel>();
-            foreach (var service in serviceResponse.data.services)
+            List<KeyValuePair<string, string>> filterList = new List<KeyValuePair<string, string>>();
+            filterList = _query.ParseFilter(filters);
+            List<int> serviceIds = _query.CheckForFilterForService(filterList, services);
+
+            //var filteredIds = await _companyService.QuickSearch(search, companyServiceIds);
+            var filteredIds = await _companyService.SearchAndFilterProvider(search, filterList, companyServiceIds, serviceIds);
+
+            if (filteredIds is null)
             {
-                services.Add(new ListServiceModel
-                {
-                    IntServiceId = service.intServiceId,
-                    ServiceId = service.serviceId,
-                    ServiceCode = service.serviceCode,
-                    ServiceName = service.serviceName,
-                    ServiceImageURL = service.imageURL
-                });
+                return _general.Response(null, 200, "Configurable preferred providers have been listed", true);
             }
 
             recordCount = await _preferredProvider.GetRecordCount(profileId, filteredIds);
@@ -223,18 +212,8 @@ namespace xgca.core.PreferredProvider
             }
 
             List<string> companyServiceGuids = filteredProviders.Select(x => x.CompanyServiceId).ToList<string>(); //await _preferredProvider.ListCompanyServiceIdsByProfileId(profileId, filteredProviders);
-            List<KeyValuePair<string, string>> filterList = new List<KeyValuePair<string, string>>();
-            filterList = _query.ParseFilter(filters);
-            int serviceId = 0;
-            foreach( var filter in filterList)
-            {
-                if (filter.Key.ToLower().Equals("service"))
-                {
-                    var service = services.Find(x => x.ServiceName == filter.Value);
-                    serviceId = (service is null) ? 0 : service.IntServiceId;
-                }
-            }
-            var companyServices = await _companyService.ListCompanyServicesByGuids(companyServiceGuids, filterList, serviceId);
+            
+            var companyServices = await _companyService.ListCompanyServicesByGuids(companyServiceGuids, filterList, serviceIds);
 
             List<ListPreferredProvider> providers = new List<ListPreferredProvider>();
             foreach (var provider in companyServices)

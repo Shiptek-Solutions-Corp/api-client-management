@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using xgca.entity;
 
 namespace xgca.entity.Migrations
 {
     [DbContext(typeof(XGCAContext))]
-    partial class XGCAContextModelSnapshot : ModelSnapshot
+    [Migration("20200921081707_changed_lat_long_max_length")]
+    partial class changed_lat_long_max_length
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,14 +109,14 @@ namespace xgca.entity.Migrations
                             CountryId = 1,
                             CountryName = "Global",
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2020, 9, 25, 8, 44, 15, 184, DateTimeKind.Utc).AddTicks(1873),
+                            CreatedOn = new DateTime(2020, 9, 21, 8, 17, 6, 439, DateTimeKind.Utc).AddTicks(1553),
                             FullAddress = "None",
                             Guid = new Guid("21716a6c-4dee-422b-b2d9-74bf4b12e242"),
                             IsDeleted = (byte)1,
                             Latitude = "None",
                             Longitude = "None",
                             ModifiedBy = 0,
-                            ModifiedOn = new DateTime(2020, 9, 25, 8, 44, 15, 184, DateTimeKind.Utc).AddTicks(3105),
+                            ModifiedOn = new DateTime(2020, 9, 21, 8, 17, 6, 439, DateTimeKind.Utc).AddTicks(2808),
                             StateId = 1,
                             StateName = "None",
                             ZipCode = "None"
@@ -161,22 +163,22 @@ namespace xgca.entity.Migrations
                         {
                             AddressTypeId = 1,
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2020, 9, 25, 8, 44, 15, 181, DateTimeKind.Utc).AddTicks(4628),
+                            CreatedOn = new DateTime(2020, 9, 21, 8, 17, 6, 436, DateTimeKind.Utc).AddTicks(4683),
                             Guid = new Guid("1e0621b2-b7ea-4d48-8be2-f09980694816"),
                             IsDeleted = (byte)0,
                             ModifiedBy = 0,
-                            ModifiedOn = new DateTime(2020, 9, 25, 8, 44, 15, 181, DateTimeKind.Utc).AddTicks(5910),
+                            ModifiedOn = new DateTime(2020, 9, 21, 8, 17, 6, 436, DateTimeKind.Utc).AddTicks(5927),
                             Name = "Company"
                         },
                         new
                         {
                             AddressTypeId = 2,
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2020, 9, 25, 8, 44, 15, 183, DateTimeKind.Utc).AddTicks(2426),
+                            CreatedOn = new DateTime(2020, 9, 21, 8, 17, 6, 438, DateTimeKind.Utc).AddTicks(2107),
                             Guid = new Guid("95ec682b-074f-42bb-9fed-d4dbde41e41d"),
                             IsDeleted = (byte)0,
                             ModifiedBy = 0,
-                            ModifiedOn = new DateTime(2020, 9, 25, 8, 44, 15, 183, DateTimeKind.Utc).AddTicks(2451),
+                            ModifiedOn = new DateTime(2020, 9, 21, 8, 17, 6, 438, DateTimeKind.Utc).AddTicks(2129),
                             Name = "Residential"
                         });
                 });
@@ -235,9 +237,6 @@ namespace xgca.entity.Migrations
                     b.Property<int>("AddressId")
                         .HasColumnType("int");
 
-                    b.Property<string>("CUCC")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
 
@@ -289,6 +288,9 @@ namespace xgca.entity.Migrations
                     b.Property<byte>("TaxExemptionStatus")
                         .HasColumnType("tinyint");
 
+                    b.Property<string>("UCCCode")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("WebsiteURL")
                         .HasColumnType("nvarchar(50)")
                         .HasMaxLength(50);
@@ -310,13 +312,13 @@ namespace xgca.entity.Migrations
                             CompanyName = "None",
                             ContactDetailId = 1,
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2020, 9, 25, 8, 44, 15, 186, DateTimeKind.Utc).AddTicks(3639),
+                            CreatedOn = new DateTime(2020, 9, 21, 8, 17, 6, 441, DateTimeKind.Utc).AddTicks(2104),
                             EmailAddress = "None",
                             Guid = new Guid("3608a083-fbe5-44d5-afef-c7814100aec7"),
                             ImageURL = "None",
                             IsDeleted = (byte)1,
                             ModifiedBy = 0,
-                            ModifiedOn = new DateTime(2020, 9, 25, 8, 44, 15, 186, DateTimeKind.Utc).AddTicks(4838),
+                            ModifiedOn = new DateTime(2020, 9, 21, 8, 17, 6, 441, DateTimeKind.Utc).AddTicks(3498),
                             Status = (byte)0,
                             TaxExemption = (byte)0,
                             TaxExemptionStatus = (byte)0,
@@ -350,7 +352,7 @@ namespace xgca.entity.Migrations
                     b.Property<Guid>("Guid")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasDefaultValue(new Guid("7cb50a32-d032-4093-ad79-a711455c98ac"));
+                        .HasDefaultValue(new Guid("9fd59be7-cc6b-4e41-bb01-53abb857b713"));
 
                     b.Property<byte>("IsAllowed")
                         .HasColumnType("tinyint");
@@ -691,7 +693,7 @@ namespace xgca.entity.Migrations
                         {
                             ContactDetailId = 1,
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2020, 9, 25, 8, 44, 15, 185, DateTimeKind.Utc).AddTicks(3678),
+                            CreatedOn = new DateTime(2020, 9, 21, 8, 17, 6, 440, DateTimeKind.Utc).AddTicks(2612),
                             Fax = "None",
                             FaxPrefix = "None",
                             FaxPrefixId = 1,
@@ -701,7 +703,7 @@ namespace xgca.entity.Migrations
                             MobilePrefix = "None",
                             MobilePrefixId = 1,
                             ModifiedBy = 0,
-                            ModifiedOn = new DateTime(2020, 9, 25, 8, 44, 15, 185, DateTimeKind.Utc).AddTicks(4919),
+                            ModifiedOn = new DateTime(2020, 9, 21, 8, 17, 6, 440, DateTimeKind.Utc).AddTicks(3786),
                             Phone = "None",
                             PhonePrefix = "None",
                             PhonePrefixId = 1
@@ -716,9 +718,6 @@ namespace xgca.entity.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("AddressLine")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CUCC")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CityId")
@@ -832,9 +831,9 @@ namespace xgca.entity.Migrations
                             CountryId = 1,
                             CountryName = "Global",
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2020, 9, 25, 8, 44, 15, 188, DateTimeKind.Utc).AddTicks(3906),
+                            CreatedOn = new DateTime(2020, 9, 21, 8, 17, 6, 443, DateTimeKind.Utc).AddTicks(1924),
                             DeletedBy = 0,
-                            DeletedOn = new DateTime(2020, 9, 25, 8, 44, 15, 188, DateTimeKind.Utc).AddTicks(7091),
+                            DeletedOn = new DateTime(2020, 9, 21, 8, 17, 6, 443, DateTimeKind.Utc).AddTicks(4917),
                             EmailAddress = "None",
                             FaxNumber = "None",
                             FaxNumberPrefix = "None",
@@ -850,7 +849,7 @@ namespace xgca.entity.Migrations
                             MobileNumberPrefix = "None",
                             MobileNumberPrefixId = "None",
                             ModifiedBy = 0,
-                            ModifiedOn = new DateTime(2020, 9, 25, 8, 44, 15, 188, DateTimeKind.Utc).AddTicks(5235),
+                            ModifiedOn = new DateTime(2020, 9, 21, 8, 17, 6, 443, DateTimeKind.Utc).AddTicks(3178),
                             PhoneNumber = "None",
                             PhoneNumberPrefix = "None",
                             PhoneNumberPrefixId = "None",

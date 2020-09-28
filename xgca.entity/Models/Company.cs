@@ -33,7 +33,7 @@ namespace xgca.entity.Models
         public byte IsDeleted { get; set; }
         public byte TaxExemption { get; set; }
         public byte TaxExemptionStatus { get; set; }
-        public string UCCCode { get; set; }
+        public string CUCC { get; set; }
         public int CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
         public int ModifiedBy { get; set; }

@@ -27,6 +27,7 @@ using xgca.core.Models.AuditLog;
 using xgca.core.Helpers.Token;
 using Amazon.Runtime.Internal;
 using xgca.entity.Migrations;
+using System.IO;
 
 namespace xgca.core.Company
 {
@@ -58,6 +59,10 @@ namespace xgca.core.Company
 
         Task<IGeneralModel> ListByCompanyName(string companyName);
         Task<IGeneralModel> CheckIfExistsByCompanyName(string companyName);
+        Task<IGeneralModel> BulkCheckIfExistsByCompanyName(string[] companyNames);
+
+        Task<IGeneralModel> BulkCompanyRegistration(InitialRegistrationListModel registrationModels, string username);
+        Task<IGeneralModel> SetCUCC(UpdateCUCCCodeDTO obj);
 
     }
     public class Company : ICompany
@@ -296,7 +301,7 @@ namespace xgca.core.Company
                 ModifiedBy = modifiedById,
                 ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.Parse(obj.CompanyId),
-                UCCCode = obj.UCCCode
+                CUCC = obj.CUCC
             };
 
             var companyResult = await _companyData.Update(company);
@@ -387,7 +392,7 @@ namespace xgca.core.Company
                     result.ContactDetails.FaxPrefix,
                     result.ContactDetails.Fax,
                 },
-                result.UCCCode,
+                result.CUCC,
                 result.TaxExemption,
                 result.TaxExemptionStatus,
                 CompanyServices = companyServices.data.companyService,
@@ -460,7 +465,7 @@ namespace xgca.core.Company
                     result.ContactDetails.FaxPrefix,
                     result.ContactDetails.Fax,
                 },
-                result.UCCCode,
+                result.CUCC,
                 result.TaxExemption,
                 result.TaxExemptionStatus,
                 CompanyServices = companyServices.data.companyService,
@@ -538,7 +543,7 @@ namespace xgca.core.Company
             {
                 CompanyId = companyId,
                 CompanyName = obj.CompanyName,
-                UCCCode = obj.UCCCode,
+                CUCC = obj.CUCC,
                 AddressId = addressId,
                 ContactDetailId = contactDetailId,
                 ImageURL = obj.ImageURL,
@@ -663,6 +668,7 @@ namespace xgca.core.Company
 
                 response.Add(new
                 {
+                    BookingParty = companies.Where(c => c.Guid == Constant.CheckIfGuid(item.BookingPartyId)).FirstOrDefault(),
                     Shipper = companies.Where(c => c.Guid == Constant.CheckIfGuid(item.ShipperId)).FirstOrDefault(),
                     Consignee = companies.Where(c => c.Guid == Constant.CheckIfGuid(item.ConsigneeId)).FirstOrDefault(),
                     ShippingLine = companies.Where(c => c.Guid == Constant.CheckIfGuid(item.ShippingLineId)).FirstOrDefault(),
@@ -742,7 +748,7 @@ namespace xgca.core.Company
                     c.ContactDetails.FaxPrefix,
                     c.ContactDetails.Fax,
                 },
-                c.UCCCode
+                c.CUCC
             });
 
             return _general.Response(new { Companies = companies }, 200, "Get Successful", true);
@@ -798,5 +804,106 @@ namespace xgca.core.Company
             string message = (isExist) ? "Company exists" : "Company does not exists";
             return _general.Response(isExist, 200, message, true);
         }
+
+        public async Task<IGeneralModel> BulkCheckIfExistsByCompanyName(string[] companyNames)
+        {
+            var result = await _companyData.BulkCheckIfExistsByCompanyName(companyNames);
+
+            return (result.Count() > 0)
+                ? _general.Response(new { companyNames = result }, 200, "Companies already Exists", false)
+                : _general.Response(null, 200, "Companies doesn't Exists", true);
+        }
+
+        public async Task<IGeneralModel> BulkCompanyRegistration(InitialRegistrationListModel obj, string username)
+        {
+            if (obj == null || obj.companies.Count == 0)
+            { return _general.Response(null, 400, "Data cannot be null", true); }
+
+            List<RegistrationReturnModel> returnModel = new List<RegistrationReturnModel>();
+
+            foreach (var o in obj.companies)
+            {
+                int createdById = await _userData.GetIdByUsername(username);
+
+                int addressId = await _coreAddress.CreateAndReturnId(o, createdById);
+                if (addressId <= 0)
+                { return _general.Response(false, 400, "Error on creating company", true); }
+
+                int contactDetailId = await _coreContactDetail.CreateAndReturnId(o, createdById);
+                if (contactDetailId <= 0)
+                { return _general.Response(false, 400, "Error on creating company", true); }
+
+                string companyCode = "";
+                bool isExists = true;
+                int tries = 0;
+                while (isExists)
+                {
+                    companyCode = CompanyHelper.GenerateCompanyCode(o.CompanyName, tries, 5);
+                    isExists = await _companyData.CheckCompanyCode(companyCode);
+                    tries++;
+                }
+
+                var company = new entity.Models.Company
+                {
+                    ClientId = 1,
+                    CompanyName = o.CompanyName,
+                    CompanyCode = companyCode,
+                    AddressId = addressId,
+                    ContactDetailId = contactDetailId,
+                    ImageURL = o.ImageURL,
+                    WebsiteURL = o.WebsiteURL,
+                    EmailAddress = o.EmailAddress,
+                    CreatedBy = createdById,
+                    CreatedOn = DateTime.UtcNow,
+                    ModifiedBy = createdById,
+                    ModifiedOn = DateTime.UtcNow,
+                    Guid = Guid.NewGuid(),
+                    Status = 1,
+                    AccreditedBy = o.AccreditedBy
+                };
+
+                var companyId = await _companyData.CreateAndReturnId(company);
+                if (companyId <= 0)
+                { return _general.Response(null, 400, "Error on creating company", true); }
+
+                await _coreCompanyService.CreateBatch(o.Services, companyId, createdById);
+                await _coreCompanyServiceRole.CreateDefault(companyId, createdById);
+
+                var masterUserObj = o.MasterUser;
+                dynamic masterUser = await _coreUser.CreateMasterUser(masterUserObj, createdById);
+                int companyUserId = await _coreCompanyUser.CreateDefaultCompanyUser(companyId, masterUser.MasterUserId, createdById);
+                await _coreCompanyServiceUser.CreateDefault(companyId, companyUserId, createdById);
+
+                var newCompany = await _companyData.Retrieve(companyId);
+                var newCompanyServicesResponse = await _coreCompanyService.ListByCompanyId(newCompany.Guid.ToString());
+                var newCompanyServices = newCompanyServicesResponse.data.companyService;
+                var companyLog = CompanyHelper.BuildCompanyValue(newCompany, newCompanyServices);
+
+                // Create audit log
+                await _coreAuditLog.CreateAuditLog("Create", company.GetType().Name, companyId, createdById, companyLog, null);
+
+                returnModel.Add(new RegistrationReturnModel
+                {
+                    CompanyId = companyId,
+                    CompanyGuid = company.Guid.ToString(),
+                    MasterUserId = masterUser.MasterUserId,
+                    MasterUserGuid = masterUser.MasterUserGuid.ToString(),
+                    MasterUserEmail = masterUser.MasterUserEmail
+                });
+            }
+
+            return returnModel.Count != 0
+                ? _general.Response(new { Companies = returnModel }, 200, "Company bulk registration successful", true)
+                : _general.Response(null, 400, "Error on company bulk registration", true);
+        }
+
+        public async Task<IGeneralModel> SetCUCC(UpdateCUCCCodeDTO obj)
+        {
+            var result = await _companyData.SetCUCCodeByCompanyGuid(obj.CompanyId, obj.CUCC);
+            return result
+                ? _general.Response(null, 200, "CUCC code updated", true)
+                : _general.Response(null, 400, "Error in updating CUCC code", false);
+        }
     }
 }
+    

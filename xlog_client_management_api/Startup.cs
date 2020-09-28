@@ -64,6 +64,7 @@ using xgca.core.Email;
 using xgca.data.PreferredProvider;
 using xgca.core.PreferredProvider;
 using xgca.core.Helpers.PreferredProvider;
+using xgca.core.Helpers.Service;
 
 namespace xlog_client_management_api
 {
@@ -143,6 +144,7 @@ namespace xlog_client_management_api
             services.AddScoped<IProfile, xgca.core.Profile.Profile>();
             services.AddScoped<IHttpHelper, HttpHelper>();
             services.AddScoped<ITokenHelper, TokenHelper>();
+            services.AddScoped<IServiceHelper, ServiceHelper>();
             services.AddScoped<IUtilityHelper, UtilityHelper>();
 
             services.AddScoped<IAuditLogCore, AuditLogCore>();

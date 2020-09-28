@@ -42,6 +42,7 @@ namespace xgca.core.Email
 
             EmailPayload payload = new EmailPayload
             {
+                sender = "no-reply@myxlog.com",
                 to = model.Payload.EmailAddress,
                 subject = "XLOG: Contact Invite",
                 message = message
@@ -64,8 +65,9 @@ namespace xgca.core.Email
 
             EmailPayload payload = new EmailPayload
             {
+                sender = "no-reply@myxlog.com",
                 to = model.Payload.EmailAddress,
-                subject = "XLOG: Preferred Provider Invite",
+                subject = $"XLOG: Add {model.Payload.SenderCompanyName} as preferred provider",
                 message = message
             };
 

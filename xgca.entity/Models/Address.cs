@@ -39,9 +39,9 @@ namespace xgca.entity.Models
         public DateTime ModifiedOn { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Guid { get; set; }
-        [StringLength(10)]
+        [StringLength(50)]
         public string Longitude { get; set; }
-        [StringLength(10)]
+        [StringLength(50)]
         public string Latitude { get; set; }
 
         public virtual AddressType AddressTypes { get; set; }

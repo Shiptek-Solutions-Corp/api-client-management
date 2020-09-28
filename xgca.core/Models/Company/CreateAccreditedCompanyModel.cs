@@ -1,13 +1,13 @@
-﻿using System.Collections.Generic;
-using xgca.core.Models.CompanyService;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using xgca.core.Models.User;
 
 namespace xgca.core.Models.Company
 {
-    public class UpdateCompanyModel
+    public class CreateAccreditedCompanyModel
     {
-        public string CompanyId { get; set; }
         public string CompanyName { get; set; }
-        public string AddressId { get; set; }
         public string AddressLine { get; set; }
         public string CityId { get; set; }
         public string CityName { get; set; }
@@ -16,10 +16,10 @@ namespace xgca.core.Models.Company
         public string ZipCode { get; set; }
         public int CountryId { get; set; }
         public string CountryName { get; set; }
+        public string FullAddress { get; set; }
         public string Longitude { get; set; }
         public string Latitude { get; set; }
         public string ImageURL { get; set; }
-        public string ContactDetailId { get; set; }
         public int PhonePrefixId { get; set; }
         public string PhonePrefix { get; set; }
         public string Phone { get; set; }
@@ -31,11 +31,8 @@ namespace xgca.core.Models.Company
         public string Fax { get; set; }
         public string WebsiteURL { get; set; }
         public string EmailAddress { get; set; }
-        public byte TaxExemption { get; set; }
-        public byte TaxExemptionStatus { get; set; }
-        public List<dynamic> CompanyServices { get; set; }
-        public string CUCC { get; set; }
-
-        public string ModifiedBy { get; set; }
+        public List<string> Services { get; set; }
+        public CreateUserModel MasterUser { get; set; }
+        public string AccreditedBy { get; set; }
     }
 }

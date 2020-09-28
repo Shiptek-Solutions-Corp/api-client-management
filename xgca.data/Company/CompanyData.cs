@@ -38,6 +38,8 @@ namespace xgca.data.Company
         Task<bool> SetAccreditedBy(string companyId, string accreditedBy, int modifiedBy);
         Task<List<entity.Models.Company>> ListByCompanyName(string companyName);
         Task<bool> CheckIfExistsByCompanyName(string companyName);
+        Task<string[]> BulkCheckIfExistsByCompanyName(string[] companyName);
+        Task<bool> SetCUCCodeByCompanyGuid(string companyKey, string CUCC);
     }
 
     public class ActorReturn
@@ -170,7 +172,7 @@ namespace xgca.data.Company
             data.TaxExemption = obj.TaxExemption;
             data.TaxExemptionStatus = obj.TaxExemptionStatus;
             data.ModifiedOn = DateTime.UtcNow;
-            data.UCCCode = obj.UCCCode;
+            data.CUCC = obj.CUCC;
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
         }
@@ -360,6 +362,32 @@ namespace xgca.data.Company
             //var company = await _context.Companies.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyName == companyName);
             var company = await _context.Companies.Where(x => x.CompanyName == companyName).FirstOrDefaultAsync();
             return (company is null) ? false : true;
+        }
+
+        public async Task<string[]> BulkCheckIfExistsByCompanyName(string[] companyName)
+        {
+            var data = await _context.Companies
+                .Where(c => companyName.Contains(c.CompanyName))
+                .Select(c => c.CompanyName)
+                .AsNoTracking()
+                .ToArrayAsync();
+
+            return data;
+        }
+
+        public async Task<bool> SetCUCCodeByCompanyGuid(string companyKey, string CUCC)
+        {
+            var company = await _context.Companies.Where(c => c.Guid.ToString() == companyKey).FirstOrDefaultAsync();
+
+            if (company is null)
+            {
+                return false;
+            }
+
+            company.CUCC = CUCC;
+
+            var result = await _context.SaveChangesAsync();
+            return result > 0 ? true : false;
         }
     }
 }

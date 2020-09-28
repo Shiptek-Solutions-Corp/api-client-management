@@ -129,5 +129,16 @@ namespace xgca.data.CompanyUser
                 .ToListAsync();
             return data;
         }
+
+        public async Task<entity.Models.CompanyUser> GetMasterUser(int companyId, int userTypeId)
+        {
+            var masterUser = await _context.CompanyUsers.AsNoTracking()
+                .Include(u => u.Users)
+                    .ThenInclude(c => c.ContactDetails)
+                .Where(x => x.CompanyId == companyId && x.UserTypeId == userTypeId)
+                .FirstOrDefaultAsync();
+
+            return masterUser;
+        }
     }
 }

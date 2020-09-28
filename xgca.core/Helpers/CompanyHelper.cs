@@ -118,7 +118,7 @@ namespace xgca.core.Helpers
                     companyObj.ContactDetails.FaxPrefix,
                     companyObj.ContactDetails.Fax,
                 },
-                UCCCode = companyObj.UCCCode,
+                CUCC = companyObj.CUCC,
                 companyObj.TaxExemption,
                 companyObj.TaxExemptionStatus,
                 CompanyServices = companyServicesObj

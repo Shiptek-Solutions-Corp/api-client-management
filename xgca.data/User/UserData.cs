@@ -42,11 +42,13 @@ namespace xgca.data.User
         bool UsernameExists(string username);
         Task<bool> EmailAddressExists(string emailAddress);
         Task<entity.Models.User> GetUserByEmail(string email);
+        Task<entity.Models.User> GetMasterUser(int userId);
     }
     public class SetUserNameReturnObject
     {
         public bool Result { get; set; }
         public List<int> IsUserMaster { get; set; }
+        public string CompanyId { get; set; }
     }
     public class UserData : IMaintainable<xgca.entity.Models.User>, IUserData
     {
@@ -192,7 +194,13 @@ namespace xgca.data.User
             List<int> isUserMaster = await _context.Users.Where(u => u.UserId == obj.UserId && u.IsDeleted == 0)
                 .Select(u => u.CompanyUsers).SelectMany(c => c.CompanyServiceUsers).Select(c => c.IsMasterUser).ToListAsync();
 
-            return new SetUserNameReturnObject { Result = result > 0 ? true : false, IsUserMaster = isUserMaster};
+            var companyId = await _context.Users.Where(u => u.UserId == obj.UserId && u.IsDeleted == 0)
+                .Select(u => u.CompanyUsers)
+                .Select(c => c.Companies)
+                .Select(c => c.Guid)
+                .FirstOrDefaultAsync();
+
+            return new SetUserNameReturnObject { Result = result > 0 ? true : false, IsUserMaster = isUserMaster, CompanyId = companyId.ToString()};
 
             //return new { result = result > 0 ? true : false, isUserMaster = isUserMaster };
         }
@@ -354,6 +362,15 @@ namespace xgca.data.User
                 .FirstOrDefaultAsync();
 
             return user;
+        }
+
+        public async Task<entity.Models.User> GetMasterUser(int userId)
+        {
+            var masterUser = await _context.Users.AsNoTracking()
+                .Where(x => x.UserId == userId)
+                .FirstOrDefaultAsync();
+
+            return masterUser;
         }
     }
 }

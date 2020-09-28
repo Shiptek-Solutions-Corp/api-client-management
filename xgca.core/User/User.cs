@@ -290,7 +290,7 @@ namespace xgca.core.User
             // Create audit log
             await _coreAuditLog.CreateAuditLog("Create", user.GetType().Name, masterUserId, GlobalVariables.SystemUserId, userLog, null);
 
-            return new { MasterUserId = masterUserId, MasterUserGuid = masterUserGuid };
+            return new { MasterUserId = masterUserId, MasterUserGuid = masterUserGuid, MasterUserEmail = obj.EmailAddress };
         }
         public async Task<int> CreateAndReturnId(CreateUserModel obj)
         {
@@ -783,7 +783,7 @@ namespace xgca.core.User
             }
 
             return result.Result
-                ? _general.Response(new { isUserMaster = isUserMaster}, 200, "Username updated", true)
+                ? _general.Response(new { isUserMaster = isUserMaster, companyId = result.CompanyId}, 200, "Username updated", true)
                 : _general.Response(false, 400, "Error on updating username", true);
         }
         public async Task<int> GetIdByGuid(Guid key)
