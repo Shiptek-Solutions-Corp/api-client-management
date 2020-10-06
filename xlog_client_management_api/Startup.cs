@@ -98,7 +98,7 @@ namespace xlog_client_management_api
                 conString = SecretsManager.GetConnectionString(
                     Configuration.GetSection("AWSSecretsManager:SecretName").Value,
                     Configuration.GetSection("AWSSecretsManager:Region").Value,
-                    Configuration.GetSection("ConnectionStrings:DatabaseName").Value
+                    Configuration.GetSection("ConnectionString:DatabaseName").Value
                 );
             }
         }
