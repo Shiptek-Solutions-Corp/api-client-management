@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using xgca.data.Guest;
 using xgca.core.Helpers.Utility;
@@ -8,7 +7,6 @@ using xgca.core.Models.PreferredContact;
 using xgca.core.Response;
 using xgca.data.Company;
 using xgca.data.PreferredContact;
-using xgca.entity.Migrations;
 using xgca.core.User;
 using xgca.core.Helpers.QueryFilter;
 

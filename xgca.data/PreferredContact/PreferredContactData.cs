@@ -6,8 +6,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using xgca.entity;
-using xgca.entity.Migrations;
-using AutoMapper;
 
 namespace xgca.data.PreferredContact
 {

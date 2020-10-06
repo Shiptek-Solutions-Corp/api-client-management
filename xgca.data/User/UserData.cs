@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using xgca.entity;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using xgca.entity.Migrations;
 
 namespace xgca.data.User
 {

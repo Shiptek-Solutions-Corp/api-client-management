@@ -7,7 +7,7 @@ using System.Text;
 
 namespace xgca.entity.Models
 {
-    [Table("User", Schema= "Users")]
+    [Table("User")]
     public class User
     {
         [Key]

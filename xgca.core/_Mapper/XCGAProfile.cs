@@ -24,7 +24,14 @@ namespace xgca.core._Mapper
         {
             CreateMap<CreatedAuditLog, entity.Models.AuditLog>();
 
-            CreateMap<CreateCompanyGroupResource, entity.Models.CompanyGroupResource>();
+            CreateMap<CreateCompanyGroupResource, entity.Models.CompanyGroupResource>()
+                .ForMember(x => x.Guid, opt => opt.MapFrom(o => Guid.NewGuid()))
+                .ForMember(x => x.CreatedOn, opt => opt.MapFrom(o => DateTime.UtcNow))
+                .ForMember(x => x.CreatedBy, opt => opt.MapFrom(o => 1))
+                .ForMember(x => x.ModifiedOn, opt => opt.MapFrom(o => DateTime.UtcNow))
+                .ForMember(x => x.ModifiedOn, opt => opt.MapFrom(o => 1));
+
+
             CreateMap<entity.Models.CompanyGroupResource, GetCompanyGroupResource>();
 
 
@@ -32,7 +39,8 @@ namespace xgca.core._Mapper
             CreateMap<entity.Models.CompanyServiceUserRole, GetCompanyServiceUserRole>();
 
             CreateMap<entity.Models.CompanyServiceUser, GetCompanyServiceUser>();
-            CreateMap<CreateNewUserPerGroupModuleModel, entity.Models.CompanyServiceUser>();
+            CreateMap<CreateNewUserPerGroupModuleModel, entity.Models.CompanyServiceUser>()
+                .ForMember(x => x.IsMasterUser, opt => opt.MapFrom(o => 0));
 
 
             CreateMap<entity.Models.CompanyServiceRole, GetCompanyServiceRoleModel>();

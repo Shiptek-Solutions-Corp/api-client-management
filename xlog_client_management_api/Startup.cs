@@ -72,18 +72,40 @@ namespace xlog_client_management_api
     {
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
-            var d = env.EnvironmentName;
+            /*var d = env.EnvironmentName;
             var builder = new ConfigurationBuilder()
              .SetBasePath(env.ContentRootPath)
              .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
              .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
              .AddEnvironmentVariables();
             configuration = builder.Build();
+            Configuration = configuration;*/
+
+            var builder = new ConfigurationBuilder()
+               .SetBasePath(env.ContentRootPath)
+               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+               .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+               .AddEnvironmentVariables();
+            configuration = builder.Build();
             Configuration = configuration;
+
+            if (env.EnvironmentName == "local")
+            {
+                conString = Configuration["ConnectionString:XGCADb"];
+            }
+            else
+            {
+                conString = SecretsManager.GetConnectionString(
+                    Configuration.GetSection("AWSSecretsManager:SecretName").Value,
+                    Configuration.GetSection("AWSSecretsManager:Region").Value,
+                    Configuration.GetSection("ConnectionStrings:DatabaseName").Value
+                );
+            }
         }
 
         public IConfiguration Configuration { get; }
 
+        private string conString { get; set; }
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -103,7 +125,15 @@ namespace xlog_client_management_api
                 options.Authority = $"https://cognito-idp.{Configuration.GetSection("AWSCognito:Region").Value}.amazonaws.com/{Configuration.GetSection("AWSCognito:UserPoolId").Value}";
             });
 
-            services.AddDbContext<XGCAContext>(opts => opts.UseLazyLoadingProxies(false).UseSqlServer(Configuration["ConnectionString:XGCADb"]));
+            // MSSQL Connection
+            // services.AddDbContext<XGCAContext>(opts => opts.UseLazyLoadingProxies(false).UseSqlServer(Configuration["ConnectionString:XGCADb"]));
+
+            // AuroraDB Connection
+            services.AddDbContextPool<XGCAContext>(opts => opts.UseMySql(conString, builder =>
+            {
+                builder.EnableRetryOnFailure();
+                //builder.ServerVersion(new System.Version("5.6.10"), ServerType.MySql);
+            }));
 
             //services.AddSingleton<IAmazonCognitoIdentityProvider>(cognitoIdentityProvider);
             //services.AddSingleton<CognitoUserPool>(userPool);

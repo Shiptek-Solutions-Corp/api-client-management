@@ -15,10 +15,6 @@ using xgca.core.CompanyUser;
 using xgca.core.Helpers.Http;
 using xgca.core.Constants;
 using xgca.core.Models.Service;
-using Amazon.S3.Model.Internal.MarshallTransformations;
-using System.ComponentModel.Design.Serialization;
-using Microsoft.AspNetCore.Mvc.ViewComponents;
-using xgca.entity.Migrations;
 using xgca.data.PreferredProvider;
 using Castle.Core.Internal;
 

@@ -6,7 +6,6 @@ using xgca.entity;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using LinqKit;
-using AutoMapper.Mappers.Internal;
 
 namespace xgca.data.CompanyService
 {

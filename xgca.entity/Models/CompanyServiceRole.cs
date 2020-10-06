@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace xgca.entity.Models
 {
-    [Table("CompanyServiceRole", Schema = "Company")]
+    [Table("CompanyServiceRole")]
     public class CompanyServiceRole
     {
         [Key]

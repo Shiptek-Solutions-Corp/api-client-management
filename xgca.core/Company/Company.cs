@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using xgca.core.Models.Company;
 using xgca.core.Response;
-using xgca.entity.Models;
 using xgca.data.Company;
-using xgca.data.CompanyService;
 using xgca.data.AuditLog;
 using xgca.data.User;
 using xgca.core.AuditLog;
@@ -22,12 +17,8 @@ using xgca.core.CompanyUser;
 using xgca.core.Helpers;
 using xgca.core.Helpers.Http;
 using xgca.core.Constants;
-using xgca.core.Models.CompanyService;
 using xgca.core.Models.AuditLog;
 using xgca.core.Helpers.Token;
-using Amazon.Runtime.Internal;
-using xgca.entity.Migrations;
-using System.IO;
 
 namespace xgca.core.Company
 {
