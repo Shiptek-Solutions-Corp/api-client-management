@@ -77,7 +77,7 @@ namespace xgca.core.Helpers
             if (response.SecretString != null)
             {
                 var d = (JObject)JsonConvert.DeserializeObject(response.SecretString);
-                secret = $"server={d["host"]};port={d["port"]};database={databaseName};user={d["username"]};password={d["password"]}";
+                secret = $"server={d["host"]};port={d["port"]};database={databaseName};user={d["username"]};password={d["password"]};SslMode=none;";
             }
             else
             {
