@@ -18,7 +18,7 @@
       "launchBrowser": true,
       "launchUrl": "weatherforecast",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "dev"
+        "ASPNETCORE_ENVIRONMENT": "local"
       }
     },
     "xlog_client_management_api": {
