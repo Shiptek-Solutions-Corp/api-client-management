@@ -6,7 +6,7 @@ using System.Text;
 namespace xgca.entity.Models
 {
 
-    [Table("PreferredProvider")]
+    [Table("PreferredProvider", Schema = "Company")]
     public class PreferredProvider
     {
         public int PreferredProviderId { get; set; }

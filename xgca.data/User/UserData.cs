@@ -6,6 +6,7 @@ using xgca.entity;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace xgca.data.User
 {
     public interface IUserData

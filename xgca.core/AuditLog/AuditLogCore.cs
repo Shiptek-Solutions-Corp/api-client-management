@@ -26,6 +26,7 @@ namespace xgca.core.AuditLog
     public interface IAuditLogCore
     {
         Task<IGeneralModel> ListByTableNameAndKeyFieldId(string tableName, int keyFieldId);
+        Task<IGeneralModel> ListByTableNameAndKeyFieldId(string tableName, string keyFieldId);
 
         Task<IGeneralModel> RetrieveDetails(string key);
 
@@ -154,6 +155,43 @@ namespace xgca.core.AuditLog
             return _general.Response(new { Logs = logs }, 200, "Configurable audit logs has been listed", true);
         }
 
+        public async Task<IGeneralModel> ListByTableNameAndKeyFieldId(string tableName, string keyFieldId)
+        {
+            int keyId = 0;
+
+            switch (tableName)
+            {
+                case "User":
+                    keyId = await _user.GetIdByGuid(Guid.Parse(keyFieldId));
+                    break;
+                default:
+                    break;
+            }
+
+            var data = await _auditLog.ListByTableNameAndKeyFieldId(tableName, keyId);
+
+            List<ListAuditLogModel> logs = new List<ListAuditLogModel>();
+
+            foreach (var d in data)
+            {
+                var user = await _user.Retrieve(d.CreatedBy);
+                string username = (user is null) ? "System" : (user.Username is null ? "Not Set" : user.Username); 
+
+                logs.Add(new ListAuditLogModel
+                {
+                    AuditLogId = d.Guid.ToString(),
+                    AuditLogAction = d.AuditLogAction,
+                    CreatedBy = (d.CreatedBy == 0) ? "System" : d.CreatedByName,
+                    Username = username,
+                    CreatedOn = d.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat),
+                    OldValue = d.OldValue,
+                    NewValue = d.NewValue
+                });
+            }
+
+            return _general.Response(new { Logs = logs }, 200, "Configurable audit logs has been listed", true);
+        }
+
         public async Task<IGeneralModel> RetrieveDetails(string key)
         {
             int logId = await _auditLog.GetIdByGuid(Guid.Parse(key));
@@ -169,7 +207,7 @@ namespace xgca.core.AuditLog
             else
             {
                 var user = await _user.Retrieve(data.CreatedBy);
-                username = !(user.Username is null) ? user.Username : "Not Set";
+                username = (user is null) ? "System" : (user.Username is null ? "Not Set" : user.Username);
                 createdBy = data.CreatedByName;
             }
             

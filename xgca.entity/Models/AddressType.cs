@@ -6,7 +6,7 @@ using System.Text;
 
 namespace xgca.entity.Models
 {
-    [Table("AddressType")]
+    [Table("AddressType", Schema = "Settings")]
     public class AddressType
     {
         [Key]

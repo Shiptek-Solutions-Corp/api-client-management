@@ -21,5 +21,6 @@ namespace xgca.data.Guest
         Task<bool> Delete(entity.Models.Guest obj);
         Task<List<entity.Models.Guest>> QuickSearch(string search);
         Task<List<string>> QuickSearch(string search, List<string> guestIds);
+        Task<YourEDIActorReturn> GetGuestAndMasterUserDetails(string guestKey);
     }
 }

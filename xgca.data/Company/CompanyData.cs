@@ -19,6 +19,7 @@ namespace xgca.data.Company
         Task<bool> Update(entity.Models.Company obj);
         Task<bool> Delete(int key);
         Task<List<ActorReturn>> GetAll();
+        Task<YourEDIActorReturn> GetCompanyAndMasterUserDetails(string companyKey);
         Task<entity.Models.Company> Retrieve(Guid key);
         Task<dynamic> ListByService(int serviceId, string companyName, int page, int rowCount);
         Task<dynamic> ListByService(int serviceId, int page, int rowCount);
@@ -46,6 +47,19 @@ namespace xgca.data.Company
         public string ImageUrl { get; set; }
         public string Addresses { get; set; }
         public dynamic ContactDetails { get; set; }
+    }
+
+    public class YourEDIActorReturn
+    {
+        public Guid Guid { get; set; }
+        public string CUCC { get; set; }
+        public dynamic MasterUser { get; set; }
+        public string CompanyName { get; set; }
+        public string Email { get; set; }
+        public string ImageUrl { get; set; }
+        public dynamic ContactDetails { get; set; }
+        public dynamic Address { get; set; }
+
     }
 
     public class CompanyData : IMaintainable<entity.Models.Company>, ICompanyData
@@ -385,6 +399,68 @@ namespace xgca.data.Company
 
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
+        }
+
+        public async Task<YourEDIActorReturn> GetCompanyAndMasterUserDetails(string companyKey)
+        {
+            var data = await _context.Companies
+                .Include(a => a.Addresses)
+                .Include(a => a.ContactDetails)
+                .Where(x => x.Guid.ToString() == companyKey)
+                .Select(
+                c => new YourEDIActorReturn
+                {
+                    Guid = c.Guid,
+                    CUCC = (c.CUCC == null) ? "N/A" : c.CUCC,
+                    CompanyName = c.CompanyName,
+                    Email = (c.EmailAddress == null) ? "N/A" : c.EmailAddress,
+                    ImageUrl = (c.ImageURL == null) ? "N/A" : c.ImageURL,
+                    ContactDetails = new
+                    {
+                        MobileNoPrefix = (c.ContactDetails.MobilePrefix == null) ? "N/A" : c.ContactDetails.MobilePrefix,
+                        MobileNo = (c.ContactDetails.Mobile == null) ? "N/A" : c.ContactDetails.Mobile,
+                        PhoneNoPrefix = (c.ContactDetails.PhonePrefix == null) ? "N/A" : c.ContactDetails.PhonePrefix,
+                        PhoneNo = (c.ContactDetails.Phone == null) ? "N/A" : c.ContactDetails.Phone,
+                        FaxNoPrefix = (c.ContactDetails.FaxPrefix == null) ? "N/A" : c.ContactDetails.FaxPrefix,
+                        FaxNo = (c.ContactDetails.Fax == null) ? "N/A" : c.ContactDetails.Fax
+                    },
+                    Address = new
+                    {
+                        CompleteAddress = (c.Addresses.FullAddress == null) ? "N/A" : c.Addresses.FullAddress,
+                        AddressLine = (c.Addresses.AddressLine == null) ? "N/A" : c.Addresses.AddressLine,
+                        City = (c.Addresses.CityName == null) ? "N/A" : c.Addresses.CityName,
+                        ProvinceState = (c.Addresses.StateName == null) ? "N/A" : c.Addresses.StateName,
+                        Country = (c.Addresses.CountryName == null) ? " N/A" : c.Addresses.CountryName,
+                        ZipCode = (c.Addresses.ZipCode == null) ? "N/A" : c.Addresses.ZipCode
+                    }
+                })
+                .AsNoTracking()
+                .SingleOrDefaultAsync();
+            
+            if (data is null)
+            {
+                return null;
+            }
+
+            int companyId = await _context.Companies.AsNoTracking()
+                .Where(x => x.Guid.ToString() == companyKey)
+                .Select(x => x.CompanyId)
+                .FirstOrDefaultAsync();
+
+            var masterUser = await _context.CompanyUsers.AsNoTracking()
+                .Include(a => a.Users)
+                .Where(x => x.CompanyId == companyId && x.UserTypeId == 1) // UserTypeId == Master User
+                .Select(m => new 
+                { 
+                    Firstname = (m.Users.FirstName == null) ? "Master" : m.Users.FirstName, 
+                    Lastname = (m.Users.LastName == null) ? "User" : m.Users.LastName 
+                })
+                .FirstOrDefaultAsync();
+
+
+            data.MasterUser = masterUser;
+
+            return data;
         }
     }
 }

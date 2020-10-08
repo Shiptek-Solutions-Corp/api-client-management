@@ -23,6 +23,7 @@ namespace xlog_client_management_api.Controllers.PreferredProvider
 
         [Route("company/details/preferred-providers")]
         [HttpGet]
+        [TokenAuthorize("scope", "preferredProviders.get")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -45,6 +46,7 @@ namespace xlog_client_management_api.Controllers.PreferredProvider
 
         [Route("company/details/preferred-providers/{preferredProviderId}")]
         [HttpDelete]
+        [TokenAuthorize("scope", "preferredProviders.delete")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -66,6 +68,7 @@ namespace xlog_client_management_api.Controllers.PreferredProvider
 
         [Route("company/details/preferred-providers/quick-search")]
         [HttpGet]
+        [TokenAuthorize("scope", "preferredProviders.get")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -88,6 +91,7 @@ namespace xlog_client_management_api.Controllers.PreferredProvider
 
         [Route("company/details/preferred-providers")]
         [HttpPost]
+        [TokenAuthorize("scope", "preferredProviders.post")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

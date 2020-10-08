@@ -4,7 +4,7 @@ using System.Security.Policy;
 
 namespace xgca.entity.Models
 {
-    [Table("PreferredContact")]
+    [Table("PreferredContact", Schema = "Company")]
     public class PreferredContact
     {
         public int PreferredContactId { get; set; }

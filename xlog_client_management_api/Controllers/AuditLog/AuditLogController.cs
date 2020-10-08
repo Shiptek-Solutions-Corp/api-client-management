@@ -26,7 +26,7 @@ namespace xlog_client_management_api.Controllers.AuditLog
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> ListAuditLogs([FromRoute] string tableName, int keyFieldId)
+        public async Task<IActionResult> ListAuditLogs([FromRoute] string tableName, string keyFieldId)
         {
             var response = await _auditLog.ListByTableNameAndKeyFieldId(tableName, keyFieldId);
 

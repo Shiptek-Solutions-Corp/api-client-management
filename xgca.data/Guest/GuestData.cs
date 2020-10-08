@@ -9,6 +9,18 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace xgca.data.Guest
 {
+    public class YourEDIActorReturn
+    {
+        public Guid Guid { get; set; }
+        public string CUCC { get; set; }
+        public dynamic MasterUser { get; set; }
+        public string CompanyName { get; set; }
+        public string Email { get; set; }
+        public string ImageUrl { get; set; }
+        public dynamic ContactDetails { get; set; }
+        public dynamic Address { get; set; }
+
+    }
     public class GuestData : IMaintainable<entity.Models.Guest>, IGuestData
     {
         private readonly IXGCAContext _context;
@@ -194,6 +206,47 @@ namespace xgca.data.Guest
                 .ToListAsync();
 
             return guests;
+        }
+
+        public async Task<YourEDIActorReturn> GetGuestAndMasterUserDetails(string guestKey)
+        {
+            var data = await _context.Guests
+                .Where(x => x.Id.ToString() == guestKey)
+                .Select(x => new YourEDIActorReturn
+                {
+                    Guid = x.Id,
+                    CUCC = (x.CUCC == null) ? "N/A" : x.CUCC,
+                    CompanyName = x.GuestName,
+                    Email = (x.EmailAddress == null) ? "N/A" : x.EmailAddress,
+                    ImageUrl = (x.Image == null) ? "N/A" : x.Image,
+                    ContactDetails = new
+                    {
+                        MobileNoPrefix = (x.MobileNumberPrefix == null) ? "N/A" : x.MobileNumberPrefix,
+                        MobileNo = (x.MobileNumber == null) ? "N/A" : x.MobileNumber,
+                        PhoneNoPrefix = (x.PhoneNumberPrefix == null) ? "N/A" : x.PhoneNumberPrefix,
+                        PhoneNo = (x.PhoneNumber == null) ? "N/A" : x.PhoneNumber,
+                        FaxNoPrefix = (x.FaxNumberPrefix == null) ? "N/A" : x.FaxNumberPrefix,
+                        FaxNo = (x.FaxNumber == null) ? "N/A" : x.FaxNumber
+                    },
+                    Address = new
+                    {
+                        CompleteAddress = $"{x.AddressLine}, {x.CityName}, {x.StateName}, {x.CountryName}, {x.ZipCode}",
+                        AddressLine = (x.AddressLine == null) ? "N/A" : x.AddressLine,
+                        City = (x.CityName == null) ? "N/A" : x.CityName,
+                        ProvinceState = (x.StateName == null) ? "N/A" : x.StateName,
+                        Country = (x.CountryName == null) ? "N/A" : x.CountryName,
+                        ZipCode = (x.ZipCode == null) ? "N/A" : x.ZipCode
+                    },
+                    MasterUser = new
+                    {
+                        Firstname = (x.FirstName == null) ? "N/A" : x.FirstName,
+                        Lastname = (x.LastName == null) ? "N/A" : x.LastName
+                    }
+                })
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            return data;
         }
     }
 }

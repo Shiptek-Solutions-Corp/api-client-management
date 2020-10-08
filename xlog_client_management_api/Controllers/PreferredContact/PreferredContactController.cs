@@ -23,6 +23,7 @@ namespace xlog_client_management_api.Controllers.PreferredContact
 
         [Route("company/details/preferred-contacts")]
         [HttpGet]
+        [TokenAuthorize("scope", "contacts.get")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -45,6 +46,7 @@ namespace xlog_client_management_api.Controllers.PreferredContact
 
         [Route("company/{companyId}/details/preferred-contacts")]
         [HttpGet]
+        [TokenAuthorize("scope", "contacts.get")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -66,6 +68,7 @@ namespace xlog_client_management_api.Controllers.PreferredContact
 
         [Route("preferred-contacts/{preferredContactId}/details")]
         [HttpGet]
+        [TokenAuthorize("scope", "contacts.get")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -87,6 +90,7 @@ namespace xlog_client_management_api.Controllers.PreferredContact
 
         [Route("preferred-contacts/{preferredContactId}")]
         [HttpDelete]
+        [TokenAuthorize("scope", "contacts.delete")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -108,6 +112,7 @@ namespace xlog_client_management_api.Controllers.PreferredContact
 
         [Route("preferred-contacts/quick-search")]
         [HttpGet]
+        [TokenAuthorize("scope", "contacts.get")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

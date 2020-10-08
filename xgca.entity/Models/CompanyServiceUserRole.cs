@@ -7,7 +7,7 @@ using static xgca.entity.Models._Model;
 
 namespace xgca.entity.Models
 {
-    [Table("CompanyServiceUserRole")]
+    [Table("CompanyServiceUserRole", Schema = "Company")]
     public class CompanyServiceUserRole : SoftDeletableEntity
     {
         [Key]

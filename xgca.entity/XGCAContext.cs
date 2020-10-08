@@ -61,6 +61,111 @@ namespace xgca.entity
                     ModifiedOn = DateTime.UtcNow,
                     Guid = Guid.Parse("95EC682B-074F-42BB-9FED-D4DBDE41E41D")
                 });
+
+            modelBuilder.Entity<Address>().HasData(
+                 new Address
+                 {
+                     AddressId = 1,
+                     AddressLine = "None",
+                     AddressTypeId = 1,
+                     FullAddress = "None",
+                     CityId = 1,
+                     CityName = "None",
+                     StateId = 1,
+                     StateName = "None",
+                     CountryId = 1,
+                     CountryName = "Global",
+                     Latitude = "None",
+                     Longitude = "None",
+                     ZipCode = "None",
+                     CreatedBy = 0,
+                     CreatedOn = DateTime.UtcNow,
+                     ModifiedBy = 0,
+                     ModifiedOn = DateTime.UtcNow,
+                     Guid = Guid.Parse("21716A6C-4DEE-422B-B2D9-74BF4B12E242"),
+                     IsDeleted = 1
+                 });
+
+            modelBuilder.Entity<ContactDetail>().HasData(
+                new ContactDetail
+                {
+                    ContactDetailId = 1,
+                    PhonePrefixId = 1,
+                    PhonePrefix = "None",
+                    Phone = "None",
+                    MobilePrefixId = 1,
+                    MobilePrefix = "None",
+                    Mobile = "None",
+                    FaxPrefixId = 1,
+                    FaxPrefix = "None",
+                    Fax = "None",
+                    Guid = Guid.Parse("1F5CB3B9-992B-4279-ACF7-7F0273ABBF03"),
+                    CreatedBy = 0,
+                    CreatedOn = DateTime.UtcNow,
+                    ModifiedBy = 0,
+                    ModifiedOn = DateTime.UtcNow,
+                    IsDeleted = 1
+                });
+
+            modelBuilder.Entity<Company>().HasData(
+                new Company
+                {
+                    CompanyId = 1,
+                    CompanyName = "None",
+                    ClientId = 1,
+                    ContactDetailId = 1,
+                    AddressId = 1,
+                    EmailAddress = "None",
+                    ImageURL = "None",
+                    Status = 0,
+                    Guid = Guid.Parse("3608A083-FBE5-44D5-AFEF-C7814100AEC7"),
+                    WebsiteURL = "None",
+                    CreatedBy = 0,
+                    CreatedOn = DateTime.UtcNow,
+                    ModifiedBy = 0,
+                    ModifiedOn = DateTime.UtcNow,
+                    IsDeleted = 1,
+                    TaxExemption = 0,
+                    TaxExemptionStatus = 0
+                });
+
+            modelBuilder.Entity<Guest>().HasData(
+                new Guest
+                {
+                    GuestId = 1,
+                    GuestName = "None",
+                    GuestType = 0,
+                    AddressLine = "None",
+                    CityId = "None",
+                    CityName = "None",
+                    StateId = "None",
+                    StateName = "None",
+                    CountryId = 1,
+                    CountryName = "Global",
+                    EmailAddress = "None",
+                    PhoneNumberPrefixId = "None",
+                    PhoneNumberPrefix = "None",
+                    PhoneNumber = "None",
+                    MobileNumberPrefixId = "None",
+                    MobileNumberPrefix = "None",
+                    MobileNumber = "None",
+                    FaxNumberPrefixId = "None",
+                    FaxNumberPrefix = "None",
+                    FaxNumber = "None",
+                    CompanyId = 1,
+                    Id = Guid.Parse("7BBE1F11-E04A-4A8B-AFE1-EC55EBA13D66"),
+                    FirstName = "None",
+                    LastName = "None",
+                    IsGuest = false,
+                    ZipCode = "None",
+                    CreatedBy = 0,
+                    CreatedOn = DateTime.UtcNow,
+                    ModifiedBy = 0,
+                    ModifiedOn = DateTime.UtcNow,
+                    IsDeleted = 1,
+                    DeletedBy = 0,
+                    DeletedOn = DateTime.UtcNow
+                });
         }
     }
     public class XGCAContext : DbContext, IXGCAContext
@@ -107,11 +212,11 @@ namespace xgca.entity
 
             modelBuilder.Entity<CompanyGroupResource>()
                 .Property(cgr => cgr.CreatedOn)
-                .HasDefaultValue(DateTime.UtcNow);
+                .HasDefaultValueSql("getutcdate()");
 
             modelBuilder.Entity<CompanyGroupResource>()
                 .Property(cgr => cgr.ModifiedOn)
-                .HasDefaultValue(DateTime.UtcNow);
+                .HasDefaultValueSql("getutcdate()");
 
             modelBuilder.Entity<CompanyGroupResource>()
                 .Property(cgr => cgr.ModifiedBy)

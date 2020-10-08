@@ -2,9 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace xgca.core.Models.Company
+namespace xgca.core.Models.YourEDI
 {
-    public class GetMasterUserOwnerIdsModel
+    public class YourEdiRequest
+    {
+        public YourEdiRequestActors Actors { get; set; }
+    }
+
+    public class YourEdiRequestActors
     {
         public string ShipperId { get; set; }
         public string ConsigneeId { get; set; }

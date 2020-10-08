@@ -4,8 +4,8 @@ using Amazon.SecretsManager.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace xgca.core.Helpers
@@ -77,7 +77,8 @@ namespace xgca.core.Helpers
             if (response.SecretString != null)
             {
                 var d = (JObject)JsonConvert.DeserializeObject(response.SecretString);
-                secret = $"server={d["host"]};port={d["port"]};database={databaseName};user={d["username"]};password={d["password"]};SslMode=none;";
+                //secret = $"server={d["host"]};port={d["port"]};database={databaseName};user={d["username"]};password={d["password"]};SslMode=none;";
+                secret = $"Data Source={d["host"]};Initial Catalog={databaseName};User={d["username"]};Password={d["password"]};Connect Timeout=180;Encrypt=False;";
             }
             else
             {
