@@ -41,6 +41,7 @@ namespace xlog_client_management_api.Controllers.Guest
         }
 
         [Route("guest/register")]
+        [TokenAuthorize("scope", "contacts.post")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
