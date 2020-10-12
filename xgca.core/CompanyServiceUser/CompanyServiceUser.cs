@@ -18,6 +18,7 @@ using System.Runtime.InteropServices.ComTypes;
 using xgca.data.Company;
 using xgca.data.User;
 using AutoMapper;
+using xgca.entity.Models;
 
 namespace xgca.core.CompanyServiceUser
 {
@@ -27,6 +28,7 @@ namespace xgca.core.CompanyServiceUser
         Task<IGeneralModel> ListUserServiceRolesByCompanyId(int companyId);
         Task<IGeneralModel> ListUserServiceRolesByCompanyId(string companyKey);
         Task<IGeneralModel> ListUserServiceRolesByCompanyUserId(int companyUserId);
+        Task<IGeneralModel> UpdateCompanyServiceUserRole(string companyServiceUserId, UpdateCompanyServiceUser updateCompanyServiceUser);
         Task<IGeneralModel> ListUserWithNoDuplicateRole(
             string companyGuidId, 
             string companyServiceRoleGuid = "", 
@@ -296,6 +298,23 @@ namespace xgca.core.CompanyServiceUser
             var list = result.Select(u => mapper.Map<Models.CompanyUser.GetCompanyUserModel>(u)).ToList();
 
             return _general.Response(list, 200, "List of Company Service user with no existing role", true);
+        }
+
+        public async Task<IGeneralModel> UpdateCompanyServiceUserRole(string companyServiceUserId, UpdateCompanyServiceUser updateCompanyServiceUser)
+        {
+            int companyServiceRoleId = await _companyServiceRole.GetIdByGuid(updateCompanyServiceUser.CompanyServiceRoleId);
+
+            var companySerivceUser = new xgca.entity.Models.CompanyServiceUser
+            {
+                Guid = Guid.Parse(companyServiceUserId),
+                CompanyServiceRoleId = companyServiceRoleId,
+            };
+
+            bool result = await _companyServiceUser.Update(companySerivceUser);
+
+            return result 
+                ? _general.Response(null, 200, "Updated Successfuly", true)
+                : _general.Response(null, 400, "Error on Update", true);
         }
     }
 }

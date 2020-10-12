@@ -152,9 +152,18 @@ namespace xgca.data.CompanyServiceUser
             return data;
         }
 
-        public Task<bool> Update(entity.Models.CompanyServiceUser obj)
+        public async Task<bool> Update(entity.Models.CompanyServiceUser obj)
         {
-            throw new NotImplementedException();
+            var companyServiceUser = await _context.CompanyServiceUsers
+                .Where(s => s.Guid == obj.Guid).SingleOrDefaultAsync();
+
+            if (companyServiceUser == null) return false;
+
+            companyServiceUser.CompanyServiceRoleId = obj.CompanyServiceRoleId;
+            _context.CompanyServiceUsers.Update(companyServiceUser);
+            int result = await _context.SaveChangesAsync();
+
+            return result > 0;
         }
 
         public async Task<bool> UpdateServiceAndRole(int companyServiceUserId, int companyServiceId, int companyServiceRoleId, int modifiedById)
