@@ -79,10 +79,10 @@ namespace xgca.core.Profile
             int companyUserId = user.CompanyUsers.CompanyUserId;
             var companyServiceUser = await _companyServiceUserData.Retrieve(companyUserId, companyServiceId);
 
-            if (companyServiceUser is null)
-            {
-                return _general.Response(null, 400, "No user role registered for selected service", false);
-            }
+            //if (companyServiceUser is null)
+            //{
+            //    return _general.Response(null, 400, "No user role registered for selected service", false);
+            //}
 
             dynamic data = new
             {
@@ -103,8 +103,8 @@ namespace xgca.core.Profile
                     Username = username,
                     Image = user.ImageURL,
                     Email = user.EmailAddress,
-                    ServiceRole = companyServiceUser.CompanyServiceRoles.Name,
-                    companyServiceUser.IsMasterUser
+                    ServiceRole = companyServiceUser != null ? companyServiceUser.CompanyServiceRoles.Name : "Master User",
+                    IsMasterUser = companyServiceUser != null ? companyServiceUser.IsMasterUser : 1
                 }
             };
 
