@@ -79,7 +79,7 @@ namespace xgca.core.AuditLog
                 {
                     CreatedBy = createdById,
                     CreatedByName = createdByName,
-                    CreatedOn = o.CreatedOn,
+                    CreatedOn = DateTime.UtcNow,
                     TableName = o.TableName,
                     KeyFieldId = o.KeyFieldId,
                     NewValue = o.NewValue,
