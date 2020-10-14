@@ -6,7 +6,7 @@ namespace xgca.core.Models.YourEDI
 {
     public class YourEdiCUCC
     {
-        public string Id { get; set; }
-        public string Code { get; set; }
+        public string CompanyId { get; set; }
+        public string CUCC { get; set; }
     }
 }

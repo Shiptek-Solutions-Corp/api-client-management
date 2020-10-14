@@ -11,7 +11,6 @@ using xgca.core.Models.YourEDI;
 namespace xlog_client_management_api.Controllers.YourEdi
 {
     [Route("clients/api/v1/your-edi")]
-    [Authorize(AuthenticationSchemes = "Bearer")]
     public class YourEdiController : ControllerBase
     {
         private readonly IYourEDIService _yourEdi;

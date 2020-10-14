@@ -69,17 +69,17 @@ namespace xgca.core.Services
 
         public async Task<IGeneralModel> SetCUCC(YourEdiCUCC obj)
         {
-            var company = await _company.Retrieve(Guid.Parse(obj.Id));
-            var guest = await _guest.Retrieve(Guid.Parse(obj.Id));
+            var company = await _company.Retrieve(Guid.Parse(obj.CompanyId));
+            var guest = await _guest.Retrieve(Guid.Parse(obj.CompanyId));
 
             bool result = false;
             if (!(company is null))
             {
-                result = await _company.SetCUCCByCompanyGuid(obj.Id, obj.Code);
+                result = await _company.SetCUCCByCompanyGuid(obj.CompanyId, obj.CUCC);
             }
             else
             {
-                result = await _guest.SetCUCCByGuestGuid(obj.Id, obj.Code);
+                result = await _guest.SetCUCCByGuestGuid(obj.CompanyId, obj.CUCC);
             }
 
             return result
