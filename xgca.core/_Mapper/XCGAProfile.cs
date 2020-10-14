@@ -22,7 +22,7 @@ namespace xgca.core._Mapper
     {
         public XCGAProfile()
         {
-            CreateMap<CreatedAuditLog, entity.Models.AuditLog>();
+            CreateMap<CreateAuditLog, entity.Models.AuditLog>();
 
             CreateMap<CreateCompanyGroupResource, entity.Models.CompanyGroupResource>();
             CreateMap<entity.Models.CompanyGroupResource, GetCompanyGroupResource>();

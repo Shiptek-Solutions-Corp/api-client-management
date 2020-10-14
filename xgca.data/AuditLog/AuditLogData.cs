@@ -18,6 +18,7 @@ namespace xgca.data.AuditLog
         Task<List<entity.Models.AuditLog>> ListByTableName(string tableName);
         Task<List<entity.Models.AuditLog>> ListByTableNameAndKeyFieldId(string tableName, int keyFieldId);
         Task<List<entity.Models.AuditLog>> GetCompanyServiceRoleLogs(string type, int[] ids, int keyField);
+        Task<bool> Create(List<entity.Models.AuditLog> obj);
 
     }
     public class AuditLogData : IMaintainable<entity.Models.AuditLog>, IAuditLogData
@@ -101,6 +102,13 @@ namespace xgca.data.AuditLog
         public Task<bool> Update(entity.Models.AuditLog obj)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<bool> Create(List<entity.Models.AuditLog> obj)
+        {
+            _context.AuditLogs.AddRange(obj);
+            var result = await _context.SaveChangesAsync();
+            return result > 0 ? true : false;
         }
     }
 }

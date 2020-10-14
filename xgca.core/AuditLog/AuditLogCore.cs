@@ -32,6 +32,8 @@ namespace xgca.core.AuditLog
 
         Task<IGeneralModel> CreateAuditLog(string auditLogAction, string tableName, int keyFieldId, int createdBy, dynamic oldObj, dynamic newObj = null);
         Task<IGeneralModel> GetCompanyServiceRoleLogs(string type, string companyServiceGuid, string keyGuid);
+
+        Task<IGeneralModel> BatchCreateAuditLog(List<CreateAuditLog> obj, int modifiedById);
     }
 
     public class AuditLogCore : IAuditLogCore
@@ -57,6 +59,42 @@ namespace xgca.core.AuditLog
             _general = general;
             this.companyService = companyService;
             this.companyServiceRole = companyServiceRole;
+        }
+
+        public async Task<IGeneralModel> BatchCreateAuditLog(List<CreateAuditLog> obj, int createdById)
+        {
+            string createdByName = "";
+            if (createdById == 0)
+            { createdByName = "System"; }
+            else
+            {
+                var user = await _user.Retrieve(createdById);
+                createdByName = $"{user.FirstName} {user.LastName}";
+            }
+
+            List<entity.Models.AuditLog> auditLogs = new List<entity.Models.AuditLog>();
+            foreach(var o in obj)
+            {
+                auditLogs.Add(new entity.Models.AuditLog
+                {
+                    CreatedBy = createdById,
+                    CreatedByName = createdByName,
+                    CreatedOn = o.CreatedOn,
+                    TableName = o.TableName,
+                    KeyFieldId = o.KeyFieldId,
+                    NewValue = o.NewValue,
+                    OldValue = o.OldValue,
+                    AuditLogAction = o.AuditLogAction,
+                    Guid = Guid.NewGuid()
+                });
+            }
+
+            var result = await _auditLog.Create(auditLogs);
+
+            return result
+                ? _general.Response(null, 200, "Audit logs created successfully", true)
+                : _general.Response(null, 400, "Error in creating audit logs,", false);
+
         }
 
         public async Task<IGeneralModel> CreateAuditLog(string auditLogAction, string tableName, int keyFieldId, int createdBy, dynamic oldObj, dynamic newObj = null)

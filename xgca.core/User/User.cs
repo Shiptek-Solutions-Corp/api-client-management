@@ -130,7 +130,6 @@ namespace xgca.core.User
             
             return _general.Response(data, 200, "Configurable companies has been listed", true);
         }
-
         public async Task<IGeneralModel> List(string query, string isActive, string isLock)
         {
             //Start: Please move this on helpers
@@ -166,7 +165,6 @@ namespace xgca.core.User
 
             return _general.Response(data, 200, "Configurable companies has been listed", true);
         }
-        
         public async Task<IGeneralModel> Create(CreateUserModel obj, string companyId, string auth, string CreatedBy)
         {
             if (obj == null)
@@ -326,7 +324,6 @@ namespace xgca.core.User
 
             return newUserId;
         }
-
         public async Task<IGeneralModel> Update(UpdateUserModel obj, string modifiedBy)
         {
             if (obj == null)
@@ -406,7 +403,6 @@ namespace xgca.core.User
                 ? _general.Response(null, 200, "User updated", true)
                 : _general.Response(null, 400, "Error on updating user", false);
         }
-
         public async Task<IGeneralModel> UpdateStatus(UpdateUserStatusModel obj, string modifiedBy, string auth)
         {
             if (obj == null)
@@ -444,11 +440,14 @@ namespace xgca.core.User
 
             var userResult = await _userData.UpdateStatus(user);
 
+            string oldStatus = (obj.Status == 1) ? "Inactive" : "Active";
+            string newStatus = (obj.Status == 1) ? "Active" : "Inactive";
+            await _coreAuditLog.CreateAuditLog("Update Status", user.GetType().Name, userId, modifiedById, oldStatus, newStatus);
+
             return userResult
                 ? _general.Response(null, 200, "User Status updated", true)
                 : _general.Response(null, 400, "Error on updating user", false);
         }
-
         public async Task<IGeneralModel> UpdateLock(UpdateUserLockModel obj, string modifiedBy, string auth)
         {
             if (obj == null)
@@ -486,11 +485,14 @@ namespace xgca.core.User
 
             var userResult = await _userData.UpdateLock(user);
 
+            string oldLock = (obj.IsLocked == 1) ? "Unlocked" : "Locked";
+            string newLock = (obj.IsLocked == 1) ? "Locked" : "Unlocked";
+            await _coreAuditLog.CreateAuditLog("Update Status", user.GetType().Name, userId, modifiedById, oldLock, newLock);
+
             return userResult
                 ? _general.Response(null, 200, "User Lock Status updated", true)
                 : _general.Response(null, 400, "Error on updating user", false);
         }
-
         public async Task<IGeneralModel> DeleteMultipleUser(DeleteMultipleUserModel obj, string modifiedBy, string auth)
         {
             if (obj == null)
@@ -524,8 +526,23 @@ namespace xgca.core.User
                 newIdsList.Add(successUserId);
             }
 
-
             int modifiedById = await _userData.GetIdByUsername(modifiedBy);
+
+            List<CreateAuditLog> logs = new List<CreateAuditLog>();
+
+            foreach (var u in newIdsList)
+            {
+                logs.Add(new CreateAuditLog
+                {
+                    AuditLogAction = "Delete",
+                    KeyFieldId = u,
+                    TableName = "User",
+                    OldValue = null,
+                    NewValue = null
+                });
+            }
+
+            await _coreAuditLog.BatchCreateAuditLog(logs, modifiedById);
 
             var userResult = await _userData.Delete(
                 newIdsList,
@@ -535,9 +552,6 @@ namespace xgca.core.User
                 ? _general.Response(null, 200, "Users has been deleted", true)
                 : _general.Response(null, 400, "Error on updating user", false);
         }
-
-
-
         public async Task<IGeneralModel> UpdateMultipleLock(UpdateMultipleLockModel obj, string modifiedBy, string auth)
         {
             if (obj == null)
@@ -582,6 +596,24 @@ namespace xgca.core.User
 
             int modifiedById = await _userData.GetIdByUsername(modifiedBy);
 
+            string oldLock = (obj.IsLocked == 1) ? "Unlocked" : "Locked";
+            string newLock = (obj.IsLocked == 1) ? "Locked" : "Unlocked";
+            List<CreateAuditLog> logs = new List<CreateAuditLog>();
+
+            foreach(var u in newIdsList)
+            {
+                logs.Add(new CreateAuditLog
+                {
+                    AuditLogAction = "Update lock status",
+                    KeyFieldId = u,
+                    TableName = "User",
+                    OldValue = oldLock,
+                    NewValue = newLock
+                });
+            }
+
+            await _coreAuditLog.BatchCreateAuditLog(logs, modifiedById);
+
             var userResult = await _userData.UpdateLock(
                 newIdsList,
                 modifiedById,
@@ -591,8 +623,6 @@ namespace xgca.core.User
                 ? _general.Response(null, 200, "User Multiple Lock Status updated", true)
                 : _general.Response(null, 400, "Error on updating user", false);
         }
-
-
         public async Task<IGeneralModel> UpdateMultipleStatus(UpdateMultipleStatusModel obj, string modifiedBy, string auth)
         {
             if (obj == null)
@@ -632,8 +662,25 @@ namespace xgca.core.User
                 newIdsList.Add(successUserId);
             }
 
-
             int modifiedById = await _userData.GetIdByUsername(modifiedBy);
+
+            string oldStatus = (obj.Status == 1) ? "Inactive" : "Active";
+            string newStatus = (obj.Status == 1) ? "Active" : "Inactive";
+            List<CreateAuditLog> logs = new List<CreateAuditLog>();
+
+            foreach (var u in newIdsList)
+            {
+                logs.Add(new CreateAuditLog
+                {
+                    AuditLogAction = "Update status",
+                    KeyFieldId = u,
+                    TableName = "User",
+                    OldValue = oldStatus,
+                    NewValue = newStatus
+                });
+            }
+
+            await _coreAuditLog.BatchCreateAuditLog(logs, modifiedById);
 
             var userResult = await _userData.UpdateStatus(
                 newIdsList,
@@ -644,7 +691,6 @@ namespace xgca.core.User
                 ? _general.Response(null, 200, "User Multiple Status updated", true)
                 : _general.Response(null, 400, "Error on updating user", false);
         }
-
         public async Task<IGeneralModel> Retrieve(string key)
         {
             int userId = await _userData.GetIdByGuid(Guid.Parse(key));
@@ -745,11 +791,18 @@ namespace xgca.core.User
             }
 
             var result = await _userData.Delete(userId);
+
+            int createdById = GlobalVariables.SystemUserId;
+            if (modifiedBy != null)
+            { createdById = await _userData.GetIdByUsername(modifiedBy); }
+
+            // Create audit log
+            await _coreAuditLog.CreateAuditLog("Delete", user.GetType().Name, userId, createdById, null, null);
+
             return result
                 ? _general.Response(true, 200, "User deleted", true)
                 : _general.Response(false, 400, "Error on deleting user", true);
         }
-
         public async Task<IGeneralModel> GetIdByGuid(string key)
         {
             int userId = await _userData.GetIdByGuid(Guid.Parse(key));
@@ -762,6 +815,10 @@ namespace xgca.core.User
         public async Task<IGeneralModel> SetUsername(SetUsernameModel obj)
         {
             bool isUserMaster = false;
+
+            var user = await _userData.Retrieve(obj.UserId);
+            string username = user.Username;
+
             var data = new entity.Models.User
             {
                 UserId = obj.UserId,
@@ -772,6 +829,9 @@ namespace xgca.core.User
             };
 
             var result = await _userData.SetUsername(data);
+
+            // Create audit log
+            await _coreAuditLog.CreateAuditLog("Set Username", "User", obj.UserId, GlobalVariables.SystemUserId, username, obj.Username);
 
             foreach (int item in result.IsUserMaster)
             {
@@ -790,18 +850,15 @@ namespace xgca.core.User
             int userId = await _userData.GetIdByGuid(key);
             return userId;
         }
-
         public Task<bool> Create(xgca.entity.Models.User obj)
         {
             throw new NotImplementedException();
         }
-
         public async Task<int> GetIdByUsername(string username)
         {
             var user = await _userData.RetrieveByUsername(username);
             return user.UserId;
         }
-
         public async Task<IGeneralModel> GetUserByReferenceId(int id)
         {
             var user = await _userData.Retrieve(id);
@@ -810,7 +867,6 @@ namespace xgca.core.User
                 ? _general.Response(null, 400, "Invalid User", true) 
                 : _general.Response(new { name = user.FirstName + " " + user.LastName}, 200, "User details retrieved", true);
         }
-
         public async Task<IGeneralModel> ListUserLogs(string? userKey, string? username)
         {
             int userId = 0;
@@ -844,7 +900,6 @@ namespace xgca.core.User
 
             return _general.Response(new { Logs = logs }, 200, "Company audit logs has been listed", true);
         }
-
         public async Task<IGeneralModel> GetUserCounts(List<int> userIds)
         {
             int totalUsers = await _userData.GetTotalUsers(userIds);
@@ -862,7 +917,6 @@ namespace xgca.core.User
                 TotalInactiveUsers = totalInactiveUsers,
             }, 200, "Total user counts displayed", true);
         }
-
         public async Task<entity.Models.User> GetUserByEmail(string email)
         {
             var user = await _userData.GetUserByEmail(email);
