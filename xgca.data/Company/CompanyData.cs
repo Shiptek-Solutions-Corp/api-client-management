@@ -37,7 +37,7 @@ namespace xgca.data.Company
         Task<List<entity.Models.Company>> ListByCompanyName(string companyName);
         Task<bool> CheckIfExistsByCompanyName(string companyName);
         Task<string[]> BulkCheckIfExistsByCompanyName(string[] companyName);
-        Task<bool> SetCUCCodeByCompanyGuid(string companyKey, string CUCC);
+        Task<bool> SetCUCCByCompanyGuid(string companyKey, string CUCC);
     }
 
     public class ActorReturn
@@ -386,7 +386,7 @@ namespace xgca.data.Company
             return data;
         }
 
-        public async Task<bool> SetCUCCodeByCompanyGuid(string companyKey, string CUCC)
+        public async Task<bool> SetCUCCByCompanyGuid(string companyKey, string CUCC)
         {
             var company = await _context.Companies.Where(c => c.Guid.ToString() == companyKey).FirstOrDefaultAsync();
 

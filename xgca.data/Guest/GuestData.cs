@@ -248,5 +248,19 @@ namespace xgca.data.Guest
 
             return data;
         }
+
+        public async Task<bool> SetCUCCByGuestGuid(string guestKey, string CUCC)
+        {
+            var guest = await _context.Guests.Where(x => x.Id == Guid.Parse(guestKey)).FirstOrDefaultAsync();
+
+            if (guest is null)
+            { return false; }
+
+            guest.CUCC = CUCC;
+
+            var result = await _context.SaveChangesAsync();
+            return result > 0 ? true : false;
+
+        }
     }
 }

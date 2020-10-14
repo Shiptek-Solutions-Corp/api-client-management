@@ -897,7 +897,7 @@ namespace xgca.core.Company
 
         public async Task<IGeneralModel> SetCUCC(UpdateCUCCCodeDTO obj)
         {
-            var result = await _companyData.SetCUCCodeByCompanyGuid(obj.CompanyId, obj.CUCC);
+            var result = await _companyData.SetCUCCByCompanyGuid(obj.CompanyId, obj.CUCC);
             return result
                 ? _general.Response(null, 200, "CUCC code updated", true)
                 : _general.Response(null, 400, "Error in updating CUCC code", false);

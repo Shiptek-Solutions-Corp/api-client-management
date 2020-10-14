@@ -41,5 +41,26 @@ namespace xlog_client_management_api.Controllers.YourEdi
 
             return Ok(response);
         }
+
+        [Route("cucc")]
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> SetCUCC([FromBody] YourEdiCUCC request)
+        {
+            var response = await _yourEdi.SetCUCC(request);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
     }
 }

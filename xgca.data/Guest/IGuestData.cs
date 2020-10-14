@@ -22,5 +22,6 @@ namespace xgca.data.Guest
         Task<List<entity.Models.Guest>> QuickSearch(string search);
         Task<List<string>> QuickSearch(string search, List<string> guestIds);
         Task<YourEDIActorReturn> GetGuestAndMasterUserDetails(string guestKey);
+        Task<bool> SetCUCCByGuestGuid(string guestKey, string CUCC);
     }
 }

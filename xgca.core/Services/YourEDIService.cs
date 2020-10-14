@@ -12,6 +12,7 @@ namespace xgca.core.Services
     public interface IYourEDIService
     {
         Task<IGeneralModel> GetYourEIDActors(YourEdiRequest yourEdiRequest);
+        Task<IGeneralModel> SetCUCC(YourEdiCUCC obj);
     }
     public class YourEDIService : IYourEDIService
     {
@@ -64,6 +65,26 @@ namespace xgca.core.Services
             data.Actors = actors;
 
             return _general.Response(new { YourEDI = data }, 200, "Your EDI Actors retrieved", true);
+        }
+
+        public async Task<IGeneralModel> SetCUCC(YourEdiCUCC obj)
+        {
+            var company = await _company.Retrieve(Guid.Parse(obj.Id));
+            var guest = await _guest.Retrieve(Guid.Parse(obj.Id));
+
+            bool result = false;
+            if (!(company is null))
+            {
+                result = await _company.SetCUCCByCompanyGuid(obj.Id, obj.Code);
+            }
+            else
+            {
+                result = await _guest.SetCUCCByGuestGuid(obj.Id, obj.Code);
+            }
+
+            return result
+                ? _general.Response(null, 200, "CUCC updated!", true)
+                : _general.Response(null, 400, "Error in updating CUCC", false);
         }
     }
 }
