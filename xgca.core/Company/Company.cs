@@ -40,6 +40,7 @@ namespace xgca.core.Company
         Task<IGeneralModel> Update(UpdateCompanyModel obj, string modifiedBy);
         Task<IGeneralModel> Retrieve(int companyId);
         Task<IGeneralModel> Retrieve(string companyId);
+        Task<IGeneralModel> RetrieveCompanyName(GetCompanyNamesModel obj);
         Task<IGeneralModel> Delete(string key, string username);
         Task<IGeneralModel> GetIdByGuid(string key);
         Task<int> GetIdByGuid(Guid key);
@@ -900,6 +901,23 @@ namespace xgca.core.Company
             return result
                 ? _general.Response(null, 200, "CUCC code updated", true)
                 : _general.Response(null, 400, "Error in updating CUCC code", false);
+        }
+
+        public async Task<IGeneralModel> RetrieveCompanyName(GetCompanyNamesModel obj)
+        {
+            int payerId = await _companyData.GetIdByGuid(Guid.Parse(obj.PayerId));
+            var payerResult = await _companyData.Retrieve(payerId);
+
+            int receivereId = await _companyData.GetIdByGuid(Guid.Parse(obj.ReceiverId));
+            var receiverResult = await _companyData.Retrieve(receivereId);
+
+            var data = new
+            {
+                PayerName = payerResult.CompanyName,
+                ReceiverName = receiverResult.CompanyName
+            };
+
+            return _general.Response(new { company = data }, 200, "Company Name for selected companies has been displayed", true);
         }
     }
 }
