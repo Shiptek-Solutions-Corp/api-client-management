@@ -479,6 +479,27 @@ namespace xlog_company_service_api.Controllers.Company
             return Ok(response);
         }
 
+        [Route("company/retrieve-companyName")]
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> RetrieveCompanyName([FromBody] GetCompanyNamesModel serviceId)
+        {
+            var response = await _company.RetrieveCompanyName(serviceId);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
         //[Route("company/update-company-code")]
         //[HttpGet]
         //[ProducesResponseType(StatusCodes.Status200OK)]

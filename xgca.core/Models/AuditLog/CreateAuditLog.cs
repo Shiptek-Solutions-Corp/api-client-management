@@ -4,7 +4,7 @@ using System.Text;
 
 namespace xgca.core.Models.AuditLog
 {
-    public class CreatedAuditLog
+    public class CreateAuditLog
     {
         public string AuditLogAction { get; set; }
         public string TableName { get; set; }
