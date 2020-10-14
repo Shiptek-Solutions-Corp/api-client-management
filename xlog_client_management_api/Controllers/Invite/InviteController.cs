@@ -24,6 +24,7 @@ namespace xlog_client_management_api.Controllers.Invite
         /****** Invite Preferred Providers ******/
 
         [Route("preferred-providers/send-invite")]
+        [TokenAuthorize("scope", "preferredProviders.post")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -45,6 +46,7 @@ namespace xlog_client_management_api.Controllers.Invite
         }
 
         [Route("preferred-providers/check-invite/{code}")]
+        [TokenAuthorize("scope", "preferredProviders.get")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -65,6 +67,7 @@ namespace xlog_client_management_api.Controllers.Invite
         }
 
         [Route("preferred-providers/accept-invite")]
+        [TokenAuthorize("scope", "preferredProviders.post")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -89,6 +92,7 @@ namespace xlog_client_management_api.Controllers.Invite
         /****** Invite Contacts ******/
 
         [Route("preferred-contacts/send-invite")]
+        [TokenAuthorize("scope", "contacts.post")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -110,6 +114,7 @@ namespace xlog_client_management_api.Controllers.Invite
         }
 
         [Route("preferred-contacts/check-invite/{code}")]
+        [TokenAuthorize("scope", "contacts.get")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -130,6 +135,7 @@ namespace xlog_client_management_api.Controllers.Invite
         }
 
         [Route("preferred-contacts/accept-invite")]
+        [TokenAuthorize("scope", "contacts.post")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

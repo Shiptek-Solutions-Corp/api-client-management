@@ -130,6 +130,7 @@ namespace xlog_client_management_api.Controllers.Guest
         }
 
         [Route("preferred-contacts/guest")]
+        [TokenAuthorize("scope", "contacts.put")]
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
