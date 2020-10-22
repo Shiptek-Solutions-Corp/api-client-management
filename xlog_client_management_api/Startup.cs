@@ -223,6 +223,7 @@ namespace xlog_client_management_api
             services.Configure<EmailApi>(o =>
             {
                 o.BaseUrl = Configuration.GetSection("EmailApi:BaseUrl").Value;
+                o.ApiKey = Configuration.GetSection("EmailApi:ApiKey").Value;
             });
 
             services.Configure<EmailTemplate>(o =>

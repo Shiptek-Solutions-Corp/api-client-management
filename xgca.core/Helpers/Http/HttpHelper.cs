@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using xgca.core.Helpers.Http;
 using System.Net.Http.Headers;
 using xgca.core.Constants;
+using xgca.core.Models.Email;
+using Microsoft.Extensions.Options;
 
 namespace xgca.core.Helpers.Http
 {
@@ -32,10 +34,13 @@ namespace xgca.core.Helpers.Http
     }
     public class HttpHelper : IHttpHelper
     {
-        private static HttpClient _httpClient = new HttpClient();
-        public HttpHelper()
-        {
+        private HttpClient _httpClient;
+        private readonly IOptions<EmailApi> emailOptions;
 
+        public HttpHelper(IOptions<EmailApi> emailOptions)
+        {
+            _httpClient =  new HttpClient();
+            this.emailOptions = emailOptions;
         }
 
         public async Task<dynamic> CustomGet(string environment, string endpointUrl, string token)
@@ -132,6 +137,11 @@ namespace xgca.core.Helpers.Http
             if (!(token is null))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+
+            if (data is EmailPayload)
+            {
+                _httpClient.DefaultRequestHeaders.Add("x-api-key", emailOptions.Value.ApiKey);
             }
 
             var json = JsonConvert.SerializeObject(data);

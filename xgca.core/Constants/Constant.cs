@@ -73,7 +73,7 @@ namespace xgca.core.Helpers
 
     public class EmailApi : ParentConstant
     {
-
+        public string ApiKey { get; set; }
     }
 
     public class EmailTemplate
