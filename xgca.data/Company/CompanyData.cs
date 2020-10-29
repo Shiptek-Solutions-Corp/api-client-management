@@ -471,6 +471,11 @@ namespace xgca.data.Company
                 .Select(x => new { Key = x.AccreditedBy })
                 .FirstOrDefaultAsync();
 
+            if (accreditor.Key is null)
+            {
+                return null;
+            }
+
             var details = await _context.Companies.AsNoTracking()
                 .Where(c => c.Guid.ToString() == accreditor.Key)
                 .Select(x => new entity.Models.Company

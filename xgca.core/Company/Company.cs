@@ -924,6 +924,12 @@ namespace xgca.core.Company
         public async Task<IGeneralModel> GetAccreditor(int companyId)
         {
             var result = await _companyData.GetAccreditor(companyId);
+
+            if (result is null)
+            {
+                return _general.Response(null, 400, "No service provider found", true);
+            }
+
             var accreditor = new 
             { 
                 CompanyId = result.Guid.ToString(), 
