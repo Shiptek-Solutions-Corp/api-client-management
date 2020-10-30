@@ -930,11 +930,15 @@ namespace xgca.core.Company
                 return _general.Response(null, 400, "No service provider found", true);
             }
 
+            var companyServices = await _coreCompanyService.ListByCompanyId(result.Guid.ToString());
+            var services = companyServices.data.companyService;
+
             var accreditor = new 
             { 
                 CompanyId = result.Guid.ToString(), 
                 result.CompanyName,
-                result.ImageURL
+                result.ImageURL,
+                Services = services
             };
 
             return _general.Response(new { Accreditor = accreditor }, 200, "Service provider returned", true);
