@@ -13,7 +13,7 @@ namespace xgca.entity.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int UserId { get; set; }
-        [StringLength(20)]
+        [StringLength(24)]
         public string Username { get; set; }
         public int ContactDetailId { get; set; }
         [Required]
