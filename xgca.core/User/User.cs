@@ -814,6 +814,12 @@ namespace xgca.core.User
         }
         public async Task<IGeneralModel> SetUsername(SetUsernameModel obj)
         {
+
+            if (obj.Username.Length < 24)
+            {
+                return _general.Response(null, 400, "Username maximum length is 24 characters", false);
+            }
+
             bool isUserMaster = false;
 
             var user = await _userData.Retrieve(obj.UserId);
