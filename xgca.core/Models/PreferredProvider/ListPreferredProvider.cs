@@ -18,5 +18,7 @@ namespace xgca.core.Models.PreferredProvider
         public string Country { get; set; }
         public string ServiceId { get; set; }
         public string ServiceName { get; set; }
+        public string PhoneNumber { get; set; }
+        public string FaxNumber { get; set; }
     }
 }
