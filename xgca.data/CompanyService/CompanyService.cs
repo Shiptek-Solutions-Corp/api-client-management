@@ -364,6 +364,8 @@ namespace xgca.data.CompanyService
 
             List<entity.Models.CompanyService> providers = await _context.CompanyServices
                 .Include(c => c.Companies)
+                    .ThenInclude(cd => cd.ContactDetails)
+                .Include(c => c.Companies)
                     .ThenInclude(a => a.Addresses)
                 .Where(predicate)
                 .ToListAsync();
