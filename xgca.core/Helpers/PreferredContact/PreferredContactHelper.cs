@@ -7,6 +7,110 @@ namespace xgca.core.Helpers.Utility
 {
     public class PreferredContactHelper : IPreferredContactHelper
     {
+        public dynamic BuildCompanyDetails(string preferredContactGuid, dynamic company, dynamic state, dynamic city, dynamic masterUser)
+        {
+            string completeAddress = this.RegisteredAddress(company.Addresses);
+
+            var contact = new
+            {
+                PreferredContactId = preferredContactGuid,
+                ContactId = company.Guid.ToString(),
+                ContactName = company.CompanyName,
+                company.ImageURL,
+                CompleteAddress = completeAddress,
+                City = new
+                {
+                    city.CityId,
+                    city.CityName
+                },
+                State = new
+                {
+                    state.StateId,
+                    state.StateName
+                },
+                Country = new
+                {
+                    company.Addresses.CountryId,
+                    company.Addresses.CountryName,
+                },
+                company.Addresses.ZipCode,
+                Phone = new
+                {
+                    company.ContactDetails.PhonePrefixId,
+                    company.ContactDetails.PhonePrefix,
+                    company.ContactDetails.Phone
+                },
+                Mobile = new
+                {
+                    company.ContactDetails.MobilePrefixId,
+                    company.ContactDetails.MobilePrefix,
+                    company.ContactDetails.Mobile
+                },
+                Fax = new
+                {
+                    company.ContactDetails.FaxPrefixId,
+                    company.ContactDetails.FaxPrefix,
+                    company.ContactDetails.Fax
+                },
+                masterUser.FirstName,
+                masterUser.LastName,
+                masterUser.EmailAddress
+            };
+
+            return contact;
+        }
+
+        public dynamic BuildGuestDetails(string preferredContactGuid, dynamic guest)
+        {
+            var contact = new
+            {
+                PreferredContactId = preferredContactGuid,
+                ContactId = guest.Id.ToString(),
+                ContactName = guest.GuestName,
+                ImageURL = guest.Image,
+                CompleteAddress = guest.AddressLine,
+                City = new
+                {
+                    guest.CityId,
+                    guest.CityName
+                },
+                State = new
+                {
+                    guest.StateId,
+                    guest.StateName
+                },
+                Country = new
+                {
+                    guest.CountryId,
+                    guest.CountryName,
+                },
+                guest.ZipCode,
+                Phone = new
+                {
+                    guest.PhoneNumberPrefixId,
+                    guest.PhoneNumberPrefix,
+                    guest.PhoneNumber
+                },
+                Mobile = new
+                {
+                    guest.MobileNumberPrefixId,
+                    guest.MobileNumberPrefix,
+                    guest.MobileNumber
+                },
+                Fax = new
+                {
+                    guest.FaxNumberPrefixId,
+                    guest.FaxNumberPrefix,
+                    guest.FaxNumber
+                },
+                guest.FirstName,
+                guest.LastName,
+                guest.EmailAddress
+            };
+
+            return contact;
+        }
+
         public string GuestAddress(dynamic obj)
         {
             string contactAddress = "";
@@ -71,5 +175,7 @@ namespace xgca.core.Helpers.Utility
 
             return cityState;
         }
+
+
     }
 }

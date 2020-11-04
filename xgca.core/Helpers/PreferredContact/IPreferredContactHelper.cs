@@ -12,5 +12,7 @@ namespace xgca.core.Helpers.Utility
         string GuestCityState(dynamic obj);
         string RegisteredCityState(dynamic obj);
         entity.Models.PreferredContact ParseObject(string guestId, string companyId, int profileId, int contactType, int createdBy);
+        dynamic BuildCompanyDetails(string preferredContactGuid, dynamic company, dynamic state, dynamic city, dynamic masterUser);
+        dynamic BuildGuestDetails(string preferredContactGuid, dynamic guest);
     }
 }
