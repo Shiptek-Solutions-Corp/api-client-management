@@ -17,6 +17,7 @@ using xgca.core.User;
 using System.Data;
 using ClosedXML.Excel;
 using CsvHelper;
+using xgca.core.Constants;
 
 namespace xgca.core.CompanyUser
 {
@@ -42,12 +43,13 @@ namespace xgca.core.CompanyUser
         public async Task<IGeneralModel> Create(CreateCompanyUserModel obj)
         {
             int userId = await _userData.GetIdByGuid(Guid.Parse(obj.UserId));
-            int userTypeId = 1;
+            int hasMasterUser = await _companyUser.HasMasterUser(obj.CompanyId);
+            var userTypeId = (hasMasterUser == 0) ? UserType.MasterUser : UserType.NormalUser;
             var data = new entity.Models.CompanyUser
             {
                 CompanyId = obj.CompanyId,
                 UserId = userId,
-                UserTypeId = userTypeId,
+                UserTypeId = (int)userTypeId,
                 Status = 1,
                 CreatedBy = 0,
                 CreatedOn = DateTime.UtcNow,
@@ -64,12 +66,14 @@ namespace xgca.core.CompanyUser
 
         public async Task<int> CreateDefaultCompanyUser(int companyId, int masterUserId, int createdBy)
         {
-            int userTypeId = 1;
+            int hasMasterUser = await _companyUser.HasMasterUser(companyId);
+
+            var userTypeId = (hasMasterUser == 0) ? UserType.MasterUser : UserType.NormalUser;
             var data = new entity.Models.CompanyUser
             {
                 CompanyId = companyId,
                 UserId = masterUserId,
-                UserTypeId = userTypeId,
+                UserTypeId = (int)userTypeId,
                 Status = 1,
                 CreatedBy = createdBy,
                 CreatedOn = DateTime.UtcNow,
@@ -158,12 +162,13 @@ namespace xgca.core.CompanyUser
         public async Task<IGeneralModel> CreateAndReturnId(CreateCompanyUserModel obj)
         {
             int userId = await _userData.GetIdByGuid(Guid.Parse(obj.UserId));
-            int userTypeId = 1;
+            int hasMasterUser = await _companyUser.HasMasterUser(obj.CompanyId);
+            var userTypeId = (hasMasterUser == 0) ? UserType.MasterUser : UserType.NormalUser;
             var data = new entity.Models.CompanyUser
             {
                 CompanyId = obj.CompanyId,
                 UserId = userId,
-                UserTypeId = userTypeId,
+                UserTypeId = (int)userTypeId,
                 Status = 1,
                 CreatedBy = 0,
                 CreatedOn = DateTime.UtcNow,
