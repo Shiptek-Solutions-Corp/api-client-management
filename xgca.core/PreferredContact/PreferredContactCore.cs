@@ -10,6 +10,12 @@ using xgca.data.Company;
 using xgca.data.PreferredContact;
 using xgca.core.User;
 using xgca.core.Helpers.QueryFilter;
+using xgca.core.Helpers.Http;
+using Microsoft.Extensions.Options;
+using xgca.core.Helpers;
+using Newtonsoft.Json.Linq;
+using xgca.core.Constants;
+using xgca.data.CompanyUser;
 
 namespace xgca.core.PreferredContact
 {
@@ -24,9 +30,12 @@ namespace xgca.core.PreferredContact
         private readonly IGeneral _general;
         private readonly IQueryFilterHelper _query;
         private readonly IUtilityHelper _utility;
+        private readonly IHttpHelper _httpHelper;
+        private readonly IOptions<GlobalCmsService> _options;
+        private readonly ICompanyUser _companyUser;
 
-        public PreferredContactCore(ICompanyData company, IGuestData guest, IPagedResponse pagedResponse,
-            IPreferredContactData preferredContact, IPreferredContactHelper prefConhelper, IGeneral general, IQueryFilterHelper query, IUtilityHelper utility)
+        public PreferredContactCore(ICompanyData company, IGuestData guest, IPagedResponse pagedResponse, IHttpHelper httpHelper, IOptions<GlobalCmsService> options,
+            IPreferredContactData preferredContact, IPreferredContactHelper prefConhelper, IGeneral general, IQueryFilterHelper query, IUtilityHelper utility, ICompanyUser companyUser)
         {
             _company = company;
             _guest = guest;
@@ -36,6 +45,9 @@ namespace xgca.core.PreferredContact
             _general = general;
             _query = query;
             _utility = utility;
+            _httpHelper = httpHelper;
+            _options = options;
+            _companyUser = companyUser;
         }
 
         public async Task<IGeneralModel> Create(entity.Models.PreferredContact obj)
@@ -353,68 +365,33 @@ namespace xgca.core.PreferredContact
                 return _general.Response(null, 400, "Selected record may have been deleted or does not exists", false);
             }
 
+            dynamic contact = null;
+
             if (preferredContact.ContactType == 1)
             {
                 var company = await _company.Retrieve(Guid.Parse(preferredContact.CompanyId));
-                return _general.Response(new 
+                var cityResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetCity}/", company.Addresses.CityId, AuthToken.Contra);
+                var cityJson = (JObject)cityResponse;
+                var stateResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetState}/", company.Addresses.StateId, AuthToken.Contra);
+                var stateJson = (JObject)stateResponse;
+                var city = new 
                 { 
-                    Contact = new
-                    {
-                        PreferredContactId = preferredContact.Guid.ToString(),
-                        ContactId = company.Guid.ToString(),
-                        ContactName = company.CompanyName,
-                        ImageURL = (company.ImageURL is null) ? "No Image" : company.ImageURL,
-                        CompleteAddress = _prefConHelper.RegisteredAddress(company)
-                    }
-                }, 200, "Configurable details for selected contact has been displayed", true);
+                    CityId = (cityJson)["data"]["cityId"], 
+                    company.Addresses.CityName 
+                };
+                var state = new
+                {
+                    StateId = (stateJson)["data"]["stateId"],
+                    company.Addresses.StateName
+                };
+                var masterUser = await _companyUser.GetMasterUser(company.CompanyId, (int)UserType.MasterUser);
+                contact = _prefConHelper.BuildCompanyDetails(preferredContact.Guid.ToString(), company, state, city, masterUser.Users);
             }
-
-            var guest = await _guest.Retrieve(Guid.Parse(preferredContact.GuestId));
-            var contact = new
+            else
             {
-                PreferredContactId = preferredContact.Guid.ToString(),
-                ContactId = guest.Id.ToString(),
-                ContactName = guest.GuestName,
-                ImageURL = guest.Image,
-                CompleteAddress = guest.AddressLine,
-                City = new
-                {
-                    guest.CityId,
-                    guest.CityName
-                },
-                State = new
-                {
-                    guest.StateId,
-                    guest.StateName
-                },
-                Country = new
-                {
-                    guest.CountryId,
-                    guest.CountryName,
-                },
-                guest.ZipCode,
-                Phone = new
-                {
-                    guest.PhoneNumberPrefixId,
-                    guest.PhoneNumberPrefix,
-                    guest.PhoneNumber
-                },
-                Mobile = new
-                {
-                    guest.MobileNumberPrefixId,
-                    guest.MobileNumberPrefix,
-                    guest.MobileNumber
-                },
-                Fax = new
-                {
-                    guest.FaxNumberPrefixId,
-                    guest.FaxNumberPrefix,
-                    guest.FaxNumber
-                },
-                guest.FirstName,
-                guest.LastName,
-                guest.EmailAddress
-            };
+                var guest = await _guest.Retrieve(Guid.Parse(preferredContact.GuestId));
+                contact = _prefConHelper.BuildGuestDetails(preferredContact.Guid.ToString(), guest);
+            }
  
             return _general.Response(new { Contact = contact }, 200, "Configurable details for selected contact has been displayed", true);
         }
