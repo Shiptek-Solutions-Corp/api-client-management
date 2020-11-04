@@ -136,9 +136,18 @@ namespace xgca.data.CompanyUser
                 .Include(u => u.Users)
                     .ThenInclude(c => c.ContactDetails)
                 .Where(x => x.CompanyId == companyId && x.UserTypeId == userTypeId)
+                .OrderBy(x => x.CompanyUserId)
                 .FirstOrDefaultAsync();
 
             return masterUser;
+        }
+
+        public async Task<int> HasMasterUser(int companyId)
+        {
+            int count = await _context.CompanyUsers.AsNoTracking()
+                .Where(x => x.CompanyId == companyId).CountAsync();
+
+            return count;
         }
     }
 }
