@@ -155,6 +155,14 @@ namespace xgca.core.PreferredProvider
                     && x.ServiceId.ToLower() == service.ServiceId.ToLower()
                     && x.ProfileId == profileId);
 
+                string phoneNumber = (provider.Companies.ContactDetails.Phone is null)
+                    ? ""
+                    : $"{provider.Companies.ContactDetails.PhonePrefix}{provider.Companies.ContactDetails.Phone}";
+
+                string faxNumber = (provider.Companies.ContactDetails is null)
+                    ? ""
+                    : $"{provider.Companies.ContactDetails.FaxPrefix}{provider.Companies.ContactDetails.Fax}";
+
                 providers.Add(new ListPreferredProvider
                 {
                     PreferredProvider = preferredProvider.Guid.ToString(),
@@ -167,6 +175,8 @@ namespace xgca.core.PreferredProvider
                     Country = company.Companies.Addresses.CountryName,
                     ServiceId = (service is null) ? "N/A" : service.ServiceId,
                     ServiceName = (service is null) ? "N/A" : service.ServiceName,
+                    PhoneNumber = phoneNumber,
+                    FaxNumber = faxNumber,
                 });
             }
 
@@ -226,6 +236,14 @@ namespace xgca.core.PreferredProvider
                     && x.ServiceId.ToLower() == service.ServiceId.ToLower()
                     && x.ProfileId == profileId);
 
+                string phoneNumber = (provider.Companies.ContactDetails.Phone is null)
+                    ? ""
+                    : $"{provider.Companies.ContactDetails.PhonePrefix}{provider.Companies.ContactDetails.Phone}";
+
+                string faxNumber = (provider.Companies.ContactDetails is null)
+                    ? ""
+                    : $"{provider.Companies.ContactDetails.FaxPrefix}{provider.Companies.ContactDetails.Fax}";
+
                 providers.Add(new ListPreferredProvider
                 {
                     PreferredProvider = preferredProvider.Guid.ToString(),
@@ -239,6 +257,8 @@ namespace xgca.core.PreferredProvider
                     Country = provider.Companies.Addresses.CountryName,
                     ServiceId = (service is null) ? "N/A" : service.ServiceId,
                     ServiceName = (service is null) ? "N/A" : service.ServiceName,
+                    PhoneNumber = phoneNumber,
+                    FaxNumber = faxNumber,
                 });
             }
 
