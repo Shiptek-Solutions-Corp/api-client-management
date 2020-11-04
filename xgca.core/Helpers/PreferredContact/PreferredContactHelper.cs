@@ -9,7 +9,7 @@ namespace xgca.core.Helpers.Utility
     {
         public dynamic BuildCompanyDetails(string preferredContactGuid, dynamic company, dynamic state, dynamic city, dynamic masterUser)
         {
-            string completeAddress = this.RegisteredAddress(company.Addresses);
+            string completeAddress = this.RegisteredAddress(company);
 
             var contact = new
             {
