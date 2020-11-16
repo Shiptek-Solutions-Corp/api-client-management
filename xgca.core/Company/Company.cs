@@ -62,6 +62,7 @@ namespace xgca.core.Company
         Task<IGeneralModel> BulkCompanyRegistration(InitialRegistrationListModel registrationModels, string username);
         Task<IGeneralModel> SetCUCC(UpdateCUCCCodeDTO obj);
         Task<IGeneralModel> GetAccreditor(int companyId);
+        Task<IGeneralModel> GetCompanyCode(string companyGuid);
 
     }
     public class Company : ICompany
@@ -942,6 +943,18 @@ namespace xgca.core.Company
             };
 
             return _general.Response(new { Accreditor = accreditor }, 200, "Service provider returned", true);
+        }
+
+        public async Task<IGeneralModel> GetCompanyCode(string companyGuid)
+        {
+            var code = await _companyData.GetCompanyCode(companyGuid);
+
+            if (code == null)
+            {
+                code = "XLOG1";
+            }
+
+            return _general.Response(new { CompanyCode = code }, 200, "Company code retrieved", true);
         }
     }
 }

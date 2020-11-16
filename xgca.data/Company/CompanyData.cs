@@ -39,6 +39,7 @@ namespace xgca.data.Company
         Task<string[]> BulkCheckIfExistsByCompanyName(string[] companyName);
         Task<bool> SetCUCCByCompanyGuid(string companyKey, string CUCC);
         Task<entity.Models.Company> GetAccreditor(int companyId);
+        Task<string> GetCompanyCode(string companyGuid);
     }
 
     public class ActorReturn
@@ -488,6 +489,16 @@ namespace xgca.data.Company
                 .FirstOrDefaultAsync();
 
             return details;
+        }
+
+        public async Task<string> GetCompanyCode(string companyGuid)
+        {
+            var code = await _context.Companies.AsNoTracking()
+                .Where(x => x.Guid.ToString() == companyGuid)
+                .Select(c => c.CompanyCode)
+                .FirstOrDefaultAsync();
+
+            return code;
         }
     }
 }
