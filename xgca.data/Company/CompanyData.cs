@@ -40,6 +40,7 @@ namespace xgca.data.Company
         Task<bool> SetCUCCByCompanyGuid(string companyKey, string CUCC);
         Task<entity.Models.Company> GetAccreditor(int companyId);
         Task<string> GetCompanyCode(string companyGuid);
+        Task<(ServiceProvider, Customer)> GetInvoiceActors(string serviceProviderId, string customerId);
     }
 
     public class ActorReturn
@@ -62,6 +63,26 @@ namespace xgca.data.Company
         public dynamic ContactDetails { get; set; }
         public dynamic Address { get; set; }
 
+    }
+
+    public class ServiceProvider
+    {
+        public string ServiceProviderId { get; set; }
+        public string ServiceProviderName { get; set; }
+        public string ServiceProviderLandline { get; set; }
+        public string ServiceProviderFax { get; set; }
+        public string ServiceProviderAddress { get; set; }
+        public string ServiceProviderImage { get; set; }
+    }
+
+    public class Customer
+    {
+        public string CustomerId { get; set; }
+        public string CustomerName { get; set; }
+        public string CustomerLandline { get; set; }
+        public string CustomerFax { get; set; }
+        public string CustomerAddress { get; set; }
+        public string CustomerImage { get; set; }
     }
 
     public class CompanyData : IMaintainable<entity.Models.Company>, ICompanyData
@@ -499,6 +520,41 @@ namespace xgca.data.Company
                 .FirstOrDefaultAsync();
 
             return code;
+        }
+
+        public async Task<(ServiceProvider, Customer)> GetInvoiceActors(string serviceProviderId, string customerId)
+        {
+            var serviceProvider = await _context.Companies.AsNoTracking()
+                .Include(a => a.Addresses)
+                .Include(cd => cd.ContactDetails)
+                .Where(x => x.Guid.ToString() == serviceProviderId)
+                .Select(c => new ServiceProvider
+                {
+                    ServiceProviderId = c.Guid.ToString(),
+                    ServiceProviderName = c.CompanyName,
+                    ServiceProviderImage = c.ImageURL,
+                    ServiceProviderAddress = (c.Addresses.FullAddress == null) ? "" : c.Addresses.FullAddress,
+                    ServiceProviderLandline = (c.ContactDetails.PhonePrefix == null) ? "" : $"{c.ContactDetails.PhonePrefix}{c.ContactDetails.Phone}",
+                    ServiceProviderFax = (c.ContactDetails.FaxPrefix == null) ? "" : $"{c.ContactDetails.FaxPrefix}{c.ContactDetails.Fax}"
+                })
+                .FirstOrDefaultAsync();
+
+            var customer = await _context.Companies.AsNoTracking()
+                .Include(a => a.Addresses)
+                .Include(cd => cd.ContactDetails)
+                .Where(x => x.Guid.ToString() == customerId)
+                .Select(c => new Customer
+                {
+                    CustomerId = c.Guid.ToString(),
+                    CustomerName = c.CompanyName,
+                    CustomerImage = c.ImageURL,
+                    CustomerAddress = (c.Addresses.FullAddress == null) ? "" : c.Addresses.FullAddress,
+                    CustomerLandline = (c.ContactDetails.PhonePrefix == null) ? "" : $"{c.ContactDetails.PhonePrefix}{c.ContactDetails.Phone}",
+                    CustomerFax = (c.ContactDetails.FaxPrefix == null) ? "" : $"{c.ContactDetails.FaxPrefix}{c.ContactDetails.Fax}",
+                })
+                .FirstOrDefaultAsync();
+
+            return (serviceProvider, customer);
         }
     }
 }
