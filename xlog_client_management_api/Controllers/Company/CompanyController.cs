@@ -553,7 +553,7 @@ namespace xlog_company_service_api.Controllers.Company
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetInvoiceActors([FromBody] InvoiceActorRequestModel obj)
         {
-            var response = await _company.GetInvoiceActors(obj.ServiceProviderId, obj.CustomerId);
+            var response = await _company.GetInvoiceActors(obj.BillerId, obj.CustomerId);
 
             if (response.statusCode == 400)
             {

@@ -40,7 +40,7 @@ namespace xgca.data.Company
         Task<bool> SetCUCCByCompanyGuid(string companyKey, string CUCC);
         Task<entity.Models.Company> GetAccreditor(int companyId);
         Task<string> GetCompanyCode(string companyGuid);
-        Task<(ServiceProvider, Customer)> GetInvoiceActors(string serviceProviderId, string customerId);
+        Task<(Biller, Customer)> GetInvoiceActors(string billerId, string customerId);
     }
 
     public class ActorReturn
@@ -65,14 +65,14 @@ namespace xgca.data.Company
 
     }
 
-    public class ServiceProvider
+    public class Biller
     {
-        public string ServiceProviderId { get; set; }
-        public string ServiceProviderName { get; set; }
-        public string ServiceProviderLandline { get; set; }
-        public string ServiceProviderFax { get; set; }
-        public string ServiceProviderAddress { get; set; }
-        public string ServiceProviderImage { get; set; }
+        public string BillerId { get; set; }
+        public string BillerName { get; set; }
+        public string BillerLandline { get; set; }
+        public string BillerFax { get; set; }
+        public string BillerAddress { get; set; }
+        public string BillerImage { get; set; }
     }
 
     public class Customer
@@ -522,20 +522,20 @@ namespace xgca.data.Company
             return code;
         }
 
-        public async Task<(ServiceProvider, Customer)> GetInvoiceActors(string serviceProviderId, string customerId)
+        public async Task<(Biller, Customer)> GetInvoiceActors(string billerId, string customerId)
         {
-            var serviceProvider = await _context.Companies.AsNoTracking()
+            var biller = await _context.Companies.AsNoTracking()
                 .Include(a => a.Addresses)
                 .Include(cd => cd.ContactDetails)
-                .Where(x => x.Guid.ToString() == serviceProviderId)
-                .Select(c => new ServiceProvider
+                .Where(x => x.Guid.ToString() == billerId)
+                .Select(c => new Biller
                 {
-                    ServiceProviderId = c.Guid.ToString(),
-                    ServiceProviderName = c.CompanyName,
-                    ServiceProviderImage = c.ImageURL,
-                    ServiceProviderAddress = (c.Addresses.FullAddress == null) ? "" : c.Addresses.FullAddress,
-                    ServiceProviderLandline = (c.ContactDetails.PhonePrefix == null) ? "" : $"{c.ContactDetails.PhonePrefix}{c.ContactDetails.Phone}",
-                    ServiceProviderFax = (c.ContactDetails.FaxPrefix == null) ? "" : $"{c.ContactDetails.FaxPrefix}{c.ContactDetails.Fax}"
+                    BillerId = c.Guid.ToString(),
+                    BillerName = c.CompanyName,
+                    BillerImage = c.ImageURL,
+                    BillerAddress = (c.Addresses.FullAddress == null) ? "" : c.Addresses.FullAddress,
+                    BillerLandline = (c.ContactDetails.PhonePrefix == null) ? "" : $"{c.ContactDetails.PhonePrefix}{c.ContactDetails.Phone}",
+                    BillerFax = (c.ContactDetails.FaxPrefix == null) ? "" : $"{c.ContactDetails.FaxPrefix}{c.ContactDetails.Fax}"
                 })
                 .FirstOrDefaultAsync();
 
@@ -554,7 +554,7 @@ namespace xgca.data.Company
                 })
                 .FirstOrDefaultAsync();
 
-            return (serviceProvider, customer);
+            return (biller, customer);
         }
     }
 }
