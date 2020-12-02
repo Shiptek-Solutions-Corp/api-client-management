@@ -44,6 +44,9 @@ namespace xgca.entity.Models
         [StringLength(50)]
         public string Latitude { get; set; }
 
+        public string AddressAdditionalInformation { get; set; }
+
         public virtual AddressType AddressTypes { get; set; }
+
     }
 }

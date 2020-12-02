@@ -31,5 +31,6 @@ namespace xgca.core.Models.Company
         public string EmailAddress { get; set; }
         public List<string> Services { get; set; }
         public CreateUserModel MasterUser { get; set; }
+        public string AddressAdditionalInformation { get; set; }
     }
 }
