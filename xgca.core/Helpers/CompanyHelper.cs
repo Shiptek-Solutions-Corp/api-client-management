@@ -97,6 +97,7 @@ namespace xgca.core.Helpers
                 FullAddress = fullAddress,
                 companyObj.Addresses.Longitude,
                 companyObj.Addresses.Latitude,
+                companyObj.Addresses.AddressAdditionalInformation,
                 companyObj.WebsiteURL,
                 companyObj.EmailAddress,
                 ContactDetailId = companyObj.ContactDetails.Guid,
