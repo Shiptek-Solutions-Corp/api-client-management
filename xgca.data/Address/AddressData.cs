@@ -65,6 +65,7 @@ namespace xgca.data.Address
             data.Latitude = obj.Latitude;
             data.ModifiedBy = obj.ModifiedBy;
             data.ModifiedOn = obj.ModifiedOn;
+            data.AddressAdditionalInformation = obj.AddressAdditionalInformation;
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
         }

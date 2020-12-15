@@ -99,7 +99,7 @@ namespace xgca.entity
         {
             modelBuilder.Entity<CompanyGroupResource>()
                 .Property(cgr => cgr.Guid)
-                .HasDefaultValue(Guid.NewGuid());
+                .HasDefaultValueSql("NEWID()");
 
             modelBuilder.Entity<CompanyGroupResource>()
                 .Property(cgr => cgr.CreatedBy)

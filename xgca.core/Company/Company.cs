@@ -63,6 +63,7 @@ namespace xgca.core.Company
         Task<IGeneralModel> SetCUCC(UpdateCUCCCodeDTO obj);
         Task<IGeneralModel> GetAccreditor(int companyId);
         Task<IGeneralModel> GetCompanyCode(string companyGuid);
+        Task<IGeneralModel> GetInvoiceActors(string billerId, string customerId);
 
     }
     public class Company : ICompany
@@ -371,6 +372,7 @@ namespace xgca.core.Company
                 result.Addresses.FullAddress,
                 result.Addresses.Longitude,
                 result.Addresses.Latitude,
+                result.Addresses.AddressAdditionalInformation,
                 result.WebsiteURL,
                 result.EmailAddress,
                 ContactDetailId = result.ContactDetails.Guid,
@@ -444,6 +446,7 @@ namespace xgca.core.Company
                 result.Addresses.FullAddress,
                 result.Addresses.Longitude,
                 result.Addresses.Latitude,
+                result.Addresses.AddressAdditionalInformation,
                 result.WebsiteURL,
                 result.EmailAddress,
                 ContactDetailId = result.ContactDetails.Guid,
@@ -512,7 +515,6 @@ namespace xgca.core.Company
             int companyId = await _companyData.GetIdByGuid(key);
             return companyId;
         }
-
         public Task<IGeneralModel> CreateAndReturnId(CreateCompanyModel obj)
         {
             throw new NotImplementedException();
@@ -727,6 +729,7 @@ namespace xgca.core.Company
                 c.Addresses.FullAddress,
                 c.Addresses.Longitude,
                 c.Addresses.Latitude,
+                c.Addresses.AddressAdditionalInformation,
                 c.WebsiteURL,
                 c.EmailAddress,
                 ContactDetailId = c.ContactDetails.Guid,
@@ -955,6 +958,13 @@ namespace xgca.core.Company
             }
 
             return _general.Response(new { CompanyCode = code }, 200, "Company code retrieved", true);
+        }
+
+        public async Task<IGeneralModel> GetInvoiceActors(string billerId, string customerId)
+        {
+            var (biller, customer) = await _companyData.GetInvoiceActors(billerId, customerId);
+
+            return _general.Response(new { Biller = biller, Customer = customer }, 200, "Invoice actors retrieved", true);
         }
     }
 }

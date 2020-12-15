@@ -37,5 +37,6 @@ namespace xgca.core.Models.Company
         public string CUCC { get; set; }
 
         public string ModifiedBy { get; set; }
+        public string AddressAdditionalInformation { get; set; }
     }
 }
