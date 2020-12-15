@@ -141,7 +141,10 @@ namespace xgca.core.Helpers.Http
 
             if (data is EmailPayload)
             {
-                _httpClient.DefaultRequestHeaders.Add("x-api-key", emailOptions.Value.ApiKey);
+                if (!_httpClient.DefaultRequestHeaders.Contains("x-api-key"))
+                {
+                    _httpClient.DefaultRequestHeaders.Add("x-api-key", emailOptions.Value.ApiKey);
+                }
             }
 
             var json = JsonConvert.SerializeObject(data);
