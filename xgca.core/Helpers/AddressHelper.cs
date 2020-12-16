@@ -32,6 +32,11 @@ namespace xgca.core.Helpers
             return fullAddress;
         }
 
+        public static string GenerateFullAddress(string addressLine, string city, string state, string zipcode, string country)
+        {
+            return $"{addressLine}, {city}, {state}, {zipcode}, {country}";
+        }
+
         public static string GetCityState(dynamic obj)
         {
             string cityState = "";

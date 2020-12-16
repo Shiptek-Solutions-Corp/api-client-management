@@ -61,6 +61,7 @@ namespace xgca.data.Address
             data.ZipCode = obj.ZipCode;
             data.CountryId = obj.CountryId;
             data.CountryName = obj.CountryName;
+            data.FullAddress = obj.FullAddress;
             data.Longitude = obj.Longitude;
             data.Latitude = obj.Latitude;
             data.ModifiedBy = obj.ModifiedBy;

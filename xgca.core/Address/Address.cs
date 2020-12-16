@@ -52,6 +52,7 @@ namespace xgca.core.Address
             var stateResponse = await _httpHelpers.GetIdByGuid(_options.Value.BaseUrl, $"{_options.Value.GetState}/", obj.StateId.ToString(), AuthToken.Contra);
             var stateJson = (JObject)stateResponse;
             string fullAddress = AddressHelper.GenerateFullAddress(obj);
+            //string fullAddress = AddressHelper.GenerateFullAddress(obj.AddressLine, obj.CityName, obj.StateName, obj.ZipCode, obj.CountryName);
             string json = JsonConvert.SerializeObject(obj);
 
             var address = new entity.Models.Address
@@ -87,6 +88,7 @@ namespace xgca.core.Address
             var stateResponse = await _httpHelpers.GetIdByGuid(_options.Value.BaseUrl, $"{_options.Value.GetState}/", obj.StateId.ToString(), AuthToken.Contra);
             var stateJson = (JObject)stateResponse;
             string fullAddress = AddressHelper.GenerateFullAddress(obj);
+            //string fullAddress = AddressHelper.GenerateFullAddress(obj.AddressLine, obj.CityName, obj.StateName, obj.ZipCode, obj.CountryName);
             string json = JsonConvert.SerializeObject(obj);
 
             var address = new entity.Models.Address
