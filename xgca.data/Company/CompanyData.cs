@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using xgca.entity;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using LinqKit;
 
 namespace xgca.data.Company
 {
@@ -32,6 +33,7 @@ namespace xgca.data.Company
         Task<List<entity.Models.Company>> GetCompanyWithCompanyCodes();
 
         Task<List<string>> QuickSearch(string search, List<string> companyIds);
+        Task<List<entity.Models.Company>> SearchCompany(string search, string name, string country, string stateCity, string contact, List<string> guids);
 
         Task<bool> SetAccreditedBy(string companyId, string accreditedBy, int modifiedBy);
         Task<List<entity.Models.Company>> ListByCompanyName(string companyName);
@@ -559,6 +561,55 @@ namespace xgca.data.Company
                 .FirstOrDefaultAsync();
 
             return (biller, customer);
+        }
+
+        public async Task<List<entity.Models.Company>> SearchCompany(string search, string name, string country, string stateCity, string contact, List<string> guids)
+        {
+            var predicate = PredicateBuilder.New<entity.Models.Company>();
+
+            if (!(search is null))
+            {
+                predicate = predicate.Or(x => (EF.Functions.Like(x.CompanyName, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Addresses.CountryName, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Addresses.CityName, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Addresses.StateName, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.ContactDetails.Phone, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.ContactDetails.Mobile, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.ContactDetails.Fax, $"%{search}%")));
+            }
+
+            if (!(name is null))
+            {
+                predicate = predicate.And(x => x.CompanyName == name);
+            }
+
+            if (!(country is null))
+            {
+                predicate = predicate.And(x => x.Addresses.CountryName == country);
+            }
+
+            if (!(stateCity is null))
+            {
+                predicate = predicate.And(x => EF.Functions.Like(x.Addresses.StateName, $"%{stateCity}%"));
+                predicate = predicate.And(x => EF.Functions.Like(x.Addresses.CityName, $"%{stateCity}%"));
+            }
+
+            if (!(contact is null))
+            {
+                predicate = predicate.And(x => EF.Functions.Like(x.ContactDetails.Phone, $"%{contact}%"));
+                predicate = predicate.And(x => EF.Functions.Like(x.ContactDetails.Mobile, $"%{contact}%"));
+                predicate = predicate.And(x => EF.Functions.Like(x.ContactDetails.Fax, $"%{contact}%"));
+            }
+
+            predicate = predicate.And(x => guids.Contains(x.Guid.ToString()) && x.IsDeleted == 0);
+
+            var companies = await _context.Companies.AsNoTracking()
+                .Include(a => a.Addresses)
+                .Include(c => c.ContactDetails)
+                .Where(predicate)
+                .ToListAsync();
+
+            return companies;
         }
     }
 }

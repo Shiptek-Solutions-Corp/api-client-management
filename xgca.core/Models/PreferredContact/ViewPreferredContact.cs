@@ -13,5 +13,8 @@ namespace xgca.core.Models.PreferredContact
         public string ImageURL { get; set; }
         public string CityProvince { get; set; }
         public string Country { get; set; }
+        public string PhoneNumber { get; set; }
+        public string MobileNumber { get; set; }
+        public string FaxNumber { get; set; }
     }
 }

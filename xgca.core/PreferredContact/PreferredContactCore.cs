@@ -16,6 +16,7 @@ using xgca.core.Helpers;
 using Newtonsoft.Json.Linq;
 using xgca.core.Constants;
 using xgca.data.CompanyUser;
+using System.Linq;
 
 namespace xgca.core.PreferredContact
 {
@@ -253,13 +254,98 @@ namespace xgca.core.PreferredContact
             return _general.Response(pagedResponse, 200, "Configurable preferred contacts has been listed", true);
         }
 
+        public async Task<IGeneralModel> List(int profileId, string search, string name, string country, string stateCity, int type, string contact, string sortBy, string sortOrder, int pageNumber, int pageSize)
+        {
+            var guests = await _preferredContact.GetGuestIds(Convert.ToInt32(profileId));
+            var registered = await _preferredContact.GetRegisteredIds(Convert.ToInt32(profileId));
+
+            List<entity.Models.Guest> filteredGuests = null;
+            List<entity.Models.Company> filteredCompanies = null;
+
+            if (type == 1)
+            {
+                filteredGuests = await _guest.SearchGuest(search, name, country, stateCity, contact, guests.Item2);
+            }
+            else if (type == 2)
+            {
+                filteredCompanies = await _company.SearchCompany(search, name, country, stateCity, contact, registered.Item2);
+            }
+            else
+            {
+                filteredGuests = await _guest.SearchGuest(search, name, country, stateCity, contact, guests.Item2);
+                filteredCompanies = await _company.SearchCompany(search, name, country, stateCity, contact, registered.Item2);
+            }
+
+            List<ViewPreferredContact> preferredContacts = new List<ViewPreferredContact>();
+            if (!(filteredGuests is null))
+            {
+                foreach(var g in guests.Item1)
+                {
+                    var guest = filteredGuests.SingleOrDefault(x => x.Id.ToString() == g.GuestId);
+
+                    if (guest is null)
+                    {
+                        continue;
+                    }
+
+                    var guestCityProvince = _prefConHelper.GuestCityState(guest);
+
+                    preferredContacts.Add(new ViewPreferredContact
+                    {
+                        PreferredContactId = g.PreferredContactId,
+                        ContactId = g.GuestId,
+                        ContactName = guest.GuestName,
+                        ImageURL = (guest.Image is null) ? "-" : guest.Image,
+                        CityProvince = guestCityProvince,
+                        Country = guest.CountryName,
+                        ContactType = 2,
+                        PhoneNumber = guest.PhoneNumber,
+                        MobileNumber = guest.MobileNumber,
+                        FaxNumber = guest.FaxNumber
+                    });
+                }
+            }
+
+            if (!(filteredCompanies is null))
+            {
+                foreach(var r in registered.Item1)
+                {
+                    var company = filteredCompanies.SingleOrDefault(x => x.Guid.ToString() == r.RegisteredId);
+
+                    if (company is null)
+                    {
+                        continue;
+                    }
+
+                    var registeredCityProvince = _prefConHelper.RegisteredCityState(company);
+
+                    preferredContacts.Add(new ViewPreferredContact
+                    {
+                        PreferredContactId = r.PreferredContactId,
+                        ContactId = r.RegisteredId,
+                        ContactName = company.CompanyName,
+                        ImageURL = (company.ImageURL is null) ? "-" : company.ImageURL,
+                        CityProvince = registeredCityProvince,
+                        Country = company.Addresses.CountryName,
+                        ContactType = 1,
+                        PhoneNumber = company.ContactDetails.Phone,
+                        MobileNumber = company.ContactDetails.Mobile,
+                        FaxNumber = company.ContactDetails.Fax
+                    });
+                }
+            }
+
+            var pagedResponse = _pagedResponse.Paginate(preferredContacts, preferredContacts.Count, pageNumber, pageSize);
+            return _general.Response(pagedResponse, 200, "Configurable preferred contacts has been listed", true);
+        }
+
         public async Task<IGeneralModel> QuickSearch(string search, int profileId, int pageNumber, int pageSize, int recordCount)
         {
             var guestIds = await _preferredContact.GetGuestIds(Convert.ToInt32(profileId));
             var registeredIds = await _preferredContact.GetRegisteredIds(Convert.ToInt32(profileId));
 
-            var filteredGuestIds = await _guest.QuickSearch(search, guestIds);
-            var filteredRegisteredIds = await _company.QuickSearch(search, registeredIds);
+            var filteredGuestIds = await _guest.QuickSearch(search, guestIds.Item2);
+            var filteredRegisteredIds = await _company.QuickSearch(search, registeredIds.Item2);
 
             var data = new List<entity.Models.PreferredContact>();
 
@@ -285,6 +371,9 @@ namespace xgca.core.PreferredContact
                 string imageURL = "";
                 string cityProvince = "";
                 string country = "";
+                string phone = "";
+                string mobile = "";
+                string fax = "";
 
                 switch (d.ContactType)
                 {
@@ -299,6 +388,9 @@ namespace xgca.core.PreferredContact
                                 imageURL = "No Image";
                                 cityProvince = "-";
                                 country = "-";
+                                phone = "-";
+                                mobile = "-";
+                                fax = "-";
                                 break;
                             }
 
@@ -307,6 +399,9 @@ namespace xgca.core.PreferredContact
                             imageURL = company.ImageURL;
                             cityProvince = _prefConHelper.RegisteredCityState(company);
                             country = company.Addresses.CountryName;
+                            phone = (company.ContactDetails.Phone is null) ? "-" : company.ContactDetails.Phone;
+                            mobile = (company.ContactDetails.Mobile is null) ? "-" : company.ContactDetails.Mobile;
+                            fax = (company.ContactDetails.Fax is null) ? "-" : company.ContactDetails.Fax;
                             break;
                         }
 
@@ -321,6 +416,9 @@ namespace xgca.core.PreferredContact
                                 imageURL = "No Image";
                                 cityProvince = "-";
                                 country = "-";
+                                phone = "-";
+                                mobile = "-";
+                                fax = "-";
                                 break;
                             }
 
@@ -329,6 +427,9 @@ namespace xgca.core.PreferredContact
                             imageURL = guest.Image;
                             cityProvince = _prefConHelper.GuestCityState(guest);
                             country = guest.CountryName;
+                            phone = (guest.PhoneNumber is null) ? "-" : guest.PhoneNumber;
+                            mobile = (guest.MobileNumber is null) ? "-" : guest.MobileNumber;
+                            fax = (guest.FaxNumber is null) ? "-" : guest.FaxNumber;
                             break;
                         }
                 }
@@ -341,7 +442,10 @@ namespace xgca.core.PreferredContact
                     ImageURL = imageURL,
                     CityProvince = cityProvince,
                     Country = country,
-                    ContactType = d.ContactType
+                    ContactType = d.ContactType,
+                    PhoneNumber = phone,
+                    MobileNumber = mobile,
+                    FaxNumber = fax
                 });
             }
 
