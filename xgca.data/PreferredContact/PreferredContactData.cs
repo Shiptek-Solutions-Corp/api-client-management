@@ -10,6 +10,18 @@ using AutoMapper;
 
 namespace xgca.data.PreferredContact
 {
+
+    public class GuestContacts
+    {
+        public string PreferredContactId { get; set; }
+        public string GuestId { get; set; }
+    }
+
+    public class RegisteredContacts
+    {
+        public string PreferredContactId { get; set; }
+        public string RegisteredId { get; set; }
+    }
     public class PreferredContactData : IMaintainable<entity.Models.PreferredContact>, IPreferredContactData
     {
         private readonly IXGCAContext _context;
@@ -39,14 +51,20 @@ namespace xgca.data.PreferredContact
             return result > 0 ? true : false;
         }
 
-        public async Task<List<string>> GetGuestIds(int profileId)
+        public async Task<(List<GuestContacts>, List<string>)> GetGuestIds(int profileId)
         {
-            var guestIds = await _context.PreferredContacts
-                .Where(pc => pc.ProfileId == profileId && pc.ContactType == 2)
-                .Select(x => x.GuestId)
+            var temp = _context.PreferredContacts
+                .Where(pc => pc.ProfileId == profileId && pc.ContactType == 2);
+
+            var guestIds = await temp.Select(x => x.GuestId).ToListAsync();
+            var guests = await temp.Select(x => new GuestContacts
+                {
+                    PreferredContactId = x.Guid.ToString(),
+                    GuestId = x.GuestId
+                })
                 .ToListAsync();
 
-            return guestIds;
+            return (guests, guestIds);
         }
 
         public async Task<int> GetRecordCount()
@@ -69,14 +87,20 @@ namespace xgca.data.PreferredContact
             return recordCount;
         }
 
-        public async Task<List<string>> GetRegisteredIds(int profileId)
+        public async Task<(List<RegisteredContacts>, List<string>)> GetRegisteredIds(int profileId)
         {
-            var registeredIds = await _context.PreferredContacts
-                .Where(pc => pc.ProfileId == profileId && pc.ContactType == 1)
-                .Select(x => x.CompanyId)
+            var temp = _context.PreferredContacts
+                .Where(pc => pc.ProfileId == profileId && pc.ContactType == 1);
+
+            var registeredIds = await temp.Select(x => x.CompanyId).ToListAsync();
+            var registered = await temp.Select(x => new RegisteredContacts
+                {
+                    PreferredContactId = x.Guid.ToString(),
+                    RegisteredId = x.CompanyId
+                })
                 .ToListAsync();
 
-            return registeredIds;
+            return (registered, registeredIds);
         }
 
         public async Task<List<entity.Models.PreferredContact>> List()

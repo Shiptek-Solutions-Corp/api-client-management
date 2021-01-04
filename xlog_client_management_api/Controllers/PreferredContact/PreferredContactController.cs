@@ -27,10 +27,10 @@ namespace xlog_client_management_api.Controllers.PreferredContact
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> CompanyPreferredContacts([FromQuery(Name = "pageNumber")] int pageNumber = 0, [FromQuery(Name = "pageSize")] int pageSize = 50)
+        public async Task<IActionResult> CompanyPreferredContacts([FromQuery(Name = "search")] string search, [FromQuery(Name = "name")] string name, [FromQuery(Name = "country")] string country, [FromQuery(Name = "stateCity")] string stateCity, [FromQuery(Name = "type")] int type, [FromQuery(Name = "contact")] string contact, [FromQuery(Name = "sortBy")] string sortBy, [FromQuery(Name = "sortOrder")] string sortOrder, [FromQuery(Name = "pageNumber")] int pageNumber = 0, [FromQuery(Name = "pageSize")] int pageSize = 50)
         {
             string companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
-            var response = await _preferredContact.List(Convert.ToInt32(companyId), pageNumber, pageSize);
+            var response = await _preferredContact.List(Convert.ToInt32(companyId), search, name, country, stateCity, type, contact, sortBy, sortOrder, pageNumber, pageSize);
 
             if (response.statusCode == 400)
             {
