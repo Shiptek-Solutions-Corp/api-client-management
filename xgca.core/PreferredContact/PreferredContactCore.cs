@@ -335,7 +335,10 @@ namespace xgca.core.PreferredContact
                 }
             }
 
-            var pagedResponse = _pagedResponse.Paginate(preferredContacts, preferredContacts.Count, pageNumber, pageSize);
+            int recordCount = preferredContacts.Count;
+            preferredContacts = preferredContacts.Skip(pageSize * pageNumber).Take(pageSize).ToList();
+
+            var pagedResponse = _pagedResponse.Paginate(preferredContacts, recordCount, pageNumber, pageSize);
             return _general.Response(pagedResponse, 200, "Configurable preferred contacts has been listed", true);
         }
 
@@ -410,7 +413,10 @@ namespace xgca.core.PreferredContact
                 }
             }
 
-            var pagedResponse = _pagedResponse.Paginate(preferredContacts, preferredContacts.Count, pageNumber, pageSize);
+            recordCount = preferredContacts.Count;
+            preferredContacts = preferredContacts.Skip(pageSize * pageNumber).Take(pageSize).ToList();
+
+            var pagedResponse = _pagedResponse.Paginate(preferredContacts, recordCount, pageNumber, pageSize);
             return _general.Response(pagedResponse, 200, "Configurable preferred contacts has been listed", true);
         }
 
