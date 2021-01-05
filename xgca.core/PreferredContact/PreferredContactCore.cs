@@ -341,117 +341,76 @@ namespace xgca.core.PreferredContact
 
         public async Task<IGeneralModel> QuickSearch(string search, int profileId, int pageNumber, int pageSize, int recordCount)
         {
-            var guestIds = await _preferredContact.GetGuestIds(Convert.ToInt32(profileId));
-            var registeredIds = await _preferredContact.GetRegisteredIds(Convert.ToInt32(profileId));
+            var guests = await _preferredContact.GetGuestIds(Convert.ToInt32(profileId));
+            var registered = await _preferredContact.GetRegisteredIds(Convert.ToInt32(profileId));
 
-            var filteredGuestIds = await _guest.QuickSearch(search, guestIds.Item2);
-            var filteredRegisteredIds = await _company.QuickSearch(search, registeredIds.Item2);
+            List<entity.Models.Guest> filteredGuests = null;
+            List<entity.Models.Company> filteredCompanies = null;
 
-            var data = new List<entity.Models.PreferredContact>();
+            filteredGuests = await _guest.SearchGuest(search, null, null, null, null, guests.Item2);
+            filteredCompanies = await _company.SearchCompany(search, null, null, null, null, registered.Item2);
 
-            if (filteredGuestIds is null && filteredRegisteredIds is null)
-            {
-                data = await _preferredContact.List(profileId, pageNumber, pageSize);
-            }
-            else
-            {
-                data = await _preferredContact.GetContactsByQuickSearch(profileId, filteredGuestIds, filteredRegisteredIds, pageNumber, pageSize);
-            }
-
-            if (data is null)
-            {
-                return _general.Response(null, 200, "Configurable preferred contacts has been listed", true);
-            }
 
             List<ViewPreferredContact> preferredContacts = new List<ViewPreferredContact>();
-            foreach (entity.Models.PreferredContact d in data)
+            if (!(filteredGuests is null))
             {
-                string contactId = "";
-                string contactName = "";
-                string imageURL = "";
-                string cityProvince = "";
-                string country = "";
-                string phone = "";
-                string mobile = "";
-                string fax = "";
-
-                switch (d.ContactType)
+                foreach (var g in guests.Item1)
                 {
-                    case 1:
-                        {
-                            var company = await _company.Retrieve(Guid.Parse(d.CompanyId));
+                    var guest = filteredGuests.SingleOrDefault(x => x.Id.ToString() == g.GuestId);
 
-                            if (company is null)
-                            {
-                                contactId = "00000000-0000-0000-000000000000";
-                                contactName = "-";
-                                imageURL = "No Image";
-                                cityProvince = "-";
-                                country = "-";
-                                phone = "-";
-                                mobile = "-";
-                                fax = "-";
-                                break;
-                            }
+                    if (guest is null)
+                    {
+                        continue;
+                    }
 
-                            contactId = company.Guid.ToString();
-                            contactName = company.CompanyName;
-                            imageURL = company.ImageURL;
-                            cityProvince = _prefConHelper.RegisteredCityState(company);
-                            country = company.Addresses.CountryName;
-                            phone = (company.ContactDetails.Phone is null) ? "-" : company.ContactDetails.Phone;
-                            mobile = (company.ContactDetails.Mobile is null) ? "-" : company.ContactDetails.Mobile;
-                            fax = (company.ContactDetails.Fax is null) ? "-" : company.ContactDetails.Fax;
-                            break;
-                        }
+                    var guestCityProvince = _prefConHelper.GuestCityState(guest);
 
-                    case 2:
-                        {
-                            var guest = await _guest.Retrieve(Guid.Parse(d.GuestId));
-
-                            if (guest is null)
-                            {
-                                contactId = "00000000-0000-0000-000000000000";
-                                contactName = "-";
-                                imageURL = "No Image";
-                                cityProvince = "-";
-                                country = "-";
-                                phone = "-";
-                                mobile = "-";
-                                fax = "-";
-                                break;
-                            }
-
-                            contactId = guest.Id.ToString();
-                            contactName = guest.GuestName;
-                            imageURL = guest.Image;
-                            cityProvince = _prefConHelper.GuestCityState(guest);
-                            country = guest.CountryName;
-                            phone = (guest.PhoneNumber is null) ? "-" : guest.PhoneNumber;
-                            mobile = (guest.MobileNumber is null) ? "-" : guest.MobileNumber;
-                            fax = (guest.FaxNumber is null) ? "-" : guest.FaxNumber;
-                            break;
-                        }
+                    preferredContacts.Add(new ViewPreferredContact
+                    {
+                        PreferredContactId = g.PreferredContactId,
+                        ContactId = g.GuestId,
+                        ContactName = guest.GuestName,
+                        ImageURL = (guest.Image is null) ? "-" : guest.Image,
+                        CityProvince = guestCityProvince,
+                        Country = guest.CountryName,
+                        ContactType = 2,
+                        PhoneNumber = guest.PhoneNumber,
+                        MobileNumber = guest.MobileNumber,
+                        FaxNumber = guest.FaxNumber
+                    });
                 }
-
-                preferredContacts.Add(new ViewPreferredContact
-                {
-                    PreferredContactId = d.Guid.ToString(),
-                    ContactId = contactId,
-                    ContactName = contactName,
-                    ImageURL = imageURL,
-                    CityProvince = cityProvince,
-                    Country = country,
-                    ContactType = d.ContactType,
-                    PhoneNumber = phone,
-                    MobileNumber = mobile,
-                    FaxNumber = fax
-                });
             }
 
-            pageSize = (pageSize < data.Count) ? data.Count : pageSize;
+            if (!(filteredCompanies is null))
+            {
+                foreach (var r in registered.Item1)
+                {
+                    var company = filteredCompanies.SingleOrDefault(x => x.Guid.ToString() == r.RegisteredId);
 
-            var pagedResponse = _pagedResponse.Paginate(preferredContacts, data.Count, pageNumber, pageSize);
+                    if (company is null)
+                    {
+                        continue;
+                    }
+
+                    var registeredCityProvince = _prefConHelper.RegisteredCityState(company);
+
+                    preferredContacts.Add(new ViewPreferredContact
+                    {
+                        PreferredContactId = r.PreferredContactId,
+                        ContactId = r.RegisteredId,
+                        ContactName = company.CompanyName,
+                        ImageURL = (company.ImageURL is null) ? "-" : company.ImageURL,
+                        CityProvince = registeredCityProvince,
+                        Country = company.Addresses.CountryName,
+                        ContactType = 1,
+                        PhoneNumber = company.ContactDetails.Phone,
+                        MobileNumber = company.ContactDetails.Mobile,
+                        FaxNumber = company.ContactDetails.Fax
+                    });
+                }
+            }
+
+            var pagedResponse = _pagedResponse.Paginate(preferredContacts, preferredContacts.Count, pageNumber, pageSize);
             return _general.Response(pagedResponse, 200, "Configurable preferred contacts has been listed", true);
         }
 

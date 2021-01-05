@@ -53,11 +53,14 @@ namespace xgca.data.PreferredContact
 
         public async Task<(List<GuestContacts>, List<string>)> GetGuestIds(int profileId)
         {
-            var temp = _context.PreferredContacts
-                .Where(pc => pc.ProfileId == profileId && pc.ContactType == 2);
+            var guestIds = await _context.PreferredContacts.AsNoTracking()
+                .Where(pc => pc.ProfileId == profileId && pc.ContactType == 2)
+                .Select(x => x.GuestId)
+                .ToListAsync();
 
-            var guestIds = await temp.Select(x => x.GuestId).ToListAsync();
-            var guests = await temp.Select(x => new GuestContacts
+            var guests = await _context.PreferredContacts.AsNoTracking()
+                .Where(pc => pc.ProfileId == profileId && pc.ContactType == 2)
+                .Select(x => new GuestContacts
                 {
                     PreferredContactId = x.Guid.ToString(),
                     GuestId = x.GuestId
@@ -89,11 +92,13 @@ namespace xgca.data.PreferredContact
 
         public async Task<(List<RegisteredContacts>, List<string>)> GetRegisteredIds(int profileId)
         {
-            var temp = _context.PreferredContacts
-                .Where(pc => pc.ProfileId == profileId && pc.ContactType == 1);
+            var registeredIds = await _context.PreferredContacts
+                .Where(pc => pc.ProfileId == profileId && pc.ContactType == 1)
+                .Select(x => x.CompanyId).ToListAsync();
 
-            var registeredIds = await temp.Select(x => x.CompanyId).ToListAsync();
-            var registered = await temp.Select(x => new RegisteredContacts
+            var registered = await _context.PreferredContacts
+                .Where(pc => pc.ProfileId == profileId && pc.ContactType == 1)
+                .Select(x => new RegisteredContacts
                 {
                     PreferredContactId = x.Guid.ToString(),
                     RegisteredId = x.CompanyId
