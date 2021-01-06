@@ -163,6 +163,12 @@ namespace xgca.core.PreferredProvider
                     ? ""
                     : $"{provider.Companies.ContactDetails.FaxPrefix}{provider.Companies.ContactDetails.Fax}";
 
+                string mobileNumber = (provider.Companies.ContactDetails.Mobile is null)
+                    ? "-"
+                    : $"{provider.Companies.ContactDetails.MobilePrefix}{provider.Companies.ContactDetails.Mobile}";
+
+                string email = (provider.Companies.EmailAddress is null) ? "-" : provider.Companies.EmailAddress;
+
                 providers.Add(new ListPreferredProvider
                 {
                     PreferredProvider = preferredProvider.Guid.ToString(),
@@ -176,7 +182,9 @@ namespace xgca.core.PreferredProvider
                     ServiceId = (service is null) ? "N/A" : service.ServiceId,
                     ServiceName = (service is null) ? "N/A" : service.ServiceName,
                     PhoneNumber = phoneNumber,
+                    MobileNumber = mobileNumber,
                     FaxNumber = faxNumber,
+                    Email = email
                 });
             }
 
@@ -237,12 +245,18 @@ namespace xgca.core.PreferredProvider
                     && x.ProfileId == profileId);
 
                 string phoneNumber = (provider.Companies.ContactDetails.Phone is null)
-                    ? ""
+                    ? "-"
                     : $"{provider.Companies.ContactDetails.PhonePrefix}{provider.Companies.ContactDetails.Phone}";
 
                 string faxNumber = (provider.Companies.ContactDetails is null)
-                    ? ""
+                    ? "-"
                     : $"{provider.Companies.ContactDetails.FaxPrefix}{provider.Companies.ContactDetails.Fax}";
+
+                string mobileNumber = (provider.Companies.ContactDetails.Mobile is null)
+                    ? "-"
+                    : $"{provider.Companies.ContactDetails.MobilePrefix}{provider.Companies.ContactDetails.Mobile}";
+
+                string email = (provider.Companies.EmailAddress is null) ? "-" : provider.Companies.EmailAddress;
 
                 providers.Add(new ListPreferredProvider
                 {
@@ -258,7 +272,9 @@ namespace xgca.core.PreferredProvider
                     ServiceId = (service is null) ? "N/A" : service.ServiceId,
                     ServiceName = (service is null) ? "N/A" : service.ServiceName,
                     PhoneNumber = phoneNumber,
+                    MobileNumber = mobileNumber,
                     FaxNumber = faxNumber,
+                    Email = email
                 });
             }
 
