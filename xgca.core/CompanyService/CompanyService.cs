@@ -337,7 +337,11 @@ namespace xgca.core.CompanyService
                         CompanyAddress = CompanyHelper.ParseCompanydAddress(provider.Companies),
                         ServiceId = (service is null) ? "N/A" : service.ServiceId,
                         ServiceName = (service is null) ? "N/A" : service.ServiceName,
-                        ServiceImageURL = (service != null) ? ((service.ServiceImageURL is null) ? "No Image" : service.ServiceImageURL) : "N/A"
+                        ServiceImageURL = (service != null) ? ((service.ServiceImageURL is null) ? "No Image" : service.ServiceImageURL) : "N/A",
+                        PhoneNumber = (provider.Companies.ContactDetails.Phone is null) ? "-" : $"{provider.Companies.ContactDetails.PhonePrefix}{provider.Companies.ContactDetails.Phone}",
+                        MobileNumber = (provider.Companies.ContactDetails.Mobile is null) ? "-" : $"{provider.Companies.ContactDetails.MobilePrefix}{provider.Companies.ContactDetails.Mobile}",
+                        FaxNumber = (provider.Companies.ContactDetails.Fax is null) ? "-" : $"{provider.Companies.ContactDetails.FaxPrefix}{provider.Companies.ContactDetails.Fax}",
+                        Email = (provider.Companies.EmailAddress is null) ? "-" : provider.Companies.EmailAddress
                     });
                 }
             }
