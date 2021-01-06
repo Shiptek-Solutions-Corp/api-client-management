@@ -276,7 +276,7 @@ namespace xgca.core.PreferredContact
                 filteredCompanies = await _company.SearchCompany(search, name, country, stateCity, contact, registered.Item2);
             }
 
-            List<ViewPreferredContact> preferredContacts = new List<ViewPreferredContact>();
+            List<ListPreferredContact> preferredContacts = new List<ListPreferredContact>();
             if (!(filteredGuests is null))
             {
                 foreach(var g in guests.Item1)
@@ -290,7 +290,7 @@ namespace xgca.core.PreferredContact
 
                     var guestCityProvince = _prefConHelper.GuestCityState(guest);
 
-                    preferredContacts.Add(new ViewPreferredContact
+                    preferredContacts.Add(new ListPreferredContact
                     {
                         PreferredContactId = g.PreferredContactId,
                         ContactId = g.GuestId,
@@ -299,9 +299,9 @@ namespace xgca.core.PreferredContact
                         CityProvince = guestCityProvince,
                         Country = guest.CountryName,
                         ContactType = 2,
-                        PhoneNumber = guest.PhoneNumber,
-                        MobileNumber = guest.MobileNumber,
-                        FaxNumber = guest.FaxNumber
+                        PhoneNumber = (guest.PhoneNumber is null) ? "-" : guest.PhoneNumber,
+                        MobileNumber = (guest.MobileNumber is null) ? "-" : guest.MobileNumber,
+                        FaxNumber = (guest.FaxNumber is null) ? "-" : guest.FaxNumber
                     });
                 }
             }
@@ -319,7 +319,7 @@ namespace xgca.core.PreferredContact
 
                     var registeredCityProvince = _prefConHelper.RegisteredCityState(company);
 
-                    preferredContacts.Add(new ViewPreferredContact
+                    preferredContacts.Add(new ListPreferredContact
                     {
                         PreferredContactId = r.PreferredContactId,
                         ContactId = r.RegisteredId,
@@ -328,9 +328,9 @@ namespace xgca.core.PreferredContact
                         CityProvince = registeredCityProvince,
                         Country = company.Addresses.CountryName,
                         ContactType = 1,
-                        PhoneNumber = company.ContactDetails.Phone,
-                        MobileNumber = company.ContactDetails.Mobile,
-                        FaxNumber = company.ContactDetails.Fax
+                        PhoneNumber = (company.ContactDetails.Phone is null) ? "-" : company.ContactDetails.Phone,
+                        MobileNumber = (company.ContactDetails.Mobile is null) ? "-" : company.ContactDetails.Mobile,
+                        FaxNumber = (company.ContactDetails.Fax is null) ? "-" : company.ContactDetails.Fax
                     });
                 }
             }
@@ -376,10 +376,7 @@ namespace xgca.core.PreferredContact
                         ImageURL = (guest.Image is null) ? "-" : guest.Image,
                         CityProvince = guestCityProvince,
                         Country = guest.CountryName,
-                        ContactType = 2,
-                        PhoneNumber = guest.PhoneNumber,
-                        MobileNumber = guest.MobileNumber,
-                        FaxNumber = guest.FaxNumber
+                        ContactType = 2
                     });
                 }
             }
@@ -405,10 +402,7 @@ namespace xgca.core.PreferredContact
                         ImageURL = (company.ImageURL is null) ? "-" : company.ImageURL,
                         CityProvince = registeredCityProvince,
                         Country = company.Addresses.CountryName,
-                        ContactType = 1,
-                        PhoneNumber = company.ContactDetails.Phone,
-                        MobileNumber = company.ContactDetails.Mobile,
-                        FaxNumber = company.ContactDetails.Fax
+                        ContactType = 1
                     });
                 }
             }
