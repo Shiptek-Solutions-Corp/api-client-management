@@ -299,9 +299,9 @@ namespace xgca.core.PreferredContact
                         CityProvince = guestCityProvince,
                         Country = guest.CountryName,
                         ContactType = 2,
-                        PhoneNumber = (guest.PhoneNumber is null) ? "-" : guest.PhoneNumber,
-                        MobileNumber = (guest.MobileNumber is null) ? "-" : guest.MobileNumber,
-                        FaxNumber = (guest.FaxNumber is null) ? "-" : guest.FaxNumber,
+                        PhoneNumber = (guest.PhoneNumber is null) ? "-" : $"{guest.PhoneNumberPrefix}{guest.PhoneNumber}",
+                        MobileNumber = (guest.MobileNumber is null) ? "-" : $"{guest.MobileNumberPrefix}{guest.MobileNumber}",
+                        FaxNumber = (guest.FaxNumber is null) ? "-" : $"{guest.FaxNumberPrefix}{guest.FaxNumber}",
                         Email = (guest.EmailAddress is null) ? "-" : guest.EmailAddress
                     });
                 }
@@ -329,9 +329,9 @@ namespace xgca.core.PreferredContact
                         CityProvince = registeredCityProvince,
                         Country = company.Addresses.CountryName,
                         ContactType = 1,
-                        PhoneNumber = (company.ContactDetails.Phone is null) ? "-" : company.ContactDetails.Phone,
-                        MobileNumber = (company.ContactDetails.Mobile is null) ? "-" : company.ContactDetails.Mobile,
-                        FaxNumber = (company.ContactDetails.Fax is null) ? "-" : company.ContactDetails.Fax,
+                        PhoneNumber = (company.ContactDetails.Phone is null) ? "-" : $"{company.ContactDetails.PhonePrefix}{company.ContactDetails.Phone}",
+                        MobileNumber = (company.ContactDetails.Mobile is null) ? "-" : $"{company.ContactDetails.MobilePrefix}{company.ContactDetails.Mobile}",
+                        FaxNumber = (company.ContactDetails.Fax is null) ? "-" : $"{company.ContactDetails.FaxPrefix}{company.ContactDetails.Fax}",
                         Email = (company.EmailAddress is null) ? "-" : company.EmailAddress
                     });
                 }
@@ -379,9 +379,9 @@ namespace xgca.core.PreferredContact
                         CityProvince = guestCityProvince,
                         Country = guest.CountryName,
                         ContactType = 2,
-                        PhoneNumber = (guest.PhoneNumber is null) ? "-" : guest.PhoneNumber,
-                        MobileNumber = (guest.MobileNumber is null) ? "-" : guest.MobileNumber,
-                        FaxNumber = (guest.FaxNumber is null) ? "-" : guest.FaxNumber,
+                        PhoneNumber = (guest.PhoneNumber is null) ? "-" : $"{guest.PhoneNumberPrefix}{guest.PhoneNumber}",
+                        MobileNumber = (guest.MobileNumber is null) ? "-" : $"{guest.MobileNumberPrefix}{guest.MobileNumber}",
+                        FaxNumber = (guest.FaxNumber is null) ? "-" : $"{guest.FaxNumberPrefix}{guest.FaxNumber}",
                         Email = (guest.EmailAddress is null) ? "-" : guest.EmailAddress
                     });
                 }
@@ -409,9 +409,9 @@ namespace xgca.core.PreferredContact
                         CityProvince = registeredCityProvince,
                         Country = company.Addresses.CountryName,
                         ContactType = 1,
-                        PhoneNumber = (company.ContactDetails.Phone is null) ? "-" : company.ContactDetails.Phone,
-                        MobileNumber = (company.ContactDetails.Mobile is null) ? "-" : company.ContactDetails.Mobile,
-                        FaxNumber = (company.ContactDetails.Fax is null) ? "-" : company.ContactDetails.Fax,
+                        PhoneNumber = (company.ContactDetails.Phone is null) ? "-" : $"{company.ContactDetails.PhonePrefix}{company.ContactDetails.Phone}",
+                        MobileNumber = (company.ContactDetails.Mobile is null) ? "-" : $"{company.ContactDetails.MobilePrefix}{company.ContactDetails.Mobile}",
+                        FaxNumber = (company.ContactDetails.Fax is null) ? "-" : $"{company.ContactDetails.FaxPrefix}{company.ContactDetails.Fax}",
                         Email = (company.EmailAddress is null) ? "-" : company.EmailAddress
                     });
                 }
