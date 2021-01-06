@@ -171,21 +171,22 @@ namespace xgca.data.Guest
             return result > 0 ? true : false;
         }
 
-        public async Task<List<string>> QuickSearch(string search, List<string> guestIds)
+        public async Task<List<entity.Models.Guest>> QuickSearch(string search, List<string> guids)
         {
-            string searcHValue = $"%{search}%";
+            var predicate = PredicateBuilder.New<entity.Models.Guest>();
+
+            if (!(search is null))
+            {
+                predicate = predicate.Or(x => (EF.Functions.Like(x.GuestName, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.CountryName, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.CityName, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.StateName, $"%{search}%")));
+            }
+
+            predicate = predicate.And(x => guids.Contains(x.Id.ToString()) && x.IsDeleted == 0);
 
             var guests = await _context.Guests.AsNoTracking()
-                .Where(x => (EF.Functions.Like(x.AddressLine, searcHValue)
-                    || EF.Functions.Like(x.CityName, searcHValue)
-                    || EF.Functions.Like(x.CountryName, searcHValue)
-                    || EF.Functions.Like(x.EmailAddress, searcHValue)
-                    || EF.Functions.Like(x.FirstName, searcHValue)
-                    || EF.Functions.Like(x.GuestName, searcHValue)
-                    || EF.Functions.Like(x.LastName, searcHValue)
-                    || EF.Functions.Like(x.StateName, searcHValue))
-                    && guestIds.Contains(x.Id.ToString()))
-                .Select(x => x.Id.ToString())
+                .Where(predicate)
                 .ToListAsync();
 
             return guests;
