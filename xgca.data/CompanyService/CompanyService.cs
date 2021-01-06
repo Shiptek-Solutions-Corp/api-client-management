@@ -292,6 +292,8 @@ namespace xgca.data.CompanyService
             List<entity.Models.CompanyService> companyServices = await _context.CompanyServices.AsNoTracking()
                 .Include(x => x.Companies)
                     .ThenInclude(a => a.Addresses)
+                .Include(x => x.Companies)
+                    .ThenInclude(c => c.ContactDetails)
                  .Where(predicate)
                 .Skip(pageSize * pageNumber)
                 .Take(pageSize)
