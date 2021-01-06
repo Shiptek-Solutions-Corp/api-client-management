@@ -301,7 +301,8 @@ namespace xgca.core.PreferredContact
                         ContactType = 2,
                         PhoneNumber = (guest.PhoneNumber is null) ? "-" : guest.PhoneNumber,
                         MobileNumber = (guest.MobileNumber is null) ? "-" : guest.MobileNumber,
-                        FaxNumber = (guest.FaxNumber is null) ? "-" : guest.FaxNumber
+                        FaxNumber = (guest.FaxNumber is null) ? "-" : guest.FaxNumber,
+                        Email = (guest.EmailAddress is null) ? "-" : guest.EmailAddress
                     });
                 }
             }
@@ -330,7 +331,8 @@ namespace xgca.core.PreferredContact
                         ContactType = 1,
                         PhoneNumber = (company.ContactDetails.Phone is null) ? "-" : company.ContactDetails.Phone,
                         MobileNumber = (company.ContactDetails.Mobile is null) ? "-" : company.ContactDetails.Mobile,
-                        FaxNumber = (company.ContactDetails.Fax is null) ? "-" : company.ContactDetails.Fax
+                        FaxNumber = (company.ContactDetails.Fax is null) ? "-" : company.ContactDetails.Fax,
+                        Email = (company.EmailAddress is null) ? "-" : company.EmailAddress
                     });
                 }
             }
@@ -350,11 +352,11 @@ namespace xgca.core.PreferredContact
             List<entity.Models.Guest> filteredGuests = null;
             List<entity.Models.Company> filteredCompanies = null;
 
-            filteredGuests = await _guest.SearchGuest(search, null, null, null, null, guests.Item2);
-            filteredCompanies = await _company.SearchCompany(search, null, null, null, null, registered.Item2);
+            filteredGuests = await _guest.QuickSearch(search, guests.Item2);
+            filteredCompanies = await _company.QuickSearch(search, registered.Item2);
 
 
-            List<ViewPreferredContact> preferredContacts = new List<ViewPreferredContact>();
+            List<ListPreferredContact> preferredContacts = new List<ListPreferredContact>();
             if (!(filteredGuests is null))
             {
                 foreach (var g in guests.Item1)
@@ -368,7 +370,7 @@ namespace xgca.core.PreferredContact
 
                     var guestCityProvince = _prefConHelper.GuestCityState(guest);
 
-                    preferredContacts.Add(new ViewPreferredContact
+                    preferredContacts.Add(new ListPreferredContact
                     {
                         PreferredContactId = g.PreferredContactId,
                         ContactId = g.GuestId,
@@ -376,7 +378,11 @@ namespace xgca.core.PreferredContact
                         ImageURL = (guest.Image is null) ? "-" : guest.Image,
                         CityProvince = guestCityProvince,
                         Country = guest.CountryName,
-                        ContactType = 2
+                        ContactType = 2,
+                        PhoneNumber = (guest.PhoneNumber is null) ? "-" : guest.PhoneNumber,
+                        MobileNumber = (guest.MobileNumber is null) ? "-" : guest.MobileNumber,
+                        FaxNumber = (guest.FaxNumber is null) ? "-" : guest.FaxNumber,
+                        Email = (guest.EmailAddress is null) ? "-" : guest.EmailAddress
                     });
                 }
             }
@@ -394,7 +400,7 @@ namespace xgca.core.PreferredContact
 
                     var registeredCityProvince = _prefConHelper.RegisteredCityState(company);
 
-                    preferredContacts.Add(new ViewPreferredContact
+                    preferredContacts.Add(new ListPreferredContact
                     {
                         PreferredContactId = r.PreferredContactId,
                         ContactId = r.RegisteredId,
@@ -402,7 +408,11 @@ namespace xgca.core.PreferredContact
                         ImageURL = (company.ImageURL is null) ? "-" : company.ImageURL,
                         CityProvince = registeredCityProvince,
                         Country = company.Addresses.CountryName,
-                        ContactType = 1
+                        ContactType = 1,
+                        PhoneNumber = (company.ContactDetails.Phone is null) ? "-" : company.ContactDetails.Phone,
+                        MobileNumber = (company.ContactDetails.Mobile is null) ? "-" : company.ContactDetails.Mobile,
+                        FaxNumber = (company.ContactDetails.Fax is null) ? "-" : company.ContactDetails.Fax,
+                        Email = (company.EmailAddress is null) ? "-" : company.EmailAddress
                     });
                 }
             }
