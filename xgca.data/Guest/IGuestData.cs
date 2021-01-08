@@ -20,8 +20,9 @@ namespace xgca.data.Guest
         Task<bool> Update(entity.Models.Guest obj);
         Task<bool> Delete(entity.Models.Guest obj);
         Task<List<entity.Models.Guest>> QuickSearch(string search);
-        Task<List<string>> QuickSearch(string search, List<string> guestIds);
+        Task<List<entity.Models.Guest>> QuickSearch(string search, List<string> guids);
         Task<YourEDIActorReturn> GetGuestAndMasterUserDetails(string guestKey);
         Task<bool> SetCUCCByGuestGuid(string guestKey, string CUCC);
+        Task<List<entity.Models.Guest>> SearchGuest(string search, string name, string country, string stateCity, string contact, List<string> guids);
     }
 }
