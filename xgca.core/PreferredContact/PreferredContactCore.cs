@@ -281,7 +281,7 @@ namespace xgca.core.PreferredContact
             {
                 foreach(var g in guests.Item1)
                 {
-                    var guest = filteredGuests.SingleOrDefault(x => x.Id.ToString() == g.GuestId);
+                    var guest = filteredGuests.SingleOrDefault(x => x.Id == Guid.Parse(g.GuestId));
 
                     if (guest is null)
                     {
@@ -311,7 +311,7 @@ namespace xgca.core.PreferredContact
             {
                 foreach(var r in registered.Item1)
                 {
-                    var company = filteredCompanies.SingleOrDefault(x => x.Guid.ToString() == r.RegisteredId);
+                    var company = filteredCompanies.SingleOrDefault(x => x.Guid == Guid.Parse(r.RegisteredId));
 
                     if (company is null)
                     {
@@ -361,7 +361,7 @@ namespace xgca.core.PreferredContact
             {
                 foreach (var g in guests.Item1)
                 {
-                    var guest = filteredGuests.SingleOrDefault(x => x.Id.ToString() == g.GuestId);
+                    var guest = filteredGuests.SingleOrDefault(x => x.Id == Guid.Parse(g.GuestId));
 
                     if (guest is null)
                     {
@@ -391,7 +391,7 @@ namespace xgca.core.PreferredContact
             {
                 foreach (var r in registered.Item1)
                 {
-                    var company = filteredCompanies.SingleOrDefault(x => x.Guid.ToString() == r.RegisteredId);
+                    var company = filteredCompanies.SingleOrDefault(x => x.Guid == Guid.Parse(r.RegisteredId));
 
                     if (company is null)
                     {
