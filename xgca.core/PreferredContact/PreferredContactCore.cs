@@ -256,8 +256,10 @@ namespace xgca.core.PreferredContact
 
         public async Task<IGeneralModel> List(int profileId, string search, string name, string country, string stateCity, int type, string contact, string sortBy, string sortOrder, int pageNumber, int pageSize)
         {
+            var profileGuid = await _company.GetGuidById(profileId);
+
             var guests = await _preferredContact.GetGuestIds(Convert.ToInt32(profileId));
-            var registered = await _preferredContact.GetRegisteredIds(Convert.ToInt32(profileId));
+            var registered = await _preferredContact.GetRegisteredIds(Convert.ToInt32(profileId), profileGuid);
 
             List<entity.Models.Guest> filteredGuests = null;
             List<entity.Models.Company> filteredCompanies = null;
@@ -346,8 +348,10 @@ namespace xgca.core.PreferredContact
 
         public async Task<IGeneralModel> QuickSearch(string search, int profileId, int pageNumber, int pageSize, int recordCount)
         {
+            var profileGuid = await _company.GetGuidById(profileId);
+
             var guests = await _preferredContact.GetGuestIds(Convert.ToInt32(profileId));
-            var registered = await _preferredContact.GetRegisteredIds(Convert.ToInt32(profileId));
+            var registered = await _preferredContact.GetRegisteredIds(Convert.ToInt32(profileId), profileGuid);
 
             List<entity.Models.Guest> filteredGuests = null;
             List<entity.Models.Company> filteredCompanies = null;
