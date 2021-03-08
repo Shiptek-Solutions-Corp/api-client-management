@@ -4,6 +4,10 @@ using System.Text;
 
 namespace xgca.core.Models.Company
 {
+    public class GetCompanyAndGuestByIdsModel {
+        public List<string> Guids { get; set; }
+    }
+
     public class GetReservationActorsListModel
     {
         public List<GetReservationActorsModel> Actors { get; set; }
