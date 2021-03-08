@@ -49,6 +49,7 @@ namespace xgca.core.Company
         Task<IGeneralModel> ListCompanyLogs(int companyId);
         Task<IGeneralModel> ListCompanyLogs(string companyId);
         Task<IGeneralModel> GetReservationActors(List<GetReservationActorsModel> getReservationActorsModel);
+        Task<IGeneralModel> GetCompanyAndGuestByIds(List<string> guids);
         Task<IGeneralModel> ListCompaniesByIDs(GetCompanyIDs obj);
         Task<IGeneralModel> ListCompanyDetailsByIds(GetCompanyIDs obj);
 
@@ -965,6 +966,15 @@ namespace xgca.core.Company
             var (biller, customer) = await _companyData.GetInvoiceActors(billerId, customerId);
 
             return _general.Response(new { Biller = biller, Customer = customer }, 200, "Invoice actors retrieved", true);
+        }
+
+        public async Task<IGeneralModel> GetCompanyAndGuestByIds(List<string> guids)
+        {
+
+            var companies = await _companyData.GetCompanyAndGuestByIds(guids);
+
+            return _general.Response(new { actors = companies }, 200, "Actors retrieved", true);
+
         }
     }
 }

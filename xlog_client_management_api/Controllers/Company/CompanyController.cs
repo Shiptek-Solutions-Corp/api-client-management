@@ -324,6 +324,27 @@ namespace xlog_company_service_api.Controllers.Company
             return Ok(response);
         }
 
+        [Route("company/company-guest-actors")]
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetCompanyAndGuestByIds([FromBody] GetCompanyAndGuestByIdsModel getCompanyAndGuestByIdsModel)
+        {
+            var response = await _company.GetCompanyAndGuestByIds(getCompanyAndGuestByIdsModel.Guids);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
         [Route("company/list")]
         [HttpPost]
         [Authorize(AuthenticationSchemes = "Bearer")]
