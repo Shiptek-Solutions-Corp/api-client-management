@@ -14,6 +14,7 @@ using xgca.data.Company;
 using xgca.data.CompanyService;
 using xgca.data.AuditLog;
 using xgca.data.User;
+using xgca.data.Guest;
 using xgca.core.AuditLog;
 using xgca.core.User;
 using xgca.core.CompanyServiceRole;
@@ -81,6 +82,7 @@ namespace xgca.core.Company
         private readonly ICompanyUser _coreCompanyUser;
 
         private readonly IUserData _userData;
+        private readonly IGuestData _guestData;
 
         private readonly IOptions<GlobalCmsService> _options;
         private readonly IHttpHelper _httpHelper;
@@ -98,6 +100,7 @@ namespace xgca.core.Company
             ICompanyServiceUser coreCompanyServiceUser,
             ICompanyUser coreCompanyUser,
             IUserData userData,
+            IGuestData guestData,
             IOptions<GlobalCmsService> options,
             IHttpHelper httpHelper,
             ITokenHelper tokenHelper,
@@ -114,6 +117,7 @@ namespace xgca.core.Company
             _coreCompanyServiceUser = coreCompanyServiceUser;
             _coreCompanyUser = coreCompanyUser;
             _userData = userData;
+            _guestData = guestData;
             _httpHelper = httpHelper;
             _tokenHelper = tokenHelper;
             _options = options;
@@ -911,16 +915,37 @@ namespace xgca.core.Company
 
         public async Task<IGeneralModel> RetrieveCompanyName(GetCompanyNamesModel obj)
         {
-            int payerId = await _companyData.GetIdByGuid(Guid.Parse(obj.PayerId));
-            var payerResult = await _companyData.Retrieve(payerId);
+            string payerName = null;
+            string receiverName = null;
 
-            int receivereId = await _companyData.GetIdByGuid(Guid.Parse(obj.ReceiverId));
-            var receiverResult = await _companyData.Retrieve(receivereId);
+            int payerId = await _companyData.GetIdByGuid(Guid.Parse(obj.PayerId));
+            if (payerId == 0)
+            {
+                var guestPayer = await _guestData.Retrieve(Guid.Parse(obj.PayerId));
+                payerName = guestPayer.GuestName;
+            }
+            else
+            {
+                var payerResult = await _companyData.Retrieve(payerId);
+                payerName = payerResult.CompanyName;
+            }
+
+            int receiverId = await _companyData.GetIdByGuid(Guid.Parse(obj.ReceiverId));
+            if (receiverId == 0)
+            {
+                var guestReceiver = await _guestData.Retrieve(Guid.Parse(obj.ReceiverId));
+                receiverName = guestReceiver.GuestName;
+            }
+            else
+            {
+                var receiverResult = await _companyData.Retrieve(receiverId);
+                receiverName = receiverResult.CompanyName;
+            }
 
             var data = new
             {
-                PayerName = (payerId == 0) ? "-" : payerResult.CompanyName,
-                ReceiverName = (receivereId == 0) ? "-" : receiverResult.CompanyName
+                PayerName = (payerName is null) ? "-" : payerName,
+                ReceiverName = (receiverName is null) ? "-" : receiverName
             };
 
             return _general.Response(new { company = data }, 200, "Company Name for selected companies has been displayed", true);
@@ -964,6 +989,16 @@ namespace xgca.core.Company
         public async Task<IGeneralModel> GetInvoiceActors(string billerId, string customerId)
         {
             var (biller, customer) = await _companyData.GetInvoiceActors(billerId, customerId);
+
+            if (biller is null)
+            {
+                biller = await _guestData.GetGuestBiller(billerId);
+            }
+
+            if (customer is null)
+            {
+                customer = await _guestData.GetGuestCustomer(customerId);
+            }
 
             return _general.Response(new { Biller = biller, Customer = customer }, 200, "Invoice actors retrieved", true);
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using xgca.data.Company;
 
 namespace xgca.data.Guest
 {
@@ -24,5 +25,7 @@ namespace xgca.data.Guest
         Task<YourEDIActorReturn> GetGuestAndMasterUserDetails(string guestKey);
         Task<bool> SetCUCCByGuestGuid(string guestKey, string CUCC);
         Task<List<entity.Models.Guest>> SearchGuest(string search, string name, string country, string stateCity, string contact, List<string> guids);
+        Task<Biller> GetGuestBiller(string guestBillerId);
+        Task<Customer> GetGuestCustomer(string guestCustomerId);
     }
 }
