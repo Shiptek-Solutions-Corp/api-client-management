@@ -19,6 +19,7 @@ namespace xgca.data.Company
         Task<string> GetGuidById(int id);
         Task<bool> Update(entity.Models.Company obj);
         Task<bool> Delete(int key);
+        Task<List<ActorReturn>> GetCompanyAndGuestByIds(List<string> guids);
         Task<List<ActorReturn>> GetAll();
         Task<YourEDIActorReturn> GetCompanyAndMasterUserDetails(string companyKey);
         Task<entity.Models.Company> Retrieve(Guid key);
@@ -616,6 +617,47 @@ namespace xgca.data.Company
                 .ToListAsync();
 
             return companies;
+        }
+
+        public async Task<List<ActorReturn>> GetCompanyAndGuestByIds(List<string> guids)
+        {
+            var data = await _context.Companies
+                .Include(a => a.Addresses)
+                .Include(a => a.ContactDetails)
+                .Where(c => guids.Contains(c.Guid.ToString()))
+                .Select(
+                c => new ActorReturn { Guid = c.Guid, CompanyName = c.CompanyName, ImageUrl = c.ImageURL, Addresses = c.Addresses.FullAddress, ContactDetails = c.ContactDetails })
+                .AsNoTracking()
+                .ToListAsync();
+
+            var guests = await
+                _context
+                .Guests
+                .Where(g => guids.Contains(g.Id.ToString()))
+                .Select(
+                g => new ActorReturn
+                {
+                    Guid = g.Id,
+                    CompanyName = g.GuestName,
+                    ImageUrl = g.Image,
+                    Addresses = g.AddressLine,
+                    ContactDetails = new
+                    {
+                        PhonePrefixId = g.PhoneNumberPrefix ?? "",
+                        Phone = g.PhoneNumber,
+                        MobilePrefixId = g.MobileNumberPrefix ?? "",
+                        Mobile = g.MobileNumber ?? "",
+                        FaxPrefix = g.FaxNumberPrefix ?? "",
+                        Fax = g.FaxNumber ?? ""
+                    }
+                }
+                )
+                .AsNoTracking()
+                .ToListAsync();
+
+            data.AddRange(guests);
+
+            return data;
         }
     }
 }
