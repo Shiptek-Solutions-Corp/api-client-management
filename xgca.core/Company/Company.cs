@@ -918,8 +918,8 @@ namespace xgca.core.Company
 
             var data = new
             {
-                PayerName = payerResult.CompanyName,
-                ReceiverName = receiverResult.CompanyName
+                PayerName = (payerId == 0) ? "-" : payerResult.CompanyName,
+                ReceiverName = (receivereId == 0) ? "-" : receiverResult.CompanyName
             };
 
             return _general.Response(new { company = data }, 200, "Company Name for selected companies has been displayed", true);
