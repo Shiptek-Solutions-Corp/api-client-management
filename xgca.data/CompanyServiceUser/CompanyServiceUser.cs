@@ -212,14 +212,30 @@ namespace xgca.data.CompanyServiceUser
                 predicate = predicate
                     .And(c => c.CompanyServiceUsers.Any(c => c.CompanyServiceRoleId != companyServiceRoleId || c.IsMasterUser == 0));
             }
-
-            return await data
+            var companyUsers = await data
                 .Where(predicate)
                 .Where(c => c.CompanyId == companyId)
                 .Where(c => c.Users.IsDeleted == 0)
                 .Include(c => c.Users)
                 .Include(c => c.CompanyServiceUsers)
                 .ToListAsync();
+
+            if (companyUsers.Count <= 0)
+            {
+                // Query to get all Representative user with no existing role and skips 1 account (master user)
+                companyUsers = await (from c in data
+                               where !(from csu in _context.CompanyServiceUsers where csu.IsMasterUser == 0
+                                       select csu.CompanyId).Contains(c.CompanyId)
+                                select c).Where(c => c.CompanyId == companyId)
+                                        .Where(c => c.Users.IsDeleted == 0)
+                                        .Where(c => c.Users.IsDeleted == 0)
+                                        .Skip(1)
+                                        .Include(c => c.Users)
+                                        .Include(c => c.CompanyServiceUsers)
+                                        .ToListAsync();
+            }
+
+            return companyUsers;
         }
 
         public async Task<bool> BulkCreate(List<entity.Models.CompanyServiceUser> obj)
