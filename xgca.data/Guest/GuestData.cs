@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using LinqKit;
+using xgca.data.Company;
 
 namespace xgca.data.Guest
 {
@@ -310,6 +311,44 @@ namespace xgca.data.Guest
                 .ToListAsync();
 
             return guests;
+        }
+
+        public async Task<Biller> GetGuestBiller(string guestBillerId)
+        {
+            var guestBiller = await _context.Guests.AsNoTracking()
+                .Where(x => x.Id == Guid.Parse(guestBillerId))
+                .Select(c => new Biller
+                {
+                    BillerId = c.Id.ToString(),
+                    BillerName = c.GuestName,
+                    BillerImage = c.Image,
+                    BillerAddress = (c.AddressLine == null) ? "" : $"{c.AddressLine}, {c.CityName}, {c.StateName}, {c.CountryName}",
+                    BillerLandline = (c.PhoneNumber == null) ? "" : $"{c.PhoneNumberPrefix}{c.PhoneNumber}",
+                    BillerFax = (c.FaxNumber == null) ? "" : $"{c.FaxNumberPrefix}{c.FaxNumber}",
+                    BillerCode = "GUEST"
+                })
+                .FirstOrDefaultAsync();
+
+            return guestBiller;
+        }
+
+        public async Task<Customer> GetGuestCustomer(string guestCustomerId)
+        {
+            var guestCustomer = await _context.Guests.AsNoTracking()
+                .Where(x => x.Id == Guid.Parse(guestCustomerId))
+                .Select(c => new Customer
+                {
+                    CustomerId = c.Id.ToString(),
+                    CustomerName = c.GuestName,
+                    CustomerImage = c.Image,
+                    CustomerAddress = (c.AddressLine == null) ? "" : $"{c.AddressLine}, {c.CityName}, {c.StateName}, {c.CountryName}",
+                    CustomerLandline = (c.PhoneNumber == null) ? "" : $"{c.PhoneNumberPrefix}{c.PhoneNumber}",
+                    CustomerFax = (c.FaxNumber == null) ? "" : $"{c.FaxNumberPrefix}{c.FaxNumber}",
+                    CustomerCode = "GUEST"
+                })
+                .FirstOrDefaultAsync();
+
+            return guestCustomer;
         }
     }
 }
