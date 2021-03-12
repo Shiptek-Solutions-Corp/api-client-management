@@ -149,7 +149,7 @@ namespace xgca.core.CompanyServiceRole
         public async Task<IGeneralModel> Update(UpdateCompanyServiceRoleModel updateCompanyServiceRoleModel, Guid companyServiceRoleId)
         {
             var result = await _companyServiceRole.Get(companyServiceRoleId);
-            var oldData = result;
+            var oldData = JsonConvert.DeserializeObject(JsonConvert.SerializeObject(result));
             if (result == null)
             {
                 return _general.Response(null, 400, "Invalid Company Service Role", false);
@@ -294,7 +294,7 @@ namespace xgca.core.CompanyServiceRole
                 .SelectMany(p => p.ClientMenuModules)
                 .Select(m => m.Module)
                 .SelectMany(mg => mg.ModuleGroups)
-                .Where(mg => mg.IsChecked == true)
+                .Where(mg => mg?.IsChecked == true)
                 .SelectMany(gr => gr.GroupResources)
                 .ToList();
 
