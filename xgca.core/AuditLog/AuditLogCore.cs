@@ -248,14 +248,46 @@ namespace xgca.core.AuditLog
                 username = (user is null) ? "System" : (user.Username is null ? "Not Set" : user.Username);
                 createdBy = data.CreatedByName;
             }
-            
+
+            dynamic oldValue = null;
+            dynamic newValue = null;
+            if (!(data.OldValue is null))
+            {
+                if (!(data.OldValue.Contains("{\\")))
+                {
+                    oldValue = new
+                    {
+                        OldValue = JsonConvert.DeserializeObject(data.OldValue)
+                    };
+                }
+                else
+                {
+                    oldValue = JsonConvert.DeserializeObject(data.OldValue);
+                }
+            }
+
+            if (!(data.NewValue is null))
+            {
+                if (!(data.NewValue.Contains("{\\")))
+                {
+                    newValue = new
+                    {
+                        NewValue = JsonConvert.DeserializeObject(data.NewValue)
+                    };
+                }
+                else
+                {
+                    newValue = JsonConvert.DeserializeObject(data.NewValue);
+                }
+            }
+
             var log = new
             {
                 AuditLogId = data.Guid,
                 data.AuditLogAction,
                 KeyFieldId = String.Concat(data.TableName,"Id : ", data.KeyFieldId),
-                OldValue = !(data.OldValue is null) ? JsonConvert.DeserializeObject(data.OldValue) : null,
-                NewValue = JsonConvert.DeserializeObject(data.NewValue),
+                OldValue = oldValue,
+                NewValue = newValue,
                 CreatedBy = createdBy,
                 Username = username,
                 CreatedOn = data.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat)
