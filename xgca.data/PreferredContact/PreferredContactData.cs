@@ -38,14 +38,17 @@ namespace xgca.data.PreferredContact
             return result > 0 ? true : false;
         }
 
-        public async Task<bool> Delete(string key)
+        public async Task<bool> Delete(string key, int deletedBy)
         {
             var contact = await _context.PreferredContacts
                 .SingleOrDefaultAsync(x => x.Guid == Guid.Parse(key));
 
             if (contact is null) { return false; }
 
-            _context.PreferredContacts.Remove(contact);
+            contact.IsDeleted = 1;
+            contact.DeletedBy = deletedBy;
+            contact.DeletedOn = DateTime.UtcNow;
+
             var result = await _context.SaveChangesAsync();
 
             return result > 0 ? true : false;
