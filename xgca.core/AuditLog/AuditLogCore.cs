@@ -249,49 +249,41 @@ namespace xgca.core.AuditLog
                 createdBy = data.CreatedByName;
             }
 
+            var log = new DetailsAuditLogModel
+            {
+                AuditLogId = data.Guid.ToString(),
+                AuditLogAction=  data.AuditLogAction,
+                KeyFieldId = String.Concat(data.TableName, "Id : ", data.KeyFieldId),
+                CreatedBy = createdBy,
+                Username = username,
+                CreatedOn = data.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat)
+            };
+
             dynamic oldValue = null;
             dynamic newValue = null;
             if (!(data.OldValue is null))
             {
-                if (!(data.OldValue.Contains("{\\")))
+                if (!(data.OldValue.Contains("{")))
                 {
-                    oldValue = new
-                    {
-                        OldValue = JsonConvert.DeserializeObject(data.OldValue)
-                    };
+                    log.OldValue = (data.OldValue.Contains("\"")) ? JsonConvert.DeserializeObject(data.OldValue) : JsonConvert.DeserializeObject(JsonConvert.SerializeObject(data.OldValue));
                 }
                 else
                 {
-                    oldValue = JsonConvert.DeserializeObject(data.OldValue);
+                    log.OldValue = JsonConvert.DeserializeObject(data.OldValue);
                 }
             }
 
             if (!(data.NewValue is null))
             {
-                if (!(data.NewValue.Contains("{\\")))
+                if (!(data.NewValue.Contains("{")))
                 {
-                    newValue = new
-                    {
-                        NewValue = JsonConvert.DeserializeObject(data.NewValue)
-                    };
+                    log.NewValue = (data.NewValue.Contains("\"")) ? JsonConvert.DeserializeObject(data.NewValue) : JsonConvert.DeserializeObject(JsonConvert.SerializeObject(data.NewValue));
                 }
                 else
                 {
-                    newValue = JsonConvert.DeserializeObject(data.NewValue);
+                    log.NewValue = JsonConvert.DeserializeObject(data.NewValue);
                 }
             }
-
-            var log = new
-            {
-                AuditLogId = data.Guid,
-                data.AuditLogAction,
-                KeyFieldId = String.Concat(data.TableName,"Id : ", data.KeyFieldId),
-                OldValue = oldValue,
-                NewValue = newValue,
-                CreatedBy = createdBy,
-                Username = username,
-                CreatedOn = data.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat)
-            };
 
             return _general.Response(new { AuditLog = log }, 200, "Audit log details has been displayed", true);
         }
