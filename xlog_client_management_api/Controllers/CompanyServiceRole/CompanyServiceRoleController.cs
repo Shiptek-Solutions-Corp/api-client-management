@@ -65,6 +65,21 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
             return Ok(response);
         }
 
+        [Route("company/services/role/{companyServiceId}/download")]
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [TokenAuthorize("scope", "groupUser.get")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> DownloadCompanyServiceByCompanyId(string companyServiceId)
+        {
+            var response = await _companyServiceRole.DownloadByCompanyServiceId(companyServiceId);
+            var fileName = $"UserGroups_{DateTime.Now:yyyyMMddhhmmss}.xlsx";
+
+            return File(response, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+
         [Route("company/services/role/company/{companyId}")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]

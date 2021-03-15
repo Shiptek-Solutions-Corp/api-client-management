@@ -20,6 +20,9 @@ using Castle.Core.Internal;
 using xgca.core.AuditLog;
 using xgca.data.AuditLog;
 using xgca.data.User;
+using ClosedXML.Excel;
+using System.IO;
+using System.Data;
 
 namespace xgca.core.CompanyServiceRole
 {
@@ -28,6 +31,7 @@ namespace xgca.core.CompanyServiceRole
         Task<IGeneralModel> Create(CreateCompanyServiceRoleModel obj);
         Task<IGeneralModel> CreateDefault(int companyId, int userId);
         Task<IGeneralModel> ListByCompanyServiceId(string key);
+        Task<byte[]> DownloadByCompanyServiceId(string key);
         Task<IGeneralModel> ListByCompany(string key, int status);
         Task<IGeneralModel> Show(Guid companyServiceRoleId);
         Task<IGeneralModel> Update(UpdateCompanyServiceRoleModel updateCompanyServiceRoleModel, Guid companyServiceRoleId);
@@ -336,6 +340,40 @@ namespace xgca.core.CompanyServiceRole
             return result 
                 ? _general.Response(null, 200, "Updated Successfuly", true) 
                 : _general.Response(null, 400, "An error occured", true);
+        }
+
+        public async Task<byte[]> DownloadByCompanyServiceId(string key)
+        {
+            int companyId = await _companyData.GetIdByGuid(Guid.Parse(key));
+            var result = await _companyServiceRole.ListByCompanyId(companyId, -1);
+            var services = await gLobalCmsService.GetAllService();
+            var viewCompanyServiceRole = result.CompanyServiceRoles.Select(c => _mapper.Map<GetCompanyServiceRoleModel>(c)).ToList();
+            foreach (var companyServiceRole in viewCompanyServiceRole)
+            {
+                companyServiceRole.CompanyServices.ServiceName = services.Where(c => c.IntServiceId == companyServiceRole.CompanyServices.ServiceId).FirstOrDefault().ServiceName;
+            }
+
+            var table = new DataTable { TableName = "ServiceRates" };
+            table.Columns.Add("Service", typeof(string));
+            table.Columns.Add("Group Name", typeof(string));
+            table.Columns.Add("Description", typeof(string));
+            table.Columns.Add("Status", typeof(string));
+
+            for (int i = 0; i < viewCompanyServiceRole.Count; i++)
+            {
+                table.Rows.Add(
+                    viewCompanyServiceRole[i]?.CompanyServices?.ServiceName,
+                    viewCompanyServiceRole[i]?.Name,
+                    viewCompanyServiceRole[i]?.Description,
+                    viewCompanyServiceRole[i]?.IsActive == 1 ? "Active" : "Inactive"
+                );
+            }
+
+            var wb = new XLWorkbook();
+            wb.Worksheets.Add(table);
+            await using var memoryStream = new MemoryStream();
+            wb.SaveAs(memoryStream);
+            return memoryStream.ToArray();
         }
     }
 }
