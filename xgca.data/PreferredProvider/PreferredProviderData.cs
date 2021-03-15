@@ -46,6 +46,7 @@ namespace xgca.data.PreferredProvider
         public async Task<List<entity.Models.PreferredProvider>> List()
         {
             var providers = await _context.PreferredProviders.AsNoTracking()
+                .Where(x => x.IsDeleted == 0)
                 .ToListAsync();
 
             return providers;
@@ -54,7 +55,7 @@ namespace xgca.data.PreferredProvider
         public async Task<List<entity.Models.PreferredProvider>> ListByServiceId(string serviceId, int pageNumber, int pageSize)
         {
             var providers = await _context.PreferredProviders.AsNoTracking()
-                .Where(x => x.ServiceId == serviceId)
+                .Where(x => x.ServiceId == serviceId && x.IsDeleted == 0)
                 .Skip(pageSize * pageNumber)
                 .Take(pageSize)
                 .ToListAsync();
@@ -65,7 +66,7 @@ namespace xgca.data.PreferredProvider
         public async Task<List<entity.Models.PreferredProvider>> ListByProfileId(int profileId)
         {
             var providers = await _context.PreferredProviders.AsNoTracking()
-                .Where(x => x.ProfileId == profileId)
+                .Where(x => x.ProfileId == profileId && x.IsDeleted == 0)
                 .ToListAsync();
 
             return providers;
@@ -74,7 +75,7 @@ namespace xgca.data.PreferredProvider
         public async Task<List<entity.Models.PreferredProvider>> ListByProfileId(int profileId, int pageNumber, int pageSize)
         {
             var providers = await _context.PreferredProviders.AsNoTracking()
-                .Where(x => x.ProfileId == profileId)
+                .Where(x => x.ProfileId == profileId && x.IsDeleted == 0)
                 .Skip(pageSize * pageNumber)
                 .Take(pageSize)
                 .ToListAsync();
@@ -147,7 +148,7 @@ namespace xgca.data.PreferredProvider
         public async Task<bool> CheckIfExists(int profileId, string serviceId, string companyId, string companyServiceId)
         {
             var provider = await _context.PreferredProviders.AsNoTracking()
-                .Where(x => x.ProfileId == profileId && x.ServiceId == serviceId && x.CompanyId == companyId && x.CompanyServiceId == companyServiceId)
+                .Where(x => x.ProfileId == profileId && x.ServiceId == serviceId && x.CompanyId == companyId && x.CompanyServiceId == companyServiceId && x.IsDeleted == 0)
                 .FirstOrDefaultAsync();
 
             return (provider is null) ? false : true;
@@ -156,7 +157,7 @@ namespace xgca.data.PreferredProvider
         public async Task<List<string>> GetCompanyServiceIdByProfileId(int profileId)
         {
             var companyServiceIds = await _context.PreferredProviders.AsNoTracking()
-                .Where(x => x.ProfileId == profileId)
+                .Where(x => x.ProfileId == profileId && x.IsDeleted == 0)
                 .Select(o => o.CompanyServiceId)
                 .ToListAsync();
 
@@ -166,7 +167,7 @@ namespace xgca.data.PreferredProvider
         public async Task<List<entity.Models.PreferredProvider>> GetPreferredProvidersByQuickSearch(int profileId, List<string> companyServiceIds, int pageNumber, int pageSize)
         {
             var providers = await _context.PreferredProviders.AsNoTracking()
-                .Where(x => x.ProfileId == profileId && companyServiceIds.Contains(x.CompanyServiceId))
+                .Where(x => x.ProfileId == profileId && companyServiceIds.Contains(x.CompanyServiceId) && x.IsDeleted == 0)
                 .Skip(pageSize * pageNumber)
                 .Take(pageSize)
                 .ToListAsync();
@@ -177,7 +178,7 @@ namespace xgca.data.PreferredProvider
         public async Task<int> GetRecordCount(int profileId, List<string> compayServiceIds)
         {
             int recordCount = await _context.PreferredProviders.AsNoTracking()
-                .Where(x => x.ProfileId == profileId && compayServiceIds.Contains(x.CompanyServiceId))
+                .Where(x => x.ProfileId == profileId && compayServiceIds.Contains(x.CompanyServiceId) && x.IsDeleted == 0)
                 .Select(o => o.PreferredProviderId)
                 .CountAsync();
 
@@ -195,7 +196,7 @@ namespace xgca.data.PreferredProvider
                 predicate.And(x => filteredProviderIds.Contains(x.PreferredProviderId));
             }
 
-            predicate = predicate.And(x => x.ProfileId == profileId);
+            predicate = predicate.And(x => x.ProfileId == profileId && x.IsDeleted == 0);
 
             List<string> companyServiceIds = await _context.PreferredProviders.AsNoTracking()
                 .Where(predicate)
@@ -208,7 +209,7 @@ namespace xgca.data.PreferredProvider
         public async Task<List<entity.Models.PreferredProvider>> List(int profileId, string companyGuid)
         {
             var providers = await _context.PreferredProviders.AsNoTracking()
-                .Where(x => x.ProfileId == profileId && x.CompanyId == companyGuid)
+                .Where(x => x.ProfileId == profileId && x.CompanyId == companyGuid && x.IsDeleted == 0)
                 .ToListAsync();
 
             return providers;

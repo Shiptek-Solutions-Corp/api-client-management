@@ -57,12 +57,12 @@ namespace xgca.data.PreferredContact
         public async Task<(List<GuestContacts>, List<string>)> GetGuestIds(int profileId)
         {
             var guestIds = await _context.PreferredContacts.AsNoTracking()
-                .Where(pc => pc.ProfileId == profileId && pc.ContactType == 2)
+                .Where(pc => pc.ProfileId == profileId && pc.ContactType == 2 && pc.IsDeleted == 0)
                 .Select(x => x.GuestId)
                 .ToListAsync();
 
             var guests = await _context.PreferredContacts.AsNoTracking()
-                .Where(pc => pc.ProfileId == profileId && pc.ContactType == 2)
+                .Where(pc => pc.ProfileId == profileId && pc.ContactType == 2 && pc.IsDeleted == 0)
                 .Select(x => new GuestContacts
                 {
                     PreferredContactId = x.Guid.ToString(),
@@ -96,11 +96,11 @@ namespace xgca.data.PreferredContact
         public async Task<(List<RegisteredContacts>, List<string>)> GetRegisteredIds(int profileId)
         {
             var registeredIds = await _context.PreferredContacts
-                .Where(pc => pc.ProfileId == profileId && pc.ContactType == 1)
+                .Where(pc => pc.ProfileId == profileId && pc.ContactType == 1 && pc.IsDeleted == 0)
                 .Select(x => x.CompanyId).ToListAsync();
 
             var registered = await _context.PreferredContacts
-                .Where(pc => pc.ProfileId == profileId && pc.ContactType == 1)
+                .Where(pc => pc.ProfileId == profileId && pc.ContactType == 1 && pc.IsDeleted == 0)
                 .Select(x => new RegisteredContacts
                 {
                     PreferredContactId = x.Guid.ToString(),
@@ -178,7 +178,7 @@ namespace xgca.data.PreferredContact
 
         public async Task<bool> CheckIfContactAlreadyAdded(string companyGuid, int profileId)
         {
-            var contact = await _context.PreferredContacts.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyId == companyGuid && x.ProfileId == profileId);
+            var contact = await _context.PreferredContacts.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyId == companyGuid && x.ProfileId == profileId && x.IsDeleted == 0);
 
             return (contact is null) ? false : true;
         }
