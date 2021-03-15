@@ -95,9 +95,11 @@ namespace xgca.core.PreferredProvider
 
         }
 
-        public async Task<IGeneralModel> DeleteProvider(string key)
+        public async Task<IGeneralModel> DeleteProvider(string key, string username)
         {
-            var result = await _preferredProvider.Delete(key);
+            int deletedBy = await _user.GetIdByUsername(username);
+
+            var result = await _preferredProvider.Delete(key, deletedBy);
             if(!result)
             {
                 return _general.Response(null, 400, "Preferred provider does not exists or may have already been deleted", false);

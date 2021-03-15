@@ -27,14 +27,17 @@ namespace xgca.data.PreferredProvider
             return result > 0 ? true : false;
         }
 
-        public async Task<bool> Delete(string key)
+        public async Task<bool> Delete(string key, int deletedBy)
         {
             var provider = _context.PreferredProviders
                 .Where(x => x.Guid == Guid.Parse(key)).FirstOrDefault();
 
             if (provider is null) { return false; }
 
-            _context.PreferredProviders.Remove(provider);
+            provider.IsDeleted = 1;
+            provider.DeletedBy = deletedBy;
+            provider.DeletedOn = DateTime.UtcNow;
+            
             var result = await _context.SaveChangesAsync();
 
             return result > 0 ? true : false;

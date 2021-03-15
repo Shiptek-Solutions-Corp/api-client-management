@@ -96,7 +96,8 @@ namespace xlog_client_management_api.Controllers.PreferredContact
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> DeletePreferredContact([FromRoute] string preferredContactId)
         {
-            var response = await _preferredContact.DeleteContact(preferredContactId);
+            var username = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
+            var response = await _preferredContact.DeleteContact(preferredContactId, username);
 
             if (response.statusCode == 400)
             {

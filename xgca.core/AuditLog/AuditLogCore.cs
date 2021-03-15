@@ -248,18 +248,42 @@ namespace xgca.core.AuditLog
                 username = (user is null) ? "System" : (user.Username is null ? "Not Set" : user.Username);
                 createdBy = data.CreatedByName;
             }
-            
-            var log = new
+
+            var log = new DetailsAuditLogModel
             {
-                AuditLogId = data.Guid,
-                data.AuditLogAction,
-                KeyFieldId = String.Concat(data.TableName,"Id : ", data.KeyFieldId),
-                OldValue = !(data.OldValue is null) ? JsonConvert.DeserializeObject(data.OldValue) : null,
-                NewValue = JsonConvert.DeserializeObject(data.NewValue),
+                AuditLogId = data.Guid.ToString(),
+                AuditLogAction=  data.AuditLogAction,
+                KeyFieldId = String.Concat(data.TableName, "Id : ", data.KeyFieldId),
                 CreatedBy = createdBy,
                 Username = username,
                 CreatedOn = data.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat)
             };
+
+            dynamic oldValue = null;
+            dynamic newValue = null;
+            if (!(data.OldValue is null))
+            {
+                if (!(data.OldValue.Contains("{")))
+                {
+                    log.OldValue = (data.OldValue.Contains("\"")) ? JsonConvert.DeserializeObject(data.OldValue) : JsonConvert.DeserializeObject(JsonConvert.SerializeObject(data.OldValue));
+                }
+                else
+                {
+                    log.OldValue = JsonConvert.DeserializeObject(data.OldValue);
+                }
+            }
+
+            if (!(data.NewValue is null))
+            {
+                if (!(data.NewValue.Contains("{")))
+                {
+                    log.NewValue = (data.NewValue.Contains("\"")) ? JsonConvert.DeserializeObject(data.NewValue) : JsonConvert.DeserializeObject(JsonConvert.SerializeObject(data.NewValue));
+                }
+                else
+                {
+                    log.NewValue = JsonConvert.DeserializeObject(data.NewValue);
+                }
+            }
 
             return _general.Response(new { AuditLog = log }, 200, "Audit log details has been displayed", true);
         }

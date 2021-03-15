@@ -12,6 +12,6 @@ namespace xgca.core.PreferredProvider
         Task<IGeneralModel> List(int profileId, string filters, string sortBy, string sortOrder, int pageNumber, int pageSize, int recordCount);
         Task<IGeneralModel> AddPreferredProviders(BatchCreatePreferredProvider providers, int profileId, string createdBy);
         Task<IGeneralModel> QuickSearch(string search, int profileId, string filters, string sortBy, string sortOrder, int pageNumber, int pageSize, int recordCount);
-        Task<IGeneralModel> DeleteProvider(string key);
+        Task<IGeneralModel> DeleteProvider(string key, string username);
     }
 }

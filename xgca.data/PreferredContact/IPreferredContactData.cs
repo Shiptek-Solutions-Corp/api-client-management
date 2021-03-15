@@ -17,7 +17,7 @@ namespace xgca.data.PreferredContact
         Task<entity.Models.PreferredContact> Retrieve(Guid guid);
         Task<(List<GuestContacts>, List<string>)> GetGuestIds(int profileId);
         Task<(List<RegisteredContacts>, List<string>)> GetRegisteredIds(int profileId);
-        Task<bool> Delete(string key);
+        Task<bool> Delete(string key, int deletedBy);
         Task<List<entity.Models.PreferredContact>> GetContactsByQuickSearch(int profileId, List<string> guestIds, List<string> registeredIds, int pageNumber, int pageSize);
         Task<bool> CheckIfContactAlreadyAdded(string companyGuid, int profileId);
     }
