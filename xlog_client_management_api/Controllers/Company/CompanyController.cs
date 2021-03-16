@@ -281,6 +281,22 @@ namespace xlog_company_service_api.Controllers.Company
             return Ok(response);
         }
 
+        [Route("company/profile/logs/download")]
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> DownloadCompanyProfileLogs()
+        {
+            var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
+            var response = await _company.DownloadCompanyProfileLogs(Convert.ToInt32(companyId));
+
+            var fileName = $"CompanyProfileLogs_{DateTime.Now:yyyyMMddhhmmss}.xlsx";
+
+            return File(response, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+
         [Route("company/{companyId}/logs")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
