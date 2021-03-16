@@ -72,9 +72,9 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> DownloadCompanyServiceByCompanyId(string companyServiceId)
+        public async Task<IActionResult> DownloadCompanyServiceByCompanyId(string companyId)
         {
-            var response = await _companyServiceRole.DownloadByCompanyServiceId(companyServiceId);
+            var response = await _companyServiceRole.DownloadByCompanyServiceId(companyId);
             var fileName = $"UserGroups_{DateTime.Now:yyyyMMddhhmmss}.xlsx";
 
             return File(response, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
