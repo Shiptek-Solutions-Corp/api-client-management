@@ -65,7 +65,7 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
             return Ok(response);
         }
 
-        [Route("company/services/role/{companyServiceId}/download")]
+        [Route("company/services/role/{companyId}/download")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [TokenAuthorize("scope", "groupUser.get")]
