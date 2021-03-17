@@ -26,6 +26,9 @@ using xgca.core.Models.CompanyServiceRole;
 using xgca.data.Company;
 using Microsoft.IdentityModel.Tokens;
 using Castle.Core.Internal;
+using System.Data;
+using ClosedXML.Excel;
+using System.IO;
 
 namespace xgca.core.User
 {
@@ -53,6 +56,7 @@ namespace xgca.core.User
         Task<IGeneralModel> GetUserByReferenceId(int id);
         Task<IGeneralModel> ListUserLogs(string? userKey, string? username);
         Task<IGeneralModel> GetUserCounts(List<int> userIds);
+        Task<byte[]> DownloadUserProfileLogs(string username);
     }
     public class User : 
         IUser
@@ -384,6 +388,11 @@ namespace xgca.core.User
                 foreach (var role in obj.Roles)
                 {
                     //    //int companyServiceRoleId = await _companyServiceRole.RetrieveAdministratorId(companyService.CompanyServiceId);
+                    if (role.companyServiceId is null || role.companyServiceRoleId is null || role.companyServiceUserId is null)
+                    {
+                        return _general.Response(null, 400, "One of the required reference ids is null", false);
+                    }
+
                     int companyServiceId = await _companyService.GetIdByGuid(Guid.Parse(role.companyServiceId));
                     int companyServiceRoleId = await _companyServiceRole.GetIdByGuid(Guid.Parse(role.companyServiceRoleId));
                     int companyServiceUserId = await _companyServiceUser.GetIdByGuid(Guid.Parse(role.companyServiceUserId));
@@ -927,6 +936,38 @@ namespace xgca.core.User
         {
             var user = await _userData.GetUserByEmail(email);
             return user;
+        }
+
+        public async Task<byte[]> DownloadUserProfileLogs(string username)
+        {
+            int userId = await _userData.GetIdByUsername(username);
+            var logs = await _auditLog.ListByTableNameAndKeyFieldId("User", userId);
+
+            var table = new DataTable { TableName = "AuditLogs" };
+            table.Columns.Add("Updated By", typeof(string));
+            table.Columns.Add("Date", typeof(string));
+            table.Columns.Add("Time", typeof(string));
+            table.Columns.Add("Action", typeof(string));
+            table.Columns.Add("From", typeof(string));
+            table.Columns.Add("To", typeof(string));
+
+            for (int i = 0; i < logs.Count; i++)
+            {
+                table.Rows.Add(
+                    logs[i]?.CreatedByName,
+                    logs[i]?.CreatedOn.ToString("yyyy-MM-dd"),
+                    logs[i]?.CreatedOn.ToString("hh:mm tt"),
+                    logs[i]?.AuditLogAction,
+                    logs[i]?.OldValue,
+                    logs[i]?.NewValue
+                );
+            }
+
+            var wb = new XLWorkbook();
+            wb.Worksheets.Add(table);
+            await using var memoryStream = new MemoryStream();
+            wb.SaveAs(memoryStream);
+            return memoryStream.ToArray();
         }
     }
 }
