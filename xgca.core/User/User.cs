@@ -253,7 +253,7 @@ namespace xgca.core.User
             await _coreAuditLog.CreateAuditLog("Create", user.GetType().Name, newUserId, createdById, obj, null);
 
             return newUserId > 0
-                ? _general.Response(new { userGuid = newUserGuid }, 200, "User created", false)
+                ? _general.Response(new { userGuid = newUserGuid }, 200, "User created", true)
                 : _general.Response(false, 400, "Data cannot be null", false);
         }
         public async Task<dynamic> CreateMasterUser(CreateUserModel obj, int createdBy)
