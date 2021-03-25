@@ -705,16 +705,15 @@ namespace xgca.core.User
         {
             int userId = await _userData.GetIdByGuid(Guid.Parse(key));
             var data = await _userData.Retrieve(userId);
-            int companyUsersId = await _coreCompanyUser.GetIdByUserId(userId);
-            var companyServiceUsers = await _coreCompanyServiceUser.ListUserServiceRolesByCompanyUserId(companyUsersId);
 
+            var companyUser = await _coreCompanyUser.GetByUserId(userId);
+
+            var companyServiceUsers = await _coreCompanyServiceUser.ListUserServiceRolesByCompanyUserId(companyUser?.CompanyUserId);
 
             if (data == null)
             {
                 return _general.Response(null, 400, "Selected user might have been deleted or does not exists", false);
             }
-
-
 
             var result = new
             {
@@ -727,6 +726,7 @@ namespace xgca.core.User
                 data.Status,
                 data.ImageURL,
                 data.EmailAddress,
+                CompanyUserId = companyUser?.Guid,
                 ContactDetailId = data.ContactDetails.Guid,
                 Phone = new
                 {

@@ -21,6 +21,24 @@ using xgca.core.Constants;
 
 namespace xgca.core.CompanyUser
 {
+    public interface ICompanyUser
+    {
+        Task<IGeneralModel> ListByCompanyId(string key);
+        Task<IGeneralModel> ListByCompanyId(int companyId);
+        Task<IGeneralModel> ListByCompanyIdAndFilter(string query, int companyId);
+        Task<byte[]> DownloadUsersExcel(string query, int companyId);
+        Task<IGeneralModel> Create(CreateCompanyUserModel obj);
+        Task<int> CreateDefaultCompanyUser(int companyId, int masterUserId, int createdBy);
+        Task<IGeneralModel> Update(UpateCompanyUserModel obj);
+        Task<int> GetCompanyIdByUserId(int key);
+        Task<IGeneralModel> CreateAndReturnId(CreateCompanyUserModel obj);
+        Task<int> GetIdByUserId(int key);
+        Task<int> GetIdByGuid(Guid guid);
+        Task<dynamic> GetByUserId(int key);
+        Task<IGeneralModel> GetCompanyMasterUser(int companyId, int userTypeId);
+
+    }
+
     public class CompanyUser : ICompanyUser
     {
         private readonly xgca.data.CompanyUser.ICompanyUser _companyUser;
@@ -400,6 +418,18 @@ namespace xgca.core.CompanyUser
         public Task<IGeneralModel> GetCompanyMasterUser(int companyId, int userTypeId)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<dynamic> GetByUserId(int key)
+        {
+            var companyUser = await _companyUser.GetByUserId(key);
+            return companyUser;
+        }
+
+        public async Task<int> GetIdByGuid(Guid guid)
+        {
+            int id = await _companyUser.GetIdByGuid(guid);
+            return id;
         }
     }
 }

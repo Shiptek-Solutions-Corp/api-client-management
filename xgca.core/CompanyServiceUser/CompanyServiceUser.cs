@@ -19,12 +19,14 @@ using xgca.data.Company;
 using xgca.data.User;
 using AutoMapper;
 using xgca.entity.Models;
+using xgca.core.CompanyUser;
 
 namespace xgca.core.CompanyServiceUser
 {
     public interface ICompanyServiceUser
     {
         Task<bool> CreateDefault(int companyId, int companyUserId, int createdBy);
+        Task<IGeneralModel> CreateCompanyServiceUser(CreateCompanyServiceUserModel createCompanyServiceUserModel);
         Task<IGeneralModel> ListUserServiceRolesByCompanyId(int companyId);
         Task<IGeneralModel> ListUserServiceRolesByCompanyId(string companyKey);
         Task<IGeneralModel> ListUserServiceRolesByCompanyUserId(int companyUserId);
@@ -50,8 +52,12 @@ namespace xgca.core.CompanyServiceUser
         private readonly IUserHelper _userHelper;
         private readonly IGeneral _general;
         private readonly IMapper mapper;
+        private readonly ICompanyUser companyUser;
 
-        public CompanyServiceUser(ICompanyData companyData, xgca.data.CompanyServiceRole.ICompanyServiceRole companyServiceRole,
+        public CompanyServiceUser(
+            ICompanyData companyData,
+            ICompanyUser companyUser,
+            xgca.data.CompanyServiceRole.ICompanyServiceRole companyServiceRole,
             xgca.data.CompanyServiceUser.ICompanyServiceUser companyServiceUser,
             xgca.data.CompanyService.ICompanyService companyService, IUserData userData,
             IHttpHelper httpHelper, IOptions<GlobalCmsService> options, IUserHelper userHelper, IGeneral general,
@@ -67,6 +73,37 @@ namespace xgca.core.CompanyServiceUser
             _userHelper = userHelper;
             _general = general;
             this.mapper = mapper;
+            this.companyUser = companyUser;
+        }
+
+        public async Task<IGeneralModel> CreateCompanyServiceUser(CreateCompanyServiceUserModel createCompanyServiceUserModel)
+        {
+            int companyId = await _companyData.GetIdByGuid(Guid.Parse(createCompanyServiceUserModel.CompanyId));
+            int companyServiceId = await _companyService.GetIdByGuid(Guid.Parse(createCompanyServiceUserModel.CompanyServiceId));
+            int companyServiceRoleId = await _companyServiceRole.GetIdByGuid(Guid.Parse(createCompanyServiceUserModel.CompanyServiceRoleId));
+            int companyUserId = await companyUser.GetIdByGuid(Guid.Parse(createCompanyServiceUserModel.CompanyUserId));
+
+            var result = await _companyServiceUser.ValidateAndCreate(new entity.Models.CompanyServiceUser { 
+                CompanyId = companyId,
+                CompanyServiceId = companyServiceId,
+                CompanyServiceRoleId = companyServiceRoleId,
+                CompanyUserId = companyUserId,
+                IsActive = 1,
+                IsLocked = 0,
+                CreatedBy = 1,
+                CreatedOn = DateTime.UtcNow,
+                ModifiedBy = 1,
+                ModifiedOn = DateTime.UtcNow,
+                Guid = Guid.NewGuid(),
+                IsMasterUser = 0
+            });
+
+            if (result.Item1 == false && !string.IsNullOrEmpty(result.error))
+            {
+                return _general.Response(null, 400, result.error, false);
+            }
+
+            return _general.Response(null, 200, "Role successfully added.", true);
         }
 
         public async Task<bool> CreateDefault(int companyId, int companyUserId, int createdBy)

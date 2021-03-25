@@ -15,6 +15,7 @@ namespace xgca.data.CompanyServiceUser
     {
         Task<bool> BulkCreate(List<entity.Models.CompanyServiceUser> obj);
         Task<bool> Create(List<entity.Models.CompanyServiceUser> obj);
+        Task<(bool, string error)> ValidateAndCreate(entity.Models.CompanyServiceUser obj);
         Task<bool> Create(entity.Models.CompanyServiceUser obj);
         Task<List<entity.Models.CompanyServiceUser>> List();
         Task<List<entity.Models.CompanyServiceUser>> ListByCompanyServiceId(int companyServiceId);
@@ -257,6 +258,25 @@ namespace xgca.data.CompanyServiceUser
             var result = await  _context.SaveChangesAsync();
 
             return result > 0 ? true : false;
+        }
+
+        public async Task<(bool, string error)> ValidateAndCreate(entity.Models.CompanyServiceUser obj)
+        {
+            var validate = await _context.CompanyServiceUsers.Where(cs => 
+                     (cs.CompanyServiceId == obj.CompanyServiceId || cs.CompanyServiceRoleId == obj.CompanyServiceRoleId)
+                     && cs.CompanyUserId == obj.CompanyUserId
+                 ).FirstOrDefaultAsync();
+
+            if (validate != null)
+            {
+                return (false, "User has already existing role");
+            }
+
+            await _context.CompanyServiceUsers.AddAsync(obj);
+
+            var result = await _context.SaveChangesAsync();
+
+            return (result > 0 ? true : false, "");
         }
     }
 }
