@@ -55,6 +55,7 @@ namespace xgca.core.User
         Task<entity.Models.User> GetUserByEmail(string email);
         Task<IGeneralModel> GetUserByReferenceId(int id);
         Task<IGeneralModel> ListUserLogs(string? userKey, string? username);
+        Task<byte[]> DownloadUserLogs(string? userKey, string? username);
         Task<IGeneralModel> GetUserCounts(List<int> userIds);
         Task<byte[]> DownloadUserProfileLogs(string username);
     }
@@ -909,7 +910,9 @@ namespace xgca.core.User
                     CreatedBy = (d.CreatedBy == 0) ? "System" : d.CreatedByName,
                     Username = d.CreatedBy != 0 ? (!(user.Username is null) ? user.Username : "Not Set") : "system",
                     //Username = !(user.Username is null) ? (auditLog.CreatedBy == 0 ? "system" : user.Username) : "Not Set",
-                    CreatedOn = d.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat)
+                    CreatedOn = d.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat),
+                    OldValue = d.OldValue,
+                    NewValue = d.NewValue
                 });
             }
 
@@ -960,6 +963,35 @@ namespace xgca.core.User
                     logs[i]?.AuditLogAction,
                     logs[i]?.OldValue,
                     logs[i]?.NewValue
+                );
+            }
+
+            var wb = new XLWorkbook();
+            wb.Worksheets.Add(table);
+            await using var memoryStream = new MemoryStream();
+            wb.SaveAs(memoryStream);
+            return memoryStream.ToArray();
+        }
+
+        public async Task<byte[]> DownloadUserLogs(string userKey, string username)
+        {
+            var logs = await ListUserLogs(userKey, username);
+
+            var table = new DataTable { TableName = "AuditLogs" };
+            table.Columns.Add("Updated By", typeof(string));
+            table.Columns.Add("Date and Time", typeof(string));
+            table.Columns.Add("Action", typeof(string));
+            table.Columns.Add("From", typeof(string));
+            table.Columns.Add("To", typeof(string));
+
+            for (int i = 0; i < logs.data?.Logs.Count; i++)
+            {
+                table.Rows.Add(
+                    logs.data?.Logs[i]?.CreatedBy,
+                    logs.data?.Logs[i]?.CreatedOn,
+                    logs.data?.Logs[i]?.AuditLogAction,
+                    logs.data?.Logs[i]?.OldValue,
+                    logs.data?.Logs[i]?.NewValue
                 );
             }
 
