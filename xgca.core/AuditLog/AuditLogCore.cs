@@ -250,23 +250,23 @@ namespace xgca.core.AuditLog
         {
 
             var table = new DataTable { TableName = "ServiceRates" };
+            table.Columns.Add("Date/Time", typeof(string));
             table.Columns.Add("Action", typeof(string));
-            table.Columns.Add("Old Value", typeof(string));
-            table.Columns.Add("New Value", typeof(string));
-            table.Columns.Add("Created By", typeof(string));
-            table.Columns.Add("Created On", typeof(string));
+            table.Columns.Add("Updated By", typeof(string));
             table.Columns.Add("Username", typeof(string));
+            table.Columns.Add("From", typeof(string));
+            table.Columns.Add("To", typeof(string));
 
 
             for (int i = 0; i < logs.data?.Logs.Count; i++)
             {
                 table.Rows.Add(
-                    logs.data?.Logs[i]?.AuditLogAction,
-                    logs.data?.Logs[i]?.NewValue,
-                    logs.data?.Logs[i]?.OldValue,
-                    logs.data?.Logs[i]?.CreatedBy,
                     logs.data?.Logs[i]?.CreatedOn,
-                    logs.data?.Logs[i]?.Username
+                    logs.data?.Logs[i]?.AuditLogAction,
+                    logs.data?.Logs[i]?.CreatedBy,
+                    logs.data?.Logs[i]?.Username,
+                    logs.data?.Logs[i]?.OldValue,
+                    logs.data?.Logs[i]?.NewValue
                 );
             }
 

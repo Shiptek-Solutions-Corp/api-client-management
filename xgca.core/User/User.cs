@@ -947,20 +947,20 @@ namespace xgca.core.User
             var logs = await _auditLog.ListByTableNameAndKeyFieldId("User", userId);
 
             var table = new DataTable { TableName = "AuditLogs" };
+            table.Columns.Add("Date/Time", typeof(string));
+            table.Columns.Add("Actions", typeof(string));
             table.Columns.Add("Updated By", typeof(string));
-            table.Columns.Add("Date", typeof(string));
-            table.Columns.Add("Time", typeof(string));
-            table.Columns.Add("Action", typeof(string));
+            table.Columns.Add("Username", typeof(string));
             table.Columns.Add("From", typeof(string));
             table.Columns.Add("To", typeof(string));
 
             for (int i = 0; i < logs.Count; i++)
             {
                 table.Rows.Add(
-                    logs[i]?.CreatedByName,
-                    logs[i]?.CreatedOn.ToString("yyyy-MM-dd"),
-                    logs[i]?.CreatedOn.ToString("hh:mm tt"),
+                    logs[i]?.CreatedOn,
                     logs[i]?.AuditLogAction,
+                    logs[i]?.CreatedBy,
+                    username,
                     logs[i]?.OldValue,
                     logs[i]?.NewValue
                 );
@@ -978,18 +978,20 @@ namespace xgca.core.User
             var logs = await ListUserLogs(userKey, username);
 
             var table = new DataTable { TableName = "AuditLogs" };
+            table.Columns.Add("Date/Time", typeof(string));
+            table.Columns.Add("Actions", typeof(string));
             table.Columns.Add("Updated By", typeof(string));
-            table.Columns.Add("Date and Time", typeof(string));
-            table.Columns.Add("Action", typeof(string));
+            table.Columns.Add("Username", typeof(string));
             table.Columns.Add("From", typeof(string));
             table.Columns.Add("To", typeof(string));
 
             for (int i = 0; i < logs.data?.Logs.Count; i++)
             {
                 table.Rows.Add(
-                    logs.data?.Logs[i]?.CreatedBy,
                     logs.data?.Logs[i]?.CreatedOn,
                     logs.data?.Logs[i]?.AuditLogAction,
+                    logs.data?.Logs[i]?.CreatedBy,
+                    logs.data?.Logs[i]?.Username,
                     logs.data?.Logs[i]?.OldValue,
                     logs.data?.Logs[i]?.NewValue
                 );
