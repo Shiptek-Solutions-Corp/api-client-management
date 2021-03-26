@@ -740,7 +740,7 @@ namespace xgca.core.User
                     data.ContactDetails.MobilePrefix,
                     data.ContactDetails.Mobile,
                 },
-                Roles = new { companyServiceUsers.data.data }
+                Roles = new { companyServiceUsers?.data?.data }
             };
 
 
