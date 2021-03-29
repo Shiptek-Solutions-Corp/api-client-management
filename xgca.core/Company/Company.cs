@@ -1023,17 +1023,21 @@ namespace xgca.core.Company
 
             var table = new DataTable { TableName = "AuditLogs" };
             table.Columns.Add("Date/Time", typeof(string));
-            table.Columns.Add("Action", typeof(string));
+            table.Columns.Add("Actions", typeof(string));
             table.Columns.Add("Updated By", typeof(string));
             table.Columns.Add("Username", typeof(string));
+            table.Columns.Add("From", typeof(string));
+            table.Columns.Add("To", typeof(string));
 
             for (int i = 0; i < logs.Count; i++)
             {
                 table.Rows.Add(
-                    logs[i]?.CreatedOn.ToString("yyyy-MM-dd hh:mm tt"),
+                    logs[i]?.CreatedOn,
                     logs[i]?.AuditLogAction,
                     logs[i]?.CreatedByName,
-                    logs[i]?.CreatedBy
+                    "system",
+                    logs[i]?.OldValue,
+                    logs[i]?.NewValue
                 );
             }
 

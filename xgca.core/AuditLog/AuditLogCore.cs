@@ -20,6 +20,9 @@ using Microsoft.VisualBasic;
 using DocumentFormat.OpenXml.Office2013.PowerPoint.Roaming;
 using xgca.data.CompanyService;
 using xgca.data.CompanyServiceRole;
+using System.Data;
+using ClosedXML.Excel;
+using System.IO;
 
 namespace xgca.core.AuditLog
 {
@@ -27,12 +30,11 @@ namespace xgca.core.AuditLog
     {
         Task<IGeneralModel> ListByTableNameAndKeyFieldId(string tableName, int keyFieldId);
         Task<IGeneralModel> ListByTableNameAndKeyFieldId(string tableName, string keyFieldId);
-
+        Task<byte[]> DownloadByTableNameAndKeyFieldId(string tableName, string keyFieldId);
         Task<IGeneralModel> RetrieveDetails(string key);
-
         Task<IGeneralModel> CreateAuditLog(string auditLogAction, string tableName, int keyFieldId, int createdBy, dynamic oldObj, dynamic newObj = null);
         Task<IGeneralModel> GetCompanyServiceRoleLogs(string type, string companyServiceGuid, string keyGuid);
-
+        Task<byte[]> DownloadCompanyServiceRoleLogs(string type, string companyServiceGuid, string keyGuid);
         Task<IGeneralModel> BatchCreateAuditLog(List<CreateAuditLog> obj, int modifiedById);
     }
 
@@ -125,6 +127,20 @@ namespace xgca.core.AuditLog
             return result
                 ? _general.Response(null, 200, "Audit log data created!", true)
                 : _general.Response(null, 400, "Failed in creating audit log data!", false);
+        }
+
+        public async Task<byte[]> DownloadByTableNameAndKeyFieldId(string tableName, string keyFieldId)
+        {
+            var data = await ListByTableNameAndKeyFieldId(tableName, keyFieldId);
+
+            return await GenerateExcelFile(data);
+        }
+
+        public async Task<byte[]> DownloadCompanyServiceRoleLogs(string type, string companyServiceGuid, string keyGuid)
+        {
+            var logs = await GetCompanyServiceRoleLogs(type, companyServiceGuid, keyGuid);
+
+            return await GenerateExcelFile(logs);
         }
 
         public async Task<IGeneralModel> GetCompanyServiceRoleLogs(string type, string companyServiceGuid, string keyGuid)
@@ -228,6 +244,37 @@ namespace xgca.core.AuditLog
             }
 
             return _general.Response(new { Logs = logs }, 200, "Configurable audit logs has been listed", true);
+        }
+
+        private async Task<byte[]>  GenerateExcelFile(dynamic logs)
+        {
+
+            var table = new DataTable { TableName = "ServiceRates" };
+            table.Columns.Add("Date/Time", typeof(string));
+            table.Columns.Add("Action", typeof(string));
+            table.Columns.Add("Updated By", typeof(string));
+            table.Columns.Add("Username", typeof(string));
+            table.Columns.Add("From", typeof(string));
+            table.Columns.Add("To", typeof(string));
+
+
+            for (int i = 0; i < logs.data?.Logs.Count; i++)
+            {
+                table.Rows.Add(
+                    logs.data?.Logs[i]?.CreatedOn,
+                    logs.data?.Logs[i]?.AuditLogAction,
+                    logs.data?.Logs[i]?.CreatedBy,
+                    logs.data?.Logs[i]?.Username,
+                    logs.data?.Logs[i]?.OldValue,
+                    logs.data?.Logs[i]?.NewValue
+                );
+            }
+
+            var wb = new XLWorkbook();
+            wb.Worksheets.Add(table);
+            await using var memoryStream = new MemoryStream();
+            wb.SaveAs(memoryStream);
+            return memoryStream.ToArray();
         }
 
         public async Task<IGeneralModel> RetrieveDetails(string key)

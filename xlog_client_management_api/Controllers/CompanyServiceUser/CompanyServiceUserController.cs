@@ -122,5 +122,28 @@ namespace xlog_client_management_api.Controllers.CompanyServiceUser
             return Ok(response);
 
         }
+
+        [Route("company-service-user")]
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> CreateCompanyServiceUser([FromBody] CreateCompanyServiceUserModel createCompanyServiceUserModel)
+        {
+            var response = await _companyServiceUser.CreateCompanyServiceUser(createCompanyServiceUserModel);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+
+        }
     }
 }

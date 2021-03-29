@@ -64,6 +64,28 @@ namespace xlog_client_management_api.Controllers.AuditLog
             return Ok(response);
         }
 
+        [Route("logs/{tableName}/{keyFieldId}/download")]
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> DownloadAuditLogs([FromRoute] string tableName, string keyFieldId)
+        {
+            var response = await _auditLog.ListByTableNameAndKeyFieldId(tableName, keyFieldId);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
         [Route("audit-logs")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -87,6 +109,24 @@ namespace xlog_client_management_api.Controllers.AuditLog
             }
 
             return Ok(response);
+        }
+
+        [Route("audit-logs/acm-group/download")]
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> DownloadCompanyServiceRoleLogs(
+            [FromQuery] string type,
+            [FromQuery] string companyServiceGuid = "",
+            [FromQuery] string keyGuid = "")
+        {
+            var response = await _auditLog.DownloadCompanyServiceRoleLogs(type, companyServiceGuid, keyGuid);
+
+            var fileName = $"ACMGroupsAuditLog_{DateTime.Now:yyyyMMddhhmmss}.xlsx";
+
+            return File(response, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
     }
 }

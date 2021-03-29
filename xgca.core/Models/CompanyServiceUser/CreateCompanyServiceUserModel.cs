@@ -5,5 +5,6 @@
         public string CompanyServiceId { get; set; }
         public string CompanyUserId { get; set; }
         public string CompanyServiceRoleId { get; set; }
+        public string CompanyId { get; set; }
     }
 }

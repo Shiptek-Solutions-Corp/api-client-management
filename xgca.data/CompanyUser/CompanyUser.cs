@@ -9,6 +9,25 @@ using Z.EntityFramework.Plus;
 
 namespace xgca.data.CompanyUser
 {
+    public interface ICompanyUser
+    {
+        Task<bool> Create(entity.Models.CompanyUser obj);
+        Task<int> CreateAndReturnId(entity.Models.CompanyUser obj);
+        Task<List<entity.Models.CompanyUser>> List();
+        Task<List<entity.Models.CompanyUser>> ListByCompanyId(int companyId);
+        Task<entity.Models.CompanyUser> Retrieve(int key);
+        Task<int> GetIdByGuid(Guid guid);
+        Task<int> GetIdByUserId(int userId);
+        Task<entity.Models.CompanyUser> GetByUserId(int userId);
+        Task<int> GetCompanyIdByUserId(int key);
+        Task<bool> Update(entity.Models.CompanyUser obj);
+        Task<bool> ChangeStatus(entity.Models.CompanyUser obj);
+        Task<bool> Delete(int key);
+        Task<List<entity.Models.CompanyUser>> GetAllIdByUserId(int userId);
+        Task<entity.Models.CompanyUser> GetMasterUser(int companyId, int userTypeId);
+        Task<int> HasMasterUser(int companyId);
+    }
+
     public class CompanyUser : IMaintainable<entity.Models.CompanyUser>, ICompanyUser
     {
         private readonly IXGCAContext _context;
@@ -148,6 +167,15 @@ namespace xgca.data.CompanyUser
                 .Where(x => x.CompanyId == companyId).CountAsync();
 
             return count;
+        }
+
+        public async Task<entity.Models.CompanyUser> GetByUserId(int userId)
+        {
+            var data = await _context.CompanyUsers
+                .Where(cu => cu.UserId == userId)
+                .FirstOrDefaultAsync();
+
+            return data;
         }
     }
 }
