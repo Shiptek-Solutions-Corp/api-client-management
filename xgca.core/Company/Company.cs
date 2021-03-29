@@ -1022,22 +1022,18 @@ namespace xgca.core.Company
             var logs = await _auditLog.ListByTableNameAndKeyFieldId("Company", companyId);
 
             var table = new DataTable { TableName = "AuditLogs" };
-            table.Columns.Add("Updated By", typeof(string));
-            table.Columns.Add("Date", typeof(string));
-            table.Columns.Add("Time", typeof(string));
+            table.Columns.Add("Date/Time", typeof(string));
             table.Columns.Add("Action", typeof(string));
-            table.Columns.Add("From", typeof(string));
-            table.Columns.Add("To", typeof(string));
+            table.Columns.Add("Updated By", typeof(string));
+            table.Columns.Add("Username", typeof(string));
 
             for (int i = 0; i < logs.Count; i++)
             {
                 table.Rows.Add(
-                    logs[i]?.CreatedByName,
-                    logs[i]?.CreatedOn.ToString("yyyy-MM-dd"),
-                    logs[i]?.CreatedOn.ToString("hh:mm tt"),
+                    logs[i]?.CreatedOn.ToString("yyyy-MM-dd hh:mm tt"),
                     logs[i]?.AuditLogAction,
-                    logs[i]?.OldValue,
-                    logs[i]?.NewValue
+                    logs[i]?.CreatedByName,
+                    logs[i]?.CreatedBy
                 );
             }
 
