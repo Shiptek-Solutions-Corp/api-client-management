@@ -314,7 +314,7 @@ namespace xgca.core.CompanyService
             int serviceIdFilter = 0;
             if (!(serviceId.IsNullOrEmpty()))
             {
-                var serviceFilter = services.Find(x => x.ServiceId.ToString() == serviceId.ToString());
+                var serviceFilter = services.Find(x => Guid.Parse(x.ServiceId) == Guid.Parse(serviceId));
                 serviceIdFilter = (services is null) ? 0 : serviceFilter.IntServiceId;
             }
             recordCount = await _companyService.GetRecordCount(shipperConsigneeId, serviceIdFilter, existingProviders, search);

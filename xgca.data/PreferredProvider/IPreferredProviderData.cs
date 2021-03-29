@@ -20,7 +20,7 @@ namespace xgca.data.PreferredProvider
         Task<List<string>> ListCompanyServiceIdsByProfileId(int profileId, List<entity.Models.PreferredProvider> filteredProviders);
         Task<bool> Create(List<entity.Models.PreferredProvider> providers);
         Task<bool> CheckIfExists(int profileId, string serviceId, string companyId, string companyServiceId);
-        Task<List<string>> GetCompanyServiceIdByProfileId(int profileId);
+        Task<List<Guid>> GetCompanyServiceIdByProfileId(int profileId);
         Task<List<entity.Models.PreferredProvider>> GetPreferredProvidersByQuickSearch(int profileId, List<string> companyServiceIds, int pageNumber, int pageSize);
         
     }

@@ -154,11 +154,11 @@ namespace xgca.data.PreferredProvider
             return (provider is null) ? false : true;
         }
 
-        public async Task<List<string>> GetCompanyServiceIdByProfileId(int profileId)
+        public async Task<List<Guid>> GetCompanyServiceIdByProfileId(int profileId)
         {
             var companyServiceIds = await _context.PreferredProviders.AsNoTracking()
                 .Where(x => x.ProfileId == profileId && x.IsDeleted == 0)
-                .Select(o => o.CompanyServiceId)
+                .Select(o => Guid.Parse(o.CompanyServiceId))
                 .ToListAsync();
 
             return companyServiceIds;
