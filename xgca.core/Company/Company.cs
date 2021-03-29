@@ -1031,8 +1031,6 @@ namespace xgca.core.Company
             table.Columns.Add("Actions", typeof(string));
             table.Columns.Add("Updated By", typeof(string));
             table.Columns.Add("Username", typeof(string));
-            table.Columns.Add("From", typeof(string));
-            table.Columns.Add("To", typeof(string));
 
             for (int i = 0; i < logs.Count; i++)
             {
@@ -1044,9 +1042,7 @@ namespace xgca.core.Company
                     logs[i]?.CreatedOn,
                     logs[i]?.AuditLogAction,
                     logs[i]?.CreatedByName,
-                    username,
-                    logs[i]?.OldValue,
-                    logs[i]?.NewValue
+                    username
                 );
             }
 

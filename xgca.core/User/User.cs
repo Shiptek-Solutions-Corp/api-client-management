@@ -954,8 +954,6 @@ namespace xgca.core.User
             table.Columns.Add("Actions", typeof(string));
             table.Columns.Add("Updated By", typeof(string));
             table.Columns.Add("Username", typeof(string));
-            table.Columns.Add("From", typeof(string));
-            table.Columns.Add("To", typeof(string));
 
             for (int i = 0; i < logs.Count; i++)
             {
@@ -966,10 +964,8 @@ namespace xgca.core.User
                 table.Rows.Add(
                     logs[i]?.CreatedOn,
                     logs[i]?.AuditLogAction,
-                    uname,
                     logs[i]?.CreatedByName,
-                    logs[i]?.OldValue,
-                    logs[i]?.NewValue
+                    uname
                 );
             }
 
@@ -993,18 +989,14 @@ namespace xgca.core.User
             table.Columns.Add("Actions", typeof(string));
             table.Columns.Add("Updated By", typeof(string));
             table.Columns.Add("Username", typeof(string));
-            table.Columns.Add("From", typeof(string));
-            table.Columns.Add("To", typeof(string));
 
             for (int i = 0; i < logs.data?.Logs.Count; i++)
             {
                 table.Rows.Add(
                     logs.data?.Logs[i]?.CreatedOn,
                     logs.data?.Logs[i]?.AuditLogAction,
-                    logs.data?.Logs[i]?.CreatedBy,
                     logs.data?.Logs[i]?.CreatedByName,
-                    logs.data?.Logs[i]?.OldValue,
-                    logs.data?.Logs[i]?.NewValue
+                    logs.data?.Logs[i]?.CreatedBy
                 );
             }
 
