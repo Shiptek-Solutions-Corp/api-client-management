@@ -1038,7 +1038,7 @@ namespace xgca.core.Company
             {
                 var user = users.SingleOrDefault(x => x.UserId == logs[i]?.CreatedBy);
 
-                string username = (user is null) ? "System" : user.Username;
+                string username = (user is null) ? "system" : user.Username;
 
                 table.Rows.Add(
                     logs[i]?.CreatedOn,

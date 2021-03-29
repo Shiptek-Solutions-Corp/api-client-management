@@ -946,6 +946,9 @@ namespace xgca.core.User
             int userId = await _userData.GetIdByUsername(username);
             var logs = await _auditLog.ListByTableNameAndKeyFieldId("User", userId);
 
+            var createdByIds = await _auditLog.GetCreatedByIds("User", userId);
+            var users = await _userData.GetUsernamesByIds(createdByIds);
+
             var table = new DataTable { TableName = "AuditLogs" };
             table.Columns.Add("Date/Time", typeof(string));
             table.Columns.Add("Actions", typeof(string));
@@ -956,11 +959,15 @@ namespace xgca.core.User
 
             for (int i = 0; i < logs.Count; i++)
             {
+                var user = users.SingleOrDefault(x => x.UserId == logs[i]?.CreatedBy);
+
+                string uname = (user is null) ? "system" : user.Username;
+
                 table.Rows.Add(
                     logs[i]?.CreatedOn,
                     logs[i]?.AuditLogAction,
-                    logs[i]?.CreatedBy,
-                    username,
+                    uname,
+                    logs[i]?.CreatedByName,
                     logs[i]?.OldValue,
                     logs[i]?.NewValue
                 );
@@ -977,6 +984,10 @@ namespace xgca.core.User
         {
             var logs = await ListUserLogs(userKey, username);
 
+            int userId = await _userData.GetIdByUsername(username);
+            var createdByIds = await _auditLog.GetCreatedByIds("User", userId);
+            var users = await _userData.GetUsernamesByIds(createdByIds);
+
             var table = new DataTable { TableName = "AuditLogs" };
             table.Columns.Add("Date/Time", typeof(string));
             table.Columns.Add("Actions", typeof(string));
@@ -991,7 +1002,7 @@ namespace xgca.core.User
                     logs.data?.Logs[i]?.CreatedOn,
                     logs.data?.Logs[i]?.AuditLogAction,
                     logs.data?.Logs[i]?.CreatedBy,
-                    logs.data?.Logs[i]?.Username,
+                    logs.data?.Logs[i]?.CreatedByName,
                     logs.data?.Logs[i]?.OldValue,
                     logs.data?.Logs[i]?.NewValue
                 );
