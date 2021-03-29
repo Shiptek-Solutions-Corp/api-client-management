@@ -19,6 +19,7 @@ namespace xgca.data.AuditLog
         Task<List<entity.Models.AuditLog>> ListByTableNameAndKeyFieldId(string tableName, int keyFieldId);
         Task<List<entity.Models.AuditLog>> GetCompanyServiceRoleLogs(string type, int[] ids, int keyField);
         Task<bool> Create(List<entity.Models.AuditLog> obj);
+        Task<List<int>> GetCreatedByIds(string tableName, int id);
 
     }
     public class AuditLogData : IMaintainable<entity.Models.AuditLog>, IAuditLogData
@@ -109,6 +110,16 @@ namespace xgca.data.AuditLog
             _context.AuditLogs.AddRange(obj);
             var result = await _context.SaveChangesAsync();
             return result > 0 ? true : false;
+        }
+
+        public async Task<List<int>> GetCreatedByIds(string tableName, int id)
+        {
+            List<int> ids = await _context.AuditLogs.AsNoTracking()
+                .Where(x => x.TableName == tableName && x.KeyFieldId == id)
+                .Select(c => c.CreatedBy).Distinct()
+                .ToListAsync();
+
+            return ids;
         }
     }
 }
