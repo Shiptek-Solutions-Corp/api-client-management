@@ -1021,6 +1021,11 @@ namespace xgca.core.Company
         {
             var logs = await _auditLog.ListByTableNameAndKeyFieldId("Company", companyId);
 
+            var createdByIds = await _auditLog.GetCreatedByIds("Company", companyId);
+            var users = await _userData.GetUsernamesByIds(createdByIds);
+            
+
+
             var table = new DataTable { TableName = "AuditLogs" };
             table.Columns.Add("Date/Time", typeof(string));
             table.Columns.Add("Actions", typeof(string));
@@ -1031,11 +1036,15 @@ namespace xgca.core.Company
 
             for (int i = 0; i < logs.Count; i++)
             {
+                var user = users.SingleOrDefault(x => x.UserId == logs[i]?.CreatedBy);
+
+                string username = (user is null) ? "System" : user.Username;
+
                 table.Rows.Add(
                     logs[i]?.CreatedOn,
                     logs[i]?.AuditLogAction,
                     logs[i]?.CreatedByName,
-                    "system",
+                    username,
                     logs[i]?.OldValue,
                     logs[i]?.NewValue
                 );
