@@ -325,7 +325,8 @@ namespace xgca.data.Guest
                     BillerAddress = (c.AddressLine == null) ? "" : $"{c.AddressLine}, {c.CityName}, {c.StateName}, {c.CountryName}",
                     BillerLandline = (c.PhoneNumber == null) ? "" : $"{c.PhoneNumberPrefix}{c.PhoneNumber}",
                     BillerFax = (c.FaxNumber == null) ? "" : $"{c.FaxNumberPrefix}{c.FaxNumber}",
-                    BillerCode = "GUEST"
+                    BillerCode = "GUEST",
+                    BillerCountryId = c.CountryId
                 })
                 .FirstOrDefaultAsync();
 
@@ -344,7 +345,8 @@ namespace xgca.data.Guest
                     CustomerAddress = (c.AddressLine == null) ? "" : $"{c.AddressLine}, {c.CityName}, {c.StateName}, {c.CountryName}",
                     CustomerLandline = (c.PhoneNumber == null) ? "" : $"{c.PhoneNumberPrefix}{c.PhoneNumber}",
                     CustomerFax = (c.FaxNumber == null) ? "" : $"{c.FaxNumberPrefix}{c.FaxNumber}",
-                    CustomerCode = "GUEST"
+                    CustomerCode = "GUEST",
+                    CustomerCountryId = c.CountryId
                 })
                 .FirstOrDefaultAsync();
 

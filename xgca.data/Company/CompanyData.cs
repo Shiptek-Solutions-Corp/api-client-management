@@ -77,6 +77,7 @@ namespace xgca.data.Company
         public string BillerAddress { get; set; }
         public string BillerImage { get; set; }
         public string BillerCode { get; set; }
+        public int BillerCountryId { get; set; }
     }
 
     public class Customer
@@ -88,6 +89,7 @@ namespace xgca.data.Company
         public string CustomerAddress { get; set; }
         public string CustomerImage { get; set; }
         public string CustomerCode { get; set; }
+        public int CustomerCountryId { get; set; }
     }
 
     public class CompanyData : IMaintainable<entity.Models.Company>, ICompanyData
@@ -547,7 +549,8 @@ namespace xgca.data.Company
                     BillerAddress = (c.Addresses.FullAddress == null) ? "" : c.Addresses.FullAddress,
                     BillerLandline = (c.ContactDetails.PhonePrefix == null) ? "" : $"{c.ContactDetails.PhonePrefix}{c.ContactDetails.Phone}",
                     BillerFax = (c.ContactDetails.FaxPrefix == null) ? "" : $"{c.ContactDetails.FaxPrefix}{c.ContactDetails.Fax}",
-                    BillerCode = (c.CompanyCode == null) ? "XLOG" : c.CompanyCode
+                    BillerCode = (c.CompanyCode == null) ? "XLOG" : c.CompanyCode,
+                    BillerCountryId = c.Addresses.CountryId
                 })
                 .FirstOrDefaultAsync();
 
@@ -563,7 +566,8 @@ namespace xgca.data.Company
                     CustomerAddress = (c.Addresses.FullAddress == null) ? "" : c.Addresses.FullAddress,
                     CustomerLandline = (c.ContactDetails.PhonePrefix == null) ? "" : $"{c.ContactDetails.PhonePrefix}{c.ContactDetails.Phone}",
                     CustomerFax = (c.ContactDetails.FaxPrefix == null) ? "" : $"{c.ContactDetails.FaxPrefix}{c.ContactDetails.Fax}",
-                    CustomerCode = (c.CompanyCode == null) ? "XLOG" : c.CompanyCode
+                    CustomerCode = (c.CompanyCode == null) ? "XLOG" : c.CompanyCode,
+                    CustomerCountryId = c.Addresses.CountryId
                 })
                 .FirstOrDefaultAsync();
 
