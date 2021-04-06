@@ -1005,7 +1005,10 @@ namespace xgca.core.Company
                 customer = await _guestData.GetGuestCustomer(customerId);
             }
 
-            return _general.Response(new { Biller = biller, Customer = customer }, 200, "Invoice actors retrieved", true);
+            return _general.Response(new { 
+                Biller = (biller is null) ? new Biller { BillerName = "NotApplicable"} : biller,
+                Customer = (customer is null) ? new Customer { CustomerName = "NotApplicable" } : customer  }, 
+                200, "Invoice actors retrieved", true);
         }
 
         public async Task<IGeneralModel> GetCompanyAndGuestByIds(List<string> guids)
