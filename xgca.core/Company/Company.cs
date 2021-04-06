@@ -927,7 +927,7 @@ namespace xgca.core.Company
             if (payerId == 0)
             {
                 var guestPayer = await _guestData.Retrieve(Guid.Parse(obj.PayerId));
-                payerName = guestPayer.GuestName;
+                payerName = (guestPayer is null) ? "NotApplicable" : guestPayer.GuestName;
             }
             else
             {
@@ -939,7 +939,7 @@ namespace xgca.core.Company
             if (receiverId == 0)
             {
                 var guestReceiver = await _guestData.Retrieve(Guid.Parse(obj.ReceiverId));
-                receiverName = guestReceiver.GuestName;
+                receiverName = (guestReceiver is null) ? "NotApplicable" : guestReceiver.GuestName;
             }
             else
             {
