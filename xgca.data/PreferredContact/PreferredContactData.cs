@@ -182,5 +182,10 @@ namespace xgca.data.PreferredContact
 
             return (contact is null) ? false : true;
         }
+
+        public Task<bool> Delete(string key)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

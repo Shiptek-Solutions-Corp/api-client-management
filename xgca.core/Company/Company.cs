@@ -1056,14 +1056,14 @@ namespace xgca.core.Company
             return memoryStream.ToArray();
         }
 
-        public async Task<IGeneralModel> GetCompanyAndGuestByIds(List<string> guids)
-        {
+        //public async Task<IGeneralModel> GetCompanyAndGuestByIds(List<string> guids)
+        //{
 
-            var companies = await _companyData.GetCompanyAndGuestByIds(guids);
+        //    var companies = await _companyData.GetCompanyAndGuestByIds(guids);
 
-            return _general.Response(new { actors = companies }, 200, "Actors retrieved", true);
+        //    return _general.Response(new { actors = companies }, 200, "Actors retrieved", true);
 
-        }
+        //}
     }
 }
     
