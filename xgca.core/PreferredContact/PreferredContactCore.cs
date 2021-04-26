@@ -35,7 +35,7 @@ namespace xgca.core.PreferredContact
         private readonly IOptions<GlobalCmsService> _options;
         private readonly ICompanyUser _companyUser;
 
-        public PreferredContactCore(ICompanyData company, IGuestData guest, IPagedResponse pagedResponse, IHttpHelper httpHelper, IOptions<GlobalCmsService> options,
+        public PreferredContactCore(ICompanyData company, IGuestData guest, IPagedResponse pagedResponse, IHttpHelper httpHelper, IOptions<GlobalCmsService> options, IUser user,
             IPreferredContactData preferredContact, IPreferredContactHelper prefConhelper, IGeneral general, IQueryFilterHelper query, IUtilityHelper utility, ICompanyUser companyUser)
         {
             _company = company;
@@ -49,6 +49,7 @@ namespace xgca.core.PreferredContact
             _httpHelper = httpHelper;
             _options = options;
             _companyUser = companyUser;
+            _user = user;
         }
 
         public async Task<IGeneralModel> Create(entity.Models.PreferredContact obj)
@@ -78,9 +79,11 @@ namespace xgca.core.PreferredContact
                 : _general.Response(null, 400, "Error in creating preferred contact", false);
         }
 
-        public async Task<IGeneralModel> DeleteContact(string key)
+        public async Task<IGeneralModel> DeleteContact(string key, string username)
         {
-            var result = await _preferredContact.Delete(key);
+            int deletedBy = await _user.GetIdByUsername(username);
+
+            var result = await _preferredContact.Delete(key, deletedBy);
             if(!result)
             {
                 return _general.Response(null, 400, "Contact does not exists or may have already been deleted", false);

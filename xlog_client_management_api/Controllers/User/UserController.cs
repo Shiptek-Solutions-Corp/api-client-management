@@ -116,6 +116,29 @@ namespace xlog_client_management_api.Controllers.User
             return Ok(response);
         }
 
+        [Route("user/{username}/details")]
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        //[TokenAuthorize("scope", "users.get")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> RetrieveProfileByUsername([FromRoute(Name = "username")] string username)
+        {
+            var response = await _user.RetrieveByUsername(username);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
         [Route("user")]
         [HttpPost]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -402,6 +425,22 @@ namespace xlog_client_management_api.Controllers.User
             return Ok(response);
         }
 
+        [Route("user/profile/logs/download")]
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> DownloadUserProfileLogs()
+        {
+            var username = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
+            var response = await _user.DownloadUserProfileLogs(username);
+
+            var fileName = $"UserProfileLogs_{DateTime.Now:yyyyMMddhhmmss}.xlsx";
+
+            return File(response, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+
         [Route("user/{userId}/logs")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -422,6 +461,21 @@ namespace xlog_client_management_api.Controllers.User
             }
 
             return Ok(response);
+        }
+
+        [Route("user/{userId}/logs/download")]
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> DownloadUserLogs([FromRoute] string userId)
+        {
+            var response = await _user.DownloadUserLogs(userId, null);
+
+            var fileName = $"UserAuditLog_{DateTime.Now:yyyyMMddhhmmss}.xlsx";
+
+            return File(response, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
     }
 }

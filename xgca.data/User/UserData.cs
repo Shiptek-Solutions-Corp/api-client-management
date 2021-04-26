@@ -43,6 +43,7 @@ namespace xgca.data.User
         Task<bool> EmailAddressExists(string emailAddress);
         Task<entity.Models.User> GetUserByEmail(string email);
         Task<entity.Models.User> GetMasterUser(int userId);
+        Task<List<xgca.entity.Models.User>> GetUsernamesByIds(List<int> userIds);
     }
     public class SetUserNameReturnObject
     {
@@ -371,6 +372,20 @@ namespace xgca.data.User
                 .FirstOrDefaultAsync();
 
             return masterUser;
+        }
+
+        public async Task<List<xgca.entity.Models.User>> GetUsernamesByIds(List<int> userIds)
+        {
+            var users = await _context.Users.AsNoTracking()
+                .Where(x => userIds.Contains(x.UserId))
+                .Select(c => new xgca.entity.Models.User
+                {
+                    UserId = c.UserId,
+                    Username = c.Username
+                })
+                .ToListAsync();
+
+            return users;
         }
     }
 }

@@ -13,13 +13,13 @@ namespace xgca.data.CompanyService
     {
         Task<int> GetRecordCount();
         Task<int> GetRecordCount(int nonProviderId);
-        Task<int> GetRecordCount(int nonProviderId, int serviceId, List<string> existingIds, string search);
+        Task<int> GetRecordCount(int nonProviderId, int serviceId, List<Guid> existingIds, string search);
         Task<bool> Create(List<entity.Models.CompanyService> obj);
         Task<bool> Create(entity.Models.CompanyService obj);
         Task<List<entity.Models.CompanyService>> List(int pageNumber, int pageSize);
         Task<List<entity.Models.CompanyService>> ListServiceProviders(int nonProviderId, int pageNumber, int pageSize);
         Task<List<entity.Models.CompanyService>> ListServiceProviders(int serviceId, int nonProviderId, int pageNumber, int pageSize);
-        Task<List<entity.Models.CompanyService>> ListServiceProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<string> existingIds);
+        Task<List<entity.Models.CompanyService>> ListServiceProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds);
         Task<List<entity.Models.CompanyService>> List(string search, int pageNumber, int pageSize);
         Task<List<entity.Models.CompanyService>> ListByCompanyId(int companyId);
         Task<List<entity.Models.CompanyService>> ListByCompanyId(int companyId, List<string> companyServiceGuids);
@@ -34,7 +34,7 @@ namespace xgca.data.CompanyService
         Task<int[]> GetUserByCompanyServiceGuid(Guid guid);
         Task<List<string>> QuickSearch(string search, List<string> companyServiceId);
         Task<List<entity.Models.CompanyService>> ListCompanyServicesByGuids(List<string> guids, List<KeyValuePair<string, string>> filterList, List<int> serviceIds);
-        Task<List<string>> SearchAndFilterProvider(string search, List<KeyValuePair<string, string>> filterList, List<string> guids, List<int> serviceIds);
+        Task<List<string>> SearchAndFilterProvider(string search, List<KeyValuePair<string, string>> filterList, List<Guid> guids, List<int> serviceIds);
     }
 
     public class CompanyService : IMaintainable<entity.Models.CompanyService>, ICompanyService
@@ -192,7 +192,7 @@ namespace xgca.data.CompanyService
             return count;
         }
 
-        public async Task<int> GetRecordCount(int nonProviderId, int serviceId, List<string> existingIds, string search)
+        public async Task<int> GetRecordCount(int nonProviderId, int serviceId, List<Guid> existingIds, string search)
         {
             var predicate = PredicateBuilder.New<entity.Models.CompanyService>();
 
@@ -218,7 +218,7 @@ namespace xgca.data.CompanyService
 
             if (existingIds.Count != 0)
             {
-                predicate = predicate.And(x => !existingIds.Contains(x.Guid.ToString()));
+                predicate = predicate.And(x => !existingIds.Contains(x.Guid));
             }
 
             predicate = predicate.And(x => x.IsDeleted == 0 && x.Status == 1);
@@ -263,7 +263,7 @@ namespace xgca.data.CompanyService
 
             return companyServices;
         }
-        public async Task<List<entity.Models.CompanyService>> ListServiceProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<string> existingIds)
+        public async Task<List<entity.Models.CompanyService>> ListServiceProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds)
         {
             var predicate = PredicateBuilder.New<entity.Models.CompanyService>();
 
@@ -279,7 +279,7 @@ namespace xgca.data.CompanyService
 
             if (existingIds.Count != 0)
             {
-                predicate = predicate.And(x => !existingIds.Contains(x.Guid.ToString()));
+                predicate = predicate.And(x => !existingIds.Contains(x.Guid));
             }
 
             if (serviceId != 0)
@@ -384,7 +384,7 @@ namespace xgca.data.CompanyService
             return companyServices;
         }
 
-        public async Task<List<string>> SearchAndFilterProvider(string search, List<KeyValuePair<string, string>> filterList, List<string> guids, List<int> serviceIds)
+        public async Task<List<string>> SearchAndFilterProvider(string search, List<KeyValuePair<string, string>> filterList, List<Guid> guids, List<int> serviceIds)
         {
             var predicate = PredicateBuilder.New<entity.Models.CompanyService>();
 
@@ -424,7 +424,7 @@ namespace xgca.data.CompanyService
                 predicate = predicate.And(x => serviceIds.Contains(x.ServiceId));
             }
 
-            predicate = predicate.And(x => guids.Contains(x.Guid.ToString()));
+            predicate = predicate.And(x => guids.Contains(x.Guid));
 
             List<string> providers = await _context.CompanyServices
                 .Include(c => c.Companies)

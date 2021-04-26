@@ -26,6 +26,9 @@ using xgca.core.Models.CompanyServiceRole;
 using xgca.data.Company;
 using Microsoft.IdentityModel.Tokens;
 using Castle.Core.Internal;
+using System.Data;
+using ClosedXML.Excel;
+using System.IO;
 
 namespace xgca.core.User
 {
@@ -52,7 +55,9 @@ namespace xgca.core.User
         Task<entity.Models.User> GetUserByEmail(string email);
         Task<IGeneralModel> GetUserByReferenceId(int id);
         Task<IGeneralModel> ListUserLogs(string? userKey, string? username);
+        Task<byte[]> DownloadUserLogs(string? userKey, string? username);
         Task<IGeneralModel> GetUserCounts(List<int> userIds);
+        Task<byte[]> DownloadUserProfileLogs(string username);
     }
     public class User : 
         IUser
@@ -249,7 +254,7 @@ namespace xgca.core.User
             await _coreAuditLog.CreateAuditLog("Create", user.GetType().Name, newUserId, createdById, obj, null);
 
             return newUserId > 0
-                ? _general.Response(new { userGuid = newUserGuid }, 200, "User created", false)
+                ? _general.Response(new { userGuid = newUserGuid }, 200, "User created", true)
                 : _general.Response(false, 400, "Data cannot be null", false);
         }
         public async Task<dynamic> CreateMasterUser(CreateUserModel obj, int createdBy)
@@ -384,6 +389,11 @@ namespace xgca.core.User
                 foreach (var role in obj.Roles)
                 {
                     //    //int companyServiceRoleId = await _companyServiceRole.RetrieveAdministratorId(companyService.CompanyServiceId);
+                    if (role.companyServiceId is null || role.companyServiceRoleId is null || role.companyServiceUserId is null)
+                    {
+                        return _general.Response(null, 400, "One of the required reference ids is null", false);
+                    }
+
                     int companyServiceId = await _companyService.GetIdByGuid(Guid.Parse(role.companyServiceId));
                     int companyServiceRoleId = await _companyServiceRole.GetIdByGuid(Guid.Parse(role.companyServiceRoleId));
                     int companyServiceUserId = await _companyServiceUser.GetIdByGuid(Guid.Parse(role.companyServiceUserId));
@@ -695,16 +705,15 @@ namespace xgca.core.User
         {
             int userId = await _userData.GetIdByGuid(Guid.Parse(key));
             var data = await _userData.Retrieve(userId);
-            int companyUsersId = await _coreCompanyUser.GetIdByUserId(userId);
-            var companyServiceUsers = await _coreCompanyServiceUser.ListUserServiceRolesByCompanyUserId(companyUsersId);
 
+            var companyUser = await _coreCompanyUser.GetByUserId(userId);
+
+            var companyServiceUsers = await _coreCompanyServiceUser.ListUserServiceRolesByCompanyUserId(companyUser?.CompanyUserId);
 
             if (data == null)
             {
                 return _general.Response(null, 400, "Selected user might have been deleted or does not exists", false);
             }
-
-
 
             var result = new
             {
@@ -717,6 +726,7 @@ namespace xgca.core.User
                 data.Status,
                 data.ImageURL,
                 data.EmailAddress,
+                CompanyUserId = companyUser?.Guid,
                 ContactDetailId = data.ContactDetails.Guid,
                 Phone = new
                 {
@@ -730,7 +740,7 @@ namespace xgca.core.User
                     data.ContactDetails.MobilePrefix,
                     data.ContactDetails.Mobile,
                 },
-                Roles = new { companyServiceUsers.data.data }
+                Roles = new { companyServiceUsers?.data?.data }
             };
 
 
@@ -900,7 +910,9 @@ namespace xgca.core.User
                     CreatedBy = (d.CreatedBy == 0) ? "System" : d.CreatedByName,
                     Username = d.CreatedBy != 0 ? (!(user.Username is null) ? user.Username : "Not Set") : "system",
                     //Username = !(user.Username is null) ? (auditLog.CreatedBy == 0 ? "system" : user.Username) : "Not Set",
-                    CreatedOn = d.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat)
+                    CreatedOn = d.CreatedOn.ToString(GlobalVariables.AuditLogTimeFormat),
+                    OldValue = d.OldValue,
+                    NewValue = d.NewValue
                 });
             }
 
@@ -927,6 +939,72 @@ namespace xgca.core.User
         {
             var user = await _userData.GetUserByEmail(email);
             return user;
+        }
+
+        public async Task<byte[]> DownloadUserProfileLogs(string username)
+        {
+            int userId = await _userData.GetIdByUsername(username);
+            var logs = await _auditLog.ListByTableNameAndKeyFieldId("User", userId);
+
+            var createdByIds = await _auditLog.GetCreatedByIds("User", userId);
+            var users = await _userData.GetUsernamesByIds(createdByIds);
+
+            var table = new DataTable { TableName = "AuditLogs" };
+            table.Columns.Add("Date/Time", typeof(string));
+            table.Columns.Add("Actions", typeof(string));
+            table.Columns.Add("Updated By", typeof(string));
+            table.Columns.Add("Username", typeof(string));
+
+            for (int i = 0; i < logs.Count; i++)
+            {
+                var user = users.SingleOrDefault(x => x.UserId == logs[i]?.CreatedBy);
+
+                string uname = (user is null) ? "system" : user.Username;
+
+                table.Rows.Add(
+                    logs[i]?.CreatedOn,
+                    logs[i]?.AuditLogAction,
+                    logs[i]?.CreatedByName,
+                    uname
+                );
+            }
+
+            var wb = new XLWorkbook();
+            wb.Worksheets.Add(table);
+            await using var memoryStream = new MemoryStream();
+            wb.SaveAs(memoryStream);
+            return memoryStream.ToArray();
+        }
+
+        public async Task<byte[]> DownloadUserLogs(string userKey, string username)
+        {
+            var logs = await ListUserLogs(userKey, username);
+
+            int userId = await _userData.GetIdByUsername(username);
+            var createdByIds = await _auditLog.GetCreatedByIds("User", userId);
+            var users = await _userData.GetUsernamesByIds(createdByIds);
+
+            var table = new DataTable { TableName = "AuditLogs" };
+            table.Columns.Add("Date/Time", typeof(string));
+            table.Columns.Add("Actions", typeof(string));
+            table.Columns.Add("Updated By", typeof(string));
+            table.Columns.Add("Username", typeof(string));
+
+            for (int i = 0; i < logs.data?.Logs.Count; i++)
+            {
+                table.Rows.Add(
+                    logs.data?.Logs[i]?.CreatedOn,
+                    logs.data?.Logs[i]?.AuditLogAction,
+                    logs.data?.Logs[i]?.CreatedByName,
+                    logs.data?.Logs[i]?.CreatedBy
+                );
+            }
+
+            var wb = new XLWorkbook();
+            wb.Worksheets.Add(table);
+            await using var memoryStream = new MemoryStream();
+            wb.SaveAs(memoryStream);
+            return memoryStream.ToArray();
         }
     }
 }

@@ -52,7 +52,8 @@ namespace xlog_client_management_api.Controllers.PreferredProvider
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> DeletePreferredProvider([FromRoute] string preferredProviderId)
         {
-            var response = await _preferredProvider.DeleteProvider(preferredProviderId);
+            var username = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
+            var response = await _preferredProvider.DeleteProvider(preferredProviderId, username);
 
             if (response.statusCode == 400)
             {

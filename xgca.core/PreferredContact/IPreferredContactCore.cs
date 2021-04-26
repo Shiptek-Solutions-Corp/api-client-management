@@ -14,7 +14,7 @@ namespace xgca.core.PreferredContact
         Task<IGeneralModel> Create(entity.Models.PreferredContact obj);
         Task<IGeneralModel> ShowDetails(string preferredContactId);
         Task<IGeneralModel> QuickSearch(string search, int profileId, int pageNumber, int pageSize, int recordCount);
-        Task<IGeneralModel> DeleteContact(string key);
+        Task<IGeneralModel> DeleteContact(string key, string username);
         Task<IGeneralModel> List(int profileId, string search, string name, string country, string stateCity, int type, string contact, string sortBy, string sortOrder, int pageNumber, int pageSize);
     }
 }
