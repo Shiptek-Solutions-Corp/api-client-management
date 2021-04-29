@@ -116,6 +116,29 @@ namespace xlog_client_management_api.Controllers.User
             return Ok(response);
         }
 
+        [Route("user/{username}")]
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        //[TokenAuthorize("scope", "users.get")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> RetrieveProfileByUsernameOld([FromRoute(Name = "username")] string username)
+        {
+            var response = await _user.RetrieveByUsername(username);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
         [Route("user/{username}/details")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]

@@ -247,7 +247,7 @@ namespace xgca.core.Company
                 ModifiedBy = GlobalVariables.SystemUserId,
                 ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid(),
-                Status = 1
+                Status = 0, // Default Inactive
             };
 
             var companyId = await _companyData.CreateAndReturnId(company);

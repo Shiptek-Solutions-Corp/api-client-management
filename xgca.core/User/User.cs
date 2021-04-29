@@ -282,7 +282,8 @@ namespace xgca.core.User
                 CreatedOn = DateTime.UtcNow,
                 ModifiedBy = createdBy,
                 ModifiedOn = DateTime.UtcNow,
-                Guid = Guid.NewGuid()
+                Guid = Guid.NewGuid(),
+                Status = 0 // Default Inactive
             };
 
             var masterUserId = await _userData.CreateAndReturnId(user);
@@ -768,6 +769,9 @@ namespace xgca.core.User
                 data.ImageURL,
                 data.EmailAddress,
                 data.IsLocked,
+                CompanyUserStatus = data?.CompanyUsers?.Status,
+                CompanyIsDeletedStatus = data?.CompanyUsers?.Companies?.Status,
+                CompanyStatus = data?.CompanyUsers?.Companies?.Status,
                 ContactDetailId = data.ContactDetails.Guid,
                 Phone = new
                 {
