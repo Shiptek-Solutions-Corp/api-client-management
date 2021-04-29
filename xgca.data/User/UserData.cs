@@ -39,6 +39,7 @@ namespace xgca.data.User
         Task<int> GetIdByGuid(Guid key);
         Task<Guid> GetGuidById(int key);
         Task<int> GetIdByUsername(string username);
+        Task<int> ActivateCompanyUser(string emailAddress);
         bool UsernameExists(string username);
         Task<bool> EmailAddressExists(string emailAddress);
         Task<entity.Models.User> GetUserByEmail(string email);
@@ -98,6 +99,7 @@ namespace xgca.data.User
             var data = await _context.Users
                 .Include(cn => cn.ContactDetails)
                 .Include(cu => cu.CompanyUsers)
+                .ThenInclude(c => c.Companies)
                 .Where(u => u.Username == username).FirstOrDefaultAsync();
             return data;
         }
@@ -386,6 +388,33 @@ namespace xgca.data.User
                 .ToListAsync();
 
             return users;
+        }
+
+        public async Task<int> ActivateCompanyUser(string emailAddress)
+        {
+            var user = await _context.Users.Where(u => u.EmailAddress == emailAddress)
+                .Include(u => u.CompanyUsers)
+                .ThenInclude(u => u.Companies)
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+            {
+                return 0;
+            }
+
+            user.CompanyUsers.Status = 1;
+            user.CompanyUsers.Companies.Status = 1;
+            user.Status = 1;
+            try
+            {
+                var result = await _context.SaveChangesAuditable();
+                return result;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
         }
     }
 }

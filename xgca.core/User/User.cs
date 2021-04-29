@@ -48,6 +48,7 @@ namespace xgca.core.User
         Task<IGeneralModel> SetUsername(SetUsernameModel obj);
         Task<IGeneralModel> Retrieve(string key);
         Task<IGeneralModel> RetrieveByUsername(string username);
+        Task<IGeneralModel> ActivateCompanyUser(string emailAddress);
         Task<IGeneralModel> Delete(string key, string modifiedBy, string auth);
         Task<IGeneralModel> GetIdByGuid(string key);
         Task<int> GetIdByGuid(Guid key);
@@ -282,7 +283,8 @@ namespace xgca.core.User
                 CreatedOn = DateTime.UtcNow,
                 ModifiedBy = createdBy,
                 ModifiedOn = DateTime.UtcNow,
-                Guid = Guid.NewGuid()
+                Guid = Guid.NewGuid(),
+                Status = 0 // Default Inactive
             };
 
             var masterUserId = await _userData.CreateAndReturnId(user);
@@ -768,6 +770,9 @@ namespace xgca.core.User
                 data.ImageURL,
                 data.EmailAddress,
                 data.IsLocked,
+                CompanyUserStatus = data?.CompanyUsers?.Status,
+                CompanyIsDeletedStatus = data?.CompanyUsers?.Companies?.Status,
+                CompanyStatus = data?.CompanyUsers?.Companies?.Status,
                 ContactDetailId = data.ContactDetails.Guid,
                 Phone = new
                 {
@@ -841,7 +846,7 @@ namespace xgca.core.User
                 Username = obj.Username,
                 ModifiedBy = GlobalVariables.SystemUserId,
                 ModifiedOn = DateTime.UtcNow,
-                Status = 1
+                Status = 0
             };
 
             var result = await _userData.SetUsername(data);
@@ -1005,6 +1010,18 @@ namespace xgca.core.User
             await using var memoryStream = new MemoryStream();
             wb.SaveAs(memoryStream);
             return memoryStream.ToArray();
+        }
+
+        public async  Task<IGeneralModel> ActivateCompanyUser(string emailAddress)
+        {
+            int result = await _userData.ActivateCompanyUser(emailAddress);
+
+            if (result == 0)
+            {
+                return _general.Response(null, 400, "An error occured on activation of company and user.", false);
+            }
+
+            return _general.Response(null, 200, "User and company successfully activated", true);
         }
     }
 }
