@@ -48,6 +48,7 @@ namespace xgca.core.User
         Task<IGeneralModel> SetUsername(SetUsernameModel obj);
         Task<IGeneralModel> Retrieve(string key);
         Task<IGeneralModel> RetrieveByUsername(string username);
+        Task<IGeneralModel> ActivateCompanyUser(string emailAddress);
         Task<IGeneralModel> Delete(string key, string modifiedBy, string auth);
         Task<IGeneralModel> GetIdByGuid(string key);
         Task<int> GetIdByGuid(Guid key);
@@ -1009,6 +1010,18 @@ namespace xgca.core.User
             await using var memoryStream = new MemoryStream();
             wb.SaveAs(memoryStream);
             return memoryStream.ToArray();
+        }
+
+        public async  Task<IGeneralModel> ActivateCompanyUser(string emailAddress)
+        {
+            int result = await _userData.ActivateCompanyUser(emailAddress);
+
+            if (result == 0)
+            {
+                return _general.Response(null, 400, "An error occured on activation of company and user.", false);
+            }
+
+            return _general.Response(null, 200, "User and company successfully activated", true);
         }
     }
 }
