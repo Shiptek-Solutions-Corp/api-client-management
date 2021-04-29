@@ -846,7 +846,7 @@ namespace xgca.core.User
                 Username = obj.Username,
                 ModifiedBy = GlobalVariables.SystemUserId,
                 ModifiedOn = DateTime.UtcNow,
-                Status = 1
+                Status = 0
             };
 
             var result = await _userData.SetUsername(data);
