@@ -116,7 +116,7 @@ namespace xlog_client_management_api.Controllers.User
             return Ok(response);
         }
 
-        [Route("user/{username}")]
+        [Route("user/{username}/profile")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
         //[TokenAuthorize("scope", "users.get")]
