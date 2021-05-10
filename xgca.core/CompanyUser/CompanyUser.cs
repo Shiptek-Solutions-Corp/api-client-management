@@ -92,7 +92,7 @@ namespace xgca.core.CompanyUser
                 CompanyId = companyId,
                 UserId = masterUserId,
                 UserTypeId = (int)userTypeId,
-                Status = 1,
+                Status = 0, // Default Inactive
                 CreatedBy = createdBy,
                 CreatedOn = DateTime.UtcNow,
                 ModifiedBy = createdBy,
