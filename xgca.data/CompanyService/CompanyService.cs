@@ -218,12 +218,14 @@ namespace xgca.data.CompanyService
 
             if (existingIds.Count != 0)
             {
-                predicate = predicate.And(x => !existingIds.Contains(x.Guid));
+                predicate = predicate.And(x => existingIds.Contains(x.Guid));
             }
 
             predicate = predicate.And(x => x.IsDeleted == 0 && x.Status == 1);
 
             int count = await _context.CompanyServices.AsNoTracking()
+                .Include(i => i.Companies)
+                    .ThenInclude(h => h.Addresses)
                 .Where(predicate)
                 .CountAsync();
 
@@ -279,7 +281,7 @@ namespace xgca.data.CompanyService
 
             if (existingIds.Count != 0)
             {
-                predicate = predicate.And(x => !existingIds.Contains(x.Guid));
+                predicate = predicate.And(x => existingIds.Contains(x.Guid));
             }
 
             if (serviceId != 0)
