@@ -304,31 +304,24 @@ namespace xgca.core.CompanyService
                 });
             }
 
-            var existingProviders = await _preferredProvider.GetCompanyServiceIdByProfileId(companyId);
-
             int shipperConsigneeId = services.Find(x => x.ServiceStaticId == 1).IntServiceId;
-            
-
-            var result = new List<entity.Models.CompanyService>();
-
             int serviceIdFilter = 0;
             if (!(serviceId.IsNullOrEmpty()))
             {
                 var serviceFilter = services.Find(x => Guid.Parse(x.ServiceId) == Guid.Parse(serviceId));
                 serviceIdFilter = (services is null) ? 0 : serviceFilter.IntServiceId;
             }
-            recordCount = await _companyService.GetRecordCount(shipperConsigneeId, serviceIdFilter, existingProviders, search);
-            result = await _companyService.ListServiceProviders(search, serviceIdFilter, shipperConsigneeId, pageNumber, pageSize, existingProviders);
 
-            List<ListProvidersModel> providers = new List<ListProvidersModel>();
-
-            if (!(result is null))
+            var preferredProviderCompanyServiceGuids = await _preferredProvider.GetCompanyServiceIdByProfileId(companyId);
+            var preferredProvidersData = await _companyService.ListPreferredProviders(search, serviceIdFilter, shipperConsigneeId, pageNumber, pageSize, preferredProviderCompanyServiceGuids);
+            List<ListProvidersModel> preferredProviders = new List<ListProvidersModel>();
+            if (!(preferredProvidersData is null))
             {
-                foreach (var provider in result)
+                foreach (var provider in preferredProvidersData)
                 {
                     var service = services.Find(x => x.IntServiceId == provider.ServiceId);
 
-                    providers.Add(new ListProvidersModel
+                    preferredProviders.Add(new ListProvidersModel
                     {
                         CompanyServiceId = provider.Guid.ToString(),
                         CompanyId = provider.Companies.Guid.ToString(),
@@ -345,10 +338,40 @@ namespace xgca.core.CompanyService
                     });
                 }
             }
-            
 
-            var pagedResponse = _pagedResponse.Paginate(providers, recordCount, pageNumber, pageSize);
-            return _general.Response(pagedResponse, 200, "Configurable providers has been listed", true);
+
+
+            
+            recordCount = await _companyService.GetOtherProvidersRecordCount(shipperConsigneeId, serviceIdFilter, preferredProviderCompanyServiceGuids, search);
+            var otherProvidersData = await _companyService.ListServiceProviders(search, serviceIdFilter, shipperConsigneeId, pageNumber, pageSize, preferredProviderCompanyServiceGuids);
+            List<ListProvidersModel> otherProviders = new List<ListProvidersModel>();
+
+            if (!(otherProvidersData is null))
+            {
+                foreach (var provider in otherProvidersData)
+                {
+                    var service = services.Find(x => x.IntServiceId == provider.ServiceId);
+
+                    otherProviders.Add(new ListProvidersModel
+                    {
+                        CompanyServiceId = provider.Guid.ToString(),
+                        CompanyId = provider.Companies.Guid.ToString(),
+                        CompanyName = provider.Companies.CompanyName,
+                        CompanyImageURL = (provider.Companies.ImageURL is null) ? "No Image" : provider.Companies.ImageURL,
+                        CompanyAddress = CompanyHelper.ParseCompanydAddress(provider.Companies),
+                        ServiceId = (service is null) ? "N/A" : service.ServiceId,
+                        ServiceName = (service is null) ? "N/A" : service.ServiceName,
+                        ServiceImageURL = (service != null) ? ((service.ServiceImageURL is null) ? "No Image" : service.ServiceImageURL) : "N/A",
+                        PhoneNumber = (provider.Companies.ContactDetails.Phone is null) ? "-" : $"{provider.Companies.ContactDetails.PhonePrefix}{provider.Companies.ContactDetails.Phone}",
+                        MobileNumber = (provider.Companies.ContactDetails.Mobile is null) ? "-" : $"{provider.Companies.ContactDetails.MobilePrefix}{provider.Companies.ContactDetails.Mobile}",
+                        FaxNumber = (provider.Companies.ContactDetails.Fax is null) ? "-" : $"{provider.Companies.ContactDetails.FaxPrefix}{provider.Companies.ContactDetails.Fax}",
+                        Email = (provider.Companies.EmailAddress is null) ? "-" : provider.Companies.EmailAddress
+                    });
+                }
+            }
+
+            var pagedOtherProviders = _pagedResponse.Paginate(otherProviders, recordCount, pageNumber, pageSize);
+            return _general.Response(new { PreferredProviders = preferredProviders, OtherProviders = pagedOtherProviders }, 200, "Configurable providers has been listed", true);
         }
     }
 }
