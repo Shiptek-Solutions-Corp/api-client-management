@@ -280,7 +280,7 @@ namespace xgca.core.CompanyService
             return _general.Response(pagedResponse, 200, "Configurable providers has been listed", true);
         }*/
 
-        public async Task<IGeneralModel> ListProviders(int companyId, string search, string serviceId, int pageNumber, int pageSize, int recordCount)
+        public async Task<IGeneralModel> ListProviders(int companyId, string search, string serviceId, int otherProviderPageNumber, int otherProviderPageSize, int otherProviderRecordCount, int preferredProviderPageNumber, int preferredProviderPageSize, int preferredProviderRecordCount)
         {
             var serviceResponse = await _httpHelpers.Get(_options.Value.BaseUrl, _options.Value.GetService, null, AuthToken.Contra);
             string statusCode = serviceResponse.statusCode;
@@ -313,7 +313,7 @@ namespace xgca.core.CompanyService
             }
 
             var preferredProviderCompanyServiceGuids = await _preferredProvider.GetCompanyServiceIdByProfileId(companyId);
-            var preferredProvidersData = await _companyService.ListPreferredProviders(search, serviceIdFilter, shipperConsigneeId, pageNumber, pageSize, preferredProviderCompanyServiceGuids);
+            var (preferredProvidersData, preferredProviderDataCount) = await _companyService.ListPreferredProviders(search, serviceIdFilter, shipperConsigneeId, preferredProviderPageNumber, preferredProviderPageSize, preferredProviderCompanyServiceGuids);
             List<ListProvidersModel> preferredProviders = new List<ListProvidersModel>();
             if (!(preferredProvidersData is null))
             {
@@ -339,11 +339,8 @@ namespace xgca.core.CompanyService
                 }
             }
 
-
-
-            
-            recordCount = await _companyService.GetOtherProvidersRecordCount(shipperConsigneeId, serviceIdFilter, preferredProviderCompanyServiceGuids, search);
-            var otherProvidersData = await _companyService.ListServiceProviders(search, serviceIdFilter, shipperConsigneeId, pageNumber, pageSize, preferredProviderCompanyServiceGuids);
+            //recordCount = await _companyService.GetOtherProvidersRecordCount(shipperConsigneeId, serviceIdFilter, preferredProviderCompanyServiceGuids, search);
+            var (otherProvidersData, otherProviderDataCount) = await _companyService.ListServiceProviders(search, serviceIdFilter, shipperConsigneeId, otherProviderPageNumber, otherProviderPageSize, preferredProviderCompanyServiceGuids);
             List<ListProvidersModel> otherProviders = new List<ListProvidersModel>();
 
             if (!(otherProvidersData is null))
@@ -370,8 +367,10 @@ namespace xgca.core.CompanyService
                 }
             }
 
-            var pagedOtherProviders = _pagedResponse.Paginate(otherProviders, recordCount, pageNumber, pageSize);
-            return _general.Response(new { PreferredProviders = preferredProviders, OtherProviders = pagedOtherProviders }, 200, "Configurable providers has been listed", true);
+            // Paginate result data
+            var pagedPreferredProvider = _pagedResponse.Paginate(preferredProviders, preferredProviderDataCount, preferredProviderPageNumber, preferredProviderPageSize);
+            var pagedOtherProviders = _pagedResponse.Paginate(otherProviders, otherProviderDataCount, otherProviderPageNumber, otherProviderPageSize);
+            return _general.Response(new { PreferredProviders = pagedPreferredProvider, OtherProviders = pagedOtherProviders }, 200, "Configurable providers has been listed", true);
         }
     }
 }

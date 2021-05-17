@@ -19,8 +19,8 @@ namespace xgca.data.CompanyService
         Task<List<entity.Models.CompanyService>> List(int pageNumber, int pageSize);
         Task<List<entity.Models.CompanyService>> ListServiceProviders(int nonProviderId, int pageNumber, int pageSize);
         Task<List<entity.Models.CompanyService>> ListServiceProviders(int serviceId, int nonProviderId, int pageNumber, int pageSize);
-        Task<List<entity.Models.CompanyService>> ListServiceProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds);
-        Task<List<entity.Models.CompanyService>> ListPreferredProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds);
+        Task<(List<entity.Models.CompanyService>, int)> ListServiceProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds);
+        Task<(List<entity.Models.CompanyService>, int)> ListPreferredProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds);
         Task<List<entity.Models.CompanyService>> List(string search, int pageNumber, int pageSize);
         Task<List<entity.Models.CompanyService>> ListByCompanyId(int companyId);
         Task<List<entity.Models.CompanyService>> ListByCompanyId(int companyId, List<string> companyServiceGuids);
@@ -266,7 +266,7 @@ namespace xgca.data.CompanyService
 
             return companyServices;
         }
-        public async Task<List<entity.Models.CompanyService>> ListServiceProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds)
+        public async Task<(List<entity.Models.CompanyService>, int)> ListServiceProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds)
         {
             var predicate = PredicateBuilder.New<entity.Models.CompanyService>();
 
@@ -292,20 +292,22 @@ namespace xgca.data.CompanyService
 
             predicate = predicate.And(x => x.ServiceId != nonProviderId && x.IsDeleted == 0 && x.Status == 1);
 
-            List<entity.Models.CompanyService> companyServices = await _context.CompanyServices.AsNoTracking()
+            var result = _context.CompanyServices
                 .Include(x => x.Companies)
                     .ThenInclude(a => a.Addresses)
                 .Include(x => x.Companies)
                     .ThenInclude(c => c.ContactDetails)
-                .Where(predicate)
+                .Where(predicate);
+
+            List<entity.Models.CompanyService> companyServices = await result.AsNoTracking()
                 .Skip(pageSize * pageNumber)
                 .Take(pageSize)
                 .ToListAsync();
 
-            return companyServices;
+            return (companyServices, result.Count());
         }
 
-        public async Task<List<entity.Models.CompanyService>> ListPreferredProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds)
+        public async Task<(List<entity.Models.CompanyService>, int)> ListPreferredProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds)
         {
             var predicate = PredicateBuilder.New<entity.Models.CompanyService>();
 
@@ -331,15 +333,20 @@ namespace xgca.data.CompanyService
 
             predicate = predicate.And(x => x.ServiceId != nonProviderId && x.IsDeleted == 0 && x.Status == 1);
 
-            List<entity.Models.CompanyService> companyServices = await _context.CompanyServices.AsNoTracking()
+            var result  = _context.CompanyServices
                 .Include(x => x.Companies)
                     .ThenInclude(a => a.Addresses)
                 .Include(x => x.Companies)
                     .ThenInclude(c => c.ContactDetails)
-                .Where(predicate)
+                .Where(predicate);
+
+
+            List<entity.Models.CompanyService> companyServices = await result.AsNoTracking()
+                .Skip(pageSize * pageNumber)
+                .Take(pageSize)
                 .ToListAsync();
 
-            return companyServices;
+            return (companyServices, result.Count());
         }
 
         public async Task<List<string>> QuickSearch(string search, List<string> companyServiceId)
