@@ -349,13 +349,17 @@ namespace xgca.core.CompanyService
                 {
                     var service = services.Find(x => x.IntServiceId == provider.ServiceId);
 
+                    string state = provider.Companies.Addresses.StateName ?? null;
+                    string country = provider.Companies.Addresses.CountryName;
+                    string address = (state is null) ? country : $"{state}, {country}";
+
                     otherProviders.Add(new ListProvidersModel
                     {
                         CompanyServiceId = provider.Guid.ToString(),
                         CompanyId = provider.Companies.Guid.ToString(),
                         CompanyName = provider.Companies.CompanyName,
                         CompanyImageURL = (provider.Companies.ImageURL is null) ? "No Image" : provider.Companies.ImageURL,
-                        CompanyAddress = CompanyHelper.ParseCompanydAddress(provider.Companies),
+                        CompanyAddress = address,
                         ServiceId = (service is null) ? "N/A" : service.ServiceId,
                         ServiceName = (service is null) ? "N/A" : service.ServiceName,
                         ServiceImageURL = (service != null) ? ((service.ServiceImageURL is null) ? "No Image" : service.ServiceImageURL) : "N/A",
