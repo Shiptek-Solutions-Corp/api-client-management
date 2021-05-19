@@ -282,6 +282,11 @@ namespace xgca.core.CompanyService
 
         public async Task<IGeneralModel> ListProviders(int companyId, string search, string serviceId, int otherProviderPageNumber, int otherProviderPageSize, int otherProviderRecordCount, int preferredProviderPageNumber, int preferredProviderPageSize, int preferredProviderRecordCount)
         {
+            if (preferredProviderPageSize > 3 || otherProviderPageSize > 3)
+            {
+                return _general.Response(null, 400, "Max page size per section is 3", false);
+            }
+
             var serviceResponse = await _httpHelpers.Get(_options.Value.BaseUrl, _options.Value.GetService, null, AuthToken.Contra);
             string statusCode = serviceResponse.statusCode;
 
@@ -312,6 +317,10 @@ namespace xgca.core.CompanyService
                 serviceIdFilter = (services is null) ? 0 : serviceFilter.IntServiceId;
             }
 
+            string state = null;
+            string country = null;
+            string address = null;
+
             var preferredProviderCompanyServiceGuids = await _preferredProvider.GetCompanyServiceIdByProfileId(companyId);
             var (preferredProvidersData, preferredProviderDataCount) = await _companyService.ListPreferredProviders(search, serviceIdFilter, shipperConsigneeId, preferredProviderPageNumber, preferredProviderPageSize, preferredProviderCompanyServiceGuids);
             List<ListProvidersModel> preferredProviders = new List<ListProvidersModel>();
@@ -321,13 +330,17 @@ namespace xgca.core.CompanyService
                 {
                     var service = services.Find(x => x.IntServiceId == provider.ServiceId);
 
+                    state = provider.Companies.Addresses.StateName ?? null;
+                    country = provider.Companies.Addresses.CountryName;
+                    address = (state is null) ? country : $"{state}, {country}";
+
                     preferredProviders.Add(new ListProvidersModel
                     {
                         CompanyServiceId = provider.Guid.ToString(),
                         CompanyId = provider.Companies.Guid.ToString(),
                         CompanyName = provider.Companies.CompanyName,
                         CompanyImageURL = (provider.Companies.ImageURL is null) ? "No Image" : provider.Companies.ImageURL,
-                        CompanyAddress = CompanyHelper.ParseCompanydAddress(provider.Companies),
+                        CompanyAddress = address,
                         ServiceId = (service is null) ? "N/A" : service.ServiceId,
                         ServiceName = (service is null) ? "N/A" : service.ServiceName,
                         ServiceImageURL = (service != null) ? ((service.ServiceImageURL is null) ? "No Image" : service.ServiceImageURL) : "N/A",
@@ -335,7 +348,7 @@ namespace xgca.core.CompanyService
                         MobileNumber = (provider.Companies.ContactDetails.Mobile is null) ? "-" : $"{provider.Companies.ContactDetails.MobilePrefix}{provider.Companies.ContactDetails.Mobile}",
                         FaxNumber = (provider.Companies.ContactDetails.Fax is null) ? "-" : $"{provider.Companies.ContactDetails.FaxPrefix}{provider.Companies.ContactDetails.Fax}",
                         Email = (provider.Companies.EmailAddress is null) ? "-" : provider.Companies.EmailAddress
-                    });
+                    });;
                 }
             }
 
@@ -349,9 +362,9 @@ namespace xgca.core.CompanyService
                 {
                     var service = services.Find(x => x.IntServiceId == provider.ServiceId);
 
-                    string state = provider.Companies.Addresses.StateName ?? null;
-                    string country = provider.Companies.Addresses.CountryName;
-                    string address = (state is null) ? country : $"{state}, {country}";
+                    state = provider.Companies.Addresses.StateName ?? null;
+                    country = provider.Companies.Addresses.CountryName;
+                    address = (state is null) ? country : $"{state}, {country}";
 
                     otherProviders.Add(new ListProvidersModel
                     {

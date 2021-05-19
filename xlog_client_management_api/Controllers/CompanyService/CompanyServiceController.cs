@@ -96,7 +96,7 @@ namespace xlog_client_management_api.Controllers.CompanyService
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> List([FromQuery] string search, [FromQuery] string serviceId = null, [FromQuery] int preferredProviderPageNumber = 0, [FromQuery] int preferredProviderPageSize = 5, [FromQuery] int preferredProviderRecordCount = 0, [FromQuery] int otherProviderPageNumber = 0, [FromQuery] int otherProviderPageSize = 5, [FromQuery] int otherProviderRecordCount = 0)
+        public async Task<IActionResult> List([FromQuery] string search, [FromQuery] string serviceId = null, [FromQuery] int preferredProviderPageNumber = 0, [FromQuery] int preferredProviderPageSize = 3, [FromQuery] int preferredProviderRecordCount = 0, [FromQuery] int otherProviderPageNumber = 0, [FromQuery] int otherProviderPageSize = 3, [FromQuery] int otherProviderRecordCount = 0)
         {
             var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
             var response = await _companyService.ListProviders(Convert.ToInt32(companyId), search, serviceId, otherProviderPageNumber, otherProviderPageSize, otherProviderRecordCount, preferredProviderPageNumber, preferredProviderPageSize, preferredProviderRecordCount);
