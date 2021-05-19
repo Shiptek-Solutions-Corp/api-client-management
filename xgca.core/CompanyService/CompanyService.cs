@@ -282,10 +282,10 @@ namespace xgca.core.CompanyService
 
         public async Task<IGeneralModel> ListProviders(int companyId, string search, string serviceId, int otherProviderPageNumber, int otherProviderPageSize, int otherProviderRecordCount, int preferredProviderPageNumber, int preferredProviderPageSize, int preferredProviderRecordCount)
         {
-            if (preferredProviderPageSize > 3 || otherProviderPageSize > 3)
-            {
-                return _general.Response(null, 400, "Max page size per section is 3", false);
-            }
+            //if (preferredProviderPageSize > 3 || otherProviderPageSize > 3)
+            //{
+            //    return _general.Response(null, 400, "Max page size per section is 3", false);
+            //}
 
             var serviceResponse = await _httpHelpers.Get(_options.Value.BaseUrl, _options.Value.GetService, null, AuthToken.Contra);
             string statusCode = serviceResponse.statusCode;
