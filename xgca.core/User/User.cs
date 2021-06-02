@@ -29,6 +29,8 @@ using Castle.Core.Internal;
 using System.Data;
 using ClosedXML.Excel;
 using System.IO;
+using xgca.core.Models.Email;
+using xgca.core.Email;
 
 namespace xgca.core.User
 {
@@ -78,6 +80,7 @@ namespace xgca.core.User
         private readonly xgca.data.CompanyService.ICompanyService _companyService;
         private readonly xgca.data.CompanyServiceRole.ICompanyServiceRole _companyServiceRole;
         private readonly ICompanyData _companyData;
+        private readonly IEmail _emailService;
 
         public User(xgca.data.User.IUserData userData,
             xgca.core.ContactDetail.IContactDetail coreContactDetail,
@@ -93,7 +96,8 @@ namespace xgca.core.User
             xgca.data.CompanyService.ICompanyService companyService,
             xgca.data.CompanyServiceRole.ICompanyServiceRole companyServiceRole,
             ICompanyData companyData,
-        IGeneral general)
+            IGeneral general,
+            IEmail emailService)
         {
             _userData = userData;
             _coreContactDetail = coreContactDetail;
@@ -110,6 +114,7 @@ namespace xgca.core.User
             _companyService = companyService;
             _companyServiceRole = companyServiceRole;
             _companyData = companyData;
+            _emailService = emailService;
         }
 
         public async Task<IGeneralModel> List()
@@ -1012,14 +1017,29 @@ namespace xgca.core.User
             return memoryStream.ToArray();
         }
 
-        public async  Task<IGeneralModel> ActivateCompanyUser(string emailAddress)
+        public async Task<IGeneralModel> ActivateCompanyUser(string emailAddress)
         {
-            int result = await _userData.ActivateCompanyUser(emailAddress);
+            var userInfo = await _userData.ActivateCompanyUser(emailAddress);
 
-            if (result == 0)
+            if (userInfo == null)
             {
                 return _general.Response(null, 400, "An error occured on activation of company and user.", false);
             }
+
+            //Send Email Notification to Master Company User 
+            var payload = new
+            {
+                EmailAddress = emailAddress,
+                ReceiverName = userInfo.FirstName,
+                SenderCompanyName = userInfo.CompanyUsers.Companies.CompanyName
+            };
+
+            EmailModel emailPayload = new EmailModel()
+            {
+                Payload = payload,
+                Additionals = null,
+            };
+            await _emailService.SendCompanyActivationEmail(emailPayload);
 
             return _general.Response(null, 200, "User and company successfully activated", true);
         }

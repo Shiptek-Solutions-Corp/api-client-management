@@ -11,5 +11,6 @@ namespace xgca.core.Email
     {
         Task<IGeneralModel> SendContactInviteEmail(EmailModel model);
         Task<IGeneralModel> SendProviderInviteEmail(EmailModel model);
+        Task<IGeneralModel> SendCompanyActivationEmail(EmailModel model);
     }
 }

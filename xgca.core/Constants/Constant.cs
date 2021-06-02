@@ -81,6 +81,7 @@ namespace xgca.core.Helpers
         public string BaseTemplate { get; set; }
         public string SendContactInviteTemplate { get; set; }
         public string SendProviderInviteTemplate { get; set; }
+        public string SendCompanyActivationTemplate { get; set; }
     }
 
     public class WebsiteLinks

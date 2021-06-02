@@ -231,6 +231,7 @@ namespace xlog_client_management_api
                 o.BaseTemplate = Configuration.GetSection("EmailTemplate:BaseTemplate").Value;
                 o.SendContactInviteTemplate = Configuration.GetSection("EmailTemplate:SendContactInviteTemplate").Value;
                 o.SendProviderInviteTemplate = Configuration.GetSection("EmailTemplate:SendProviderInviteTemplate").Value;
+                o.SendCompanyActivationTemplate = Configuration.GetSection("EmailTemplate:SendCompanyActivationTemplate").Value;
             });
 
             services.AddHttpClient();

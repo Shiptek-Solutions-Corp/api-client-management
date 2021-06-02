@@ -30,6 +30,27 @@ namespace xgca.core.Email
             _general = general;
         }
 
+        public async Task<IGeneralModel> SendCompanyActivationEmail(EmailModel model)
+        {
+            var message = _emailTemplate.Value.BaseTemplate
+               .Replace("{content}",
+                   _emailTemplate.Value.SendCompanyActivationTemplate
+                       .Replace("{receiver_name}", model.Payload.ReceiverName)
+                       .Replace("{company_name}", model.Payload.SenderCompanyName));
+
+            EmailPayload payload = new EmailPayload
+            {
+                sender = "no-reply@myxlog.com",
+                to = model.Payload.EmailAddress,
+                subject = "Account Activation",
+                message = message
+            };
+
+            await _httpHelper.Post(_emailOptions.Value.BaseUrl, payload, null);
+
+            return _general.Response(null, 200, "Activation email sent", true);
+        }
+
         public async Task<IGeneralModel> SendContactInviteEmail(EmailModel model)
         {
             var message = _emailTemplate.Value.BaseTemplate
