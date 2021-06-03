@@ -42,7 +42,7 @@ namespace xgca.core.Email
             {
                 sender = "no-reply@myxlog.com",
                 to = model.Payload.EmailAddress,
-                subject = "Account Activation",
+                subject = "XLOG: Your Company Has Been Activated",
                 message = message
             };
 
