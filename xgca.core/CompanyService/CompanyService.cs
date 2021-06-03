@@ -280,8 +280,13 @@ namespace xgca.core.CompanyService
             return _general.Response(pagedResponse, 200, "Configurable providers has been listed", true);
         }*/
 
-        public async Task<IGeneralModel> ListProviders(int companyId, string search, string serviceId, int pageNumber, int pageSize, int recordCount)
+        public async Task<IGeneralModel> ListProviders(int companyId, string search, string serviceId, int otherProviderPageNumber, int otherProviderPageSize, int otherProviderRecordCount, int preferredProviderPageNumber, int preferredProviderPageSize, int preferredProviderRecordCount)
         {
+            //if (preferredProviderPageSize > 3 || otherProviderPageSize > 3)
+            //{
+            //    return _general.Response(null, 400, "Max page size per section is 3", false);
+            //}
+
             var serviceResponse = await _httpHelpers.Get(_options.Value.BaseUrl, _options.Value.GetService, null, AuthToken.Contra);
             string statusCode = serviceResponse.statusCode;
 
@@ -304,37 +309,70 @@ namespace xgca.core.CompanyService
                 });
             }
 
-            var existingProviders = await _preferredProvider.GetCompanyServiceIdByProfileId(companyId);
-
             int shipperConsigneeId = services.Find(x => x.ServiceStaticId == 1).IntServiceId;
-            
-
-            var result = new List<entity.Models.CompanyService>();
-
             int serviceIdFilter = 0;
             if (!(serviceId.IsNullOrEmpty()))
             {
                 var serviceFilter = services.Find(x => Guid.Parse(x.ServiceId) == Guid.Parse(serviceId));
                 serviceIdFilter = (services is null) ? 0 : serviceFilter.IntServiceId;
             }
-            recordCount = await _companyService.GetRecordCount(shipperConsigneeId, serviceIdFilter, existingProviders, search);
-            result = await _companyService.ListServiceProviders(search, serviceIdFilter, shipperConsigneeId, pageNumber, pageSize, existingProviders);
 
-            List<ListProvidersModel> providers = new List<ListProvidersModel>();
+            string state = null;
+            string country = null;
+            string address = null;
 
-            if (!(result is null))
+            var preferredProviderCompanyServiceGuids = await _preferredProvider.GetCompanyServiceIdByProfileId(companyId);
+            var (preferredProvidersData, preferredProviderDataCount) = await _companyService.ListPreferredProviders(search, serviceIdFilter, shipperConsigneeId, preferredProviderPageNumber, preferredProviderPageSize, preferredProviderCompanyServiceGuids);
+            List<ListProvidersModel> preferredProviders = new List<ListProvidersModel>();
+            if (!(preferredProvidersData is null))
             {
-                foreach (var provider in result)
+                foreach (var provider in preferredProvidersData)
                 {
                     var service = services.Find(x => x.IntServiceId == provider.ServiceId);
 
-                    providers.Add(new ListProvidersModel
+                    state = provider.Companies.Addresses.StateName ?? null;
+                    country = provider.Companies.Addresses.CountryName;
+                    address = (state is null) ? country : $"{state}, {country}";
+
+                    preferredProviders.Add(new ListProvidersModel
                     {
                         CompanyServiceId = provider.Guid.ToString(),
                         CompanyId = provider.Companies.Guid.ToString(),
                         CompanyName = provider.Companies.CompanyName,
                         CompanyImageURL = (provider.Companies.ImageURL is null) ? "No Image" : provider.Companies.ImageURL,
-                        CompanyAddress = CompanyHelper.ParseCompanydAddress(provider.Companies),
+                        CompanyAddress = address,
+                        ServiceId = (service is null) ? "N/A" : service.ServiceId,
+                        ServiceName = (service is null) ? "N/A" : service.ServiceName,
+                        ServiceImageURL = (service != null) ? ((service.ServiceImageURL is null) ? "No Image" : service.ServiceImageURL) : "N/A",
+                        PhoneNumber = (provider.Companies.ContactDetails.Phone is null) ? "-" : $"{provider.Companies.ContactDetails.PhonePrefix}{provider.Companies.ContactDetails.Phone}",
+                        MobileNumber = (provider.Companies.ContactDetails.Mobile is null) ? "-" : $"{provider.Companies.ContactDetails.MobilePrefix}{provider.Companies.ContactDetails.Mobile}",
+                        FaxNumber = (provider.Companies.ContactDetails.Fax is null) ? "-" : $"{provider.Companies.ContactDetails.FaxPrefix}{provider.Companies.ContactDetails.Fax}",
+                        Email = (provider.Companies.EmailAddress is null) ? "-" : provider.Companies.EmailAddress
+                    });;
+                }
+            }
+
+            //recordCount = await _companyService.GetOtherProvidersRecordCount(shipperConsigneeId, serviceIdFilter, preferredProviderCompanyServiceGuids, search);
+            var (otherProvidersData, otherProviderDataCount) = await _companyService.ListServiceProviders(search, serviceIdFilter, shipperConsigneeId, otherProviderPageNumber, otherProviderPageSize, preferredProviderCompanyServiceGuids);
+            List<ListProvidersModel> otherProviders = new List<ListProvidersModel>();
+
+            if (!(otherProvidersData is null))
+            {
+                foreach (var provider in otherProvidersData)
+                {
+                    var service = services.Find(x => x.IntServiceId == provider.ServiceId);
+
+                    state = provider.Companies.Addresses.StateName ?? null;
+                    country = provider.Companies.Addresses.CountryName;
+                    address = (state is null) ? country : $"{state}, {country}";
+
+                    otherProviders.Add(new ListProvidersModel
+                    {
+                        CompanyServiceId = provider.Guid.ToString(),
+                        CompanyId = provider.Companies.Guid.ToString(),
+                        CompanyName = provider.Companies.CompanyName,
+                        CompanyImageURL = (provider.Companies.ImageURL is null) ? "No Image" : provider.Companies.ImageURL,
+                        CompanyAddress = address,
                         ServiceId = (service is null) ? "N/A" : service.ServiceId,
                         ServiceName = (service is null) ? "N/A" : service.ServiceName,
                         ServiceImageURL = (service != null) ? ((service.ServiceImageURL is null) ? "No Image" : service.ServiceImageURL) : "N/A",
@@ -345,10 +383,11 @@ namespace xgca.core.CompanyService
                     });
                 }
             }
-            
 
-            var pagedResponse = _pagedResponse.Paginate(providers, recordCount, pageNumber, pageSize);
-            return _general.Response(pagedResponse, 200, "Configurable providers has been listed", true);
+            // Paginate result data
+            var pagedPreferredProvider = _pagedResponse.Paginate(preferredProviders, preferredProviderDataCount, preferredProviderPageNumber, preferredProviderPageSize);
+            var pagedOtherProviders = _pagedResponse.Paginate(otherProviders, otherProviderDataCount, otherProviderPageNumber, otherProviderPageSize);
+            return _general.Response(new { PreferredProviders = pagedPreferredProvider, OtherProviders = pagedOtherProviders }, 200, "Configurable providers has been listed", true);
         }
     }
 }

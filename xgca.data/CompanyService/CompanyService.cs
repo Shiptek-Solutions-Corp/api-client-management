@@ -13,13 +13,14 @@ namespace xgca.data.CompanyService
     {
         Task<int> GetRecordCount();
         Task<int> GetRecordCount(int nonProviderId);
-        Task<int> GetRecordCount(int nonProviderId, int serviceId, List<Guid> existingIds, string search);
+        Task<int> GetOtherProvidersRecordCount(int nonProviderId, int serviceId, List<Guid> existingIds, string search);
         Task<bool> Create(List<entity.Models.CompanyService> obj);
         Task<bool> Create(entity.Models.CompanyService obj);
         Task<List<entity.Models.CompanyService>> List(int pageNumber, int pageSize);
         Task<List<entity.Models.CompanyService>> ListServiceProviders(int nonProviderId, int pageNumber, int pageSize);
         Task<List<entity.Models.CompanyService>> ListServiceProviders(int serviceId, int nonProviderId, int pageNumber, int pageSize);
-        Task<List<entity.Models.CompanyService>> ListServiceProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds);
+        Task<(List<entity.Models.CompanyService>, int)> ListServiceProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds);
+        Task<(List<entity.Models.CompanyService>, int)> ListPreferredProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds);
         Task<List<entity.Models.CompanyService>> List(string search, int pageNumber, int pageSize);
         Task<List<entity.Models.CompanyService>> ListByCompanyId(int companyId);
         Task<List<entity.Models.CompanyService>> ListByCompanyId(int companyId, List<string> companyServiceGuids);
@@ -192,7 +193,7 @@ namespace xgca.data.CompanyService
             return count;
         }
 
-        public async Task<int> GetRecordCount(int nonProviderId, int serviceId, List<Guid> existingIds, string search)
+        public async Task<int> GetOtherProvidersRecordCount(int nonProviderId, int serviceId, List<Guid> existingIds, string search)
         {
             var predicate = PredicateBuilder.New<entity.Models.CompanyService>();
 
@@ -216,7 +217,7 @@ namespace xgca.data.CompanyService
                 predicate = predicate.And(x => x.ServiceId == serviceId);
             }
 
-            if (existingIds.Count != 0)
+            if (!(existingIds is null) || existingIds.Count != 0)
             {
                 predicate = predicate.And(x => !existingIds.Contains(x.Guid));
             }
@@ -224,6 +225,8 @@ namespace xgca.data.CompanyService
             predicate = predicate.And(x => x.IsDeleted == 0 && x.Status == 1);
 
             int count = await _context.CompanyServices.AsNoTracking()
+                .Include(i => i.Companies)
+                    .ThenInclude(h => h.Addresses)
                 .Where(predicate)
                 .CountAsync();
 
@@ -263,7 +266,7 @@ namespace xgca.data.CompanyService
 
             return companyServices;
         }
-        public async Task<List<entity.Models.CompanyService>> ListServiceProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds)
+        public async Task<(List<entity.Models.CompanyService>, int)> ListServiceProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds)
         {
             var predicate = PredicateBuilder.New<entity.Models.CompanyService>();
 
@@ -277,7 +280,7 @@ namespace xgca.data.CompanyService
                 predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.Addresses.CountryName, $"%{search}%")));
             }
 
-            if (existingIds.Count != 0)
+            if (!(existingIds is null) || existingIds.Count != 0)
             {
                 predicate = predicate.And(x => !existingIds.Contains(x.Guid));
             }
@@ -289,17 +292,61 @@ namespace xgca.data.CompanyService
 
             predicate = predicate.And(x => x.ServiceId != nonProviderId && x.IsDeleted == 0 && x.Status == 1);
 
-            List<entity.Models.CompanyService> companyServices = await _context.CompanyServices.AsNoTracking()
+            var result = _context.CompanyServices
                 .Include(x => x.Companies)
                     .ThenInclude(a => a.Addresses)
                 .Include(x => x.Companies)
                     .ThenInclude(c => c.ContactDetails)
-                 .Where(predicate)
+                .Where(predicate);
+
+            List<entity.Models.CompanyService> companyServices = await result.AsNoTracking()
                 .Skip(pageSize * pageNumber)
                 .Take(pageSize)
                 .ToListAsync();
 
-            return companyServices;
+            return (companyServices, result.Count());
+        }
+
+        public async Task<(List<entity.Models.CompanyService>, int)> ListPreferredProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds)
+        {
+            var predicate = PredicateBuilder.New<entity.Models.CompanyService>();
+
+            if (!(search is null || search.Equals("")))
+            {
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.CompanyCode, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.CompanyName, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.Addresses.AddressLine, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.Addresses.CityName, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.Addresses.StateName, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.Addresses.CountryName, $"%{search}%")));
+            }
+
+            if (!(existingIds is null) || existingIds.Count != 0)
+            {
+                predicate = predicate.And(x => existingIds.Contains(x.Guid));
+            }
+
+            if (serviceId != 0)
+            {
+                predicate = predicate.And(x => x.ServiceId == serviceId);
+            }
+
+            predicate = predicate.And(x => x.ServiceId != nonProviderId && x.IsDeleted == 0 && x.Status == 1);
+
+            var result  = _context.CompanyServices
+                .Include(x => x.Companies)
+                    .ThenInclude(a => a.Addresses)
+                .Include(x => x.Companies)
+                    .ThenInclude(c => c.ContactDetails)
+                .Where(predicate);
+
+
+            List<entity.Models.CompanyService> companyServices = await result.AsNoTracking()
+                .Skip(pageSize * pageNumber)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (companyServices, result.Count());
         }
 
         public async Task<List<string>> QuickSearch(string search, List<string> companyServiceId)
