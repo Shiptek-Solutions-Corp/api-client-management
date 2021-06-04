@@ -347,7 +347,9 @@ namespace xgca.core.CompanyService
                         PhoneNumber = (provider.Companies.ContactDetails.Phone is null) ? "-" : $"{provider.Companies.ContactDetails.PhonePrefix}{provider.Companies.ContactDetails.Phone}",
                         MobileNumber = (provider.Companies.ContactDetails.Mobile is null) ? "-" : $"{provider.Companies.ContactDetails.MobilePrefix}{provider.Companies.ContactDetails.Mobile}",
                         FaxNumber = (provider.Companies.ContactDetails.Fax is null) ? "-" : $"{provider.Companies.ContactDetails.FaxPrefix}{provider.Companies.ContactDetails.Fax}",
-                        Email = (provider.Companies.EmailAddress is null) ? "-" : provider.Companies.EmailAddress
+                        Email = (provider.Companies.EmailAddress is null) ? "-" : provider.Companies.EmailAddress,
+                        Country = provider.Companies.Addresses.CountryName,
+                        CountryId = provider.Companies.Addresses.CountryId,
                     });;
                 }
             }
@@ -379,7 +381,9 @@ namespace xgca.core.CompanyService
                         PhoneNumber = (provider.Companies.ContactDetails.Phone is null) ? "-" : $"{provider.Companies.ContactDetails.PhonePrefix}{provider.Companies.ContactDetails.Phone}",
                         MobileNumber = (provider.Companies.ContactDetails.Mobile is null) ? "-" : $"{provider.Companies.ContactDetails.MobilePrefix}{provider.Companies.ContactDetails.Mobile}",
                         FaxNumber = (provider.Companies.ContactDetails.Fax is null) ? "-" : $"{provider.Companies.ContactDetails.FaxPrefix}{provider.Companies.ContactDetails.Fax}",
-                        Email = (provider.Companies.EmailAddress is null) ? "-" : provider.Companies.EmailAddress
+                        Email = (provider.Companies.EmailAddress is null) ? "-" : provider.Companies.EmailAddress,
+                        Country = provider.Companies.Addresses.CountryName,
+                        CountryId = provider.Companies.Addresses.CountryId,
                     });
                 }
             }
