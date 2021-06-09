@@ -33,6 +33,19 @@ namespace xgca.entity
         DbSet<PreferredProvider> PreferredProviders { get; set; }
         DbSet<Invite> Invites { get; set; }
 
+
+        DbSet<BeneficialOwnersType> BeneficialOwnersType { get; set; }
+        DbSet<CompanyBeneficialOwners> CompanyBeneficialOwners { get; set; }
+        DbSet<CompanyDirectors> CompanyDirectors { get; set; }
+        DbSet<CompanyDocuments> CompanyDocuments { get; set; }
+        DbSet<CompanySections> CompanySections { get; set; }
+        DbSet<CompanyStructure> CompanyStructure { get; set; }
+        DbSet<DocumentCategory> DocumentCategory { get; set; }
+        DbSet<DocumentType> DocumentType { get; set; }
+        DbSet<KycStatus> KycStatus { get; set; }
+        DbSet<Section> Section { get; set; }
+        DbSet<SectionStatus> SectionStatus { get; set; }
+
     }
     public static class ModelBuilderExtensions
     {
@@ -88,7 +101,20 @@ namespace xgca.entity
         public DbSet<PreferredContact> PreferredContacts { get; set; }
         public DbSet<PreferredProvider> PreferredProviders { get; set; }
         public DbSet<Invite> Invites { get; set; }
-        
+
+
+        public virtual DbSet<BeneficialOwnersType> BeneficialOwnersType { get; set; }
+        public virtual DbSet<CompanyBeneficialOwners> CompanyBeneficialOwners { get; set; }
+        public virtual DbSet<CompanyDirectors> CompanyDirectors { get; set; }
+        public virtual DbSet<CompanyDocuments> CompanyDocuments { get; set; }
+        public virtual DbSet<CompanySections> CompanySections { get; set; }
+        public virtual DbSet<CompanyStructure> CompanyStructure { get; set; }
+        public virtual DbSet<DocumentCategory> DocumentCategory { get; set; }
+        public virtual DbSet<DocumentType> DocumentType { get; set; }
+        public virtual DbSet<KycStatus> KycStatus { get; set; }
+        public virtual DbSet<Section> Section { get; set; }
+        public virtual DbSet<SectionStatus> SectionStatus { get; set; }
+
         public Task<int> SaveChangesAsync() => base.SaveChangesAsync();
         public Task<int> SaveChangesAuditable()
         {
@@ -124,6 +150,535 @@ namespace xgca.entity
             modelBuilder.Entity<CompanyServiceUser>()
                 .Property(cgr => cgr.IsMasterUser)
                 .HasDefaultValue(0);
+
+            modelBuilder.Entity<BeneficialOwnersType>(entity =>
+            {
+                entity.HasKey(e => e.BeneficialOwnersTypeCode);
+
+                entity.ToTable("BeneficialOwnersType", "Settings");
+
+                entity.Property(e => e.BeneficialOwnersTypeCode).HasMaxLength(10);
+
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.DeletedBy).HasMaxLength(50);
+
+                entity.Property(e => e.Description)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.UpdatedBy)
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
+            });
+
+            modelBuilder.Entity<Company>(entity =>
+            {
+                entity.ToTable("Company", "Company");
+
+                entity.HasIndex(e => e.AddressId);
+
+                entity.HasIndex(e => e.ContactDetailId);
+
+                entity.Property(e => e.CompanyCode).HasMaxLength(10);
+
+                entity.Property(e => e.CompanyName)
+                    .IsRequired()
+                    .HasMaxLength(160);
+
+                entity.Property(e => e.CUCC).HasColumnName("CUCC");
+
+                entity.Property(e => e.EmailAddress).HasMaxLength(74);
+
+                entity.Property(e => e.ImageURL)
+                    .HasColumnName("ImageURL")
+                    .HasMaxLength(500);
+
+                entity.Property(e => e.KycStatusCode).HasMaxLength(10);
+
+                entity.Property(e => e.WebsiteURL)
+                    .HasColumnName("WebsiteURL")
+                    .HasMaxLength(50);
+
+                entity.HasOne(d => d.KycStatusCodeNavigation)
+                    .WithMany(p => p.Company)
+                    .HasForeignKey(d => d.KycStatusCode)
+                    .HasConstraintName("FK_Company_KycStatus");
+            });
+
+            modelBuilder.Entity<CompanyBeneficialOwners>(entity =>
+            {
+                entity.ToTable("CompanyBeneficialOwners", "Company");
+
+                entity.Property(e => e.AdditionalAddress).HasMaxLength(1500);
+
+                entity.Property(e => e.BeneficialOwnersTypeCode)
+                    .IsRequired()
+                    .HasMaxLength(10);
+
+                entity.Property(e => e.CityName).HasMaxLength(100);
+
+                entity.Property(e => e.CompanyAddress).HasMaxLength(1500);
+
+                entity.Property(e => e.CountryName)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.DateOfBirth).HasColumnType("date");
+
+                entity.Property(e => e.DeletedBy).HasMaxLength(50);
+
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(500);
+
+                entity.Property(e => e.StateName).HasMaxLength(100);
+
+                entity.Property(e => e.UpdatedBy)
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.ZipCode).HasMaxLength(10);
+
+                entity.HasOne(d => d.BeneficialOwnersTypeCodeNavigation)
+                    .WithMany(p => p.CompanyBeneficialOwners)
+                    .HasForeignKey(d => d.BeneficialOwnersTypeCode)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CompanyBeneficialOwners_BeneficialOwnersType");
+
+                entity.HasOne(d => d.Company)
+                    .WithMany(p => p.CompanyBeneficialOwners)
+                    .HasForeignKey(d => d.CompanyId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CompanyBeneficialOwners_Company");
+            });
+
+            modelBuilder.Entity<CompanyDirectors>(entity =>
+            {
+                entity.ToTable("CompanyDirectors", "Company");
+
+                entity.Property(e => e.AdditionalAddress).HasMaxLength(1500);
+
+                entity.Property(e => e.CityName).HasMaxLength(100);
+
+                entity.Property(e => e.CompanyAddress).HasMaxLength(1500);
+
+                entity.Property(e => e.CountryName)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.DateOfBirth).HasColumnType("date");
+
+                entity.Property(e => e.DeletedBy).HasMaxLength(50);
+
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(500);
+
+                entity.Property(e => e.StateName).HasMaxLength(100);
+
+                entity.Property(e => e.UpdatedBy)
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.ZipCode).HasMaxLength(10);
+
+                entity.HasOne(d => d.Company)
+                    .WithMany(p => p.CompanyDirectors)
+                    .HasForeignKey(d => d.CompanyId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CompanyDirectors_Company");
+            });
+
+            modelBuilder.Entity<CompanyDocuments>(entity =>
+            {
+                entity.ToTable("CompanyDocuments", "Company");
+
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.DeletedBy).HasMaxLength(50);
+
+                entity.Property(e => e.DocumentDescription).HasMaxLength(550);
+
+                entity.Property(e => e.DocumentNo).HasMaxLength(50);
+
+                entity.Property(e => e.DocumentTypeCode)
+                    .IsRequired()
+                    .HasMaxLength(10);
+
+                entity.Property(e => e.FileUrl).HasMaxLength(1500);
+
+                entity.Property(e => e.Guid).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.UpdatedBy)
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
+
+                entity.HasOne(d => d.Company)
+                    .WithMany(p => p.CompanyDocuments)
+                    .HasForeignKey(d => d.CompanyId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CompanyDocuments_Company");
+
+                entity.HasOne(d => d.DocumentTypeCodeNavigation)
+                    .WithMany(p => p.CompanyDocuments)
+                    .HasForeignKey(d => d.DocumentTypeCode)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CompanyDocuments_DocumentType");
+            });
+
+            modelBuilder.Entity<CompanySections>(entity =>
+            {
+                entity.ToTable("CompanySections", "Company");
+
+                entity.HasIndex(e => new { e.CompanyId, e.SectionCode })
+                    .HasName("IX_CompanySections")
+                    .IsUnique();
+
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.DeletedBy).HasMaxLength(50);
+
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.SectionCode)
+                    .IsRequired()
+                    .HasMaxLength(10);
+
+                entity.Property(e => e.SectionStatusCode)
+                    .IsRequired()
+                    .HasMaxLength(10);
+
+                entity.Property(e => e.UpdatedBy)
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
+
+                entity.HasOne(d => d.Company)
+                    .WithMany(p => p.CompanySections)
+                    .HasForeignKey(d => d.CompanyId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CompanySections_Company");
+
+                entity.HasOne(d => d.SectionCodeNavigation)
+                    .WithMany(p => p.CompanySections)
+                    .HasForeignKey(d => d.SectionCode)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CompanySections_Section");
+
+                entity.HasOne(d => d.SectionStatusCodeNavigation)
+                    .WithMany(p => p.CompanySections)
+                    .HasForeignKey(d => d.SectionStatusCode)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CompanySections_SectionStatus");
+            });
+
+            modelBuilder.Entity<CompanyStructure>(entity =>
+            {
+                entity.HasKey(e => e.CompanyId);
+
+                entity.ToTable("CompanyStructure", "Company");
+
+                entity.Property(e => e.CompanyId).ValueGeneratedNever();
+
+                entity.Property(e => e.AdditionalAddress).HasMaxLength(1500);
+
+                entity.Property(e => e.CityName).HasMaxLength(100);
+
+                entity.Property(e => e.CompanyAddress).HasMaxLength(1500);
+
+                entity.Property(e => e.CountryName)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.DeletedBy).HasMaxLength(50);
+
+                entity.Property(e => e.Guid).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.RegistrationNumber)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.StateName).HasMaxLength(100);
+
+                entity.Property(e => e.UpdatedBy)
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.ZipCode).HasMaxLength(10);
+
+                entity.HasOne(d => d.Company)
+                    .WithOne(p => p.CompanyStructure)
+                    .HasForeignKey<CompanyStructure>(d => d.CompanyId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CompanyStructure_Company");
+            });
+
+            modelBuilder.Entity<DocumentCategory>(entity =>
+            {
+                entity.HasKey(e => e.DocumentCategoryCode);
+
+                entity.ToTable("DocumentCategory", "Settings");
+
+                entity.Property(e => e.DocumentCategoryCode).HasMaxLength(10);
+
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.DeletedBy).HasMaxLength(50);
+
+                entity.Property(e => e.Description)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Guid).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.UpdatedBy)
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
+            });
+
+            modelBuilder.Entity<DocumentType>(entity =>
+            {
+                entity.HasKey(e => e.DocumentTypeCode);
+
+                entity.ToTable("DocumentType", "Settings");
+
+                entity.HasIndex(e => e.Description)
+                    .HasName("IX_DocumentType")
+                    .IsUnique();
+
+                entity.Property(e => e.DocumentTypeCode).HasMaxLength(10);
+
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.DeletedBy).HasMaxLength(50);
+
+                entity.Property(e => e.Description)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.DocumentCategoryCode)
+                    .IsRequired()
+                    .HasMaxLength(10);
+
+                entity.Property(e => e.Guid).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.UpdatedBy)
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
+
+                entity.HasOne(d => d.DocumentCategoryCodeNavigation)
+                    .WithMany(p => p.DocumentType)
+                    .HasForeignKey(d => d.DocumentCategoryCode)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_DocumentType_DocumentCategory");
+            });
+
+            modelBuilder.Entity<KycStatus>(entity =>
+            {
+                entity.HasKey(e => e.KycStatusCode);
+
+                entity.ToTable("KycStatus", "Settings");
+
+                entity.HasIndex(e => e.Description)
+                    .HasName("IX_KycStatus")
+                    .IsUnique();
+
+                entity.Property(e => e.KycStatusCode).HasMaxLength(10);
+
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.DeletedBy).HasMaxLength(50);
+
+                entity.Property(e => e.Description)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Guid).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.UpdatedBy)
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
+            });
+
+            modelBuilder.Entity<Section>(entity =>
+            {
+                entity.HasKey(e => e.SectionCode);
+
+                entity.ToTable("Section", "Settings");
+
+                entity.HasIndex(e => new { e.SectionCode, e.Description })
+                    .HasName("IX_Section")
+                    .IsUnique();
+
+                entity.Property(e => e.SectionCode).HasMaxLength(10);
+
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.DeletedBy).HasMaxLength(50);
+
+                entity.Property(e => e.Description)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Guid).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.UpdatedBy)
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
+            });
+
+            modelBuilder.Entity<SectionStatus>(entity =>
+            {
+                entity.HasKey(e => e.SectionStatusCode);
+
+                entity.ToTable("SectionStatus", "Settings");
+
+                entity.HasIndex(e => e.Description)
+                    .HasName("IX_SectionStatus")
+                    .IsUnique();
+
+                entity.Property(e => e.SectionStatusCode).HasMaxLength(10);
+
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.DeletedBy).HasMaxLength(50);
+
+                entity.Property(e => e.Description)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Guid).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.UpdatedBy)
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("(N'ADMIN')");
+
+                entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
+            });
+
 
             modelBuilder.SeedDefaultValues();
 

@@ -68,6 +68,11 @@ using xgca.core.Helpers.Service;
 
 namespace xlog_client_management_api
 {
+    //Scaffold-dbContext "Server=127.0.0.1,11433;Initial Catalog=Dev-Client;User ID=userClientDev;Password=VlormyFrbidrt" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -t Company.Company, Settings.KycStatus, Company.CompanyStructure, Company.CompanyDocuments, Company.CompanyBeneficialOwners, Company.CompanyDirectors, Company.CompanySections, Settings.DocumentType, Settings.DocumentCategory, Settings.BeneficialOwnersType, Settings.SectionStatus, Settings.Section -ContextDir Context -Context GlobalCmsServiceContext -f
+
+    //$env:ASPNETCORE_ENVIRONMENT='local'
+    //Script-Migration -Idempotent
+    //EntityFrameworkCore\Add-Migration nameofmigration
     public class Startup
     {
         public Startup(IConfiguration configuration, IWebHostEnvironment env)

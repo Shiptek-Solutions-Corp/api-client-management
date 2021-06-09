@@ -7,9 +7,9 @@ using System.Text;
 namespace xgca.entity.Models
 {
     [Table("Company", Schema = "Company")]
-    public class Company
+    public class CompanyBackup
     {
-        public Company()
+        public CompanyBackup()
         {
             CompanyBeneficialOwners = new HashSet<CompanyBeneficialOwners>();
             CompanyDirectors = new HashSet<CompanyDirectors>();
