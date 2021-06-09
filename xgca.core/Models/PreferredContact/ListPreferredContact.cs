@@ -17,5 +17,7 @@ namespace xgca.core.Models.PreferredContact
         public string MobileNumber { get; set; }
         public string FaxNumber { get; set; }
         public string Email { get; set; }
+        public int CountryId { get; set; }
+        public string AddressLine { get; set; }
     }
 }
