@@ -6,7 +6,7 @@ namespace xgca.entity.Models
     public partial class CompanyDocuments
     {
         public int CompanyId { get; set; }
-        public string DocumentTypeCode { get; set; }
+        public int DocumentTypeId { get; set; }
         public int CompanyDocumentsId { get; set; }
         public Guid Guid { get; set; }
         public string DocumentNo { get; set; }
@@ -22,6 +22,6 @@ namespace xgca.entity.Models
         public DateTime? DeletedOn { get; set; }
 
         public virtual Company Company { get; set; }
-        public virtual DocumentType DocumentTypeCodeNavigation { get; set; }
+        public virtual DocumentType DocumentType { get; set; }
     }
 }

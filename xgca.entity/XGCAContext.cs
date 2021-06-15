@@ -254,6 +254,8 @@ namespace xgca.entity
                     .IsRequired()
                     .HasMaxLength(500);
 
+                entity.Property(e => e.PostalCode).HasMaxLength(10);
+
                 entity.Property(e => e.StateName).HasMaxLength(100);
 
                 entity.Property(e => e.UpdatedBy)
@@ -261,8 +263,6 @@ namespace xgca.entity
                     .HasDefaultValueSql("(N'ADMIN')");
 
                 entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
-
-                entity.Property(e => e.PostalCode).HasMaxLength(10);
 
                 entity.HasOne(d => d.BeneficialOwnersTypeCodeNavigation)
                     .WithMany(p => p.CompanyBeneficialOwners)
@@ -310,6 +310,8 @@ namespace xgca.entity
                     .IsRequired()
                     .HasMaxLength(500);
 
+                entity.Property(e => e.PostalCode).HasMaxLength(10);
+
                 entity.Property(e => e.StateName).HasMaxLength(100);
 
                 entity.Property(e => e.UpdatedBy)
@@ -317,8 +319,6 @@ namespace xgca.entity
                     .HasDefaultValueSql("(N'ADMIN')");
 
                 entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
-
-                entity.Property(e => e.PostalCode).HasMaxLength(10);
 
                 entity.HasOne(d => d.Company)
                     .WithMany(p => p.CompanyDirectors)
@@ -344,10 +344,6 @@ namespace xgca.entity
 
                 entity.Property(e => e.DocumentNo).HasMaxLength(50);
 
-                entity.Property(e => e.DocumentTypeCode)
-                    .IsRequired()
-                    .HasMaxLength(10);
-
                 entity.Property(e => e.FileUrl).HasMaxLength(1500);
 
                 entity.Property(e => e.Guid).HasDefaultValueSql("(newid())");
@@ -368,9 +364,9 @@ namespace xgca.entity
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_CompanyDocuments_Company");
 
-                entity.HasOne(d => d.DocumentTypeCodeNavigation)
+                entity.HasOne(d => d.DocumentType)
                     .WithMany(p => p.CompanyDocuments)
-                    .HasForeignKey(d => d.DocumentTypeCode)
+                    .HasForeignKey(d => d.DocumentTypeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_CompanyDocuments_DocumentType");
             });
@@ -462,6 +458,8 @@ namespace xgca.entity
                     .IsRequired()
                     .HasDefaultValueSql("((1))");
 
+                entity.Property(e => e.PostalCode).HasMaxLength(10);
+
                 entity.Property(e => e.RegistrationNumber)
                     .IsRequired()
                     .HasMaxLength(50);
@@ -473,8 +471,6 @@ namespace xgca.entity
                     .HasDefaultValueSql("(N'ADMIN')");
 
                 entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
-
-                entity.Property(e => e.PostalCode).HasMaxLength(10);
 
                 entity.HasOne(d => d.Company)
                     .WithOne(p => p.CompanyStructure)
@@ -519,15 +515,11 @@ namespace xgca.entity
 
             modelBuilder.Entity<DocumentType>(entity =>
             {
-                entity.HasKey(e => e.DocumentTypeCode);
-
                 entity.ToTable("DocumentType", "Settings");
 
                 entity.HasIndex(e => e.Description)
                     .HasName("IX_DocumentType")
                     .IsUnique();
-
-                entity.Property(e => e.DocumentTypeCode).HasMaxLength(10);
 
                 entity.Property(e => e.CreatedBy)
                     .IsRequired()
