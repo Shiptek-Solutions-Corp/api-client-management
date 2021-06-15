@@ -15,7 +15,7 @@ namespace xgca.entity.Models
         public string StateName { get; set; }
         public int CityId { get; set; }
         public string CityName { get; set; }
-        public string ZipCode { get; set; }
+        public string PostalCode { get; set; }
         public string CompanyAddress { get; set; }
         public string AdditionalAddress { get; set; }
         public bool IsCompany { get; set; }
@@ -27,6 +27,8 @@ namespace xgca.entity.Models
         public bool IsDeleted { get; set; }
         public string DeletedBy { get; set; }
         public DateTime? DeletedOn { get; set; }
+        public Guid Guid { get; set; }
+        public string PostalId { get; set; }
 
         public virtual Company Company { get; set; }
     }
