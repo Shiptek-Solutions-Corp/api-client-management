@@ -122,7 +122,7 @@ namespace xgca.data.Repositories
 
             record.DocumentDescription = obj.DocumentDescription;
             record.DocumentNo = obj.DocumentNo;
-            record.DocumentTypeCode = obj.DocumentTypeCode;
+            record.DocumentTypeId = obj.DocumentTypeId;
             record.IsActive = obj.IsActive;
             record.UpdatedBy = obj.UpdatedBy;
             record.UpdatedOn = obj.UpdatedOn;

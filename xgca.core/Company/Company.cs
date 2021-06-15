@@ -30,6 +30,7 @@ using System.Data;
 using System.Globalization;
 using ClosedXML.Excel;
 using System.IO;
+using xgca.data.Repositories;
 
 namespace xgca.core.Company
 {
@@ -94,6 +95,8 @@ namespace xgca.core.Company
         private readonly ITokenHelper _tokenHelper;
         private readonly IGeneral _general;
 
+        private readonly IKYCStatusRepository _kycRepository;
+
         public Company(ICompanyData companyData,
             xgca.core.Address.IAddress coreAddress,
             xgca.core.ContactDetail.IContactDetail coreContactDetail,
@@ -109,7 +112,8 @@ namespace xgca.core.Company
             IOptions<GlobalCmsService> options,
             IHttpHelper httpHelper,
             ITokenHelper tokenHelper,
-            IGeneral general)
+            IGeneral general,
+            IKYCStatusRepository kycRepository)
         {
             _companyData = companyData;
             _coreAddress = coreAddress;
@@ -127,6 +131,7 @@ namespace xgca.core.Company
             _tokenHelper = tokenHelper;
             _options = options;
             _general = general;
+            _kycRepository = kycRepository;
         }
 
         public async Task<IGeneralModel> List()
@@ -194,7 +199,8 @@ namespace xgca.core.Company
                 ModifiedBy = createdById,
                 ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid(),
-                Status = 1
+                Status = 0,
+                KycStatusCode = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.NEW)
             };
 
             var companyId = await _companyData.CreateAndReturnId(company);
@@ -248,6 +254,7 @@ namespace xgca.core.Company
                 ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid(),
                 Status = 0, // Default Inactive
+                KycStatusCode = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.NEW)
             };
 
             var companyId = await _companyData.CreateAndReturnId(company);
@@ -356,6 +363,8 @@ namespace xgca.core.Company
 
             var companyServices = await _coreCompanyService.ListByCompanyId(companyKey);
 
+            var kycReturn = await _kycRepository.GetByKycStatusCode(result.KycStatusCode);
+
             var data = new
             {
                 CompanyId = result.Guid,
@@ -408,7 +417,8 @@ namespace xgca.core.Company
                 result.TaxExemption,
                 result.TaxExemptionStatus,
                 CompanyServices = companyServices.data.companyService,
-                result.Status
+                Status = (result.Status == 1) ? "Active" : "Inactive",
+                KYCStatus = (kycReturn.Item1 is null) ? "NEW" : kycReturn.Item1.Description
             };
 
             return _general.Response(new { company = data }, 200, "Configurable information for selected company has been displayed", true);
@@ -429,6 +439,8 @@ namespace xgca.core.Company
             var stateJson = (JObject)stateResponse;
 
             var companyServices = await _coreCompanyService.ListByCompanyId(companyId);
+
+            var kycReturn = await _kycRepository.GetByKycStatusCode(result.KycStatusCode);
 
             var data = new
             {
@@ -483,7 +495,8 @@ namespace xgca.core.Company
                 result.TaxExemption,
                 result.TaxExemptionStatus,
                 CompanyServices = companyServices.data.companyService,
-                result.Status
+                Status = (result.Status == 1) ? "Active" : "Inactive",
+                KYCStatus = (kycReturn.Item1 is null) ? "NEW" : kycReturn.Item1.Description
             };
 
             return _general.Response(new { company = data }, 200, "Configurable information for selected company has been displayed", true);
@@ -874,7 +887,8 @@ namespace xgca.core.Company
                     ModifiedOn = DateTime.UtcNow,
                     Guid = Guid.NewGuid(),
                     Status = 1,
-                    AccreditedBy = o.AccreditedBy
+                    AccreditedBy = o.AccreditedBy,
+                    KycStatusCode = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.NEW)
                 };
 
                 var companyId = await _companyData.CreateAndReturnId(company);

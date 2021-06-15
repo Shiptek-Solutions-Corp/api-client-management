@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace xgca.data.Repositories
 {
-    public interface IDocumentTypeRepository : IRepository<DocumentType>
+    public interface IDocumentTypeRepository : IRepository<DocumentType>, IRetrievableRepository<DocumentType>
     {
         Task<(List<DocumentType>, string)> ListExcept(List<string> documentTypeCodes);
     }
@@ -65,6 +65,30 @@ namespace xgca.data.Repositories
                 ? (null, "Record does not exists or may have been deleted")
                 : (record, "Document Type retrieved successfully");
 
+        }
+
+        public async Task<(string, string)> GetGuidById(int id)
+        {
+            string guid = await _context.DocumentTypes.AsNoTracking()
+                .Where(x => x.DocumentTypeId == id && x.IsDeleted == false)
+                .Select(c => c.Guid.ToString())
+                .FirstOrDefaultAsync();
+
+            return (guid is null)
+                ? (null, "Record does not exists or may have been deleted")
+                : (guid, "GUID retrieved");
+        }
+
+        public async Task<(int, string)> GetIdByGuid(string id)
+        {
+            int intId = await _context.DocumentTypes.AsNoTracking()
+                .Where(x => x.Guid == Guid.Parse(id) && x.IsDeleted == false)
+                .Select(c => c.DocumentTypeId)
+                .FirstOrDefaultAsync();
+
+            return (intId == 0)
+                ? (0, "Record does not exists or may have been deleted")
+                : (intId, "DocumentType Id retrieved");
         }
 
         public async Task<(List<DocumentType>, string)> List()

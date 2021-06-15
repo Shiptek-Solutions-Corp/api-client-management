@@ -167,6 +167,7 @@ namespace xlog_client_management_api
             services.AddScoped<ICompanyDocumentRepository, CompanyDocumentRepository>();
             services.AddScoped<IDocumentTypeRepository, DocumentTypeRepository>();
             services.AddScoped<ICompanyDirectorRepository, CompanyDirectorRepository>();
+            services.AddScoped<IKYCStatusRepository, KYCStatusRepository>();
 
 
             services.AddScoped<ICompanyGroupResource, CompanyGroupResource>();
@@ -204,6 +205,10 @@ namespace xlog_client_management_api
             services.AddScoped<IPreferredContactCore, PreferredContactCore>();
             services.AddScoped<IPreferredProviderCore, PreferredProviderCore>();
             services.AddScoped<IYourEDIService, YourEDIService>();
+            services.AddTransient<ICompanyStructureService, CompanyStructureService>();
+            services.AddTransient<ICompanyBeneficialOwnerService, CompanyBeneficialOwnerService>();
+            services.AddTransient<ICompanyDirectorService, CompanyDirectorService>();
+            services.AddTransient<ICompanyDocumentService, CompanyDocumentService>();
 
             services.AddScoped<IGLobalCmsService, xgca.core.Services.GlobalCmsService>();
 

@@ -23,7 +23,6 @@ namespace xgca.entity.Models
         public bool IsDeleted { get; set; }
         public string DeletedBy { get; set; }
         public DateTime? DeletedOn { get; set; }
-        public string Name { get; set; }
 
         public virtual DocumentCategory DocumentCategoryCodeNavigation { get; set; }
         public virtual ICollection<CompanyDocuments> CompanyDocuments { get; set; }
