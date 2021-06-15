@@ -408,6 +408,7 @@ namespace xgca.core.Company
                 result.TaxExemption,
                 result.TaxExemptionStatus,
                 CompanyServices = companyServices.data.companyService,
+                result.Status
             };
 
             return _general.Response(new { company = data }, 200, "Configurable information for selected company has been displayed", true);
@@ -482,6 +483,7 @@ namespace xgca.core.Company
                 result.TaxExemption,
                 result.TaxExemptionStatus,
                 CompanyServices = companyServices.data.companyService,
+                result.Status
             };
 
             return _general.Response(new { company = data }, 200, "Configurable information for selected company has been displayed", true);
