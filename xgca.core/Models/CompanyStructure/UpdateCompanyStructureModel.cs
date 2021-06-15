@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
-namespace xgca.entity.Models
+namespace xgca.core.Models.CompanyStructure
 {
-    public partial class CompanyStructure
+    public class UpdateCompanyStructureModel
     {
-        public int CompanyId { get; set; }
-        public Guid Guid { get; set; }
+        public string Id { get; set; }
         public string RegistrationNumber { get; set; }
         public string TotalEmployeeNo { get; set; }
         public int CountryId { get; set; }
@@ -19,15 +19,5 @@ namespace xgca.entity.Models
         public string PostalCode { get; set; }
         public string CompanyAddress { get; set; }
         public string AdditionalAddress { get; set; }
-        public bool? IsActive { get; set; }
-        public string CreatedBy { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public string UpdatedBy { get; set; }
-        public DateTime? UpdatedOn { get; set; }
-        public bool IsDeleted { get; set; }
-        public string DeletedBy { get; set; }
-        public DateTime? DeletedOn { get; set; }
-
-        public virtual Company Company { get; set; }
     }
 }

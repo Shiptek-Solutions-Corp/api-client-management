@@ -13,6 +13,7 @@ namespace xgca.entity.Models
         public string DocumentCategoryCode { get; set; }
         public string DocumentTypeCode { get; set; }
         public Guid Guid { get; set; }
+        public string Name { get; set; }
         public string Description { get; set; }
         public bool? IsActive { get; set; }
         public string CreatedBy { get; set; }

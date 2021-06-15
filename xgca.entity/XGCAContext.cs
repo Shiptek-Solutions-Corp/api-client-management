@@ -34,17 +34,17 @@ namespace xgca.entity
         DbSet<Invite> Invites { get; set; }
 
 
-        DbSet<BeneficialOwnersType> BeneficialOwnersType { get; set; }
+        DbSet<BeneficialOwnersType> BeneficialOwnersTypes { get; set; }
         DbSet<CompanyBeneficialOwners> CompanyBeneficialOwners { get; set; }
         DbSet<CompanyDirectors> CompanyDirectors { get; set; }
         DbSet<CompanyDocuments> CompanyDocuments { get; set; }
         DbSet<CompanySections> CompanySections { get; set; }
-        DbSet<CompanyStructure> CompanyStructure { get; set; }
-        DbSet<DocumentCategory> DocumentCategory { get; set; }
-        DbSet<DocumentType> DocumentType { get; set; }
-        DbSet<KycStatus> KycStatus { get; set; }
-        DbSet<Section> Section { get; set; }
-        DbSet<SectionStatus> SectionStatus { get; set; }
+        DbSet<CompanyStructure> CompanyStructures { get; set; }
+        DbSet<DocumentCategory> DocumentCategories { get; set; }
+        DbSet<DocumentType> DocumentTypes { get; set; }
+        DbSet<KycStatus> KycStatuses { get; set; }
+        DbSet<Section> Sections { get; set; }
+        DbSet<SectionStatus> SectionStatuses { get; set; }
 
     }
     public static class ModelBuilderExtensions
@@ -103,17 +103,17 @@ namespace xgca.entity
         public DbSet<Invite> Invites { get; set; }
 
 
-        public virtual DbSet<BeneficialOwnersType> BeneficialOwnersType { get; set; }
+        public virtual DbSet<BeneficialOwnersType> BeneficialOwnersTypes { get; set; }
         public virtual DbSet<CompanyBeneficialOwners> CompanyBeneficialOwners { get; set; }
         public virtual DbSet<CompanyDirectors> CompanyDirectors { get; set; }
         public virtual DbSet<CompanyDocuments> CompanyDocuments { get; set; }
         public virtual DbSet<CompanySections> CompanySections { get; set; }
-        public virtual DbSet<CompanyStructure> CompanyStructure { get; set; }
-        public virtual DbSet<DocumentCategory> DocumentCategory { get; set; }
-        public virtual DbSet<DocumentType> DocumentType { get; set; }
-        public virtual DbSet<KycStatus> KycStatus { get; set; }
-        public virtual DbSet<Section> Section { get; set; }
-        public virtual DbSet<SectionStatus> SectionStatus { get; set; }
+        public virtual DbSet<CompanyStructure> CompanyStructures { get; set; }
+        public virtual DbSet<DocumentCategory> DocumentCategories { get; set; }
+        public virtual DbSet<DocumentType> DocumentTypes { get; set; }
+        public virtual DbSet<KycStatus> KycStatuses { get; set; }
+        public virtual DbSet<Section> Sections { get; set; }
+        public virtual DbSet<SectionStatus> SectionStatuses { get; set; }
 
         public Task<int> SaveChangesAsync() => base.SaveChangesAsync();
         public Task<int> SaveChangesAuditable()
@@ -262,7 +262,7 @@ namespace xgca.entity
 
                 entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
 
-                entity.Property(e => e.ZipCode).HasMaxLength(10);
+                entity.Property(e => e.PostalCode).HasMaxLength(10);
 
                 entity.HasOne(d => d.BeneficialOwnersTypeCodeNavigation)
                     .WithMany(p => p.CompanyBeneficialOwners)
@@ -318,7 +318,7 @@ namespace xgca.entity
 
                 entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
 
-                entity.Property(e => e.ZipCode).HasMaxLength(10);
+                entity.Property(e => e.PostalCode).HasMaxLength(10);
 
                 entity.HasOne(d => d.Company)
                     .WithMany(p => p.CompanyDirectors)
@@ -474,7 +474,7 @@ namespace xgca.entity
 
                 entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
 
-                entity.Property(e => e.ZipCode).HasMaxLength(10);
+                entity.Property(e => e.PostalCode).HasMaxLength(10);
 
                 entity.HasOne(d => d.Company)
                     .WithOne(p => p.CompanyStructure)

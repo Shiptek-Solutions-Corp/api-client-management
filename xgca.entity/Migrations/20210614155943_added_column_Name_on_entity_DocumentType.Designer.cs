@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using xgca.entity;
 
 namespace xgca.entity.Migrations
 {
     [DbContext(typeof(XGCAContext))]
-    partial class XGCAContextModelSnapshot : ModelSnapshot
+    [Migration("20210614155943_added_column_Name_on_entity_DocumentType")]
+    partial class added_column_Name_on_entity_DocumentType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -140,22 +142,22 @@ namespace xgca.entity.Migrations
                         {
                             AddressTypeId = 1,
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2021, 6, 14, 16, 35, 51, 90, DateTimeKind.Utc).AddTicks(5800),
+                            CreatedOn = new DateTime(2021, 6, 14, 15, 59, 42, 753, DateTimeKind.Utc).AddTicks(3504),
                             Guid = new Guid("1e0621b2-b7ea-4d48-8be2-f09980694816"),
                             IsDeleted = (byte)0,
                             ModifiedBy = 0,
-                            ModifiedOn = new DateTime(2021, 6, 14, 16, 35, 51, 90, DateTimeKind.Utc).AddTicks(6635),
+                            ModifiedOn = new DateTime(2021, 6, 14, 15, 59, 42, 753, DateTimeKind.Utc).AddTicks(5469),
                             Name = "Company"
                         },
                         new
                         {
                             AddressTypeId = 2,
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2021, 6, 14, 16, 35, 51, 91, DateTimeKind.Utc).AddTicks(8596),
+                            CreatedOn = new DateTime(2021, 6, 14, 15, 59, 42, 755, DateTimeKind.Utc).AddTicks(9480),
                             Guid = new Guid("95ec682b-074f-42bb-9fed-d4dbde41e41d"),
                             IsDeleted = (byte)0,
                             ModifiedBy = 0,
-                            ModifiedOn = new DateTime(2021, 6, 14, 16, 35, 51, 91, DateTimeKind.Utc).AddTicks(8614),
+                            ModifiedOn = new DateTime(2021, 6, 14, 15, 59, 42, 755, DateTimeKind.Utc).AddTicks(9518),
                             Name = "Residential"
                         });
                 });
@@ -592,8 +594,8 @@ namespace xgca.entity.Migrations
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("DocumentDescription")
-                        .HasColumnType("nvarchar(550)")
+                    b.Property<byte[]>("DocumentDescription")
+                        .HasColumnType("varbinary(550)")
                         .HasMaxLength(550);
 
                     b.Property<string>("DocumentNo")

@@ -65,6 +65,7 @@ using xgca.data.PreferredProvider;
 using xgca.core.PreferredProvider;
 using xgca.core.Helpers.PreferredProvider;
 using xgca.core.Helpers.Service;
+using xgca.data.Repositories;
 
 namespace xlog_client_management_api
 {
@@ -160,6 +161,13 @@ namespace xlog_client_management_api
             services.AddScoped<IPreferredContactData, PreferredContactData>();
             services.AddScoped<IPreferredProviderData, PreferredProviderData>();
             services.AddScoped<IGeneral, General>();
+            services.AddScoped<ICompanySectionRepository, CompanySectionRepository>();
+            services.AddScoped<ICompanyStructureRepository, CompanyStructureRepository>();
+            services.AddScoped<ICompanyBeneficialOwnersRepository, CompanyBeneficialOwnersRepository>();
+            services.AddScoped<ICompanyDocumentRepository, CompanyDocumentRepository>();
+            services.AddScoped<IDocumentTypeRepository, DocumentTypeRepository>();
+            services.AddScoped<ICompanyDirectorRepository, CompanyDirectorRepository>();
+
 
             services.AddScoped<ICompanyGroupResource, CompanyGroupResource>();
             services.AddScoped<ICompanyGroupResourceData, CompanyGroupResourceData>();

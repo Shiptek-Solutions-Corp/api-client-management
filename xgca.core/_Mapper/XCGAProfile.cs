@@ -15,6 +15,14 @@ using xgca.core.Models.MenuModule;
 using xgca.core.Models.ModuleGroup;
 using xgca.core.Models.PreferredProvider;
 using xgca.core.Models.User;
+using xgca.core.Models.CompanyStructure;
+using xgca.core.Models.CompanyBeneficialOwner;
+using xgca.core.Models.CompanyDirector;
+using xgca.core.Models.CompanyDocument;
+using xgca.core.Models.CompanySection;
+using xgca.entity.Models;
+using xgca.core.Constants;
+using xgca.core.Enums;
 
 namespace xgca.core._Mapper
 {
@@ -54,6 +62,317 @@ namespace xgca.core._Mapper
             CreateMap<UpdateGuestContact, entity.Models.Guest>();
 
             CreateMap<CreatePreferredProvider, entity.Models.PreferredProvider>();
+
+            #region KYC Mapper Profiles
+            CreateMap<CreateCompanyStructureModel, entity.Models.CompanyStructure>()
+                .ForMember(i => i.CompanyId,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInCompanyId))
+                .ForMember(i => i.Guid,
+                    d => d.MapFrom(m => Guid.NewGuid()))
+                .ForMember(i => i.CreatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.CreatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow))
+                .ForMember(i => i.UpdatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.UpdatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow))
+                .ForMember(i => i.IsActive,
+                    d => d.MapFrom(m => true))
+                .ForMember(i => i.IsDeleted,
+                    d => d.MapFrom(m => false));
+
+            CreateMap<UpdateCompanyStructureModel, entity.Models.CompanyStructure>()
+                .ForMember(i => i.Guid,
+                    d => d.MapFrom(m => Guid.Parse(m.Id)))
+                .ForMember(i => i.UpdatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.UpdatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow));
+
+            CreateMap<entity.Models.CompanyStructure, GetCompanyStructureModel>()
+                .ForMember(i => i.Id,
+                    d => d.MapFrom(m => m.Guid.ToString()))
+                .ForMember(i => i.IsActive,
+                    d => d.MapFrom(m => (m.IsActive == true) ? 1 : 0));
+
+
+            CreateMap<CreateCompanyBeneficialOwnerModel, entity.Models.CompanyBeneficialOwners>()
+                .ForMember(i => i.CompanyId,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInCompanyId))
+                .ForMember(i => i.BeneficialOwnersTypeCode,
+                    d => d.MapFrom(m => Enum.GetName(typeof(Enums.BeneficialOwnerType), Enums.BeneficialOwnerType.C)))
+                .ForMember(i => i.Name,
+                    d => d.MapFrom(m => m.CompanyName))
+                .ForMember(i => i.DateOfBirth,
+                    d => d.MapFrom(m => m.DateEstablished))
+                .ForMember(i => i.Guid,
+                    d => d.MapFrom(m => Guid.NewGuid()))
+                .ForMember(i => i.CreatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.CreatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow))
+                .ForMember(i => i.UpdatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.UpdatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow))
+                .ForMember(i => i.IsActive,
+                    d => d.MapFrom(m => true))
+                .ForMember(i => i.IsDeleted,
+                    d => d.MapFrom(m => false));
+
+            CreateMap<CreateIndividualBeneficialOwnerModel, entity.Models.CompanyBeneficialOwners>()
+                .ForMember(i => i.CompanyId,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInCompanyId))
+                .ForMember(i => i.BeneficialOwnersTypeCode,
+                    d => d.MapFrom(m => Enum.GetName(typeof(Enums.BeneficialOwnerType), Enums.BeneficialOwnerType.I)))
+                .ForMember(i => i.Name,
+                    d => d.MapFrom(m => m.FullName))
+                .ForMember(i => i.CompanyAddress,
+                    d => d.MapFrom(m => m.PersonalAddress))
+                .ForMember(i => i.Guid,
+                    d => d.MapFrom(m => Guid.NewGuid()))
+                .ForMember(i => i.CreatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.CreatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow))
+                .ForMember(i => i.UpdatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.UpdatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow))
+                .ForMember(i => i.IsActive,
+                    d => d.MapFrom(m => true))
+                .ForMember(i => i.IsDeleted,
+                    d => d.MapFrom(m => false));
+
+            CreateMap<UpdateCompanyBeneficialOwnerModel, entity.Models.CompanyBeneficialOwners>()
+                .ForMember(i => i.Name,
+                    d => d.MapFrom(m => m.CompanyName))
+                .ForMember(i => i.DateOfBirth,
+                    d => d.MapFrom(m => m.DateEstablished))
+                .ForMember(i => i.Guid,
+                    d => d.MapFrom(m => Guid.Parse(m.Id)))
+                .ForMember(i => i.UpdatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.UpdatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow));
+
+            CreateMap<UpdateIndividualBeneficialOwnerModel, entity.Models.CompanyBeneficialOwners>()
+                .ForMember(i => i.Name,
+                    d => d.MapFrom(m => m.FullName))
+                .ForMember(i => i.CompanyAddress,
+                    d => d.MapFrom(m => m.PersonalAddress))
+                .ForMember(i => i.Guid,
+                    d => d.MapFrom(m => Guid.NewGuid()))
+                .ForMember(i => i.UpdatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.UpdatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow));
+
+            CreateMap<entity.Models.CompanyBeneficialOwners, GetCompanyBeneficialOwnerModel>()
+                .ForMember(i => i.CompanyName,
+                    d => d.MapFrom(m => m.Name))
+                .ForMember(i => i.DateEstablished,
+                    d => d.MapFrom(m => m.DateOfBirth))
+                .ForMember(i => i.Id,
+                    d => d.MapFrom(m => m.Guid.ToString()));
+
+            CreateMap<entity.Models.CompanyBeneficialOwners, GetIndividualBeneficialOwnerModel>()
+                .ForMember(i => i.FullName,
+                    d => d.MapFrom(m => m.Name))
+                .ForMember(i => i.PersonalAddress,
+                    d => d.MapFrom(m => m.CompanyAddress))
+                .ForMember(i => i.Id,
+                    d => d.MapFrom(m => m.Guid.ToString()));
+
+            CreateMap<GetCompanyBeneficialOwnerModel, CreateCompanyBeneficialOwnerModel>();
+            CreateMap<GetIndividualBeneficialOwnerModel, CreateIndividualBeneficialOwnerModel>();
+
+            CreateMap<GetCompanyBeneficialOwnerModel, UpdateCompanyBeneficialOwnerModel>();
+            CreateMap<GetIndividualBeneficialOwnerModel, UpdateIndividualBeneficialOwnerModel>();
+
+
+            CreateMap<CreateCompanyDirectorModel, entity.Models.CompanyDirectors>()
+                .ForMember(i => i.Name,
+                    d => d.MapFrom(m => m.FullName))
+                .ForMember(i => i.CompanyAddress,
+                    d => d.MapFrom(m => m.PersonalAddress))
+                .ForMember(i => i.Guid,
+                    d => d.MapFrom(m => Guid.NewGuid()))
+                .ForMember(i => i.CreatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.CreatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow))
+                .ForMember(i => i.UpdatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.UpdatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow))
+                .ForMember(i => i.IsActive,
+                    d => d.MapFrom(m => true))
+                .ForMember(i => i.IsDeleted,
+                    d => d.MapFrom(m => false));
+
+            CreateMap<UpdateCompanyDirectorModel, entity.Models.CompanyDirectors>()
+                .ForMember(i => i.Name,
+                    d => d.MapFrom(m => m.FullName))
+                .ForMember(i => i.CompanyAddress,
+                    d => d.MapFrom(m => m.PersonalAddress))
+                .ForMember(i => i.Guid,
+                    d => d.MapFrom(m => Guid.Parse(m.Id)))
+                .ForMember(i => i.UpdatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.UpdatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow));
+
+            CreateMap<entity.Models.CompanyDirectors, GetCompanyDirectorModel>()
+                .ForMember(i => i.FullName,
+                    d => d.MapFrom(m => m.Name))
+                .ForMember(i => i.PersonalAddress,
+                    d => d.MapFrom(m => m.CompanyAddress))
+                .ForMember(i => i.Id,
+                    d => d.MapFrom(m => m.Guid.ToString()));
+
+            CreateMap<GetCompanyDirectorModel, CreateCompanyDirectorModel>();
+            CreateMap<GetCompanyDirectorModel, UpdateCompanyDirectorModel>();
+
+
+            CreateMap<CreateCompanyDocumentModel, entity.Models.CompanyDocuments>()
+                .ForMember(i => i.Guid,
+                    d => d.MapFrom(m => Guid.NewGuid()))
+                .ForMember(i => i.CreatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.CreatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow))
+                .ForMember(i => i.UpdatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.UpdatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow))
+                .ForMember(i => i.IsActive,
+                    d => d.MapFrom(m => true))
+                .ForMember(i => i.IsDeleted,
+                    d => d.MapFrom(m => false));
+
+            CreateMap<CreatePBADocumentModel, entity.Models.CompanyDocuments>()
+                .ForMember(i => i.DocumentDescription,
+                    d => d.MapFrom(m => "Proof of Business Address"))
+                .ForMember(i => i.Guid,
+                    d => d.MapFrom(m => Guid.NewGuid()))
+                .ForMember(i => i.CreatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.CreatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow))
+                .ForMember(i => i.UpdatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.UpdatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow))
+                .ForMember(i => i.IsActive,
+                    d => d.MapFrom(m => true))
+                .ForMember(i => i.IsDeleted,
+                    d => d.MapFrom(m => false));
+
+            CreateMap<CreateOCDocumentModel, entity.Models.CompanyDocuments>()
+                .ForMember(i => i.DocumentDescription,
+                    d => d.MapFrom(m => "Organizational Chart"))
+                .ForMember(i => i.Guid,
+                    d => d.MapFrom(m => Guid.NewGuid()))
+                .ForMember(i => i.CreatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.CreatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow))
+                .ForMember(i => i.UpdatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.UpdatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow))
+                .ForMember(i => i.IsActive,
+                    d => d.MapFrom(m => true))
+                .ForMember(i => i.IsDeleted,
+                    d => d.MapFrom(m => false));
+
+            CreateMap<UpdateCompanyDocumentModel, entity.Models.CompanyDocuments>()
+                .ForMember(i => i.Guid,
+                    d => d.MapFrom(m => Guid.Parse(m.Id)))
+                .ForMember(i => i.UpdatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.UpdatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow));
+
+            CreateMap<UpdatePBADocumentModel, entity.Models.CompanyDocuments>()
+                .ForMember(i => i.DocumentDescription,
+                    d => d.MapFrom(m => "Proof of Business Address"))
+                .ForMember(i => i.Guid,
+                    d => d.MapFrom(m => Guid.Parse(m.Id)))
+                .ForMember(i => i.UpdatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.UpdatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow));
+
+            CreateMap<UpdateOCDocumentModel, entity.Models.CompanyDocuments>()
+                .ForMember(i => i.DocumentDescription,
+                    d => d.MapFrom(m => "Organizational Chart"))
+                .ForMember(i => i.Guid,
+                    d => d.MapFrom(m => Guid.Parse(m.Id)))
+                .ForMember(i => i.UpdatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.UpdatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow));
+
+            CreateMap<entity.Models.CompanyDocuments, GetCompanyDocumentModel>()
+                .ForMember(i => i.Id,
+                    d => d.MapFrom(m => m.Guid.ToString()));
+
+            CreateMap<entity.Models.CompanyDocuments, GetPBADocumentModel>()
+                .ForMember(i => i.Id,
+                    d => d.MapFrom(m => m.Guid.ToString()));
+
+            CreateMap<entity.Models.CompanyDocuments, GetOCDocumentModel>()
+                .ForMember(i => i.Id,
+                    d => d.MapFrom(m => m.Guid.ToString()));
+
+            CreateMap<GetPBADocumentModel, CreatePBADocumentModel>();
+            CreateMap<GetPBADocumentModel, UpdatePBADocumentModel>();
+
+            CreateMap<GetOCDocumentModel, CreateOCDocumentModel>();
+            CreateMap<GetOCDocumentModel, UpdateOCDocumentModel>();
+            
+            CreateMap<GetCompanyDocumentModel, CreateCompanyDocumentModel>();
+            CreateMap<GetCompanyDocumentModel, UpdateCompanyDocumentModel>();
+
+            CreateMap<CreateCompanySectionModel, entity.Models.CompanySections>()
+                .ForMember(i => i.CompanyId,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInCompanyId))
+                .ForMember(i => i.SectionStatusCode,
+                    d => d.MapFrom(m => Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.NW)))
+                .ForMember(i => i.Guid,
+                    d => d.MapFrom(m => Guid.NewGuid()))
+                .ForMember(i => i.CreatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.CreatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow))
+                .ForMember(i => i.UpdatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.UpdatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow))
+                .ForMember(i => i.IsDraft,
+                    d => d.MapFrom(m => true))
+                .ForMember(i => i.IsActive,
+                    d => d.MapFrom(m => true))
+                .ForMember(i => i.IsDeleted,
+                    d => d.MapFrom(m => false));
+
+            CreateMap<UpdateCompanySectionModel, entity.Models.CompanySections>()
+                .ForMember(i => i.SectionStatusCode,
+                    d => d.MapFrom(m => Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.NW)))
+                .ForMember(i => i.Guid,
+                    d => d.MapFrom(m => Guid.Parse(m.Id)))
+                .ForMember(i => i.UpdatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.UpdatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow))
+                .ForMember(i => i.IsDraft,
+                    d => d.MapFrom(m => true))
+                .ForMember(i => i.IsActive,
+                    d => d.MapFrom(m => true));
+            #endregion
         }
     }
 }
