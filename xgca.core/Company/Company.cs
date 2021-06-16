@@ -338,11 +338,8 @@ namespace xgca.core.Company
             var stateResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetState}/", newCompany.Addresses.StateId, AuthToken.Contra);
             var stateJson = (JObject)stateResponse;
 
-            var updatedCompany = CompanyHelper.ReturnUpdatedValue(newCompany, (cityJson)["data"]["cityId"].ToString(), (stateJson)["data"]["stateId"].ToString(), companyServices);
-            
             var kycReturn = await _kycRepository.GetByKycStatusCode(newCompany.KycStatusCode);
-            updatedCompany.Status = (newCompany.Status == 1) ? "Active" : "Inactive";
-            updatedCompany.KYCStatus = (kycReturn.Item1 is null) ? "NEW" : kycReturn.Item1.Description;
+            var updatedCompany = CompanyHelper.ReturnUpdatedValue(newCompany, (cityJson)["data"]["cityId"].ToString(), (stateJson)["data"]["stateId"].ToString(), companyServices, kycReturn.Item1.Description);
 
             var newValue = CompanyHelper.BuildCompanyValue(newCompany, companyServices);
 
