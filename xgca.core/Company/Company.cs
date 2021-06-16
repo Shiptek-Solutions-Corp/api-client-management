@@ -274,6 +274,8 @@ namespace xgca.core.Company
             var newCompanyServices = newCompanyServicesResponse.data.companyService;
             var companyLog = CompanyHelper.BuildCompanyValue(newCompany, newCompanyServices);
 
+            var kycReturn = await _kycRepository.GetByKycStatusCode(newCompany.KycStatusCode);
+
             // Create audit log
             await _coreAuditLog.CreateAuditLog("Create", company.GetType().Name, companyId, GlobalVariables.SystemUserId, companyLog, null);
 
@@ -337,6 +339,10 @@ namespace xgca.core.Company
             var stateJson = (JObject)stateResponse;
 
             var updatedCompany = CompanyHelper.ReturnUpdatedValue(newCompany, (cityJson)["data"]["cityId"].ToString(), (stateJson)["data"]["stateId"].ToString(), companyServices);
+            
+            var kycReturn = await _kycRepository.GetByKycStatusCode(newCompany.KycStatusCode);
+            updatedCompany.Status = (newCompany.Status == 1) ? "Active" : "Inactive";
+            updatedCompany.KYCStatus = (kycReturn.Item1 is null) ? "NEW" : kycReturn.Item1.Description;
 
             var newValue = CompanyHelper.BuildCompanyValue(newCompany, companyServices);
 
