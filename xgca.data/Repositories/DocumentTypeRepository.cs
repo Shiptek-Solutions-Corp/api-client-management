@@ -12,7 +12,7 @@ namespace xgca.data.Repositories
 {
     public interface IDocumentTypeRepository : IRepository<DocumentType>, IRetrievableRepository<DocumentType>
     {
-        Task<(List<DocumentType>, string)> ListExcept(List<string> documentTypeCodes);
+        Task<(List<DocumentType>, string)> ListAllBRC();
     }
     public class DocumentTypeRepository : IDocumentTypeRepository
     {
@@ -96,6 +96,16 @@ namespace xgca.data.Repositories
             var records = await _context.DocumentTypes.AsNoTracking()
                 .Include(i => i.DocumentCategoryCodeNavigation)
                 .Where(x => x.IsActive == true && x.IsDeleted == false)
+                .ToListAsync();
+
+            return (records, "Document Type listed successfully");
+        }
+
+        public async Task<(List<DocumentType>, string)> ListAllBRC()
+        {
+            var records = await _context.DocumentTypes.AsNoTracking()
+                .Include(i => i.DocumentCategoryCodeNavigation)
+                .Where(x => x.DocumentCategoryCode == "BRC" && x.IsActive == true && x.IsDeleted == false)
                 .ToListAsync();
 
             return (records, "Document Type listed successfully");
