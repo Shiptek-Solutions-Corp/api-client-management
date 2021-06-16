@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using xgca.core.Response;
 using xgca.data.Repositories;
+using System.Linq;
+using xgca.core.Models.DocumentType;
 
 namespace xgca.core.Services
 {
@@ -27,7 +29,15 @@ namespace xgca.core.Services
 
         public async Task<IGeneralModel> GetAllBRC()
         {
-            return null;
+            var (returnObj, returnMessage) = await _repository.ListAllBRC();
+
+            if (returnObj is null)
+            {
+                return _general.Response(null, 200, "No document types available", true);
+            }
+
+            var displayListModel = returnObj.Select(d => _mapper.Map<GetDocumentTypeModel>(d));
+            return _general.Response(new { DocumentTypes = displayListModel }, 200, "Document Types listed", true);
         }
     }
 }

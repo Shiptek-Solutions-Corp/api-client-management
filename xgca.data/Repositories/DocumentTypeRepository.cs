@@ -6,6 +6,7 @@ using xgca.entity;
 using xgca.entity.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using xgca.data.CustomModels.DocumentType;
 
 
 namespace xgca.data.Repositories
@@ -13,6 +14,8 @@ namespace xgca.data.Repositories
     public interface IDocumentTypeRepository : IRepository<DocumentType>, IRetrievableRepository<DocumentType>
     {
         Task<(List<DocumentType>, string)> ListAllBRC();
+        Task<(CustomGetDocumentTypeModel, string)> GetByDescription(string description);
+        Task<(List<CustomGetDocumentTypeModel>, string)> ListAllDocumentTypes();
     }
     public class DocumentTypeRepository : IDocumentTypeRepository
     {
@@ -67,6 +70,24 @@ namespace xgca.data.Repositories
 
         }
 
+        public async Task<(CustomGetDocumentTypeModel, string)> GetByDescription(string description)
+        {
+            var record = await _context.DocumentTypes.AsNoTracking()
+                .Where(x => x.Description == description.ToUpper() && x.IsActive == true && x.IsDeleted == true)
+                .Select(c => new CustomGetDocumentTypeModel
+                {
+                    DocumentTypeId = c.DocumentTypeId,
+                    DocumentTypeGuid = c.Guid.ToString(),
+                    DocumentTypeName = c.Name
+                })
+                .FirstOrDefaultAsync();
+            
+            return (record is null)
+                ? (null, "Record does not exists or may have been deleted")
+                : (record, "Document Type details retrieved");
+            
+        }
+
         public async Task<(string, string)> GetGuidById(int id)
         {
             string guid = await _context.DocumentTypes.AsNoTracking()
@@ -106,6 +127,22 @@ namespace xgca.data.Repositories
             var records = await _context.DocumentTypes.AsNoTracking()
                 .Include(i => i.DocumentCategoryCodeNavigation)
                 .Where(x => x.DocumentCategoryCode == "BRC" && x.IsActive == true && x.IsDeleted == false)
+                .ToListAsync();
+
+            return (records, "Document Type listed successfully");
+        }
+
+        public async Task<(List<CustomGetDocumentTypeModel>, string)> ListAllDocumentTypes()
+        {
+            var records = await _context.DocumentTypes.AsNoTracking()
+                .Include(i => i.DocumentCategoryCodeNavigation)
+                .Where(x => x.IsActive == true && x.IsDeleted == false)
+                .Select(c => new CustomGetDocumentTypeModel
+                {
+                    DocumentTypeId = c.DocumentTypeId,
+                    DocumentTypeGuid = c.Guid.ToString(),
+                    DocumentTypeName = c.Name
+                })
                 .ToListAsync();
 
             return (records, "Document Type listed successfully");

@@ -20,6 +20,7 @@ using xgca.core.Models.CompanyBeneficialOwner;
 using xgca.core.Models.CompanyDirector;
 using xgca.core.Models.CompanyDocument;
 using xgca.core.Models.CompanySection;
+using xgca.core.Models.DocumentType;
 using xgca.entity.Models;
 using xgca.core.Constants;
 using xgca.core.Enums;
@@ -372,6 +373,10 @@ namespace xgca.core._Mapper
                     d => d.MapFrom(m => true))
                 .ForMember(i => i.IsActive,
                     d => d.MapFrom(m => true));
+
+            CreateMap<entity.Models.DocumentType, GetDocumentTypeModel>()
+                .ForMember(i => i.Id,
+                    d => d.MapFrom(m => m.Guid.ToString()));
             #endregion
         }
     }

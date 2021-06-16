@@ -22,12 +22,14 @@ namespace xgca.core.Services
     {
         private readonly IMapper _mapper;
         private readonly ICompanyDocumentRepository _repository;
+        private readonly IDocumentTypeRepository _documentTypeRepository;
         private readonly IGeneral _general;
 
-        public CompanyDocumentService(IMapper _mapper, ICompanyDocumentRepository _repository, IGeneral _general)
+        public CompanyDocumentService(IMapper _mapper, ICompanyDocumentRepository _repository, IDocumentTypeRepository _documentTypeRepository, IGeneral _general)
         {
             this._mapper = _mapper;
             this._repository = _repository;
+            this._documentTypeRepository = _documentTypeRepository;
             this._general = _general;
         }
 
@@ -40,11 +42,14 @@ namespace xgca.core.Services
             string pbaNewId = null;
             string ocNewId = null;
 
+            var (documentTypes, documentTypeMessage) = await _documentTypeRepository.ListAllDocumentTypes();
+
             if (pba.Id.Equals("NEW"))
             {
                 var tempPBAModel = _mapper.Map<CreatePBADocumentModel>(pba);
                 var createPBAModel = _mapper.Map<CompanyDocuments>(tempPBAModel);
                 pbaNewId = createPBAModel.Guid.ToString();
+                int documentTypeId = documentTypes.SingleOrDefault(x => x.DocumentTypeName == createPBAModel.DocumentDescription.ToUpper()).DocumentTypeId;
                 newDocuments.Add(createPBAModel);
             }
             else
@@ -62,6 +67,7 @@ namespace xgca.core.Services
                 var tempOCModel = _mapper.Map<CreateOCDocumentModel>(oc);
                 var createOCModel = _mapper.Map<CompanyDocuments>(tempOCModel);
                 ocNewId = createOCModel.Guid.ToString();
+                int documentTypeId = documentTypes.SingleOrDefault(x => x.DocumentTypeName == createOCModel.DocumentDescription.ToUpper()).DocumentTypeId;
                 newDocuments.Add(createOCModel);
             }
             else
@@ -80,6 +86,7 @@ namespace xgca.core.Services
                 {
                     var tempModel = _mapper.Map<CreateCompanyDocumentModel>(companyDocument);
                     var createModel = _mapper.Map<CompanyDocuments>(tempModel);
+                    int documentTypeId = documentTypes.SingleOrDefault(x => x.DocumentTypeGuid == tempModel.DocumentTypeGuid).DocumentTypeId;
                     newDocuments.Add(createModel);
                 }
                 else
@@ -88,6 +95,7 @@ namespace xgca.core.Services
                     {
                         var tempModel = _mapper.Map<UpdateCompanyDocumentModel>(companyDocument);
                         var updateModel = _mapper.Map<CompanyDocuments>(tempModel);
+                        int documentTypeId = documentTypes.SingleOrDefault(x => x.DocumentTypeGuid == tempModel.DocumentTypeGuid).DocumentTypeId;
                         updateDocuments.Add(updateModel);
                     }
                     else if (companyDocument.IsDeleted)
@@ -127,7 +135,9 @@ namespace xgca.core.Services
 
                 foreach(var docs in tempNewDocs)
                 {
-                    listCompanyDocumentModel.Add(_mapper.Map<GetCompanyDocumentModel>(docs));
+                    var doc = _mapper.Map<GetCompanyDocumentModel>(docs);
+                    doc.DocumentTypeGuid = documentTypes.SingleOrDefault(x => x.DocumentTypeId == docs.DocumentTypeId).DocumentTypeGuid;
+                    listCompanyDocumentModel.Add(doc);
                 }
             }
 
@@ -138,7 +148,9 @@ namespace xgca.core.Services
 
                 foreach (var docs in tempNewDocs)
                 {
-                    listCompanyDocumentModel.Add(_mapper.Map<GetCompanyDocumentModel>(docs));
+                    var doc = _mapper.Map<GetCompanyDocumentModel>(docs);
+                    doc.DocumentTypeGuid = documentTypes.SingleOrDefault(x => x.DocumentTypeId == docs.DocumentTypeId).DocumentTypeGuid;
+                    listCompanyDocumentModel.Add(doc);
                 }
             }
 
