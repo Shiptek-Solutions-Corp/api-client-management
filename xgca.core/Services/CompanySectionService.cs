@@ -204,7 +204,9 @@ namespace xgca.core.Services
             int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(companyGuid));
             var companySections = await GetCompanySection(companyId);
 
-            return _general.Response(companySections, 200, "Company Sections retrieved successfully", true);
+            string overallKYCStatus = await _companyRepository.GetKYCStatus(companyId);
+
+            return _general.Response(new { OverallKYCStatus = overallKYCStatus, AdditionalInformation = companySections }, 200, "Company Sections retrieved successfully", true);
         }
 
         public async Task<IGeneralModel> GetCompanySectionsByCompanyId(int companyId)
@@ -212,7 +214,9 @@ namespace xgca.core.Services
             GlobalVariables.LoggedInUserId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
             var companySections = await GetCompanySection(companyId);
 
-            return _general.Response(companySections, 200, "Company Sections retrieved successfully", true);
+            string overallKYCStatus = await _companyRepository.GetKYCStatus(companyId);
+
+            return _general.Response(new { OverallKYCStatus = overallKYCStatus, AdditionalInformation = companySections }, 200, "Company Sections retrieved successfully", true);
         }
 
         public async Task<string> CheckOverallKYCStatus(int companyId)

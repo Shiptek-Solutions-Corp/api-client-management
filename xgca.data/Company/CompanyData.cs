@@ -45,6 +45,7 @@ namespace xgca.data.Company
         Task<entity.Models.Company> GetAccreditor(int companyId);
         Task<string> GetCompanyCode(string companyGuid);
         Task<(Biller, Customer)> GetInvoiceActors(string billerId, string customerId);
+        Task<string> GetKYCStatus(int companyId);
     }
 
     public class ActorReturn
@@ -686,6 +687,16 @@ namespace xgca.data.Company
             return (result > 0)
                 ? (kycStatusCode, "Company KYC Status updated successfully")
                 : (oldKYCSStatusCode, "Error in updating Company KYC Status");
+        }
+
+        public async Task<string> GetKYCStatus(int companyId)
+        {
+            string kycStatus = await _context.Companies.AsNoTracking()
+                .Where(x => x.CompanyId == companyId)
+                .Select(c => c.KycStatusCode)
+                .FirstOrDefaultAsync();
+
+            return kycStatus;
         }
     }
 }
