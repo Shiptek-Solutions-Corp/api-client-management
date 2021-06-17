@@ -11,12 +11,14 @@ using System.Threading.Tasks;
 using xgca.data.Company;
 using xgca.core.Constants;
 using xgca.entity.Models;
+using xgca.data.User;
 
 namespace xgca.core.Services
 {
     public interface ICompanyDocumentService
     {
         Task<IGeneralModel> ProcessCompanyDocuments(List<GetCompanyDocumentModel> companyDocuments, GetPBADocumentModel pba, GetOCDocumentModel oc);
+        Task<IGeneralModel> GetCompanyDocumentsByCompanyId(int companyId);
     }
     public class CompanyDocumentService : ICompanyDocumentService
     {
@@ -24,17 +26,56 @@ namespace xgca.core.Services
         private readonly ICompanyDocumentRepository _repository;
         private readonly IDocumentTypeRepository _documentTypeRepository;
         private readonly IGeneral _general;
+        private readonly IUserData _userRepository;
 
-        public CompanyDocumentService(IMapper _mapper, ICompanyDocumentRepository _repository, IDocumentTypeRepository _documentTypeRepository, IGeneral _general)
+        public CompanyDocumentService(IMapper _mapper, ICompanyDocumentRepository _repository, IDocumentTypeRepository _documentTypeRepository, IGeneral _general, IUserData _userRepository)
         {
             this._mapper = _mapper;
             this._repository = _repository;
             this._documentTypeRepository = _documentTypeRepository;
             this._general = _general;
+            this._userRepository = _userRepository;
+        }
+
+        public async Task<IGeneralModel> GetCompanyDocumentsByCompanyId(int companyId)
+        {
+            GlobalVariables.LoggedInUserId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
+
+            var (companyDocuments, pbaDoc, ocDoc, message) = await _repository.GetCompanyDocumentsByCompanyId(companyId);
+
+            var businessRegistrationCertificates = new List<GetCompanyDocumentModel>();
+            var proofOfBusinessAddress = new GetPBADocumentModel();
+            var organizationalChart = new GetOCDocumentModel();
+            var companyDocumentsSubSection = new GetCompanyDocumentSubSectionModel();
+            var businessRegisrationCertificates = new List<GetCompanyDocumentModel>();
+
+            if (!(companyDocuments is null))
+            {
+                companyDocuments.ForEach(e =>
+                {
+                    businessRegisrationCertificates.Add(_mapper.Map<GetCompanyDocumentModel>(e));
+                });
+            }
+
+            if (!(pbaDoc is null))
+            {
+                companyDocumentsSubSection.ProofOfBusinessAddress = _mapper.Map<GetPBADocumentModel>(pbaDoc);
+            }
+
+            if (!(ocDoc is null))
+            {
+                companyDocumentsSubSection.OrganizationalChart = _mapper.Map<GetOCDocumentModel>(ocDoc);
+            }
+
+            companyDocumentsSubSection.BusinessRegistrationCertificates = businessRegisrationCertificates;
+
+            return _general.Response(companyDocumentsSubSection, 200, message, true);
         }
 
         public async Task<IGeneralModel> ProcessCompanyDocuments(List<GetCompanyDocumentModel> companyDocuments, GetPBADocumentModel pba, GetOCDocumentModel oc)
         {
+            GlobalVariables.LoggedInUserId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
+
             var newDocuments = new List<CompanyDocuments>();
             var updateDocuments = new List<CompanyDocuments>();
             var deleteDocuments = new List<Guid>();
@@ -49,7 +90,7 @@ namespace xgca.core.Services
                 var tempPBAModel = _mapper.Map<CreatePBADocumentModel>(pba);
                 var createPBAModel = _mapper.Map<CompanyDocuments>(tempPBAModel);
                 pbaNewId = createPBAModel.Guid.ToString();
-                int documentTypeId = documentTypes.SingleOrDefault(x => x.DocumentTypeName == createPBAModel.DocumentDescription.ToUpper()).DocumentTypeId;
+                createPBAModel.DocumentTypeId = documentTypes.SingleOrDefault(x => x.DocumentTypeName.ToUpper() == createPBAModel.DocumentDescription.ToUpper()).DocumentTypeId;
                 newDocuments.Add(createPBAModel);
             }
             else
@@ -58,6 +99,7 @@ namespace xgca.core.Services
                 {
                     var tempPBAModel = _mapper.Map<UpdatePBADocumentModel>(pba);
                     var updatePBAModel = _mapper.Map<CompanyDocuments>(tempPBAModel);
+                    updatePBAModel.DocumentTypeId = documentTypes.SingleOrDefault(x => x.DocumentTypeName.ToUpper() == updatePBAModel.DocumentDescription.ToUpper()).DocumentTypeId;
                     updateDocuments.Add(updatePBAModel);
                 }
             }
@@ -67,7 +109,7 @@ namespace xgca.core.Services
                 var tempOCModel = _mapper.Map<CreateOCDocumentModel>(oc);
                 var createOCModel = _mapper.Map<CompanyDocuments>(tempOCModel);
                 ocNewId = createOCModel.Guid.ToString();
-                int documentTypeId = documentTypes.SingleOrDefault(x => x.DocumentTypeName == createOCModel.DocumentDescription.ToUpper()).DocumentTypeId;
+                createOCModel.DocumentTypeId = documentTypes.SingleOrDefault(x => x.DocumentTypeName.ToUpper() == createOCModel.DocumentDescription.ToUpper()).DocumentTypeId;
                 newDocuments.Add(createOCModel);
             }
             else
@@ -76,6 +118,7 @@ namespace xgca.core.Services
                 {
                     var tempOCModel = _mapper.Map<UpdateOCDocumentModel>(oc);
                     var updateOCModel = _mapper.Map<CompanyDocuments>(tempOCModel);
+                    updateOCModel.DocumentTypeId = documentTypes.SingleOrDefault(x => x.DocumentTypeName.ToUpper() == updateOCModel.DocumentDescription.ToUpper()).DocumentTypeId;
                     updateDocuments.Add(updateOCModel);
                 }
             }
@@ -86,7 +129,7 @@ namespace xgca.core.Services
                 {
                     var tempModel = _mapper.Map<CreateCompanyDocumentModel>(companyDocument);
                     var createModel = _mapper.Map<CompanyDocuments>(tempModel);
-                    int documentTypeId = documentTypes.SingleOrDefault(x => x.DocumentTypeGuid == tempModel.DocumentTypeGuid).DocumentTypeId;
+                    createModel.DocumentTypeId = documentTypes.SingleOrDefault(x => x.DocumentTypeName.ToUpper() == tempModel.DocumentDescription.ToUpper()).DocumentTypeId;
                     newDocuments.Add(createModel);
                 }
                 else
@@ -95,7 +138,7 @@ namespace xgca.core.Services
                     {
                         var tempModel = _mapper.Map<UpdateCompanyDocumentModel>(companyDocument);
                         var updateModel = _mapper.Map<CompanyDocuments>(tempModel);
-                        int documentTypeId = documentTypes.SingleOrDefault(x => x.DocumentTypeGuid == tempModel.DocumentTypeGuid).DocumentTypeId;
+                        updateModel.DocumentTypeId = documentTypes.SingleOrDefault(x => x.DocumentTypeGuid == tempModel.DocumentTypeGuid).DocumentTypeId;
                         updateDocuments.Add(updateModel);
                     }
                     else if (companyDocument.IsDeleted)
@@ -105,55 +148,47 @@ namespace xgca.core.Services
                 }
             }
 
-            var (createResult, createMessage) = await _repository.CreateCompanyDocuments(newDocuments);
-            var (updateResult, updateMessage) = await _repository.UpdateCompanyDocuments(updateDocuments);
-            var (deleteResult, deleteMessage) = await _repository.DeleteCompanyDocuments(deleteDocuments, GlobalVariables.LoggedInUsername);
-
-            var tempDisplayPBAModel = (pbaNewId is null)
-                ? updateResult.Find(x => x.Guid == Guid.Parse(pba.Id))
-                : createResult.Find(x => x.Guid == Guid.Parse(pbaNewId));
-            var displayPBAModel = new GetPBADocumentModel();
-            if (!(tempDisplayPBAModel is null))
+            if (newDocuments.Count != 0)
             {
-                displayPBAModel = _mapper.Map<GetPBADocumentModel>(tempDisplayPBAModel);
+                var (createResult, createMessage) = await _repository.CreateCompanyDocuments(newDocuments);
+            }
+            
+            if (updateDocuments.Count != 0)
+            {
+                foreach(var u in updateDocuments)
+                {
+                    var (updateResult, updateMessage) = await _repository.Update(u);
+                }
+            }
+            
+            if (deleteDocuments.Count != 0)
+            {
+                var (deleteResult, deleteMessage) = await _repository.DeleteCompanyDocuments(deleteDocuments, GlobalVariables.LoggedInUsername);
             }
 
-            var tempDisplayOCModel = (pbaNewId is null)
-                ? updateResult.Find(x => x.Guid == Guid.Parse(oc.Id))
-                : createResult.Find(x => x.Guid == Guid.Parse(ocNewId));
-            var displayOCModel = new GetOCDocumentModel();
-            if (!(tempDisplayOCModel is null))
+            var (brcDocs, pbaDoc, ocDoc, message) = await _repository.GetCompanyDocumentsByCompanyId(GlobalVariables.LoggedInCompanyId);
+
+            var displayPBAModel = new GetPBADocumentModel();
+            if (!(pbaDoc is null))
             {
-                displayOCModel = _mapper.Map<GetOCDocumentModel>(tempDisplayOCModel);
+                displayPBAModel = _mapper.Map<GetPBADocumentModel>(pbaDoc);
+            }
+
+            var displayOCModel = new GetOCDocumentModel();
+            if (!(ocDoc is null))
+            {
+                displayOCModel = _mapper.Map<GetOCDocumentModel>(ocDoc);
             }
 
             var listCompanyDocumentModel = new List<GetCompanyDocumentModel>();
-            if (!(createResult is null))
+
+            foreach(var docs in brcDocs)
             {
-                var tempNewDocs = createResult.Where(x => x.Guid == Guid.Parse(pba.Id) || x.Guid == Guid.Parse(pbaNewId)
-                    || x.Guid == Guid.Parse(oc.Id) || x.Guid == Guid.Parse(ocNewId)).ToList();
-
-                foreach(var docs in tempNewDocs)
-                {
-                    var doc = _mapper.Map<GetCompanyDocumentModel>(docs);
-                    doc.DocumentTypeGuid = documentTypes.SingleOrDefault(x => x.DocumentTypeId == docs.DocumentTypeId).DocumentTypeGuid;
-                    listCompanyDocumentModel.Add(doc);
-                }
+                var doc = _mapper.Map<GetCompanyDocumentModel>(docs);
+                doc.DocumentTypeGuid = documentTypes.SingleOrDefault(x => x.DocumentTypeId == docs.DocumentTypeId).DocumentTypeGuid;
+                listCompanyDocumentModel.Add(doc);
             }
-
-            if (!(updateResult is null))
-            {
-                var tempNewDocs = updateResult.Where(x => x.Guid == Guid.Parse(pba.Id) || x.Guid == Guid.Parse(pbaNewId)
-                    || x.Guid == Guid.Parse(oc.Id) || x.Guid == Guid.Parse(ocNewId)).ToList();
-
-                foreach (var docs in tempNewDocs)
-                {
-                    var doc = _mapper.Map<GetCompanyDocumentModel>(docs);
-                    doc.DocumentTypeGuid = documentTypes.SingleOrDefault(x => x.DocumentTypeId == docs.DocumentTypeId).DocumentTypeGuid;
-                    listCompanyDocumentModel.Add(doc);
-                }
-            }
-
+          
             var companyDocumentSubSection = new GetCompanyDocumentSubSectionModel
             {
                 BusinessRegistrationCertificates = listCompanyDocumentModel,

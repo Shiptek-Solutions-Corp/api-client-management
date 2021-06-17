@@ -93,9 +93,10 @@ namespace xgca.core._Mapper
 
             CreateMap<entity.Models.CompanyStructure, GetCompanyStructureModel>()
                 .ForMember(i => i.Id,
-                    d => d.MapFrom(m => m.Guid.ToString()))
-                .ForMember(i => i.IsActive,
-                    d => d.MapFrom(m => (m.IsActive == true) ? 1 : 0));
+                    d => d.MapFrom(m => m.Guid.ToString()));
+
+            CreateMap<GetCompanyStructureModel, CreateCompanyStructureModel>();
+            CreateMap<GetCompanyStructureModel, UpdateCompanyStructureModel>();
 
 
             CreateMap<CreateCompanyBeneficialOwnerModel, entity.Models.CompanyBeneficialOwners>()
@@ -149,6 +150,8 @@ namespace xgca.core._Mapper
             CreateMap<UpdateCompanyBeneficialOwnerModel, entity.Models.CompanyBeneficialOwners>()
                 .ForMember(i => i.Name,
                     d => d.MapFrom(m => m.CompanyName))
+                .ForMember(i => i.BeneficialOwnersTypeCode,
+                    d => d.MapFrom(m => Enum.GetName(typeof(Enums.BeneficialOwnerType), Enums.BeneficialOwnerType.C)))
                 .ForMember(i => i.DateOfBirth,
                     d => d.MapFrom(m => m.DateEstablished))
                 .ForMember(i => i.Guid,
@@ -161,6 +164,8 @@ namespace xgca.core._Mapper
             CreateMap<UpdateIndividualBeneficialOwnerModel, entity.Models.CompanyBeneficialOwners>()
                 .ForMember(i => i.Name,
                     d => d.MapFrom(m => m.FullName))
+                .ForMember(i => i.BeneficialOwnersTypeCode,
+                    d => d.MapFrom(m => Enum.GetName(typeof(Enums.BeneficialOwnerType), Enums.BeneficialOwnerType.I)))
                 .ForMember(i => i.CompanyAddress,
                     d => d.MapFrom(m => m.PersonalAddress))
                 .ForMember(i => i.Guid,
@@ -194,6 +199,8 @@ namespace xgca.core._Mapper
 
 
             CreateMap<CreateCompanyDirectorModel, entity.Models.CompanyDirectors>()
+                .ForMember(i => i.CompanyId,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInCompanyId))
                 .ForMember(i => i.Name,
                     d => d.MapFrom(m => m.FullName))
                 .ForMember(i => i.CompanyAddress,
@@ -238,6 +245,8 @@ namespace xgca.core._Mapper
 
 
             CreateMap<CreateCompanyDocumentModel, entity.Models.CompanyDocuments>()
+                .ForMember(i => i.CompanyId,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInCompanyId))
                 .ForMember(i => i.Guid,
                     d => d.MapFrom(m => Guid.NewGuid()))
                 .ForMember(i => i.CreatedBy,
@@ -254,6 +263,8 @@ namespace xgca.core._Mapper
                     d => d.MapFrom(m => false));
 
             CreateMap<CreatePBADocumentModel, entity.Models.CompanyDocuments>()
+                .ForMember(i => i.CompanyId,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInCompanyId))
                 .ForMember(i => i.DocumentDescription,
                     d => d.MapFrom(m => "Proof of Business Address"))
                 .ForMember(i => i.Guid,
@@ -272,6 +283,8 @@ namespace xgca.core._Mapper
                     d => d.MapFrom(m => false));
 
             CreateMap<CreateOCDocumentModel, entity.Models.CompanyDocuments>()
+                .ForMember(i => i.CompanyId,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInCompanyId))
                 .ForMember(i => i.DocumentDescription,
                     d => d.MapFrom(m => "Organizational Chart"))
                 .ForMember(i => i.Guid,
@@ -290,6 +303,8 @@ namespace xgca.core._Mapper
                     d => d.MapFrom(m => false));
 
             CreateMap<UpdateCompanyDocumentModel, entity.Models.CompanyDocuments>()
+                .ForMember(i => i.CompanyId,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInCompanyId))
                 .ForMember(i => i.Guid,
                     d => d.MapFrom(m => Guid.Parse(m.Id)))
                 .ForMember(i => i.UpdatedBy,
@@ -298,6 +313,8 @@ namespace xgca.core._Mapper
                     d => d.MapFrom(m => DateTime.UtcNow));
 
             CreateMap<UpdatePBADocumentModel, entity.Models.CompanyDocuments>()
+                .ForMember(i => i.CompanyId,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInCompanyId))
                 .ForMember(i => i.DocumentDescription,
                     d => d.MapFrom(m => "Proof of Business Address"))
                 .ForMember(i => i.Guid,
@@ -354,13 +371,15 @@ namespace xgca.core._Mapper
                 .ForMember(i => i.UpdatedOn,
                     d => d.MapFrom(m => DateTime.UtcNow))
                 .ForMember(i => i.IsDraft,
-                    d => d.MapFrom(m => true))
+                    d => d.MapFrom(m => false))
                 .ForMember(i => i.IsActive,
                     d => d.MapFrom(m => true))
                 .ForMember(i => i.IsDeleted,
                     d => d.MapFrom(m => false));
 
             CreateMap<UpdateCompanySectionModel, entity.Models.CompanySections>()
+                .ForMember(i => i.CompanyId,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInCompanyId))
                 .ForMember(i => i.SectionStatusCode,
                     d => d.MapFrom(m => Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.NW)))
                 .ForMember(i => i.Guid,
@@ -368,11 +387,19 @@ namespace xgca.core._Mapper
                 .ForMember(i => i.UpdatedBy,
                     d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
                 .ForMember(i => i.UpdatedOn,
-                    d => d.MapFrom(m => DateTime.UtcNow))
-                .ForMember(i => i.IsDraft,
-                    d => d.MapFrom(m => true))
-                .ForMember(i => i.IsActive,
-                    d => d.MapFrom(m => true));
+                    d => d.MapFrom(m => DateTime.UtcNow));
+
+            CreateMap<entity.Models.CompanySections, GetCompanySectionModel>();
+
+            CreateMap<entity.Models.CompanySections, GetCompanyStructureSectionModel>()
+                .ForMember(i => i.Id,
+                    d => d.MapFrom(m => m.Guid.ToString()));
+            CreateMap<entity.Models.CompanySections, GetCompanyBeneficialOwnerSectionModel>()
+                .ForMember(i => i.Id,
+                    d => d.MapFrom(m => m.Guid.ToString()));
+            CreateMap<entity.Models.CompanySections, GetCompanyDirectorSectionModel>()
+                .ForMember(i => i.Id,
+                    d => d.MapFrom(m => m.Guid.ToString()));
 
             CreateMap<entity.Models.DocumentType, GetDocumentTypeModel>()
                 .ForMember(i => i.Id,

@@ -11,6 +11,7 @@ namespace xgca.data.Company
 {
     public interface ICompanyData
     {
+        Task<(string, string)> UpdateKYCStatus(int companyId, string kycStatusCode, int userId);
         Task<bool> Create(entity.Models.Company obj);
         Task<int> CreateAndReturnId(entity.Models.Company obj);
         Task<List<entity.Models.Company>> List();
@@ -662,6 +663,29 @@ namespace xgca.data.Company
             data.AddRange(guests);
 
             return data;
+        }
+
+        public async Task<(string, string)> UpdateKYCStatus(int companyId, string kycStatusCode, int userId)
+        {
+            var record = await _context.Companies
+                .Where(x => x.CompanyId == companyId && x.IsDeleted == 0)
+                .FirstOrDefaultAsync();
+
+            string oldKYCSStatusCode = record.KycStatusCode;
+
+            if (record is null)
+            {
+                return (oldKYCSStatusCode, "Record does not exists or may have been deleted");
+            }
+
+            record.KycStatusCode = kycStatusCode;
+            record.ModifiedBy = userId;
+            record.ModifiedOn = DateTime.UtcNow;
+
+            var result = await _context.SaveChangesAsync();
+            return (result > 0)
+                ? (kycStatusCode, "Company KYC Status updated successfully")
+                : (oldKYCSStatusCode, "Error in updating Company KYC Status");
         }
     }
 }

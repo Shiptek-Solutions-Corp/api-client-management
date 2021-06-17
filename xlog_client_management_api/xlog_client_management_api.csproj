@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.Core" Version="3.5.1.23"/>
+    <PackageReference Include="AWSSDK.Core" Version="3.5.1.23" />
     <PackageReference Include="Amazon.AspNetCore.Identity.Cognito" Version="1.0.4" />
     <PackageReference Include="Amazon.Extensions.CognitoAuthentication" Version="1.0.3" />
     <PackageReference Include="AutoMapper" Version="10.0.0" />

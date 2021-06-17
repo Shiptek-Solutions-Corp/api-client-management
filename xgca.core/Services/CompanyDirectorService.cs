@@ -11,28 +11,55 @@ using System.Threading.Tasks;
 using xgca.data.Company;
 using xgca.core.Constants;
 using xgca.entity.Models;
+using xgca.data.User;
 
 namespace xgca.core.Services
 {
     public interface ICompanyDirectorService
     {
         Task<IGeneralModel> ProcessCompanyDirectors(List<GetCompanyDirectorModel> directors);
+        Task<IGeneralModel> GetByCompanyId(int companyId);
     }
     public class CompanyDirectorService : ICompanyDirectorService
     {
         private readonly IMapper _mapper;
         private readonly ICompanyDirectorRepository _repository;
         private IGeneral _general;
+        private readonly IUserData _userRepository;
 
-        public CompanyDirectorService(IMapper _mapper, ICompanyDirectorRepository _repository, IGeneral _general)
+        public CompanyDirectorService(IMapper _mapper, ICompanyDirectorRepository _repository, IGeneral _general, IUserData _userRepository)
         {
             this._mapper = _mapper;
             this._repository = _repository;
             this._general = _general;
+            this._userRepository = _userRepository;
+        }
+
+        public async Task<IGeneralModel> GetByCompanyId(int companyId)
+        {
+            GlobalVariables.LoggedInUserId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
+
+            var (directors, message) = await _repository.GetByCompanyId(companyId);
+
+            var companyDirectorSubSection = new GetCompanyDirectorSubSection();
+            var companyDirectors = new List<GetCompanyDirectorModel>();
+
+            if (!(directors is null))
+            {
+                directors.ForEach(e =>
+                {
+                    companyDirectors.Add(_mapper.Map<GetCompanyDirectorModel>(e));
+                });
+            }
+            companyDirectorSubSection.Directors = companyDirectors;
+
+            return _general.Response(companyDirectorSubSection, 200, message, true);
         }
 
         public async Task<IGeneralModel> ProcessCompanyDirectors(List<GetCompanyDirectorModel> directors)
         {
+            GlobalVariables.LoggedInUserId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
+
             var newDirectors = new List<CompanyDirectors>();
             var updateDirectors = new List<CompanyDirectors>();
             var deleteDirectors = new List<string>();
@@ -61,24 +88,25 @@ namespace xgca.core.Services
             }
 
             var (createResult, createMessage) = await _repository.BulkCreate(newDirectors);
-            var (updateResult, updateMessage) = await _repository.BulkUpdate(updateDirectors);
+            
+            if (updateDirectors.Count != 0)
+            {
+                foreach (var u in updateDirectors)
+                {
+                    var (updateResult, updateMessage) = await _repository.Update(u);
+                }
+            }
+
             var (deleteResult, deleteMessage) = await _repository.BulkDelete(deleteDirectors, GlobalVariables.LoggedInUsername);
 
+            var (companyDirectors, message) = await _repository.GetByCompanyId(GlobalVariables.LoggedInCompanyId);
+
             var listDirectorsModel = new List<GetCompanyDirectorModel>();
-            if (!(createResult is null))
+            if (!(companyDirectors is null))
+            companyDirectors.ForEach(e =>
             {
-                createResult.ForEach(e =>
-                {
-                    listDirectorsModel.Add(_mapper.Map<GetCompanyDirectorModel>(e));
-                });
-            }
-            if (!(updateResult is null))
-            {
-                updateResult.ForEach(e =>
-                {
-                    listDirectorsModel.Add(_mapper.Map<GetCompanyDirectorModel>(e));
-                });
-            }
+                listDirectorsModel.Add(_mapper.Map<GetCompanyDirectorModel>(e));
+            });
 
             return _general.Response(new { CompanyDirectors = listDirectorsModel }, 200, "Company Directors retrieved", true);
         }

@@ -11,28 +11,65 @@ using System.Threading.Tasks;
 using xgca.data.Company;
 using xgca.core.Constants;
 using xgca.entity.Models;
+using xgca.data.User;
 
 namespace xgca.core.Services
 {
     public interface ICompanyBeneficialOwnerService
     {
         Task<IGeneralModel> ProcessCompanyBeneficialOwners(List<GetCompanyBeneficialOwnerModel> companies, List<GetIndividualBeneficialOwnerModel> individuals);
+        Task<IGeneralModel> GetByCompanyId(int companyId);
     }
     public class CompanyBeneficialOwnerService : ICompanyBeneficialOwnerService
     {
         private readonly IMapper _mapper;
         private readonly ICompanyBeneficialOwnersRepository _repository;
         private readonly IGeneral _general;
+        private readonly IUserData _userRepository;
 
-        public CompanyBeneficialOwnerService(IMapper _mapper, ICompanyBeneficialOwnersRepository _repository, IGeneral _general)
+        public CompanyBeneficialOwnerService(IMapper _mapper, ICompanyBeneficialOwnersRepository _repository, IGeneral _general, IUserData _userRepository)
         {
             this._mapper = _mapper;
             this._repository = _repository;
             this._general = _general;
+            this._userRepository = _userRepository;
+        }
+
+        public async Task<IGeneralModel> GetByCompanyId(int companyId)
+        {
+            GlobalVariables.LoggedInUserId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
+
+            var (companies, individuals, message) = await _repository.GetByCompanyId(companyId);
+
+            var companyBenficialOwnerSubSection = new GetCompanyBeneficialOwnerSubSection();
+            var companyBeneficialOwner = new List<GetCompanyBeneficialOwnerModel>();
+            var individualBeneficialOwner = new List<GetIndividualBeneficialOwnerModel>();
+
+            if (!(companies is null))
+            {
+                companies.ForEach(e =>
+                {
+                    companyBeneficialOwner.Add(_mapper.Map<GetCompanyBeneficialOwnerModel>(e));
+                });
+            }
+
+            if (!(individuals is null))
+            {
+                individuals.ForEach(e =>
+                {
+                    individualBeneficialOwner.Add(_mapper.Map<GetIndividualBeneficialOwnerModel>(e));
+                });
+            }
+
+            companyBenficialOwnerSubSection.Companies = companyBeneficialOwner;
+            companyBenficialOwnerSubSection.Individuals = individualBeneficialOwner;
+
+            return _general.Response(companyBenficialOwnerSubSection, 200, message, true);
         }
 
         public async Task<IGeneralModel> ProcessCompanyBeneficialOwners(List<GetCompanyBeneficialOwnerModel> companies, List<GetIndividualBeneficialOwnerModel> individuals)
         {
+
             var newBeneficialOwners = new List<CompanyBeneficialOwners>();
             var updateBeneficialOwners = new List<CompanyBeneficialOwners>();
             var deleteBeneficialOwners = new List<Guid>();
@@ -64,7 +101,7 @@ namespace xgca.core.Services
             {
                 if (individual.Id.Equals("NEW"))
                 {
-                    var tempCreateIndividualModel = _mapper.Map<GetIndividualBeneficialOwnerModel>(individual);
+                    var tempCreateIndividualModel = _mapper.Map<CreateIndividualBeneficialOwnerModel>(individual);
                     var createIndividualModel = _mapper.Map<CompanyBeneficialOwners>(tempCreateIndividualModel);
                     newBeneficialOwners.Add(createIndividualModel);
                 }
@@ -84,46 +121,32 @@ namespace xgca.core.Services
             }
 
             var (createResult, createMessage) = await _repository.CreateBeneficialOwners(newBeneficialOwners);
-            var (updateResult, updateMessage) = await _repository.UpdateBeneficialOwners(updateBeneficialOwners);
-            var (deleteResult, deleteMessage) = await _repository.DeleteBeneficialOwners(deleteBeneficialOwners, GlobalVariables.LoggedInUsername);
 
-            var listCompanyBeneficialOwners = new List<GetCompanyBeneficialOwnerModel>();
-            if (!(createResult is null))
+            if (updateBeneficialOwners.Count != 0)
             {
-                var tempNewCompanies = createResult.Where(x => x.BeneficialOwnersTypeCode == Enum.GetName(typeof(Enums.BeneficialOwnerType), Enums.BeneficialOwnerType.C)).ToList();
-
-                tempNewCompanies.ForEach(e =>
+                foreach (var u in updateBeneficialOwners)
                 {
-                    listCompanyBeneficialOwners.Add(_mapper.Map<GetCompanyBeneficialOwnerModel>(e));
-                });
+                    var (updateResult, updateMessage) = await _repository.Update(u);
+                }
             }
 
-            if (!(updateResult is null))
-            {
-                var tempUpdateCompanies = updateResult.Where(x => x.BeneficialOwnersTypeCode == Enum.GetName(typeof(Enums.BeneficialOwnerType), Enums.BeneficialOwnerType.C)).ToList();
+            var (deleteResult, deleteMessage) = await _repository.DeleteBeneficialOwners(deleteBeneficialOwners, GlobalVariables.LoggedInUsername);
 
-                tempUpdateCompanies.ForEach(e =>
+            var (cboCompanies, cboIndividuals, message) = await _repository.GetByCompanyId(GlobalVariables.LoggedInCompanyId);
+
+            var listCompanyBeneficialOwners = new List<GetCompanyBeneficialOwnerModel>();
+            if (!(cboCompanies is null))
+            {
+                cboCompanies.ForEach(e =>
                 {
                     listCompanyBeneficialOwners.Add(_mapper.Map<GetCompanyBeneficialOwnerModel>(e));
                 });
             }
 
             var listIndividualBeneficialOwners = new List<GetIndividualBeneficialOwnerModel>();
-            if (!(createResult is null))
+            if (!(cboIndividuals is null))
             {
-                var tempNewIndividuals = createResult.Where(x => x.BeneficialOwnersTypeCode == Enum.GetName(typeof(Enums.BeneficialOwnerType), Enums.BeneficialOwnerType.I)).ToList();
-
-                tempNewIndividuals.ForEach(e =>
-                {
-                    listIndividualBeneficialOwners.Add(_mapper.Map<GetIndividualBeneficialOwnerModel>(e));
-                });
-            }
-
-            if (!(updateResult is null))
-            {
-                var tempUpdateIndividuals = updateResult.Where(x => x.BeneficialOwnersTypeCode == Enum.GetName(typeof(Enums.BeneficialOwnerType), Enums.BeneficialOwnerType.I)).ToList();
-
-                tempUpdateIndividuals.ForEach(e =>
+                cboIndividuals.ForEach(e =>
                 {
                     listIndividualBeneficialOwners.Add(_mapper.Map<GetIndividualBeneficialOwnerModel>(e));
                 });

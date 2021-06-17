@@ -109,7 +109,6 @@ namespace xgca.data.Repositories
                 return (null, "Record does not exists or may have been deleted");
             }
 
-            record.IsActive = obj.IsActive;
             record.RegistrationNumber = obj.RegistrationNumber;
             record.TotalEmployeeNo = obj.TotalEmployeeNo;
             record.CompanyAddress = obj.CompanyAddress;

@@ -10,6 +10,7 @@ using AutoMapper;
 using System.Threading.Tasks;
 using xgca.data.Company;
 using xgca.core.Constants;
+using xgca.data.User;
 
 namespace xgca.core.Services
 {
@@ -18,21 +19,23 @@ namespace xgca.core.Services
         Task<IGeneralModel> CreateCompanyStructure(CreateCompanyStructureModel obj);
         Task<IGeneralModel> UpdateCompanyStructure(UpdateCompanyStructureModel obj);
         Task<IGeneralModel> GetCompanyStrucureDetailsByCompanyProfile();
-        Task<IGeneralModel> GetCompanyStrucureDetailsByCompanyId(string companyGuid);
+        Task<IGeneralModel> GetCompanyStrucureDetailsByCompanyId(int companyId);
     }
     public class CompanyStructureService : ICompanyStructureService
     {
         private readonly IMapper _mapper;
         private readonly ICompanyStructureRepository _repository;
         private readonly IGeneral _general;
-        private readonly ICompanyData _companyData;
+        private readonly ICompanyData _companyRepository;
+        private readonly IUserData _userRepository;
 
-        public CompanyStructureService(IMapper _mapper, ICompanyStructureRepository _repository, IGeneral _general, ICompanyData _companyData)
+        public CompanyStructureService(IMapper _mapper, ICompanyStructureRepository _repository, IGeneral _general, ICompanyData _companyRepository, IUserData _userRepository)
         {
             this._mapper = _mapper;
             this._repository = _repository;
             this._general = _general;
-            this._companyData = _companyData;
+            this._companyRepository = _companyRepository;
+            this._userRepository = _userRepository;
         }
 
         public async Task<IGeneralModel> CreateCompanyStructure(CreateCompanyStructureModel obj)
@@ -41,6 +44,8 @@ namespace xgca.core.Services
             {
                 return _general.Response(null, 400, "Data cannot be null", false);
             }
+
+            GlobalVariables.LoggedInUserId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
 
             var createModel = _mapper.Map<entity.Models.CompanyStructure>(obj);
             var (returnObj, message) = await _repository.Create(createModel);
@@ -57,10 +62,8 @@ namespace xgca.core.Services
             return _general.Response(new { CompanyStructure = displayModel }, statusCode, message, isSuccessful);
         }
 
-        public async Task<IGeneralModel> GetCompanyStrucureDetailsByCompanyId(string companyGuid)
+        public async Task<IGeneralModel> GetCompanyStrucureDetailsByCompanyId(int companyId)
         {
-            int companyId = await _companyData.GetIdByGuid(Guid.Parse(companyGuid));
-
             var (returnObj, message) = await _repository.GetByCompanyId(companyId);
 
             int statusCode = (returnObj is null) ? 400 : 200;
@@ -97,6 +100,8 @@ namespace xgca.core.Services
             {
                 return _general.Response(null, 400, "Data cannot be null", false);
             }
+
+            GlobalVariables.LoggedInUserId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
 
             var updateModel = _mapper.Map<entity.Models.CompanyStructure>(obj);
             var (returnObj, message) = await _repository.Update(updateModel);

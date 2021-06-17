@@ -31,6 +31,8 @@ using System.Globalization;
 using ClosedXML.Excel;
 using System.IO;
 using xgca.data.Repositories;
+using xgca.core.Services;
+using GlobalCmsService = xgca.core.Helpers.GlobalCmsService;
 
 namespace xgca.core.Company
 {
@@ -90,6 +92,7 @@ namespace xgca.core.Company
         private readonly IUserData _userData;
         private readonly IGuestData _guestData;
 
+        private readonly ICompanySectionService _companySectionService;
         private readonly IOptions<GlobalCmsService> _options;
         private readonly IHttpHelper _httpHelper;
         private readonly ITokenHelper _tokenHelper;
@@ -109,6 +112,7 @@ namespace xgca.core.Company
             ICompanyUser coreCompanyUser,
             IUserData userData,
             IGuestData guestData,
+            ICompanySectionService companySectionService,
             IOptions<GlobalCmsService> options,
             IHttpHelper httpHelper,
             ITokenHelper tokenHelper,
@@ -127,6 +131,7 @@ namespace xgca.core.Company
             _coreCompanyUser = coreCompanyUser;
             _userData = userData;
             _guestData = guestData;
+            _companySectionService = companySectionService;
             _httpHelper = httpHelper;
             _tokenHelper = tokenHelper;
             _options = options;
@@ -260,6 +265,9 @@ namespace xgca.core.Company
             var companyId = await _companyData.CreateAndReturnId(company);
             if (companyId <= 0)
             { return _general.Response(null, 400, "Error on creating company", true); }
+
+            GlobalVariables.LoggedInCompanyId = companyId;
+            await _companySectionService.CreateInitialSections();
 
             await _coreCompanyService.CreateBatch(obj.Services, companyId, GlobalVariables.SystemUserId);
             await _coreCompanyServiceRole.CreateDefault(companyId, GlobalVariables.SystemUserId);

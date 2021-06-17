@@ -11,6 +11,7 @@ namespace xgca.data.Repositories
 {
     public interface ICompanyDirectorRepository : IRepository<CompanyDirectors>, IBulkRepository<CompanyDirectors>
     {
+        Task<(List<CompanyDirectors>, string)> GetByCompanyId(int companyId);
     }
     public class CompanyDirectorRepository : ICompanyDirectorRepository
     {
@@ -105,6 +106,15 @@ namespace xgca.data.Repositories
                 : (record, "Company Director retrieved");
         }
 
+        public async Task<(List<CompanyDirectors>, string)> GetByCompanyId(int companyId)
+        {
+            var records = await _context.CompanyDirectors.AsNoTracking()
+                .Where(x => x.CompanyId == companyId && x.IsDeleted == false && x.IsActive == true)
+                .ToListAsync();
+
+            return (records, "Company Directors retrieved");
+        }
+
         public Task<(List<CompanyDirectors>, string)> List()
         {
             throw new NotImplementedException();
@@ -121,7 +131,6 @@ namespace xgca.data.Repositories
                 return (null, "Record does not exists or may have been deleted");
             }
 
-            record.IsActive = obj.IsActive;
             record.Name = obj.Name;
             record.DateOfBirth = obj.DateOfBirth;
             record.CompanyAddress = obj.CompanyAddress;

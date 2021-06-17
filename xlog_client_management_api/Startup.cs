@@ -66,6 +66,7 @@ using xgca.core.PreferredProvider;
 using xgca.core.Helpers.PreferredProvider;
 using xgca.core.Helpers.Service;
 using xgca.data.Repositories;
+using Z.EntityFramework.Extensions;
 
 namespace xlog_client_management_api
 {
@@ -168,6 +169,9 @@ namespace xlog_client_management_api
             services.AddScoped<IDocumentTypeRepository, DocumentTypeRepository>();
             services.AddScoped<ICompanyDirectorRepository, CompanyDirectorRepository>();
             services.AddScoped<IKYCStatusRepository, KYCStatusRepository>();
+            services.AddScoped<ICompanySectionRepository, CompanySectionRepository>();
+            services.AddScoped<ISectionRepository, SectionRepository>();
+
 
 
             services.AddScoped<ICompanyGroupResource, CompanyGroupResource>();
@@ -209,6 +213,8 @@ namespace xlog_client_management_api
             services.AddTransient<ICompanyBeneficialOwnerService, CompanyBeneficialOwnerService>();
             services.AddTransient<ICompanyDirectorService, CompanyDirectorService>();
             services.AddTransient<ICompanyDocumentService, CompanyDocumentService>();
+            services.AddTransient<ICompanySectionService, CompanySectionService>();
+            services.AddTransient<IDocumentTypeService, DocumentTypeService>();
 
             services.AddScoped<IGLobalCmsService, xgca.core.Services.GlobalCmsService>();
 

@@ -16,6 +16,7 @@ namespace xgca.data.Repositories
         Task<(List<CompanySections>, string)> CreateCompanySections(List<CompanySections> obj);
         Task<(bool, string)> UpdateMultipleStatusByCompanyId(CompanySections obj);
         Task<(CompanySections, string)> SaveAsDraft(CompanySections obj);
+        Task<(CompanySections, string)> UpdateStatus(CompanySections obj);
 
     }
     public class CompanySectionRepository : ICompanySectionRepository
@@ -170,6 +171,27 @@ namespace xgca.data.Repositories
             return (result > 0)
                 ? (obj, "Company Section updated as draft successfully")
                 : (null, "Error in updating Company Sections as draft");
+        }
+
+        public async Task<(CompanySections, string)> UpdateStatus(CompanySections obj)
+        {
+            var record = await _context.CompanySections
+                .Where(x => x.Guid == obj.Guid && x.IsDeleted == false)
+                .FirstOrDefaultAsync();
+
+            if (record is null)
+            {
+                return (null, "Record does not exists or may have been deleted");
+            }
+
+            record.SectionStatusCode = obj.SectionStatusCode;
+            record.UpdatedBy = obj.UpdatedBy;
+            record.UpdatedOn = obj.UpdatedOn;
+
+            var result = await _context.SaveChangesAsync();
+            return (result > 0)
+                ? (obj, "Company Section status updated successfully")
+                : (null, "Error in updating Company Section status");
         }
     }
 }

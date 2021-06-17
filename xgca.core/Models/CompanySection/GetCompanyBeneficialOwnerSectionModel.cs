@@ -11,7 +11,6 @@ namespace xgca.core.Models.CompanySection
         public string SectionCode { get; set; }
         public string SectionName { get; set; }
         public bool IsDraft { get; set; }
-        public bool? IsActive { get; set; }
         public List<GetCompanyBeneficialOwnerModel> Company { get; set; }
         public List<GetIndividualBeneficialOwnerModel> Individual { get; set; }
     }

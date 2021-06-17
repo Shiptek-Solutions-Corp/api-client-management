@@ -19,7 +19,6 @@ namespace xgca.core.Models.CompanyStructure
         public string PostalCode { get; set; }
         public string CompanyAddress { get; set; }
         public string AdditionalAddress { get; set; }
-        public bool? IsActive { get; set; }
         public bool IsDeleted { get; set; }
     }
 }

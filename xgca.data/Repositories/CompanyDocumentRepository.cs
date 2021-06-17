@@ -14,6 +14,7 @@ namespace xgca.data.Repositories
         Task<(List<CompanyDocuments>, string)> CreateCompanyDocuments(List<CompanyDocuments> docs);
         Task<(bool, string)> DeleteCompanyDocuments(List<Guid> ids, string username);
         Task<(List<CompanyDocuments>, string)> UpdateCompanyDocuments(List<CompanyDocuments> docs);
+        Task<(List<CompanyDocuments>, CompanyDocuments, CompanyDocuments, string)> GetCompanyDocumentsByCompanyId(int companyId);
     }
     public class CompanyDocumentRepository : ICompanyDocumentRepository
     {
@@ -100,6 +101,25 @@ namespace xgca.data.Repositories
                 : (record, "Comany Document retrieved");
         }
 
+        public async Task<(List<CompanyDocuments>, CompanyDocuments, CompanyDocuments, string)> GetCompanyDocumentsByCompanyId(int companyId)
+        {
+            var records = await _context.CompanyDocuments.AsNoTracking()
+                .Include(i => i.DocumentType)
+                .Where(x => x.CompanyId == companyId && x.IsActive == true && x.IsDeleted == false)
+                .ToListAsync();
+
+            if (records.Count == 0)
+            {
+                return (null, null, null, "No company documents found");
+            }
+
+            var proofOfBusinessAddress = records.Find(x => x.DocumentDescription == "Proof of Business Address");
+            var organizationalChart = records.Find(x => x.DocumentDescription == "Organizational Chart");
+            var companyDocuments = records.Where(x => x.DocumentType.DocumentCategoryCode == "BRC").ToList();
+
+            return (companyDocuments, proofOfBusinessAddress, organizationalChart, "Company Documents retrieved");
+        }
+
         public async Task<(List<CompanyDocuments>, string)> List()
         {
             var records = await _context.CompanyDocuments.AsNoTracking()
@@ -123,7 +143,6 @@ namespace xgca.data.Repositories
             record.DocumentDescription = obj.DocumentDescription;
             record.DocumentNo = obj.DocumentNo;
             record.DocumentTypeId = obj.DocumentTypeId;
-            record.IsActive = obj.IsActive;
             record.UpdatedBy = obj.UpdatedBy;
             record.UpdatedOn = obj.UpdatedOn;
 

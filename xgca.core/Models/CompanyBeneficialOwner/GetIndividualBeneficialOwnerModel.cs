@@ -20,7 +20,6 @@ namespace xgca.core.Models.CompanyBeneficialOwner
         public string PostalCode { get; set; }
         public string PersonalAddress { get; set; }
         public string AdditionalAddress { get; set; }
-        public bool? IsActive { get; set; }
         public bool IsUpdate { get; set; } = false;
         public bool IsDeleted { get; set; } = false;
     }

@@ -19,7 +19,6 @@ namespace xgca.core.Models.CompanyDirector
         public string PostalCode { get; set; }
         public string PersonalAddress { get; set; }
         public string AdditionalAddress { get; set; }
-        public bool? IsActive { get; set; }
         public bool IsUpdated { get; set; }
         public bool IsDeleted { get; set; }
     }

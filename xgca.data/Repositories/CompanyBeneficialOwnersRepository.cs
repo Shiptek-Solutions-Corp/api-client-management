@@ -14,6 +14,7 @@ namespace xgca.data.Repositories
         Task<(List<CompanyBeneficialOwners>, string)> CreateBeneficialOwners(List<CompanyBeneficialOwners> obj);
         Task<(List<CompanyBeneficialOwners>, string)> UpdateBeneficialOwners(List<CompanyBeneficialOwners> obj);
         Task<(bool, string)> DeleteBeneficialOwners(List<Guid> ids, string username);
+        Task<(List<CompanyBeneficialOwners>, List<CompanyBeneficialOwners>, string)> GetByCompanyId(int companyId);
     }
     public class CompanyBeneficialOwnersRepository : ICompanyBeneficialOwnersRepository
     {
@@ -94,6 +95,23 @@ namespace xgca.data.Repositories
             throw new NotImplementedException();
         }
 
+        public async Task<(List<CompanyBeneficialOwners>, List<CompanyBeneficialOwners>, string)> GetByCompanyId(int companyId)
+        {
+            var records = await _context.CompanyBeneficialOwners.AsNoTracking()
+                .Where(x => x.CompanyId == companyId && x.IsDeleted == false && x.IsActive == true)
+                .ToListAsync();
+
+            if (records.Count == 0)
+            {
+                return (null, null, "No beneficial owners found");
+            }
+
+            var companies = records.Where(x => x.BeneficialOwnersTypeCode == "C").ToList();
+            var individuals = records.Where(x => x.BeneficialOwnersTypeCode == "I").ToList();
+
+            return (companies, individuals, "Company Beneficial Owners retrieved");
+        }
+
         public Task<(List<CompanyBeneficialOwners>, string)> List()
         {
             throw new NotImplementedException();
@@ -121,7 +139,6 @@ namespace xgca.data.Repositories
             record.StateName = obj.StateName;
             record.CountryId = obj.CountryId;
             record.CountryName = obj.CountryName;
-            record.IsActive = obj.IsActive;
 
             var result = await _context.SaveChangesAsync();
 

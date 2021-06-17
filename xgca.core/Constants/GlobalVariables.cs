@@ -22,6 +22,7 @@ namespace xgca.core.Constants
         public static int GuestConsignee = 1;
         public static int GuestNotifyParty = 2;
 
+        public static int LoggedInUserId = 0;
         public static string LoggedInUsername = "system";
         public static int LoggedInCompanyId = 0;
     }
