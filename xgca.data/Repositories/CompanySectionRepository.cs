@@ -17,6 +17,7 @@ namespace xgca.data.Repositories
         Task<(bool, string)> UpdateMultipleStatusByCompanyId(CompanySections obj);
         Task<(CompanySections, string)> SaveAsDraft(CompanySections obj);
         Task<(CompanySections, string)> UpdateStatus(CompanySections obj);
+        Task<(bool, string)> CheckIfCompanyHaveCompanySections(int companyId);
 
     }
     public class CompanySectionRepository : ICompanySectionRepository
@@ -193,5 +194,16 @@ namespace xgca.data.Repositories
                 ? (obj, "Company Section status updated successfully")
                 : (null, "Error in updating Company Section status");
         }
+
+        public async Task<(bool, string)> CheckIfCompanyHaveCompanySections(int companyId)
+        {
+            var records = await _context.CompanySections.AsNoTracking()
+                .Where(x => x.CompanyId == companyId && x.IsDeleted == false && x.IsActive == true)
+                .ToListAsync();
+
+            return (records.Count > 0)
+                ? (true, "Company sections exists")
+                : (false, "Company sections does not exists");
+        } 
     }
 }

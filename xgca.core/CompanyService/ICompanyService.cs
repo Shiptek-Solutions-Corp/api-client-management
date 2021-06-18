@@ -9,6 +9,7 @@ namespace xgca.core.CompanyService
     {
         //Task<IGeneralModel> ListProviders(int companyId, string serviceId, int pageNumber, int pageSize, int recordCount);
         Task<IGeneralModel> ListProviders(int companyId, string search, string serviceId, int otherProviderPageNumber, int otherProviderPageSize, int otherProviderRecordCount, int preferredProviderPageNumber, int preferredProviderPageSize, int preferredProviderRecordCount);
+        Task<IGeneralModel> ListBookingParties(int companyId, string search, string serviceId, int otherProviderPageNumber, int otherProviderPageSize, int otherProviderRecordCount, int preferredProviderPageNumber, int preferredProviderPageSize, int preferredProviderRecordCount);
         Task<IGeneralModel> ListByCompanyId(string key);
         Task<IGeneralModel> ListByCompanyUserId(int key);
         Task<IGeneralModel> Create(CreateCompanyServiceModel obj);

@@ -21,6 +21,8 @@ namespace xgca.data.CompanyService
         Task<List<entity.Models.CompanyService>> ListServiceProviders(int serviceId, int nonProviderId, int pageNumber, int pageSize);
         Task<(List<entity.Models.CompanyService>, int)> ListServiceProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds);
         Task<(List<entity.Models.CompanyService>, int)> ListPreferredProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds);
+        Task<(List<entity.Models.CompanyService>, int)> ListOtherBookingParties(string search, int serviceId, int pageNumber, int pageSize, List<Guid> existingIds, List<int> bookingPartyGroup);
+        Task<(List<entity.Models.CompanyService>, int)> ListPreferredBookingParties(string search, int serviceId, int pageNumber, int pageSize, List<Guid> existingIds, List<int> bookingPartyGroup);
         Task<List<entity.Models.CompanyService>> List(string search, int pageNumber, int pageSize);
         Task<List<entity.Models.CompanyService>> ListByCompanyId(int companyId);
         Task<List<entity.Models.CompanyService>> ListByCompanyId(int companyId, List<string> companyServiceGuids);
@@ -482,6 +484,53 @@ namespace xgca.data.CompanyService
 
             return providers;
 
+        }
+
+        public async Task<(List<entity.Models.CompanyService>, int)> ListOtherBookingParties(string search, int serviceId, int pageNumber, int pageSize, List<Guid> existingIds, List<int> bookingPartyGroup)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<(List<entity.Models.CompanyService>, int)> ListPreferredBookingParties(string search, int serviceId, int pageNumber, int pageSize, List<Guid> existingIds, List<int> bookingPartyGroup)
+        {
+            var predicate = PredicateBuilder.New<entity.Models.CompanyService>();
+
+            if (!(search is null || search.Equals("")))
+            {
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.CompanyCode, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.CompanyName, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.Addresses.AddressLine, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.Addresses.CityName, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.Addresses.StateName, $"%{search}%")));
+                predicate = predicate.Or(x => (EF.Functions.Like(x.Companies.Addresses.CountryName, $"%{search}%")));
+            }
+
+            if (!(existingIds is null) || existingIds.Count != 0)
+            {
+                predicate = predicate.And(x => existingIds.Contains(x.Guid));
+            }
+
+            if (serviceId != 0)
+            {
+                predicate = predicate.And(x => x.ServiceId == serviceId);
+            }
+
+            predicate = predicate.And(x => bookingPartyGroup.Contains(x.ServiceId) && x.IsDeleted == 0 && x.Status == 1);
+
+            var result = _context.CompanyServices
+                .Include(x => x.Companies)
+                    .ThenInclude(a => a.Addresses)
+                .Include(x => x.Companies)
+                    .ThenInclude(c => c.ContactDetails)
+                .Where(predicate);
+
+
+            List<entity.Models.CompanyService> companyServices = await result.AsNoTracking()
+                .Skip(pageSize * pageNumber)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (companyServices, result.Count());
         }
     }
 }

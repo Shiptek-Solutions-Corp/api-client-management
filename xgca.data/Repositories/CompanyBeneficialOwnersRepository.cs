@@ -77,7 +77,7 @@ namespace xgca.data.Repositories
 
             records.ForEach(e =>
             {
-                e.IsDeleted = false;
+                e.IsDeleted = true;
                 e.DeletedBy = username;
                 e.DeletedOn = DateTime.UtcNow;
             });

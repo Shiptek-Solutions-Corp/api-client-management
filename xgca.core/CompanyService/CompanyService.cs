@@ -393,5 +393,10 @@ namespace xgca.core.CompanyService
             var pagedOtherProviders = _pagedResponse.Paginate(otherProviders, otherProviderDataCount, otherProviderPageNumber, otherProviderPageSize);
             return _general.Response(new { PreferredProviders = pagedPreferredProvider, OtherProviders = pagedOtherProviders }, 200, "Configurable providers has been listed", true);
         }
+
+        public Task<IGeneralModel> ListBookingParties(int companyId, string search, string serviceId, int otherProviderPageNumber, int otherProviderPageSize, int otherProviderRecordCount, int preferredProviderPageNumber, int preferredProviderPageSize, int preferredProviderRecordCount)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

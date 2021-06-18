@@ -60,7 +60,11 @@ namespace xgca.core.Services
             this._companyRepository = _companyRepository;
             this._userRepository = _userRepository;
         }
-
+        public async Task<bool> CheckIfCompanyHaveCompanySections(int companyId)
+        {
+            var (exists, message) = await _repository.CheckIfCompanyHaveCompanySections(companyId);
+            return exists;
+        }
         public async Task<List<CreateCompanySectionModel>> BuildInitialSections()
         {
             var (sectionResult, sectionMessage) = await _sectionRepository.List();
@@ -140,6 +144,12 @@ namespace xgca.core.Services
 
         public async Task<GetCompanySectionModel> GetCompanySection(int companyId)
         {
+            //var exists = await CheckIfCompanyHaveCompanySections(companyId);
+            //if (!(exists))
+            //{
+            //    await CreateInitialSections();
+            //}
+
             var (companySectionResult, message) = await _repository.GetListByCompanyId(companyId);
 
             var tempCompanyStructureSection = companySectionResult.Find(x => x.SectionCode == Enum.GetName(typeof(Enums.Section), Enums.Section.CS));
