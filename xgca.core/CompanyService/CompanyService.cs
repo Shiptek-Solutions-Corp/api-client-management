@@ -280,7 +280,7 @@ namespace xgca.core.CompanyService
             return _general.Response(pagedResponse, 200, "Configurable providers has been listed", true);
         }*/
 
-        public async Task<IGeneralModel> ListProviders(int companyId, string search, string serviceId, int otherProviderPageNumber, int otherProviderPageSize, int otherProviderRecordCount, int preferredProviderPageNumber, int preferredProviderPageSize, int preferredProviderRecordCount)
+        public async Task<IGeneralModel> ListProviders(int companyId, string search, string serviceId, int otherProviderPageNumber, int otherProviderPageSize, int otherProviderRecordCount, int preferredProviderPageNumber, int preferredProviderPageSize, int preferredProviderRecordCount, int serviceRoleGroup = (int)Enums.ServiceRoleGroup.All)
         {
             //if (preferredProviderPageSize > 3 || otherProviderPageSize > 3)
             //{
@@ -321,8 +321,14 @@ namespace xgca.core.CompanyService
             string country = null;
             string address = null;
 
+            List<int> serviceRoles = new List<int>();
+            if (serviceRoleGroup == (int)Enums.ServiceRoleGroup.BookingParty)
+            { 
+                serviceRoles = GlobalVariables.BookingPartyGroup; 
+            }
+
             var preferredProviderCompanyServiceGuids = await _preferredProvider.GetCompanyServiceIdByProfileId(companyId);
-            var (preferredProvidersData, preferredProviderDataCount) = await _companyService.ListPreferredProviders(search, serviceIdFilter, shipperConsigneeId, preferredProviderPageNumber, preferredProviderPageSize, preferredProviderCompanyServiceGuids);
+            var (preferredProvidersData, preferredProviderDataCount) = await _companyService.ListPreferredProviders(search, serviceIdFilter, shipperConsigneeId, preferredProviderPageNumber, preferredProviderPageSize, preferredProviderCompanyServiceGuids, serviceRoles);
             List<ListProvidersModel> preferredProviders = new List<ListProvidersModel>();
             if (!(preferredProvidersData is null))
             {
@@ -355,7 +361,7 @@ namespace xgca.core.CompanyService
             }
 
             //recordCount = await _companyService.GetOtherProvidersRecordCount(shipperConsigneeId, serviceIdFilter, preferredProviderCompanyServiceGuids, search);
-            var (otherProvidersData, otherProviderDataCount) = await _companyService.ListServiceProviders(search, serviceIdFilter, shipperConsigneeId, otherProviderPageNumber, otherProviderPageSize, preferredProviderCompanyServiceGuids);
+            var (otherProvidersData, otherProviderDataCount) = await _companyService.ListServiceProviders(search, serviceIdFilter, shipperConsigneeId, otherProviderPageNumber, otherProviderPageSize, preferredProviderCompanyServiceGuids, serviceRoles);
             List<ListProvidersModel> otherProviders = new List<ListProvidersModel>();
 
             if (!(otherProvidersData is null))
@@ -392,11 +398,6 @@ namespace xgca.core.CompanyService
             var pagedPreferredProvider = _pagedResponse.Paginate(preferredProviders, preferredProviderDataCount, preferredProviderPageNumber, preferredProviderPageSize);
             var pagedOtherProviders = _pagedResponse.Paginate(otherProviders, otherProviderDataCount, otherProviderPageNumber, otherProviderPageSize);
             return _general.Response(new { PreferredProviders = pagedPreferredProvider, OtherProviders = pagedOtherProviders }, 200, "Configurable providers has been listed", true);
-        }
-
-        public Task<IGeneralModel> ListBookingParties(int companyId, string search, string serviceId, int otherProviderPageNumber, int otherProviderPageSize, int otherProviderRecordCount, int preferredProviderPageNumber, int preferredProviderPageSize, int preferredProviderRecordCount)
-        {
-            throw new NotImplementedException();
         }
     }
 }
