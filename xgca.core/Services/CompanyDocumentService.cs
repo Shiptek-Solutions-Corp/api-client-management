@@ -43,6 +43,8 @@ namespace xgca.core.Services
 
             var (companyDocuments, pbaDoc, ocDoc, message) = await _repository.GetCompanyDocumentsByCompanyId(companyId);
 
+            var (documentTypes, dtMessage) = await _documentTypeRepository.ListAllBRC();
+
             var businessRegistrationCertificates = new List<GetCompanyDocumentModel>();
             var proofOfBusinessAddress = new GetPBADocumentModel();
             var organizationalChart = new GetOCDocumentModel();
@@ -53,7 +55,12 @@ namespace xgca.core.Services
             {
                 companyDocuments.ForEach(e =>
                 {
-                    businessRegisrationCertificates.Add(_mapper.Map<GetCompanyDocumentModel>(e));
+                    var tempCompanyDocument = _mapper.Map<GetCompanyDocumentModel>(e);
+                    var documentType = documentTypes.Find(x => x.DocumentTypeId == e.DocumentTypeId);
+                    tempCompanyDocument.DocumentTypeDescription = documentType.Name;
+                    tempCompanyDocument.DocumentTypeGuid = documentType.Guid.ToString();
+                    businessRegisrationCertificates.Add(tempCompanyDocument);
+                    
                 });
             }
 
@@ -185,7 +192,9 @@ namespace xgca.core.Services
             foreach(var docs in brcDocs)
             {
                 var doc = _mapper.Map<GetCompanyDocumentModel>(docs);
-                doc.DocumentTypeGuid = documentTypes.SingleOrDefault(x => x.DocumentTypeId == docs.DocumentTypeId).DocumentTypeGuid;
+                var documentType = documentTypes.Find(x => x.DocumentTypeId == docs.DocumentTypeId);
+                doc.DocumentTypeGuid = documentType.DocumentTypeGuid;
+                doc.DocumentTypeDescription = documentType.DocumentTypeName;
                 listCompanyDocumentModel.Add(doc);
             }
           
