@@ -139,6 +139,8 @@ namespace xgca.data.Repositories
             record.StateName = obj.StateName;
             record.CountryId = obj.CountryId;
             record.CountryName = obj.CountryName;
+            record.PostalId = obj.PostalId;
+            record.PostalCode = obj.PostalCode;
 
             var result = await _context.SaveChangesAsync();
 
