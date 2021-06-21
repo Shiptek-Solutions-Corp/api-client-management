@@ -221,5 +221,23 @@ namespace xlog_client_management_api.Controllers
 
             return Ok(response);
         }
+
+        [Route("total-number-of-employees")]
+        [HttpGet]
+        public async Task<IActionResult> ListTotalNumberOfEmployees()
+        {
+            var response = await _companySectionService.ListTotalNumerOfEmployess();
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
     }
 }

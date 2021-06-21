@@ -30,6 +30,7 @@ namespace xgca.core.Services
         Task<IGeneralModel> DraftCompanyBeneficialOwnerSection(UpdateCompanyBeneficialOwnerSectionModel obj, int companyId);
         Task<IGeneralModel> SubmitCompanyDirectorSection(UpdateCompanyDirectorSectionModel obj, int companyId);
         Task<IGeneralModel> DraftCompanyDirectorSection(UpdateCompanyDirectorSectionModel obj, int companyId);
+        Task<IGeneralModel> ListTotalNumerOfEmployess();
     }
     public class CompanySectionService : ICompanySectionService
     {
@@ -606,6 +607,21 @@ namespace xgca.core.Services
             };
 
             return _general.Response(data, 200, "Company Directors section saved as draft successfully", true);
+        }
+
+        public async Task<IGeneralModel> ListTotalNumerOfEmployess()
+        {
+            var tnoe = new List<string>();
+            tnoe.Add("1-10");
+            tnoe.Add("11-50");
+            tnoe.Add("51-200");
+            tnoe.Add("201-500");
+            tnoe.Add("501-1000");
+            tnoe.Add("1001-5000");
+            tnoe.Add("5001-10000");
+            tnoe.Add("Above 10000");
+
+            return _general.Response(new { TotalNumberOfEmployees = tnoe }, 200, "Total number of employees range listed successfully", true);
         }
     }
 }
