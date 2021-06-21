@@ -353,5 +353,14 @@ namespace xlog_client_management_api.Controllers
 
             return Ok(response);
         }
+
+        [Route("overall-kyc-status/{companyId}")]
+        [HttpGet]
+        public async Task<IActionResult> GetOverallKYCStatus([FromRoute] string companyId)
+        {
+            var response = await _companySectionService.CheckOverallKYCStatus(Convert.ToInt32(companyId));
+
+            return Ok(response);
+        }
     }
 }

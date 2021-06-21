@@ -37,6 +37,7 @@ namespace xgca.core.Services
         Task<IGeneralModel> ApproveCompanyStructureSection(string companyGuid);
         Task<IGeneralModel> ApproveCompanyBeneficialOwnerSection(string companyGuid);
         Task<IGeneralModel> ApproveCompanyDirectorSection(string companyGuid);
+        Task<string> CheckOverallKYCStatus(int companyId);
 
     }
     public class CompanySectionService : ICompanySectionService
@@ -250,13 +251,14 @@ namespace xgca.core.Services
             string companyDirectorStatus = companySections.SingleOrDefault(x => x.SectionCode == Enum.GetName(typeof(Enums.Section), Enums.Section.CD)).SectionStatusCode;
             sectionStatuses.Add(companyDirectorStatus);
 
-            if (sectionStatuses.Contains(Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.PA)))
-            {
-                kycStatus = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.PEN);
-            }
-            else if(sectionStatuses.Contains(Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.PR)))
+            
+            if(sectionStatuses.Contains(Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.PR)))
             {
                 kycStatus = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.REJ);
+            }
+            else if (sectionStatuses.Contains(Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.PA)))
+            {
+                kycStatus = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.PEN);
             }
             else
             {
