@@ -131,12 +131,14 @@ namespace xgca.core.Services
             }
 
             foreach(var companyDocument in companyDocuments)
-            {
+            { 
+                int documentTypeId = documentTypes.SingleOrDefault(x => Guid.Parse(x.DocumentTypeGuid) == Guid.Parse(companyDocument.DocumentTypeGuid)).DocumentTypeId;
+
                 if (companyDocument.Id.Equals("NEW"))
                 {
                     var tempModel = _mapper.Map<CreateCompanyDocumentModel>(companyDocument);
                     var createModel = _mapper.Map<CompanyDocuments>(tempModel);
-                    createModel.DocumentTypeId = documentTypes.SingleOrDefault(x => x.DocumentTypeName.ToUpper() == tempModel.DocumentDescription.ToUpper()).DocumentTypeId;
+                    createModel.DocumentTypeId = documentTypeId;
                     newDocuments.Add(createModel);
                 }
                 else
@@ -145,7 +147,7 @@ namespace xgca.core.Services
                     {
                         var tempModel = _mapper.Map<UpdateCompanyDocumentModel>(companyDocument);
                         var updateModel = _mapper.Map<CompanyDocuments>(tempModel);
-                        updateModel.DocumentTypeId = documentTypes.SingleOrDefault(x => x.DocumentTypeGuid == tempModel.DocumentTypeGuid).DocumentTypeId;
+                        updateModel.DocumentTypeId = documentTypeId;
                         updateDocuments.Add(updateModel);
                     }
                     else if (companyDocument.IsDeleted)
