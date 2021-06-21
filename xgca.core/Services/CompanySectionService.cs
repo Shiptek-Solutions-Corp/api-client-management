@@ -31,6 +31,13 @@ namespace xgca.core.Services
         Task<IGeneralModel> SubmitCompanyDirectorSection(UpdateCompanyDirectorSectionModel obj, int companyId);
         Task<IGeneralModel> DraftCompanyDirectorSection(UpdateCompanyDirectorSectionModel obj, int companyId);
         Task<IGeneralModel> ListTotalNumerOfEmployess();
+        Task<IGeneralModel> RejectCompanyStructureSection(string companyGuid);
+        Task<IGeneralModel> RejectCompanyBeneficialOwnerSection(string companyGuid);
+        Task<IGeneralModel> RejectCompanyDirectorSection(string companyGuid);
+        Task<IGeneralModel> ApproveCompanyStructureSection(string companyGuid);
+        Task<IGeneralModel> ApproveCompanyBeneficialOwnerSection(string companyGuid);
+        Task<IGeneralModel> ApproveCompanyDirectorSection(string companyGuid);
+
     }
     public class CompanySectionService : ICompanySectionService
     {
@@ -622,6 +629,249 @@ namespace xgca.core.Services
             tnoe.Add("Above 10000");
 
             return _general.Response(new { TotalNumberOfEmployees = tnoe }, 200, "Total number of employees range listed successfully", true);
+        }
+
+        public async Task<IGeneralModel> RejectCompanyStructureSection(string companyGuid)
+        {
+            if (Guid.Parse(companyGuid) == Guid.Empty)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(companyGuid));
+            if (companyId == 0)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            var updateModel = new CompanySections
+            {
+                CompanyId = companyId,
+                SectionCode = Enum.GetName(typeof(Enums.Section), Enums.Section.CS),
+                SectionStatusCode = Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.PR),
+                UpdatedBy = GlobalVariables.LoggedInUsername,
+                UpdatedOn = DateTime.UtcNow,
+            };
+
+            var (updateResult, updateMessage) = await _repository.UpdateStatusByCompanyId(updateModel);
+            if (updateResult is null)
+            {
+                return _general.Response(null, 400, updateMessage, false);
+            }
+
+            string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
+
+            var data = new
+            {
+                OverallKYCStatus = overallKYCStatus,
+                CompanyStructure = updateResult
+            };
+
+            return _general.Response(data, 200, updateMessage, true);
+        }
+
+        public async Task<IGeneralModel> RejectCompanyBeneficialOwnerSection(string companyGuid)
+        {
+            if (Guid.Parse(companyGuid) == Guid.Empty)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(companyGuid));
+            if (companyId == 0)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            var updateModel = new CompanySections
+            {
+                CompanyId = companyId,
+                SectionCode = Enum.GetName(typeof(Enums.Section), Enums.Section.BO),
+                SectionStatusCode = Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.PR),
+                UpdatedBy = GlobalVariables.LoggedInUsername,
+                UpdatedOn = DateTime.UtcNow,
+            };
+
+            var (updateResult, updateMessage) = await _repository.UpdateStatusByCompanyId(updateModel);
+            if (updateResult is null)
+            {
+                return _general.Response(null, 400, updateMessage, false);
+            }
+
+            string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
+
+            var data = new
+            {
+                OverallKYCStatus = overallKYCStatus,
+                UltimateBeneficialOwners = updateResult
+            };
+
+            return _general.Response(data, 200, updateMessage, true);
+        }
+
+        public async Task<IGeneralModel> RejectCompanyDirectorSection(string companyGuid)
+        {
+            if (Guid.Parse(companyGuid) == Guid.Empty)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(companyGuid));
+            if (companyId == 0)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            var updateModel = new CompanySections
+            {
+                CompanyId = companyId,
+                SectionCode = Enum.GetName(typeof(Enums.Section), Enums.Section.CD),
+                SectionStatusCode = Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.PR),
+                UpdatedBy = GlobalVariables.LoggedInUsername,
+                UpdatedOn = DateTime.UtcNow,
+            };
+
+            var (updateResult, updateMessage) = await _repository.UpdateStatusByCompanyId(updateModel);
+            if (updateResult is null)
+            {
+                return _general.Response(null, 400, updateMessage, false);
+            }
+
+            string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
+
+            var data = new
+            {
+                OverallKYCStatus = overallKYCStatus,
+                CompanyDirectors = updateResult
+            };
+
+            return _general.Response(data, 200, updateMessage, true);
+        }
+
+        public async Task<IGeneralModel> ApproveCompanyStructureSection(string companyGuid)
+        {
+            if(Guid.Parse(companyGuid) == Guid.Empty)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(companyGuid));
+            if (companyId == 0)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            var updateModel = new CompanySections
+            {
+                CompanyId = companyId,
+                SectionCode = Enum.GetName(typeof(Enums.Section), Enums.Section.CS),
+                SectionStatusCode = Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.AP),
+                UpdatedBy = GlobalVariables.LoggedInUsername,
+                UpdatedOn = DateTime.UtcNow,
+            };
+
+            var (updateResult, updateMessage) = await _repository.UpdateStatusByCompanyId(updateModel);
+            if (updateResult is null)
+            {
+                return _general.Response(null, 400, updateMessage, false);
+            }
+
+            string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
+
+            var data = new
+            {
+                OverallKYCStatus = overallKYCStatus,
+                CompanyStructure = updateResult
+            };
+
+            return _general.Response(data, 200, updateMessage, true);
+        }
+
+        public async Task<IGeneralModel> ApproveCompanyBeneficialOwnerSection(string companyGuid)
+        {
+            if (Guid.Parse(companyGuid) == Guid.Empty)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(companyGuid));
+            if (companyId == 0)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            var updateModel = new CompanySections
+            {
+                CompanyId = companyId,
+                SectionCode = Enum.GetName(typeof(Enums.Section), Enums.Section.BO),
+                SectionStatusCode = Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.AP),
+                UpdatedBy = GlobalVariables.LoggedInUsername,
+                UpdatedOn = DateTime.UtcNow,
+            };
+
+            var (updateResult, updateMessage) = await _repository.UpdateStatusByCompanyId(updateModel);
+            if (updateResult is null)
+            {
+                return _general.Response(null, 400, updateMessage, false);
+            }
+
+            string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
+
+            var data = new
+            {
+                OverallKYCStatus = overallKYCStatus,
+                UltimateBeneficialOwners = updateResult
+            };
+
+            return _general.Response(data, 200, updateMessage, true);
+        }
+
+        public async Task<IGeneralModel> ApproveCompanyDirectorSection(string companyGuid)
+        {
+            if (Guid.Parse(companyGuid) == Guid.Empty)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(companyGuid));
+            if (companyId == 0)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            var updateModel = new CompanySections
+            {
+                CompanyId = companyId,
+                SectionCode = Enum.GetName(typeof(Enums.Section), Enums.Section.CD),
+                SectionStatusCode = Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.AP),
+                UpdatedBy = GlobalVariables.LoggedInUsername,
+                UpdatedOn = DateTime.UtcNow,
+            };
+
+            var (updateResult, updateMessage) = await _repository.UpdateStatusByCompanyId(updateModel);
+            if (updateResult is null)
+            {
+                return _general.Response(null, 400, updateMessage, false);
+            }
+
+            string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
+
+            var data = new
+            {
+                OverallKYCStatus = overallKYCStatus,
+                CompanyDirectors = updateResult
+            };
+
+            return _general.Response(data, 200, updateMessage, true);
+        }
+
+        public async Task<string> CheckCompanyKYCStatus(int companyId)
+        {
+            string kycStatus = await CheckOverallKYCStatus(companyId);
+            int userId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
+            var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, userId);
+
+            return companyKYCStatus;
         }
     }
 }

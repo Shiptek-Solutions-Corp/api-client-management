@@ -122,9 +122,47 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Route("company-structure/reject")]
+        [HttpPut]
+        public async Task<IActionResult> RejectCompanyStructureSection([FromBody] RejectCompanySectionModel obj)
+        {
+            GlobalVariables.LoggedInUsername = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value.ToString();
+            var response = await _companySectionService.RejectCompanyStructureSection(obj.CompanyId);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Route("company-structure/approve")]
+        [HttpPut]
+        public async Task<IActionResult> ApproveCompanyStructureSection([FromBody] ApproveCompanySectionModel obj)
+        {
+            GlobalVariables.LoggedInUsername = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value.ToString();
+            var response = await _companySectionService.ApproveCompanyBeneficialOwnerSection(obj.CompanyId);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
         [Route("company-beneficial-owners/submit")]
         [HttpPost]
-        public async Task<IActionResult> SubmitCompanyBeneficialOwner([FromBody] UpdateCompanyBeneficialOwnerSectionModel obj)
+        public async Task<IActionResult> SubmitCompanyBeneficialOwnerSection([FromBody] UpdateCompanyBeneficialOwnerSectionModel obj)
         {
             GlobalVariables.LoggedInCompanyId = Convert.ToInt32(Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value.ToString());
             GlobalVariables.LoggedInUsername = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value.ToString();
@@ -144,7 +182,7 @@ namespace xlog_client_management_api.Controllers
 
         [Route("company-beneficial-owners/draft")]
         [HttpPost]
-        public async Task<IActionResult> DraftCompanyBeneficialOwner([FromBody] UpdateCompanyBeneficialOwnerSectionModel obj)
+        public async Task<IActionResult> DraftCompanyBeneficialOwnerSection([FromBody] UpdateCompanyBeneficialOwnerSectionModel obj)
         {
             GlobalVariables.LoggedInCompanyId = Convert.ToInt32(Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value.ToString());
             GlobalVariables.LoggedInUsername = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value.ToString();
@@ -162,9 +200,47 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Route("company-beneficial-owners/reject")]
+        [HttpPut]
+        public async Task<IActionResult> RejectCompanyBeneficialOwnerSection([FromBody] RejectCompanySectionModel obj)
+        {
+            GlobalVariables.LoggedInUsername = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value.ToString();
+            var response = await _companySectionService.RejectCompanyBeneficialOwnerSection(obj.CompanyId);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Route("company-beneficial-owners/approve")]
+        [HttpPut]
+        public async Task<IActionResult> ApproveCompanyBeneficialOwnerSection([FromBody] ApproveCompanySectionModel obj)
+        {
+            GlobalVariables.LoggedInUsername = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value.ToString();
+            var response = await _companySectionService.ApproveCompanyBeneficialOwnerSection(obj.CompanyId);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
         [Route("company-directors/submit")]
         [HttpPost]
-        public async Task<IActionResult> SubmitCompanyDirectors([FromBody] UpdateCompanyDirectorSectionModel obj)
+        public async Task<IActionResult> SubmitCompanyDirectorsSection([FromBody] UpdateCompanyDirectorSectionModel obj)
         {
             GlobalVariables.LoggedInCompanyId = Convert.ToInt32(Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value.ToString());
             GlobalVariables.LoggedInUsername = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value.ToString();
@@ -184,11 +260,49 @@ namespace xlog_client_management_api.Controllers
 
         [Route("company-directors/draft")]
         [HttpPost]
-        public async Task<IActionResult> DraftCompanyDirectors([FromBody] UpdateCompanyDirectorSectionModel obj)
+        public async Task<IActionResult> DraftCompanyDirectorsSection([FromBody] UpdateCompanyDirectorSectionModel obj)
         {
             GlobalVariables.LoggedInCompanyId = Convert.ToInt32(Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value.ToString());
             GlobalVariables.LoggedInUsername = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value.ToString();
             var response = await _companySectionService.DraftCompanyDirectorSection(obj, GlobalVariables.LoggedInCompanyId);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Route("company-directors/reject")]
+        [HttpPut]
+        public async Task<IActionResult> RejectCompanyDirectorsSection([FromBody] RejectCompanySectionModel obj)
+        {
+            GlobalVariables.LoggedInUsername = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value.ToString();
+            var response = await _companySectionService.RejectCompanyDirectorSection(obj.CompanyId);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Route("company-directors/approve")]
+        [HttpPut]
+        public async Task<IActionResult> ApproveCompanyDirectorsSection([FromBody] ApproveCompanySectionModel obj)
+        {
+            GlobalVariables.LoggedInUsername = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value.ToString();
+            var response = await _companySectionService.ApproveCompanyDirectorSection(obj.CompanyId);
 
             if (response.statusCode == 400)
             {
