@@ -16,6 +16,7 @@ using xgca.core.Helpers;
 using xgca.core.Helpers.Token;
 using xgca.core.Helpers.Http;
 using xgca.core.Constants;
+using xgca.data.Repositories;
 
 namespace xgca.core.Profile
 {
@@ -32,6 +33,8 @@ namespace xgca.core.Profile
         private readonly xgca.data.CompanyService.ICompanyService _companyServiceData;
         private readonly xgca.data.CompanyServiceRole.ICompanyServiceRole _companyServiceRoleData;
         private readonly xgca.data.CompanyServiceUser.ICompanyServiceUser _companyServiceUserData;
+        private readonly ICompanySectionRepository _companySectionRepostory;
+        private readonly IKYCStatusRepository _kycRepository;
 
         private readonly IHttpHelper _httpHelper;
         private readonly ITokenHelper _tokenHelper;
@@ -44,6 +47,8 @@ namespace xgca.core.Profile
             xgca.data.CompanyService.ICompanyService companyServiceData,
             xgca.data.CompanyServiceRole.ICompanyServiceRole companyServiceRoleData,
             xgca.data.CompanyServiceUser.ICompanyServiceUser companyServiceUserData,
+            ICompanySectionRepository companySectionRepository,
+            IKYCStatusRepository kycRepository,
             IHttpHelper httpHelper,
             ITokenHelper tokenHelper,
             IOptions<GlobalCmsService> options,
@@ -55,6 +60,8 @@ namespace xgca.core.Profile
             _companyServiceData = companyServiceData;
             _companyServiceRoleData = companyServiceRoleData;
             _companyServiceUserData = companyServiceUserData;
+            _companySectionRepostory = companySectionRepository;
+            _kycRepository = kycRepository;
             _httpHelper = httpHelper;
             _tokenHelper = tokenHelper;
             _options = options;
@@ -78,6 +85,9 @@ namespace xgca.core.Profile
 
             int companyUserId = user.CompanyUsers.CompanyUserId;
             var companyServiceUser = await _companyServiceUserData.Retrieve(companyUserId, companyServiceId);
+
+            var (hasCompanySections, hasCompanySectionsMessage) = await _companySectionRepostory.CheckIfCompanyHaveCompanySections(GlobalVariables.LoggedInCompanyId);
+            var (kycReturn, kycMessage) = await _kycRepository.GetByKycStatusCode(company.KycStatusCode);
 
             //if (companyServiceUser is null)
             //{
@@ -105,6 +115,12 @@ namespace xgca.core.Profile
                     Email = user.EmailAddress,
                     ServiceRole = companyServiceUser != null ? companyServiceUser.CompanyServiceRoles.Name : "Master User",
                     IsMasterUser = companyServiceUser != null ? companyServiceUser.IsMasterUser : 1
+                },
+                KYC = new
+                {
+                    KYCSetup = hasCompanySections,
+                    KYCStatusCode = (kycReturn is null) ? "NEW" : kycReturn.KycStatusCode,
+                    KYCStatus = (kycReturn is null) ? "NEW" : kycReturn.Description
                 }
             };
 
