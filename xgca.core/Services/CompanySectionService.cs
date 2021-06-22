@@ -153,11 +153,11 @@ namespace xgca.core.Services
 
         public async Task<GetCompanySectionModel> GetCompanySection(int companyId)
         {
-            //var exists = await CheckIfCompanyHaveCompanySections(companyId);
-            //if (!(exists))
-            //{
-            //    await CreateInitialSections();
-            //}
+            var exists = await CheckIfCompanyHaveCompanySections(companyId);
+            if (!(exists))
+            {
+                await CreateInitialSections();
+            }
 
             var (companySectionResult, message) = await _repository.GetListByCompanyId(companyId);
 
