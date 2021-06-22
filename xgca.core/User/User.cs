@@ -289,7 +289,7 @@ namespace xgca.core.User
                 ModifiedBy = createdBy,
                 ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid(),
-                Status = 0 // Default Inactive
+                Status = 1
             };
 
             var masterUserId = await _userData.CreateAndReturnId(user);
