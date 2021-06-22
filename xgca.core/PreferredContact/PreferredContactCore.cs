@@ -353,7 +353,7 @@ namespace xgca.core.PreferredContact
             return _general.Response(pagedResponse, 200, "Configurable preferred contacts has been listed", true);
         }
 
-        public async Task<IGeneralModel> QuickSearch(string search, int profileId, int pageNumber, int pageSize, int recordCount)
+        public async Task<IGeneralModel> QuickSearch(string search, int profileId, int pageNumber, int pageSize, int recordCount, int serviceRoleGroup = (int)Enums.ServiceRoleGroup.All)
         {
             var profileGuid = await _company.GetGuidById(profileId);
 
@@ -409,6 +409,16 @@ namespace xgca.core.PreferredContact
                     if (company is null)
                     {
                         continue;
+                    }
+
+                    if (serviceRoleGroup == (int)Enums.ServiceRoleGroup.BookingParty)
+                    {
+                        List<int> serviceIds = company.CompanyServices.Select(c => c.ServiceId).ToList();
+                        var nonBookingPartyRoles = serviceIds.Where(s => GlobalVariables.BookingPartyGroup.All(b => b != s));
+                        if (nonBookingPartyRoles.Count() != 0)
+                        {
+                            continue;
+                        }
                     }
 
                     var registeredCityProvince = _prefConHelper.RegisteredCityState(company);

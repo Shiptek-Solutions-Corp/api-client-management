@@ -368,6 +368,7 @@ namespace xgca.data.Company
             predicate = predicate.And(x => guids.Contains(x.Guid.ToString()) && x.IsDeleted == 0);
 
             var companies = await _context.Companies.AsNoTracking()
+                .Include(cs => cs.CompanyServices)
                 .Include(a => a.Addresses)
                 .Include(c => c.ContactDetails)
                 .Where(predicate)
