@@ -295,7 +295,7 @@ namespace xgca.data.CompanyService
                 predicate = predicate.And(x => x.ServiceId == serviceId);
             }
 
-            predicate = predicate.And(x => x.ServiceId != nonProviderId && x.IsDeleted == 0 && x.Status == 1);
+            predicate = predicate.And(x => x.IsDeleted == 0 && x.Status == 1);
 
             var result = _context.CompanyServices
                 .Include(x => x.Companies)
@@ -341,7 +341,7 @@ namespace xgca.data.CompanyService
                 predicate = predicate.And(x => x.ServiceId == serviceId);
             }
 
-            predicate = predicate.And(x => x.ServiceId != nonProviderId && x.IsDeleted == 0 && x.Status == 1);
+            predicate = predicate.And(x => x.IsDeleted == 0 && x.Status == 1);
 
             var result  = _context.CompanyServices
                 .Include(x => x.Companies)
