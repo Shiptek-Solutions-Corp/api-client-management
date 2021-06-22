@@ -10,6 +10,7 @@ using System.Net.Http.Headers;
 using xgca.core.Constants;
 using xgca.core.Models.Email;
 using Microsoft.Extensions.Options;
+using xgca.core.Models.User;
 
 namespace xgca.core.Helpers.Http
 {
@@ -30,7 +31,8 @@ namespace xgca.core.Helpers.Http
         public Task<dynamic> GetGuidById(string environment, string endpointUrl, int id);
         public Task<dynamic> GetGuidById(string environment, string endpointUrl, int id, string token);
         public Task<dynamic> Put(string endpointUrl, dynamic data, string token);
-
+        public Task<dynamic> PostAsync(string Url, string token, dynamic body, EvaultSecretAccessKeyModel apiKeys = null);
+        public Task<dynamic> GetAsync(string Url, string token);
     }
     public class HttpHelper : IHttpHelper
     {
@@ -201,6 +203,37 @@ namespace xgca.core.Helpers.Http
             var responseData = JsonConvert.DeserializeObject(result);
 
             return responseData;
+        }
+
+        public async Task<dynamic> PostAsync(string Url, string token, dynamic body, EvaultSecretAccessKeyModel apiKeys = null)
+        {
+            if(token.Length > 0) _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            if(apiKeys != null)
+            {
+                _httpClient.DefaultRequestHeaders.Add("x-access-key", apiKeys.accessKey);
+                _httpClient.DefaultRequestHeaders.Add("x-secret-key", apiKeys.secretKey);
+                _httpClient.DefaultRequestHeaders.Add("account-code", apiKeys.masterMerchantCode);
+            }
+
+            var jsonParams = (body == null? "":JsonConvert.SerializeObject(body));
+
+            HttpResponseMessage responseMsg = new HttpResponseMessage();
+            StringContent content = new StringContent(jsonParams, Encoding.UTF8, "application/json");
+
+            responseMsg = await _httpClient.PostAsync(Url, content);
+            var responseContent = await responseMsg.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<dynamic>(responseContent);
+        }
+
+        public async Task<dynamic> GetAsync(string Url, string token)
+        {
+            if (token.Length > 0) _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+
+            HttpResponseMessage responseMsg = new HttpResponseMessage();
+            responseMsg = await _httpClient.GetAsync(Url);
+            var responseContent = await responseMsg.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<dynamic>(responseContent);
         }
     }
 }

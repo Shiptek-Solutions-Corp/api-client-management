@@ -50,7 +50,7 @@ namespace xgca.core.User
         Task<IGeneralModel> SetUsername(SetUsernameModel obj);
         Task<IGeneralModel> Retrieve(string key);
         Task<IGeneralModel> RetrieveByUsername(string username);
-        Task<IGeneralModel> ActivateCompanyUser(string emailAddress);
+        Task<IGeneralModel> ActivateCompanyUser(string emailAddress, bool isSendEmail);
         Task<IGeneralModel> Delete(string key, string modifiedBy, string auth);
         Task<IGeneralModel> GetIdByGuid(string key);
         Task<int> GetIdByGuid(Guid key);
@@ -81,6 +81,7 @@ namespace xgca.core.User
         private readonly xgca.data.CompanyServiceRole.ICompanyServiceRole _companyServiceRole;
         private readonly ICompanyData _companyData;
         private readonly IEmail _emailService;
+        private readonly EvaultEndPoints _evaultEnpoints;
 
         public User(xgca.data.User.IUserData userData,
             xgca.core.ContactDetail.IContactDetail coreContactDetail,
@@ -97,7 +98,8 @@ namespace xgca.core.User
             xgca.data.CompanyServiceRole.ICompanyServiceRole companyServiceRole,
             ICompanyData companyData,
             IGeneral general,
-            IEmail emailService)
+            IEmail emailService,
+            IOptions<EvaultEndPoints> evaultEnpoints)
         {
             _userData = userData;
             _coreContactDetail = coreContactDetail;
@@ -115,6 +117,7 @@ namespace xgca.core.User
             _companyServiceRole = companyServiceRole;
             _companyData = companyData;
             _emailService = emailService;
+            _evaultEnpoints = evaultEnpoints.Value;
         }
 
         public async Task<IGeneralModel> List()
@@ -1017,7 +1020,7 @@ namespace xgca.core.User
             return memoryStream.ToArray();
         }
 
-        public async Task<IGeneralModel> ActivateCompanyUser(string emailAddress)
+        public async Task<IGeneralModel> ActivateCompanyUser(string emailAddress, bool isSendEmail)
         {
             var userInfo = await _userData.ActivateCompanyUser(emailAddress);
 
@@ -1026,20 +1029,101 @@ namespace xgca.core.User
                 return _general.Response(null, 400, "An error occured on activation of company and user.", false);
             }
 
-            //Send Email Notification to Master Company User 
-            var payload = new
+            if (isSendEmail)
             {
-                EmailAddress = emailAddress,
-                ReceiverName = userInfo.FirstName,
-                SenderCompanyName = userInfo.CompanyUsers.Companies.CompanyName
+                //Send Email Notification to Master Company User 
+                var payload = new
+                {
+                    EmailAddress = emailAddress,
+                    ReceiverName = userInfo.FirstName,
+                    SenderCompanyName = userInfo.CompanyUsers.Companies.CompanyName
+                };
+
+                EmailModel emailPayload = new EmailModel()
+                {
+                    Payload = payload,
+                    Additionals = null,
+                };
+                await _emailService.SendCompanyActivationEmail(emailPayload);
+            }
+
+            //Evault Entries
+            string url = _evaultEnpoints.evaultSecretAccessKeys;
+            var apiKeyParams = _evaultEnpoints.EvaultSetting;
+
+            //Get Secret and Access key
+            var response = await _httpHelper.PostAsync(url, String.Empty, apiKeyParams);
+            GeneralModel pResponse = JsonConvert.DeserializeObject<GeneralModel>(response.ToString());
+            EvaultSecretAccessKeyModel credInfo = JsonConvert.DeserializeObject<EvaultSecretAccessKeyModel>(pResponse.data["credentials"].ToString());
+
+            //Get Country Code
+            string evaultCountryInfoUrl = String.Concat(_evaultEnpoints.evaultCountryInfo, userInfo.CompanyUsers.Companies.Addresses.CountryName);
+            var response2 = await _httpHelper.GetAsync(evaultCountryInfoUrl, String.Empty);
+            GeneralModel pResponse2 = JsonConvert.DeserializeObject<GeneralModel>(response2.ToString());
+            EvaultCountryModel countryInfo = JsonConvert.DeserializeObject<EvaultCountryModel>(pResponse2.data["country"].ToString());
+
+
+
+            //Save Company and user info to Evault
+            //Master User
+            OnboardingCreateUser masterUser = new OnboardingCreateUser
+            {
+                 EmailAddress = userInfo.EmailAddress
+                 , FirstName = userInfo.FirstName 
+                 , LastName = userInfo.LastName 
+                 , MiddleName = userInfo.MiddleName 
+                 , LandLineNumber = ""
+                 , LandLinePrefix = ""
+                 , MobileNumber = userInfo.ContactDetails.Mobile
+                 , MobilePrefix = userInfo.ContactDetails.MobilePrefix
+                 , Title = userInfo.Title
             };
 
-            EmailModel emailPayload = new EmailModel()
+            //Company Address
+            OnboardingCreateAddress companyAddress = new OnboardingCreateAddress
             {
-                Payload = payload,
-                Additionals = null,
+                FullAddress = userInfo.CompanyUsers.Companies.Addresses.FullAddress  
+                , CityTown = userInfo.CompanyUsers.Companies.Addresses.CityName
+                , Lat = (userInfo.CompanyUsers.Companies.Addresses.Latitude == null? 0:decimal.Parse(userInfo.CompanyUsers.Companies.Addresses.Latitude))
+                , Long = (userInfo.CompanyUsers.Companies.Addresses.Longitude == null? 0:decimal.Parse(userInfo.CompanyUsers.Companies.Addresses.Longitude))
+                , PostalCode = userInfo.CompanyUsers.Companies.Addresses.ZipCode
+                , State = userInfo.CompanyUsers.Companies.Addresses.StateName
             };
-            await _emailService.SendCompanyActivationEmail(emailPayload);
+
+            //Company Info
+            OnboardingCreateAccount companyInfo = new OnboardingCreateAccount
+            {
+                 CompanyAddress = companyAddress
+                 , EmailAddress = userInfo.CompanyUsers.Companies.EmailAddress 
+                 , FaxNumber = (userInfo.CompanyUsers.Companies.ContactDetails == null? "":userInfo.CompanyUsers.Companies.ContactDetails.Fax)
+                 , FaxPrefix = (userInfo.CompanyUsers.Companies.ContactDetails == null? "":userInfo.CompanyUsers.Companies.ContactDetails.FaxPrefix)
+                 , LandLineNumber = ""
+                 , LandLinePrefix = ""
+                 , MobileNumber = (userInfo.CompanyUsers.Companies.ContactDetails == null? "":userInfo.CompanyUsers.Companies.ContactDetails.Mobile)
+                 , MobilePrefix = (userInfo.CompanyUsers.Companies.ContactDetails == null? "":userInfo.CompanyUsers.Companies.ContactDetails.MobilePrefix)
+                 , Name = userInfo.CompanyUsers.Companies.CompanyName
+                 , WebsiteUrl = userInfo.CompanyUsers.Companies.WebsiteURL
+            };
+
+            OnboardingSubMerchantModel subMerchantInfo = new OnboardingSubMerchantModel
+            {
+                 CountryCode = countryInfo.ISOCode2
+               , CurrencyCode = countryInfo.CurrencyCode
+               , AuthorizedRepresentative = masterUser
+               , CompanyInfo = companyInfo
+            };
+
+            //Get Evault Partner Authentication Token 
+            string evaultPartnerAuthenticationUrl = _evaultEnpoints.evaultPartnerAuthentication;
+            var response4 = await _httpHelper.PostAsync(evaultPartnerAuthenticationUrl, String.Empty, null, credInfo);
+            GeneralModel pResponse4 = JsonConvert.DeserializeObject<GeneralModel>(response4.ToString());
+            EvaultPartnerAuthModel partnerAuth = JsonConvert.DeserializeObject<EvaultPartnerAuthModel>(pResponse4.data.ToString());
+
+            //Save Company Info to Evault
+            string evaultRegUrl = _evaultEnpoints.evaultRegister;
+            var response3 = await _httpHelper.PostAsync(evaultRegUrl, partnerAuth.access_token, subMerchantInfo);
+            GeneralModel pResponse3 = JsonConvert.DeserializeObject<GeneralModel>(response3.ToString());
+            EvaultRegistrationResponseModel registrationInfo = JsonConvert.DeserializeObject<EvaultRegistrationResponseModel>(pResponse3.data.ToString());
 
             return _general.Response(null, 200, "User and company successfully activated", true);
         }

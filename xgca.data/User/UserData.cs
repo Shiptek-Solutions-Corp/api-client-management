@@ -395,6 +395,8 @@ namespace xgca.data.User
             var user = await _context.Users.Where(u => u.EmailAddress == emailAddress)
                 .Include(u => u.CompanyUsers)
                 .ThenInclude(u => u.Companies)
+                .ThenInclude(u => u.Addresses)
+                .Include(u => u.ContactDetails)
                 .FirstOrDefaultAsync();
 
             if (user == null)

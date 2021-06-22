@@ -239,6 +239,8 @@ namespace xlog_client_management_api
                 o.SendCompanyActivationTemplate = Configuration.GetSection("EmailTemplate:SendCompanyActivationTemplate").Value;
             });
 
+            services.Configure<EvaultEndPoints>(option => Configuration.GetSection("EvaultEndPoints").Bind(option));
+
             services.AddHttpClient();
             services.AddMvc().AddNewtonsoftJson(options => {
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
