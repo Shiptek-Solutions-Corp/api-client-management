@@ -429,6 +429,7 @@ namespace xgca.core.Company
                 result.TaxExemptionStatus,
                 CompanyServices = companyServices.data.companyService,
                 Status = (result.Status == 1) ? "Active" : "Inactive",
+                KYCStatusCode = kycReturn.Item1,
                 KYCStatus = (kycReturn.Item1 is null) ? "NEW" : kycReturn.Item1.Description
             };
 
@@ -507,6 +508,7 @@ namespace xgca.core.Company
                 result.TaxExemptionStatus,
                 CompanyServices = companyServices.data.companyService,
                 Status = (result.Status == 1) ? "Active" : "Inactive",
+                KYCStatusCode = kycReturn.Item1,
                 KYCStatus = (kycReturn.Item1 is null) ? "NEW" : kycReturn.Item1.Description
             };
 
