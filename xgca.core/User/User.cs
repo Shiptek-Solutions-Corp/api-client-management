@@ -50,6 +50,7 @@ namespace xgca.core.User
         Task<IGeneralModel> SetUsername(SetUsernameModel obj);
         Task<IGeneralModel> Retrieve(string key);
         Task<IGeneralModel> RetrieveByUsername(string username);
+        Task<IGeneralModel> RetrieveProfileByEmail(string emailAddress);
         Task<IGeneralModel> ActivateCompanyUser(string emailAddress);
         Task<IGeneralModel> Delete(string key, string modifiedBy, string auth);
         Task<IGeneralModel> GetIdByGuid(string key);
@@ -289,7 +290,7 @@ namespace xgca.core.User
                 ModifiedBy = createdBy,
                 ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid(),
-                Status = 0 // Default Inactive
+                Status = 1
             };
 
             var masterUserId = await _userData.CreateAndReturnId(user);
@@ -1042,6 +1043,51 @@ namespace xgca.core.User
             await _emailService.SendCompanyActivationEmail(emailPayload);
 
             return _general.Response(null, 200, "User and company successfully activated", true);
+        }
+
+        public async Task<IGeneralModel> RetrieveProfileByEmail(string emailAddress)
+        {
+            var data = await _userData.RetrieveByEmail(emailAddress);
+
+            if (data == null)
+            {
+                return _general.Response(null, 400, "Selected user might have been deleted or does not exists", false);
+            }
+
+            var companyServiceUsers = await _coreCompanyServiceUser.ListUserServiceRolesByCompanyUserId(data.CompanyUsers.CompanyUserId);
+
+            var result = new
+            {
+                UserId = data.Guid,
+                data.Username,
+                data.FirstName,
+                data.LastName,
+                data.MiddleName,
+                data.Title,
+                data.Status,
+                data.ImageURL,
+                data.EmailAddress,
+                data.IsLocked,
+                CompanyUserStatus = data?.CompanyUsers?.Status,
+                CompanyIsDeletedStatus = data?.CompanyUsers?.Companies?.Status,
+                CompanyStatus = data?.CompanyUsers?.Companies?.Status,
+                ContactDetailId = data.ContactDetails.Guid,
+                Phone = new
+                {
+                    data.ContactDetails.PhonePrefixId,
+                    data.ContactDetails.PhonePrefix,
+                    data.ContactDetails.Phone,
+                },
+                Mobile = new
+                {
+                    data.ContactDetails.MobilePrefixId,
+                    data.ContactDetails.MobilePrefix,
+                    data.ContactDetails.Mobile,
+                },
+                Roles = new { companyServiceUsers.data.data }
+            };
+
+            return _general.Response(result, 200, "Configurable information for selected user has been displayed", true);
         }
     }
 }

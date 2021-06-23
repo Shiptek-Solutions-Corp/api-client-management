@@ -161,6 +161,20 @@ namespace xlog_client_management_api.Controllers.User
             return Ok(response);
         }
 
+        [Route("user/{emailAddress}/details-by-email")]
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> RetrieveProfileByEmail([FromRoute(Name = "emailAddress")] string emailAddress)
+        {
+            var response = await _user.RetrieveProfileByEmail(emailAddress);
+
+            if (response.statusCode == 400)
+                return BadRequest(response);
+
+            return Ok(response);
+        }
+
         [Route("user/{username}/details")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
