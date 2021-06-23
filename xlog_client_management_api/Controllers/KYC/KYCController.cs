@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Authorization;
 namespace xlog_client_management_api.Controllers
 {
     [Route("clients/api/v1/kyc")]
-    [Authorize(AuthenticationSchemes = "Bearer")]
     public class KYCController : Controller
     {
         private readonly ICompanySectionService _companySectionService;
@@ -24,6 +23,7 @@ namespace xlog_client_management_api.Controllers
             this._documentTypeService = _documentTypeService;
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-sections")]
         [HttpPost]
         public async Task<IActionResult> CreateInitialSections([FromBody] CreateInitialCompanySectionModel obj)
@@ -43,6 +43,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-sections")]
         [HttpGet]
         public async Task<IActionResult> GetCompanySectionsByLoggedInCompany()
@@ -63,6 +64,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-sections/{companyId}")]
         [HttpGet]
         public async Task<IActionResult> GetCompanySectionsByCompanyGuid([FromRoute] string companyId)
@@ -82,6 +84,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-structure/submit")]
         [HttpPost]
         public async Task<IActionResult> SubmitCompanyStructureSection([FromBody] UpdateCompanyStructureSectionModel obj)
@@ -102,6 +105,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-structure/draft")]
         [HttpPost]
         public async Task<IActionResult> DraftCompanyStructureSection([FromBody] UpdateCompanyStructureSectionModel obj)
@@ -122,6 +126,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-structure/reject")]
         [HttpPut]
         public async Task<IActionResult> RejectCompanyStructureSection([FromBody] RejectCompanySectionModel obj)
@@ -141,6 +146,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-structure/approve")]
         [HttpPut]
         public async Task<IActionResult> ApproveCompanyStructureSection([FromBody] ApproveCompanySectionModel obj)
@@ -160,6 +166,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-beneficial-owners/submit")]
         [HttpPost]
         public async Task<IActionResult> SubmitCompanyBeneficialOwnerSection([FromBody] UpdateCompanyBeneficialOwnerSectionModel obj)
@@ -180,6 +187,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-beneficial-owners/draft")]
         [HttpPost]
         public async Task<IActionResult> DraftCompanyBeneficialOwnerSection([FromBody] UpdateCompanyBeneficialOwnerSectionModel obj)
@@ -200,6 +208,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-beneficial-owners/reject")]
         [HttpPut]
         public async Task<IActionResult> RejectCompanyBeneficialOwnerSection([FromBody] RejectCompanySectionModel obj)
@@ -219,6 +228,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-beneficial-owners/approve")]
         [HttpPut]
         public async Task<IActionResult> ApproveCompanyBeneficialOwnerSection([FromBody] ApproveCompanySectionModel obj)
@@ -238,6 +248,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-directors/submit")]
         [HttpPost]
         public async Task<IActionResult> SubmitCompanyDirectorsSection([FromBody] UpdateCompanyDirectorSectionModel obj)
@@ -258,6 +269,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-directors/draft")]
         [HttpPost]
         public async Task<IActionResult> DraftCompanyDirectorsSection([FromBody] UpdateCompanyDirectorSectionModel obj)
@@ -278,6 +290,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-directors/reject")]
         [HttpPut]
         public async Task<IActionResult> RejectCompanyDirectorsSection([FromBody] RejectCompanySectionModel obj)
@@ -297,6 +310,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-directors/approve")]
         [HttpPut]
         public async Task<IActionResult> ApproveCompanyDirectorsSection([FromBody] ApproveCompanySectionModel obj)
@@ -316,6 +330,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("document-types")]
         [HttpGet]
         public async Task<IActionResult> GetDocumentTypes()
@@ -336,6 +351,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("total-number-of-employees")]
         [HttpGet]
         public async Task<IActionResult> ListTotalNumberOfEmployees()
@@ -354,6 +370,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("overall-kyc-status/{companyId}")]
         [HttpGet]
         public async Task<IActionResult> GetOverallKYCStatus([FromRoute] string companyId)

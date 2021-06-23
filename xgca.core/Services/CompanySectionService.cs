@@ -15,6 +15,7 @@ using xgca.core.Constants;
 using System.Linq;
 using xgca.data.Company;
 using xgca.data.User;
+using Microsoft.Extensions.Configuration;
 
 namespace xgca.core.Services
 {
@@ -54,9 +55,12 @@ namespace xgca.core.Services
         private readonly ISectionRepository _sectionRepository;
         private readonly IGeneral _general;
 
+        private readonly string _draftSpiel;
+        private readonly string _submitSpiel;
+
         public CompanySectionService(IMapper _mapper, ICompanySectionRepository _repository, ISectionRepository _sectionRepository, IGeneral _general,
             ICompanyStructureService _companyStructureService, ICompanyDocumentService _companyDocumentService, ICompanyBeneficialOwnerService _companyBeneficialOwnerService, 
-            ICompanyDirectorService _companyDirectorService, ICompanyData _companyRepository, IUserData _userRepository)
+            ICompanyDirectorService _companyDirectorService, ICompanyData _companyRepository, IUserData _userRepository, IConfiguration _configuration)
         {
             this._mapper = _mapper;
             this._repository = _repository;
@@ -68,6 +72,8 @@ namespace xgca.core.Services
             this._companyDirectorService = _companyDirectorService;
             this._companyRepository = _companyRepository;
             this._userRepository = _userRepository;
+            _draftSpiel = _configuration["KYCSpiels:Draft"];
+            _submitSpiel = _configuration["KYCSpiels:Submit"];
         }
         public async Task<bool> CheckIfCompanyHaveCompanySections(int companyId)
         {
@@ -407,7 +413,7 @@ namespace xgca.core.Services
                 CompanyStructureSection = companyStructureSection
             };
 
-            return _general.Response(data, 200, "Company Structure section updated successfully", true);
+            return _general.Response(data, 200, _submitSpiel, true);
         }
 
         public async Task<IGeneralModel> DraftCompanyStructureSection(UpdateCompanyStructureSectionModel obj, int companyId)
@@ -457,7 +463,7 @@ namespace xgca.core.Services
                 CompanyStructureSection = companyStructureSection
             };
 
-            return _general.Response(data, 200, "Company Structure section saved as draft successfully", true);
+            return _general.Response(data, 200, _draftSpiel, true);
         }
 
         public async Task<IGeneralModel> SubmitCompanyBeneficialOwnerSection(UpdateCompanyBeneficialOwnerSectionModel obj, int companyId)
@@ -496,7 +502,7 @@ namespace xgca.core.Services
                 UltimateBeneficialOwners = companyBeneficialOwnerSection
             };
 
-            return _general.Response(data, 200, "Ultimate Beneficial Owner section updated successfully", true);
+            return _general.Response(data, 200, _submitSpiel, true);
         }
 
         public async Task<IGeneralModel> DraftCompanyBeneficialOwnerSection(UpdateCompanyBeneficialOwnerSectionModel obj, int companyId)
@@ -534,7 +540,7 @@ namespace xgca.core.Services
                 UltimateBeneficialOwners = companyBeneficialOwnerSection
             };
 
-            return _general.Response(data, 200, "Ultimate Beneficial Owner section saved as draft successfully", true);
+            return _general.Response(data, 200, _draftSpiel, true);
         }
 
         public async Task<IGeneralModel> SubmitCompanyDirectorSection(UpdateCompanyDirectorSectionModel obj, int companyId)
@@ -577,7 +583,7 @@ namespace xgca.core.Services
                 CompanyDirectors = companyDirectorSection
             };
 
-            return _general.Response(data, 200, "Company Directors section updated successfully", true);
+            return _general.Response(data, 200, _submitSpiel, true);
         }
 
         public async Task<IGeneralModel> DraftCompanyDirectorSection(UpdateCompanyDirectorSectionModel obj, int companyId)
@@ -615,7 +621,7 @@ namespace xgca.core.Services
                 CompanyDirectors = companyDirectorSection
             };
 
-            return _general.Response(data, 200, "Company Directors section saved as draft successfully", true);
+            return _general.Response(data, 200, _draftSpiel, true);
         }
 
         public async Task<IGeneralModel> ListTotalNumerOfEmployess()
