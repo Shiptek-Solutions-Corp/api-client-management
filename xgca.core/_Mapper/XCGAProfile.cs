@@ -169,7 +169,7 @@ namespace xgca.core._Mapper
                 .ForMember(i => i.CompanyAddress,
                     d => d.MapFrom(m => m.PersonalAddress))
                 .ForMember(i => i.Guid,
-                    d => d.MapFrom(m => Guid.NewGuid()))
+                    d => d.MapFrom(m => Guid.Parse(m.Id)))
                 .ForMember(i => i.UpdatedBy,
                     d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
                 .ForMember(i => i.UpdatedOn,
