@@ -1006,8 +1006,8 @@ namespace xgca.core.User
                 table.Rows.Add(
                     logs.data?.Logs[i]?.CreatedOn,
                     logs.data?.Logs[i]?.AuditLogAction,
-                    logs.data?.Logs[i]?.CreatedByName,
-                    logs.data?.Logs[i]?.CreatedBy
+                    logs.data?.Logs[i]?.CreatedBy,
+                    logs.data?.Logs[i]?.Username
                 );
             }
 
