@@ -171,7 +171,7 @@ namespace xlog_client_management_api
             services.AddScoped<IKYCStatusRepository, KYCStatusRepository>();
             services.AddScoped<ICompanySectionRepository, CompanySectionRepository>();
             services.AddScoped<ISectionRepository, SectionRepository>();
-
+            services.AddTransient<ICompanyDataV2, CompanyDataV2>();
 
 
             services.AddScoped<ICompanyGroupResource, CompanyGroupResource>();
@@ -215,6 +215,7 @@ namespace xlog_client_management_api
             services.AddTransient<ICompanyDocumentService, CompanyDocumentService>();
             services.AddTransient<ICompanySectionService, CompanySectionService>();
             services.AddTransient<IDocumentTypeService, DocumentTypeService>();
+            services.AddTransient<ICompanyServiceV2, CompanyServiceV2>();
 
             services.AddScoped<IGLobalCmsService, xgca.core.Services.GlobalCmsService>();
 

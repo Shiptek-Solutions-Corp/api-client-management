@@ -24,6 +24,7 @@ using xgca.core.Models.DocumentType;
 using xgca.entity.Models;
 using xgca.core.Constants;
 using xgca.core.Enums;
+using System.Linq;
 
 namespace xgca.core._Mapper
 {
@@ -63,6 +64,16 @@ namespace xgca.core._Mapper
             CreateMap<UpdateGuestContact, entity.Models.Guest>();
 
             CreateMap<CreatePreferredProvider, entity.Models.PreferredProvider>();
+
+            #region Company V2 Profiles
+            CreateMap<entity.Models.Company, GetCompanyListingViewModel>()
+                .ForMember(c => c.ServiceName, 
+                    s => s.MapFrom(c => string.Join(",", c.CompanyServices.Select(s => s.ServiceName).ToArray())))
+                .ForMember(c => c.CountryName,
+                    s => s.MapFrom(c => c.Addresses.CountryName))
+                .ForMember(c => c.Status,
+                    s => s.MapFrom(c => c.StatusName));
+            #endregion
 
             #region KYC Mapper Profiles
             CreateMap<CreateCompanyStructureModel, entity.Models.CompanyStructure>()

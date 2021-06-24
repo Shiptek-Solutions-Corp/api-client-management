@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using xgca.entity;
 
 namespace xgca.entity.Migrations
 {
     [DbContext(typeof(XGCAContext))]
-    partial class XGCAContextModelSnapshot : ModelSnapshot
+    [Migration("20210624051143_add_new_columns_to_company_and_companyService_tables")]
+    partial class add_new_columns_to_company_and_companyService_tables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
