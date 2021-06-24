@@ -40,7 +40,16 @@ namespace xlog_client_management_api.Controllers.Company
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Show(string guid)
         {
-            throw new NotImplementedException();
+            var isValidGuid = Guid.TryParse(guid, out var id);
+            if (!isValidGuid) return BadRequest("Invalid guid");
+
+            var result = await companyService.GetCompany(id);
+
+            if (result.StatusCode == 400) return BadRequest(result);
+            if (result.StatusCode == 500) return BadRequest(result);
+            if (result.StatusCode == 401) return Unauthorized();
+
+            return Ok(result);
         }
 
         [HttpPost]

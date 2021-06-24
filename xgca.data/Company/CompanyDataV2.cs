@@ -22,10 +22,10 @@ namespace xgca.data.Company
 
     public class CompanyDataV2 : ICompanyDataV2
     {
-        private readonly XGCAContext _context;
-        public CompanyDataV2(XGCAContext _context)
+        private readonly XGCAContext context;
+        public CompanyDataV2(XGCAContext context)
         {
-            this._context = _context;
+            this.context = context;
         }
 
         public Task<(bool, string[])> Delete(Guid guid)
@@ -35,7 +35,7 @@ namespace xgca.data.Company
 
         public async Task<(List<entity.Models.Company>, int, string[])> List(string orderBy, string query, int pageNumber = 1, int pageSize = 10)
         {
-            var companies = _context.Companies
+            var companies = context.Companies
                 .Include(c => c.Addresses)
                 .Include(c => c.CompanyServices)
                 .Where(c => c.IsDeleted == 0).AsNoTracking();
@@ -106,9 +106,20 @@ namespace xgca.data.Company
             throw new NotImplementedException();
         }
 
-        public Task<(entity.Models.Company, string[])> Show(Guid guid)
+        public async Task<(entity.Models.Company, string[])> Show(Guid guid)
         {
-            throw new NotImplementedException();
+
+            var company = await context.Companies
+                .Include(c => c.Addresses)
+                    .ThenInclude(a => a.AddressTypes)
+                .Include(c => c.ContactDetails)
+                .Include(c => c.CompanyServices)
+                .Where(c => c.Guid == guid).FirstOrDefaultAsync();
+
+            if (company != null)
+                return (company, null);
+
+            return (null, new[] { "Company not found" });
         }
     }
 }
