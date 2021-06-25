@@ -147,7 +147,8 @@ namespace xlog_client_management_api.Controllers.User
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> ActivateCompanyUser([FromQuery] string emailAddress, [FromQuery] bool isSendEmail = false)
         {
-            var response = await _user.ActivateCompanyUser(emailAddress, isSendEmail);
+            string token = Request.Headers["Authorization"].ToString().Remove(0, 7);
+            var response = await _user.ActivateCompanyUser(emailAddress, isSendEmail, token);
 
             if (response.statusCode == 400)
             {

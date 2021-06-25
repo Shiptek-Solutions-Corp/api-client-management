@@ -50,7 +50,7 @@ namespace xgca.core.User
         Task<IGeneralModel> SetUsername(SetUsernameModel obj);
         Task<IGeneralModel> Retrieve(string key);
         Task<IGeneralModel> RetrieveByUsername(string username);
-        Task<IGeneralModel> ActivateCompanyUser(string emailAddress, bool isSendEmail);
+        Task<IGeneralModel> ActivateCompanyUser(string emailAddress, bool isSendEmail, string token);
         Task<IGeneralModel> Delete(string key, string modifiedBy, string auth);
         Task<IGeneralModel> GetIdByGuid(string key);
         Task<int> GetIdByGuid(Guid key);
@@ -1020,7 +1020,7 @@ namespace xgca.core.User
             return memoryStream.ToArray();
         }
 
-        public async Task<IGeneralModel> ActivateCompanyUser(string emailAddress, bool isSendEmail)
+        public async Task<IGeneralModel> ActivateCompanyUser(string emailAddress, bool isSendEmail, string token)
         {
             var userInfo = await _userData.ActivateCompanyUser(emailAddress);
 
@@ -1123,8 +1123,22 @@ namespace xgca.core.User
             string evaultRegUrl = _evaultEnpoints.evaultRegister;
             var response3 = await _httpHelper.PostAsync(evaultRegUrl, partnerAuth.access_token, subMerchantInfo);
             GeneralModel pResponse3 = JsonConvert.DeserializeObject<GeneralModel>(response3.ToString());
-            EvaultRegistrationResponseModel registrationInfo = JsonConvert.DeserializeObject<EvaultRegistrationResponseModel>(pResponse3.data.ToString());
+            if (pResponse3.statusCode == StatusCodes.Status200OK)
+            {
+                EvaultRegistrationResponseModel registrationInfo = JsonConvert.DeserializeObject<EvaultRegistrationResponseModel>(pResponse3.data.ToString());
 
+                registrationInfo.countryCode = countryInfo.ISOCode2;
+                registrationInfo.countryName = countryInfo.Name;
+                registrationInfo.currencyCode = countryInfo.CurrencyCode;
+                registrationInfo.currencyName = countryInfo.CurrencyName;
+                registrationInfo.companyGuid = userInfo.CompanyUsers.Companies.Guid;
+
+                //Save to xlog
+                //Save Company Info to Evault
+                string xlogOnBoaringUrl = _evaultEnpoints.xlogOnBoarding;
+                var response5 = await _httpHelper.PostAsync(xlogOnBoaringUrl, token, registrationInfo);
+                GeneralModel pResponse5 = JsonConvert.DeserializeObject<GeneralModel>(response5.ToString());
+            }
             return _general.Response(null, 200, "User and company successfully activated", true);
         }
     }

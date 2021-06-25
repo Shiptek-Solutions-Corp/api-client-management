@@ -13,18 +13,13 @@ namespace xgca.core.Constants
         public string evaultCountryInfo { get; set; }
         public string evaultPartnerAuthentication { get; set; }
         public EvaultSetting EvaultSetting { get; set; }
+        public string xlogOnBoarding { get; set; }
     }
 
     public class EvaultSetting
     {
-        public string WalletProviderName { get; set; }
-        public EvaultAuthentication Authentication { get; set; }
-        public string MasterMerchant { get; set; }
-    }
-
-    public class EvaultAuthentication
-    {
-        public string Property1 { get; set; }
-        public string Property2 { get; set; }
+        public string walletProvider { get; set; }
+        public string[] authenticationProperties { get; set; }
+        public string masterMerchantName { get; set; }
     }
 }
