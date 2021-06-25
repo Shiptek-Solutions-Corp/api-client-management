@@ -11,6 +11,7 @@ namespace xgca.data.Company
 {
     public interface ICompanyData
     {
+        Task<(string, string)> UpdateKYCStatus(int companyId, string kycStatusCode, int userId);
         Task<bool> Create(entity.Models.Company obj);
         Task<int> CreateAndReturnId(entity.Models.Company obj);
         Task<List<entity.Models.Company>> List();
@@ -44,6 +45,7 @@ namespace xgca.data.Company
         Task<entity.Models.Company> GetAccreditor(int companyId);
         Task<string> GetCompanyCode(string companyGuid);
         Task<(Biller, Customer)> GetInvoiceActors(string billerId, string customerId);
+        Task<string> GetKYCStatus(int companyId);
     }
 
     public class ActorReturn
@@ -366,6 +368,7 @@ namespace xgca.data.Company
             predicate = predicate.And(x => guids.Contains(x.Guid.ToString()) && x.IsDeleted == 0);
 
             var companies = await _context.Companies.AsNoTracking()
+                .Include(cs => cs.CompanyServices)
                 .Include(a => a.Addresses)
                 .Include(c => c.ContactDetails)
                 .Where(predicate)
@@ -662,6 +665,39 @@ namespace xgca.data.Company
             data.AddRange(guests);
 
             return data;
+        }
+
+        public async Task<(string, string)> UpdateKYCStatus(int companyId, string kycStatusCode, int userId)
+        {
+            var record = await _context.Companies
+                .Where(x => x.CompanyId == companyId && x.IsDeleted == 0)
+                .FirstOrDefaultAsync();
+
+            string oldKYCSStatusCode = record.KycStatusCode;
+
+            if (record is null)
+            {
+                return (oldKYCSStatusCode, "Record does not exists or may have been deleted");
+            }
+
+            record.KycStatusCode = kycStatusCode;
+            record.ModifiedBy = userId;
+            record.ModifiedOn = DateTime.UtcNow;
+
+            var result = await _context.SaveChangesAsync();
+            return (result > 0)
+                ? (kycStatusCode, "Company KYC Status updated successfully")
+                : (oldKYCSStatusCode, "Error in updating Company KYC Status");
+        }
+
+        public async Task<string> GetKYCStatus(int companyId)
+        {
+            string kycStatus = await _context.Companies.AsNoTracking()
+                .Where(x => x.CompanyId == companyId)
+                .Select(c => c.KycStatusCode)
+                .FirstOrDefaultAsync();
+
+            return kycStatus;
         }
     }
 }

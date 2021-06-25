@@ -30,6 +30,9 @@ using System.Data;
 using System.Globalization;
 using ClosedXML.Excel;
 using System.IO;
+using xgca.data.Repositories;
+using xgca.core.Services;
+using GlobalCmsService = xgca.core.Helpers.GlobalCmsService;
 
 namespace xgca.core.Company
 {
@@ -89,10 +92,13 @@ namespace xgca.core.Company
         private readonly IUserData _userData;
         private readonly IGuestData _guestData;
 
+        private readonly ICompanySectionService _companySectionService;
         private readonly IOptions<GlobalCmsService> _options;
         private readonly IHttpHelper _httpHelper;
         private readonly ITokenHelper _tokenHelper;
         private readonly IGeneral _general;
+
+        private readonly IKYCStatusRepository _kycRepository;
 
         public Company(ICompanyData companyData,
             xgca.core.Address.IAddress coreAddress,
@@ -106,10 +112,12 @@ namespace xgca.core.Company
             ICompanyUser coreCompanyUser,
             IUserData userData,
             IGuestData guestData,
+            ICompanySectionService companySectionService,
             IOptions<GlobalCmsService> options,
             IHttpHelper httpHelper,
             ITokenHelper tokenHelper,
-            IGeneral general)
+            IGeneral general,
+            IKYCStatusRepository kycRepository)
         {
             _companyData = companyData;
             _coreAddress = coreAddress;
@@ -123,10 +131,12 @@ namespace xgca.core.Company
             _coreCompanyUser = coreCompanyUser;
             _userData = userData;
             _guestData = guestData;
+            _companySectionService = companySectionService;
             _httpHelper = httpHelper;
             _tokenHelper = tokenHelper;
             _options = options;
             _general = general;
+            _kycRepository = kycRepository;
         }
 
         public async Task<IGeneralModel> List()
@@ -194,7 +204,8 @@ namespace xgca.core.Company
                 ModifiedBy = createdById,
                 ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid(),
-                Status = 1
+                Status = 0,
+                KycStatusCode = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.NEW)
             };
 
             var companyId = await _companyData.CreateAndReturnId(company);
@@ -248,11 +259,15 @@ namespace xgca.core.Company
                 ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid(),
                 Status = 0, // Default Inactive
+                KycStatusCode = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.NEW)
             };
 
             var companyId = await _companyData.CreateAndReturnId(company);
             if (companyId <= 0)
             { return _general.Response(null, 400, "Error on creating company", true); }
+
+            GlobalVariables.LoggedInCompanyId = companyId;
+            await _companySectionService.CreateInitialSections();
 
             await _coreCompanyService.CreateBatch(obj.Services, companyId, GlobalVariables.SystemUserId);
             await _coreCompanyServiceRole.CreateDefault(companyId, GlobalVariables.SystemUserId);
@@ -266,6 +281,8 @@ namespace xgca.core.Company
             var newCompanyServicesResponse = await _coreCompanyService.ListByCompanyId(newCompany.Guid.ToString());
             var newCompanyServices = newCompanyServicesResponse.data.companyService;
             var companyLog = CompanyHelper.BuildCompanyValue(newCompany, newCompanyServices);
+
+            var kycReturn = await _kycRepository.GetByKycStatusCode(newCompany.KycStatusCode);
 
             // Create audit log
             await _coreAuditLog.CreateAuditLog("Create", company.GetType().Name, companyId, GlobalVariables.SystemUserId, companyLog, null);
@@ -329,7 +346,8 @@ namespace xgca.core.Company
             var stateResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetState}/", newCompany.Addresses.StateId, AuthToken.Contra);
             var stateJson = (JObject)stateResponse;
 
-            var updatedCompany = CompanyHelper.ReturnUpdatedValue(newCompany, (cityJson)["data"]["cityId"].ToString(), (stateJson)["data"]["stateId"].ToString(), companyServices);
+            var kycReturn = await _kycRepository.GetByKycStatusCode(newCompany.KycStatusCode);
+            var updatedCompany = CompanyHelper.ReturnUpdatedValue(newCompany, (cityJson)["data"]["cityId"].ToString(), (stateJson)["data"]["stateId"].ToString(), companyServices, kycReturn.Item1.Description);
 
             var newValue = CompanyHelper.BuildCompanyValue(newCompany, companyServices);
 
@@ -355,6 +373,8 @@ namespace xgca.core.Company
             var stateJson = (JObject)stateResponse;
 
             var companyServices = await _coreCompanyService.ListByCompanyId(companyKey);
+
+            var kycReturn = await _kycRepository.GetByKycStatusCode(result.KycStatusCode);
 
             var data = new
             {
@@ -408,6 +428,9 @@ namespace xgca.core.Company
                 result.TaxExemption,
                 result.TaxExemptionStatus,
                 CompanyServices = companyServices.data.companyService,
+                Status = (result.Status == 1) ? "Active" : "Inactive",
+                KYCStatusCode = kycReturn.Item1.KycStatusCode,
+                KYCStatus = (kycReturn.Item1 is null) ? "NEW" : kycReturn.Item1.Description
             };
 
             return _general.Response(new { company = data }, 200, "Configurable information for selected company has been displayed", true);
@@ -428,6 +451,8 @@ namespace xgca.core.Company
             var stateJson = (JObject)stateResponse;
 
             var companyServices = await _coreCompanyService.ListByCompanyId(companyId);
+
+            var kycReturn = await _kycRepository.GetByKycStatusCode(result.KycStatusCode);
 
             var data = new
             {
@@ -482,6 +507,9 @@ namespace xgca.core.Company
                 result.TaxExemption,
                 result.TaxExemptionStatus,
                 CompanyServices = companyServices.data.companyService,
+                Status = (result.Status == 1) ? "Active" : "Inactive",
+                KYCStatusCode = kycReturn.Item1.KycStatusCode,
+                KYCStatus = (kycReturn.Item1 is null) ? "NEW" : kycReturn.Item1.Description
             };
 
             return _general.Response(new { company = data }, 200, "Configurable information for selected company has been displayed", true);
@@ -872,7 +900,8 @@ namespace xgca.core.Company
                     ModifiedOn = DateTime.UtcNow,
                     Guid = Guid.NewGuid(),
                     Status = 1,
-                    AccreditedBy = o.AccreditedBy
+                    AccreditedBy = o.AccreditedBy,
+                    KycStatusCode = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.NEW)
                 };
 
                 var companyId = await _companyData.CreateAndReturnId(company);

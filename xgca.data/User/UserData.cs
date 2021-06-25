@@ -28,6 +28,7 @@ namespace xgca.data.User
         Task<int> GetTotalUsers(List<int> userIds);
         Task<entity.Models.User> Retrieve(int key);
         Task<entity.Models.User> RetrieveByUsername(string username);
+        Task<entity.Models.User> RetrieveByEmail(string emailAddress);
         Task<bool> Update(entity.Models.User obj);
         Task<bool> UpdateStatus(entity.Models.User obj);
         Task<bool> UpdateStatus(List<int> userIds, int modifiedBy, byte status);
@@ -417,6 +418,16 @@ namespace xgca.data.User
 
                 throw ex;
             }
+        }
+
+        public async Task<entity.Models.User> RetrieveByEmail(string emailAddress)
+        {
+            var data = await _context.Users
+                .Include(cn => cn.ContactDetails)
+                .Include(cu => cu.CompanyUsers)
+                .ThenInclude(c => c.Companies)
+                .Where(u => u.EmailAddress == emailAddress).FirstOrDefaultAsync();
+            return data;
         }
     }
 }

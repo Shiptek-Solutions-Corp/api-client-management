@@ -140,22 +140,22 @@ namespace xgca.entity.Migrations
                         {
                             AddressTypeId = 1,
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2021, 6, 10, 10, 14, 18, 131, DateTimeKind.Utc).AddTicks(4502),
+                            CreatedOn = new DateTime(2021, 6, 24, 5, 11, 42, 669, DateTimeKind.Utc).AddTicks(4098),
                             Guid = new Guid("1e0621b2-b7ea-4d48-8be2-f09980694816"),
                             IsDeleted = (byte)0,
                             ModifiedBy = 0,
-                            ModifiedOn = new DateTime(2021, 6, 10, 10, 14, 18, 131, DateTimeKind.Utc).AddTicks(5548),
+                            ModifiedOn = new DateTime(2021, 6, 24, 5, 11, 42, 669, DateTimeKind.Utc).AddTicks(4771),
                             Name = "Company"
                         },
                         new
                         {
                             AddressTypeId = 2,
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2021, 6, 10, 10, 14, 18, 132, DateTimeKind.Utc).AddTicks(7870),
+                            CreatedOn = new DateTime(2021, 6, 24, 5, 11, 42, 670, DateTimeKind.Utc).AddTicks(3862),
                             Guid = new Guid("95ec682b-074f-42bb-9fed-d4dbde41e41d"),
                             IsDeleted = (byte)0,
                             ModifiedBy = 0,
-                            ModifiedOn = new DateTime(2021, 6, 10, 10, 14, 18, 132, DateTimeKind.Utc).AddTicks(7891),
+                            ModifiedOn = new DateTime(2021, 6, 24, 5, 11, 42, 670, DateTimeKind.Utc).AddTicks(3878),
                             Name = "Residential"
                         });
                 });
@@ -323,6 +323,9 @@ namespace xgca.entity.Migrations
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint");
 
+                    b.Property<string>("StatusName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<byte>("TaxExemption")
                         .HasColumnType("tinyint");
 
@@ -361,8 +364,8 @@ namespace xgca.entity.Migrations
                         .HasColumnType("nvarchar(10)")
                         .HasMaxLength(10);
 
-                    b.Property<int>("CityId")
-                        .HasColumnType("int");
+                    b.Property<string>("CityId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CityName")
                         .HasColumnType("nvarchar(100)")
@@ -405,6 +408,9 @@ namespace xgca.entity.Migrations
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool?>("IsActive")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -419,8 +425,15 @@ namespace xgca.entity.Migrations
                         .HasColumnType("nvarchar(500)")
                         .HasMaxLength(500);
 
-                    b.Property<int>("StateId")
-                        .HasColumnType("int");
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<string>("PostalId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StateId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StateName")
                         .HasColumnType("nvarchar(100)")
@@ -436,10 +449,6 @@ namespace xgca.entity.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("(getutcdate())");
-
-                    b.Property<string>("ZipCode")
-                        .HasColumnType("nvarchar(10)")
-                        .HasMaxLength(10);
 
                     b.HasKey("CompanyBeneficialOwnersId");
 
@@ -461,8 +470,8 @@ namespace xgca.entity.Migrations
                         .HasColumnType("nvarchar(1500)")
                         .HasMaxLength(1500);
 
-                    b.Property<int>("CityId")
-                        .HasColumnType("int");
+                    b.Property<string>("CityId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CityName")
                         .HasColumnType("nvarchar(100)")
@@ -505,6 +514,9 @@ namespace xgca.entity.Migrations
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool?>("IsActive")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -522,8 +534,15 @@ namespace xgca.entity.Migrations
                         .HasColumnType("nvarchar(500)")
                         .HasMaxLength(500);
 
-                    b.Property<int>("StateId")
-                        .HasColumnType("int");
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<string>("PostalId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StateId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StateName")
                         .HasColumnType("nvarchar(100)")
@@ -539,10 +558,6 @@ namespace xgca.entity.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("(getutcdate())");
-
-                    b.Property<string>("ZipCode")
-                        .HasColumnType("nvarchar(10)")
-                        .HasMaxLength(10);
 
                     b.HasKey("CompanyDirectorsId");
 
@@ -580,18 +595,16 @@ namespace xgca.entity.Migrations
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<byte[]>("DocumentDescription")
-                        .HasColumnType("varbinary(550)")
+                    b.Property<string>("DocumentDescription")
+                        .HasColumnType("nvarchar(550)")
                         .HasMaxLength(550);
 
                     b.Property<string>("DocumentNo")
                         .HasColumnType("nvarchar(50)")
                         .HasMaxLength(50);
 
-                    b.Property<string>("DocumentTypeCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(10)")
-                        .HasMaxLength(10);
+                    b.Property<int>("DocumentTypeId")
+                        .HasColumnType("int");
 
                     b.Property<string>("FileUrl")
                         .HasColumnType("nvarchar(1500)")
@@ -626,7 +639,7 @@ namespace xgca.entity.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.HasIndex("DocumentTypeCode");
+                    b.HasIndex("DocumentTypeId");
 
                     b.ToTable("CompanyDocuments","Company");
                 });
@@ -713,6 +726,9 @@ namespace xgca.entity.Migrations
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool?>("IsActive")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -790,6 +806,9 @@ namespace xgca.entity.Migrations
 
                     b.Property<int>("ServiceId")
                         .HasColumnType("int");
+
+                    b.Property<string>("ServiceName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint");
@@ -966,8 +985,8 @@ namespace xgca.entity.Migrations
                         .HasColumnType("nvarchar(1500)")
                         .HasMaxLength(1500);
 
-                    b.Property<int>("CityId")
-                        .HasColumnType("int");
+                    b.Property<string>("CityId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CityName")
                         .HasColumnType("nvarchar(100)")
@@ -1018,20 +1037,27 @@ namespace xgca.entity.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<string>("PostalId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("RegistrationNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(50)")
                         .HasMaxLength(50);
 
-                    b.Property<int>("StateId")
-                        .HasColumnType("int");
+                    b.Property<string>("StateId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StateName")
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
 
-                    b.Property<int>("TotalEmployeeNo")
-                        .HasColumnType("int");
+                    b.Property<string>("TotalEmployeeNo")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UpdatedBy")
                         .ValueGeneratedOnAdd()
@@ -1043,10 +1069,6 @@ namespace xgca.entity.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("(getutcdate())");
-
-                    b.Property<string>("ZipCode")
-                        .HasColumnType("nvarchar(10)")
-                        .HasMaxLength(10);
 
                     b.HasKey("CompanyId");
 
@@ -1227,9 +1249,10 @@ namespace xgca.entity.Migrations
 
             modelBuilder.Entity("xgca.entity.Models.DocumentType", b =>
                 {
-                    b.Property<string>("DocumentTypeCode")
-                        .HasColumnType("nvarchar(10)")
-                        .HasMaxLength(10);
+                    b.Property<int>("DocumentTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -1274,6 +1297,9 @@ namespace xgca.entity.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UpdatedBy")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(50)")
@@ -1285,7 +1311,7 @@ namespace xgca.entity.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("(getutcdate())");
 
-                    b.HasKey("DocumentTypeCode");
+                    b.HasKey("DocumentTypeId");
 
                     b.HasIndex("Description")
                         .IsUnique()
@@ -1878,9 +1904,9 @@ namespace xgca.entity.Migrations
                         .HasConstraintName("FK_CompanyDocuments_Company")
                         .IsRequired();
 
-                    b.HasOne("xgca.entity.Models.DocumentType", "DocumentTypeCodeNavigation")
+                    b.HasOne("xgca.entity.Models.DocumentType", "DocumentType")
                         .WithMany("CompanyDocuments")
-                        .HasForeignKey("DocumentTypeCode")
+                        .HasForeignKey("DocumentTypeId")
                         .HasConstraintName("FK_CompanyDocuments_DocumentType")
                         .IsRequired();
                 });

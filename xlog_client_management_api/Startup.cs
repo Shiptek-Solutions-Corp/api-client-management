@@ -65,6 +65,8 @@ using xgca.data.PreferredProvider;
 using xgca.core.PreferredProvider;
 using xgca.core.Helpers.PreferredProvider;
 using xgca.core.Helpers.Service;
+using xgca.data.Repositories;
+using Z.EntityFramework.Extensions;
 
 namespace xlog_client_management_api
 {
@@ -160,6 +162,17 @@ namespace xlog_client_management_api
             services.AddScoped<IPreferredContactData, PreferredContactData>();
             services.AddScoped<IPreferredProviderData, PreferredProviderData>();
             services.AddScoped<IGeneral, General>();
+            services.AddScoped<ICompanySectionRepository, CompanySectionRepository>();
+            services.AddScoped<ICompanyStructureRepository, CompanyStructureRepository>();
+            services.AddScoped<ICompanyBeneficialOwnersRepository, CompanyBeneficialOwnersRepository>();
+            services.AddScoped<ICompanyDocumentRepository, CompanyDocumentRepository>();
+            services.AddScoped<IDocumentTypeRepository, DocumentTypeRepository>();
+            services.AddScoped<ICompanyDirectorRepository, CompanyDirectorRepository>();
+            services.AddScoped<IKYCStatusRepository, KYCStatusRepository>();
+            services.AddScoped<ICompanySectionRepository, CompanySectionRepository>();
+            services.AddScoped<ISectionRepository, SectionRepository>();
+            services.AddTransient<ICompanyDataV2, CompanyDataV2>();
+
 
             services.AddScoped<ICompanyGroupResource, CompanyGroupResource>();
             services.AddScoped<ICompanyGroupResourceData, CompanyGroupResourceData>();
@@ -196,6 +209,13 @@ namespace xlog_client_management_api
             services.AddScoped<IPreferredContactCore, PreferredContactCore>();
             services.AddScoped<IPreferredProviderCore, PreferredProviderCore>();
             services.AddScoped<IYourEDIService, YourEDIService>();
+            services.AddTransient<ICompanyStructureService, CompanyStructureService>();
+            services.AddTransient<ICompanyBeneficialOwnerService, CompanyBeneficialOwnerService>();
+            services.AddTransient<ICompanyDirectorService, CompanyDirectorService>();
+            services.AddTransient<ICompanyDocumentService, CompanyDocumentService>();
+            services.AddTransient<ICompanySectionService, CompanySectionService>();
+            services.AddTransient<IDocumentTypeService, DocumentTypeService>();
+            services.AddTransient<ICompanyServiceV2, CompanyServiceV2>();
 
             services.AddScoped<IGLobalCmsService, xgca.core.Services.GlobalCmsService>();
 

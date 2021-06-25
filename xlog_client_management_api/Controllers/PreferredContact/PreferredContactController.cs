@@ -117,10 +117,10 @@ namespace xlog_client_management_api.Controllers.PreferredContact
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> QuickSearch([FromQuery] string search, [FromQuery] int pageNumber = 0, [FromQuery] int pageSize = 10, [FromQuery] int totalRecords = 0)
+        public async Task<IActionResult> QuickSearch([FromQuery] string search, [FromQuery] int pageNumber = 0, [FromQuery] int pageSize = 10, [FromQuery] int totalRecords = 0, [FromQuery] int serviceRoleGroup = (int)xgca.core.Enums.ServiceRoleGroup.All)
         {
             string companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
-            var response = await _preferredContact.QuickSearch(search, Convert.ToInt32(companyId), pageNumber, pageSize, totalRecords);
+            var response = await _preferredContact.QuickSearch(search, Convert.ToInt32(companyId), pageNumber, pageSize, totalRecords, serviceRoleGroup);
 
             if (response.statusCode == 400)
             {

@@ -68,7 +68,7 @@ namespace xgca.core.Helpers
             return obj;
         }
 
-        public static dynamic ReturnUpdatedValue(dynamic companyObj, string cityId, string stateId, dynamic companyServicesObj)
+        public static dynamic ReturnUpdatedValue(dynamic companyObj, string cityId, string stateId, dynamic companyServicesObj, string kycStatus = "NEW")
         {
             string fullAddress = AddressHelper.GenerateFullAddress(companyObj.Addresses);
             var data = new
@@ -122,7 +122,9 @@ namespace xgca.core.Helpers
                 CUCC = companyObj.CUCC,
                 companyObj.TaxExemption,
                 companyObj.TaxExemptionStatus,
-                CompanyServices = companyServicesObj
+                CompanyServices = companyServicesObj,
+                Status = (companyObj.Status == 1) ? "Active" : "Inactive",
+                KYCStatus = (kycStatus is null) ? "NEW" : kycStatus
             };
 
             return data;

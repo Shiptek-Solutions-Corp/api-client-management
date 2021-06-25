@@ -37,6 +37,7 @@ namespace xgca.entity.Models
         public string WebsiteURL { get; set; }
         [System.ComponentModel.DefaultValue(1)]
         public byte Status { get; set; }
+        public string StatusName { get; set; }
         [System.ComponentModel.DefaultValue(0)]
         public byte IsDeleted { get; set; }
         public byte TaxExemption { get; set; }
