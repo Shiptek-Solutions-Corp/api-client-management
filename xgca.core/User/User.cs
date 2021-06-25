@@ -1140,6 +1140,11 @@ namespace xgca.core.User
                 var response5 = await _httpHelper.PostAsync(xlogOnBoaringUrl, token, registrationInfo);
                 GeneralModel pResponse5 = JsonConvert.DeserializeObject<GeneralModel>(response5.ToString());
             }
+
+            if(pResponse3.errors.Count > 0)
+            {
+                return _general.Response(pResponse3.errors, StatusCodes.Status400BadRequest, "User and company successfully activated but there is a problem encounter in evault registration.", true);
+            }
             return _general.Response(null, 200, "User and company successfully activated", true);
         }
 
