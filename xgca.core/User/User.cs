@@ -51,7 +51,7 @@ namespace xgca.core.User
         Task<IGeneralModel> Retrieve(string key);
         Task<IGeneralModel> RetrieveByUsername(string username);
         Task<IGeneralModel> RetrieveProfileByEmail(string emailAddress);
-        Task<IGeneralModel> ActivateCompanyUser(string emailAddress);
+        Task<IGeneralModel> ActivateCompanyUser(string emailAddress, bool isSendEmail, string token);
         Task<IGeneralModel> Delete(string key, string modifiedBy, string auth);
         Task<IGeneralModel> GetIdByGuid(string key);
         Task<int> GetIdByGuid(Guid key);
