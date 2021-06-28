@@ -15,7 +15,7 @@ namespace xgca.data.Company
     {
         Task<(List<entity.Models.Company>, int, string[])> List(string orderBy, string query, int pageNumber = 1, int pageSize = 10);
         Task<(entity.Models.Company, string[])> Show(Guid guid);
-        Task<(entity.Models.Company, string[])> Put(Guid guid);
+        Task<(entity.Models.Company, string[])> Put(entity.Models.Company company);
         Task<(entity.Models.Company, string[])> Patch(Guid guid, entity.Models.Company company);
         Task<(bool, string[])> Delete(Guid guid);
     }
@@ -38,6 +38,7 @@ namespace xgca.data.Company
             var companies = context.Companies
                 .Include(c => c.Addresses)
                 .Include(c => c.CompanyServices)
+                .Include(c => c.CompanyTaxSettings)
                 .Where(c => c.IsDeleted == 0).AsNoTracking();
 
             // search
@@ -83,6 +84,9 @@ namespace xgca.data.Company
                             case "createdOn":
                                 companies = companies.Where(p => (p.CreatedOn >= dateFrom && p.CreatedOn <= dateTo));
                                 continue;
+                            case "status":
+                                companies = companies.Where(c => c.Status.ToString().Equals(filterValue));
+                                continue;
                             default:
                                 companies = companies.Where($"{key}.ToLower().Contains(@0)", filterValue);
                                 break;
@@ -101,7 +105,7 @@ namespace xgca.data.Company
             throw new NotImplementedException();
         }
 
-        public Task<(entity.Models.Company, string[])> Put(Guid guid)
+        public Task<(entity.Models.Company, string[])> Put(entity.Models.Company company)
         {
             throw new NotImplementedException();
         }

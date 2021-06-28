@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using xgca.core.Models.Address;
 using xgca.core.Models.CompanyService;
+using xgca.core.Models.CompanyTaxSettings;
 using xgca.core.Models.ContactDetail;
 
 namespace xgca.core.Models.Company
@@ -38,6 +39,7 @@ namespace xgca.core.Models.Company
         public GetAddressModel Addresses { get; set; }
         public GetContactDetailsModel ContactDetails { get; set; }
         public ICollection<GetCompanyServiceModel> CompanyServices { get; set; }
+        public ICollection<GetCompanyTaxSettingsModel> CompanyTaxSettings { get; set; }
     }
 
     public class UpdateCompanyViewModel : CreateCompanyViewModel

@@ -28,6 +28,7 @@ using System.Linq;
 using xgca.core.Models.Address;
 using xgca.core.Models.AddressType;
 using xgca.core.Models.ContactDetail;
+using xgca.core.Models.CompanyTaxSettings;
 
 namespace xgca.core._Mapper
 {
@@ -83,6 +84,10 @@ namespace xgca.core._Mapper
             CreateMap<entity.Models.ContactDetail, GetContactDetailsModel>();
             CreateMap<entity.Models.Address, GetAddressModel>();
             CreateMap<entity.Models.AddressType, GetAddressTypeModel>();
+
+            CreateMap<entity.Models.CompanyTaxSettings, GetCompanyTaxSettingsModel>();
+            CreateMap<CreateCompanyTaxSettingsModel, entity.Models.CompanyTaxSettings> ();
+            CreateMap<UpdateCompanyTaxSettingsModel, entity.Models.CompanyTaxSettings> ();
             #endregion
 
             #region KYC Mapper Profiles
