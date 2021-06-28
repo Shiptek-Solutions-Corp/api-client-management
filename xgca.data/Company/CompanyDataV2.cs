@@ -38,7 +38,6 @@ namespace xgca.data.Company
             var companies = context.Companies
                 .Include(c => c.Addresses)
                 .Include(c => c.CompanyServices)
-                .Include(c => c.CompanyTaxSettings)
                 .Where(c => c.IsDeleted == 0).AsNoTracking();
 
             // search
@@ -114,11 +113,33 @@ namespace xgca.data.Company
         {
 
             var company = await context.Companies
+                .Include(c => c.CompanyTaxSettings) // Get Only Active
                 .Include(c => c.Addresses)
                     .ThenInclude(a => a.AddressTypes)
                 .Include(c => c.ContactDetails)
                 .Include(c => c.CompanyServices)
-                .Where(c => c.Guid == guid).FirstOrDefaultAsync();
+                .Where(c => c.Guid == guid)
+                .Select(c => new entity.Models.Company
+                {
+                  Guid = c.Guid,
+                  CompanyCode = c.CompanyCode,
+                  CompanyName = c.CompanyName,
+                  ImageURL = c.ImageURL,
+                  EmailAddress = c.EmailAddress,
+                  WebsiteURL = c.WebsiteURL,
+                  StatusName = c.StatusName,
+                  TaxExemption =  c.TaxExemption,
+                  TaxExemptionStatus = c.TaxExemptionStatus,
+                  CUCC = c.CUCC,
+                  AccreditedBy = c.AccreditedBy,
+                  KycStatusCode = c.KycStatusCode,
+                  Addresses = c.Addresses,
+                  ContactDetails = c.ContactDetails,
+                  CompanyServices = c.CompanyServices,
+                  CompanyTaxSettings = c.CompanyTaxSettings.Where(cts => cts.Status == 1).ToList()
+                })
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
 
             if (company != null)
                 return (company, null);

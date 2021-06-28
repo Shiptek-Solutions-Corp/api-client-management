@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +10,7 @@ namespace xgca.data.CompanyTaxSettings
 {
     public interface ICompanyTaxSettingsRepository
     {
-        Task<(bool, string[])> Create(entity.Models.CompanyTaxSettings companyTaxSettings);
+        Task<(bool, string[])> Create(Guid companyGuid, entity.Models.CompanyTaxSettings companyTaxSettings);
         Task<(List<entity.Models.CompanyTaxSettings>, int, string[])> List(string orderBy, string query, int pageNumber = 1, int pageSize = 10);
         Task<(entity.Models.CompanyTaxSettings, string[])> Show(Guid guid);
         Task<(entity.Models.CompanyTaxSettings, string[])> Put(entity.Models.CompanyTaxSettings companyTaxSettings);
@@ -26,9 +26,9 @@ namespace xgca.data.CompanyTaxSettings
             this.context = context;
         }
 
-        public async Task<(bool, string[])> Create(entity.Models.CompanyTaxSettings companyTaxSettings)
+        public async Task<(bool, string[])> Create(Guid companyGuid, entity.Models.CompanyTaxSettings companyTaxSettings)
         {
-            var company = await context.Companies.FirstOrDefaultAsync(c => c.Guid.Equals(companyTaxSettings.Guid));
+            var company = await context.Companies.FirstOrDefaultAsync(c => c.Guid.Equals(companyGuid));
             
             if(company == null)
                 return (false, new[] { "Company not found" });

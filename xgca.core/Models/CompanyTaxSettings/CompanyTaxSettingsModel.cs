@@ -6,7 +6,8 @@ namespace xgca.core.Models.CompanyTaxSettings
 {
     public class CreateCompanyTaxSettingsModel
     {
-        public string CompanyId { get; set; }
+        public Guid Guid { get; set; }
+        public Guid CompanyGuid { get; set; }
         public string TaxTypeId { get; set; }
         public string TaxTypeDescription { get; set; }
         public decimal TaxPercentageRate { get; set; }

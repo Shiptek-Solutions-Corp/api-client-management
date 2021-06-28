@@ -29,11 +29,11 @@ namespace xgca.core.Services
 
         public async Task<GenericResponse<GetCompanyTaxSettingsModel>> Create(CreateCompanyTaxSettingsModel payload)
         {
-            var (result, errors) = await companyTaxSettingsRepository.Create(mapper.Map<CompanyTaxSettings>(payload));
+            var (result, errors) = await companyTaxSettingsRepository.Create(payload.CompanyGuid, mapper.Map<CompanyTaxSettings>(payload));
                 
             return result
                 ? new GenericResponse<GetCompanyTaxSettingsModel>(null, "Tax setting created successfully.", 200)
-                : new GenericResponse<GetCompanyTaxSettingsModel>(null, errors.Select(e => new ErrorField("message", e)).ToList() ,"Tax setting updated successfully.", 400);
+                : new GenericResponse<GetCompanyTaxSettingsModel>(null, errors.Select(e => new ErrorField("message", e)).ToList(), "An error occured on creating tax setting.", 400);
         }
 
         public async Task<GenericResponse<GetCompanyTaxSettingsModel>> Put(UpdateCompanyTaxSettingsModel payload)
@@ -42,7 +42,7 @@ namespace xgca.core.Services
             
             return result != null
             ? new GenericResponse<GetCompanyTaxSettingsModel>(mapper.Map<GetCompanyTaxSettingsModel>(result), "Tax setting updated successfully.", 200)
-            : new GenericResponse<GetCompanyTaxSettingsModel>(null, errors.Select(e => new ErrorField("message", e)).ToList(), "Tax setting updated successfully.", 400);
+            : new GenericResponse<GetCompanyTaxSettingsModel>(null, errors.Select(e => new ErrorField("message", e)).ToList(), "An error occured on update tax setting.", 400);
         }
     }
 }

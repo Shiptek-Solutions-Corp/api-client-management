@@ -85,7 +85,9 @@ namespace xgca.core._Mapper
             CreateMap<entity.Models.Address, GetAddressModel>();
             CreateMap<entity.Models.AddressType, GetAddressTypeModel>();
 
-            CreateMap<entity.Models.CompanyTaxSettings, GetCompanyTaxSettingsModel>();
+            CreateMap<entity.Models.CompanyTaxSettings, GetCompanyTaxSettingsModel>()
+                .ForMember(c => c.CompanyGuid, 
+                    s => s.Ignore());
             CreateMap<CreateCompanyTaxSettingsModel, entity.Models.CompanyTaxSettings> ();
             CreateMap<UpdateCompanyTaxSettingsModel, entity.Models.CompanyTaxSettings> ();
             #endregion
