@@ -83,6 +83,9 @@ namespace xgca.data.Company
                             case "createdOn":
                                 companies = companies.Where(p => (p.CreatedOn >= dateFrom && p.CreatedOn <= dateTo));
                                 continue;
+                            case "status":
+                                companies = companies.Where(c => c.Status.ToString().Equals(filterValue));
+                                continue;
                             default:
                                 companies = companies.Where($"{key}.ToLower().Contains(@0)", filterValue);
                                 break;
