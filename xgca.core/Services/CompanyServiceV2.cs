@@ -31,9 +31,7 @@ namespace xgca.core.Services
             var (company, errors) = await companyData.Show(guid);
 
             if (errors != null)
-            {
-                return new GenericResponse<GetCompanyViewModel>(null, errors.Select(e => new ErrorField("message", e)).ToList(), "Error on getting seaFreightTransaction", 404);
-            }
+                return new GenericResponse<GetCompanyViewModel>(null, errors.Select(e => new ErrorField("message", e)).ToList(), "Error on fetching company details", 404);
 
             return new GenericResponse<GetCompanyViewModel>(mapper.Map<GetCompanyViewModel>(company), "Company retreived successfully.", 200);
         }
