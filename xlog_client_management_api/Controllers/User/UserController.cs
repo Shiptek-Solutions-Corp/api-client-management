@@ -139,15 +139,16 @@ namespace xlog_client_management_api.Controllers.User
             return Ok(response);
         }
 
-        [Route("user/{emailAddress}/activate-company-user")]
+        [Route("user/activate-company-user")]
         [HttpPost]
         //[TokenAuthorize("scope", "users.get")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> ActivateCompanyUser([FromRoute(Name = "emailAddress")] string emailAddress)
+        public async Task<IActionResult> ActivateCompanyUser([FromQuery] string emailAddress, [FromQuery] bool isSendEmail = false)
         {
-            var response = await _user.ActivateCompanyUser(emailAddress);
+            string token = Request.Headers["Authorization"].ToString().Remove(0, 7);
+            var response = await _user.ActivateCompanyUser(emailAddress, isSendEmail, token);
 
             if (response.statusCode == 400)
             {

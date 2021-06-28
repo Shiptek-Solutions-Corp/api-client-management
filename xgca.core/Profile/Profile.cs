@@ -105,6 +105,7 @@ namespace xgca.core.Profile
                     CompanyServiceId = companyService.Guid,
                     ServiceId = serviceKey,
                     Service = serviceJson["data"]["service"]["name"],
+                    Status = company.Status,
                 },
                 User = new
                 {
