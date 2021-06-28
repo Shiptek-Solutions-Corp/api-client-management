@@ -13,6 +13,7 @@ namespace xgca.core.Services
     public interface ICompanyServiceV2
     {
         Task<PagedResponse<List<GetCompanyListingViewModel>>> GetCompanyList(int pageNumber = 1, int pageSize = 10, string orderBy = null, string query = null);
+        Task<GenericResponse<GetCompanyViewModel>> GetCompany(Guid guid);
     }
 
     public class CompanyServiceV2 : ICompanyServiceV2
@@ -23,6 +24,18 @@ namespace xgca.core.Services
         {
             this.companyData = companyData;
             this.mapper = mapper;
+        }
+
+        public async Task<GenericResponse<GetCompanyViewModel>> GetCompany(Guid guid)
+        {
+            var (company, errors) = await companyData.Show(guid);
+
+            if (errors != null)
+            {
+                return new GenericResponse<GetCompanyViewModel>(null, errors.Select(e => new ErrorField("message", e)).ToList(), "Error on getting seaFreightTransaction", 404);
+            }
+
+            return new GenericResponse<GetCompanyViewModel>(mapper.Map<GetCompanyViewModel>(company), "Company retreived successfully.", 200);
         }
 
         public async Task<PagedResponse<List<GetCompanyListingViewModel>>> GetCompanyList(int pageNumber = 1, int pageSize = 10, string orderBy = null, string query = null)
