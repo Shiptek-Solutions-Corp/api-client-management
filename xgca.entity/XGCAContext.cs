@@ -20,20 +20,16 @@ namespace xgca.entity
         DbSet<AuditLog> AuditLogs { get; set; }
         DbSet<Company> Companies { get; set; }
         DbSet<ContactDetail> ContactDetails { get; set; }
-
         DbSet<CompanyService> CompanyServices { get; set; }
         DbSet<CompanyServiceRole> CompanyServiceRoles { get; set; }
         DbSet<CompanyServiceUser> CompanyServiceUsers { get; set; }
         DbSet<CompanyUser> CompanyUsers { get; set; }
         DbSet<CompanyGroupResource> CompanyGroupResources { get; set; }
         DbSet<CompanyServiceUserRole> CompanyServiceUserRoles { get; set; }
-
         DbSet<Guest> Guests { get; set; }
         DbSet<PreferredContact> PreferredContacts { get; set; }
         DbSet<PreferredProvider> PreferredProviders { get; set; }
         DbSet<Invite> Invites { get; set; }
-
-
         DbSet<BeneficialOwnersType> BeneficialOwnersTypes { get; set; }
         DbSet<CompanyBeneficialOwners> CompanyBeneficialOwners { get; set; }
         DbSet<CompanyDirectors> CompanyDirectors { get; set; }
@@ -45,6 +41,7 @@ namespace xgca.entity
         DbSet<KycStatus> KycStatuses { get; set; }
         DbSet<Section> Sections { get; set; }
         DbSet<SectionStatus> SectionStatuses { get; set; }
+        DbSet<CompanyTaxSettings> CompanyTaxSettings { get; set; }
 
     }
     public static class ModelBuilderExtensions
@@ -114,6 +111,7 @@ namespace xgca.entity
         public virtual DbSet<KycStatus> KycStatuses { get; set; }
         public virtual DbSet<Section> Sections { get; set; }
         public virtual DbSet<SectionStatus> SectionStatuses { get; set; }
+        public DbSet<CompanyTaxSettings> CompanyTaxSettings { get; set; }
 
         public Task<int> SaveChangesAsync() => base.SaveChangesAsync();
         public Task<int> SaveChangesAuditable()
@@ -123,6 +121,29 @@ namespace xgca.entity
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<CompanyTaxSettings>(entity => {
+
+                entity
+                .Property(cts => cts.Guid)
+                .HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.Status)
+                    .IsRequired()
+                    .HasDefaultValue(1);
+
+                entity.Property(e => e.StatusName)
+                    .IsRequired()
+                    .HasDefaultValue("Active");
+
+                entity
+                .Property(cgr => cgr.CreatedOn)
+                .HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasDefaultValue("Admin");
+            });
+
             modelBuilder.Entity<CompanyGroupResource>()
                 .Property(cgr => cgr.Guid)
                 .HasDefaultValueSql("NEWID()");

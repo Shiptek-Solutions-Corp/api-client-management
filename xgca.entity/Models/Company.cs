@@ -51,14 +51,14 @@ namespace xgca.entity.Models
         public Guid Guid { get; set; }
         public string AccreditedBy { get; set; }
         public string KycStatusCode { get; set; }
-
+        public string PricingSettingsDescription { get; set; }
         public virtual Address Addresses { get; set; }
         public virtual ContactDetail ContactDetails { get; set; }
         public virtual ICollection<CompanyService> CompanyServices { get; set; }
         public virtual ICollection<CompanyUser> CompanyUsers { get; set; }
-
         public virtual KycStatus KycStatusCodeNavigation { get; set; }
         public virtual CompanyStructure CompanyStructure { get; set; }
+        public virtual ICollection<CompanyTaxSettings> CompanyTaxSettings { get; set; }
         public virtual ICollection<CompanyBeneficialOwners> CompanyBeneficialOwners { get; set; }
         public virtual ICollection<CompanyDirectors> CompanyDirectors { get; set; }
         public virtual ICollection<CompanyDocuments> CompanyDocuments { get; set; }
