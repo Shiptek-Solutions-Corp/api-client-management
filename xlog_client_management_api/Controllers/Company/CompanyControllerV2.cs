@@ -88,7 +88,7 @@ namespace xlog_client_management_api.Controllers.Company
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Put(string guid, UpdateCompanyViewModel payload)
+        public async Task<IActionResult> Put(string guid, [FromBody] UpdateCompanyViewModel payload)
         {
             var isValidGuid = Guid.TryParse(guid, out var id);
             if (!isValidGuid) return BadRequest("Invalid guid");

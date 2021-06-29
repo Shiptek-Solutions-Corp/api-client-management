@@ -25,7 +25,6 @@ namespace xgca.core.Models.Company
         //public string KycStatusCode { get; set; }
         public GetAddressModel Addresses { get; set; }
         public GetContactDetailsModel ContactDetails { get; set; }
-        public ICollection<GetCompanyServiceModel> CompanyServices { get; set; }
         public ICollection<GetCompanyTaxSettingsModel> CompanyTaxSettings { get; set; }
     }
     public class GetCompanyListingViewModel
@@ -40,10 +39,11 @@ namespace xgca.core.Models.Company
     }
     public class GetCompanyViewModel : UpdateCompanyViewModel
     {
+        public ICollection<GetCompanyServiceModel> CompanyServices { get; set; }
     }
 
     public class UpdateCompanyViewModel : CreateCompanyViewModel
     {
-
+        public int CompanyId { get; set; }
     }
 }

@@ -103,7 +103,8 @@ namespace xgca.data.Company
         {
             company.ModifiedOn = DateTime.UtcNow;
             company.ModifiedBy = 0;
-            context.Companies.Update(company);
+
+            context.Companies.Update(company).State = EntityState.Modified;
             var result = await context.SaveChangesAsync();
 
             if (result < 1)
@@ -150,6 +151,7 @@ namespace xgca.data.Company
                 .Where(c => c.Guid == guid)
                 .Select(c => new entity.Models.Company
                 {
+                  CompanyId = c.CompanyId,
                   Guid = c.Guid,
                   CompanyCode = c.CompanyCode,
                   CompanyName = c.CompanyName,

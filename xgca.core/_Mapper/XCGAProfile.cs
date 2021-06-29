@@ -78,12 +78,8 @@ namespace xgca.core._Mapper
                 .ForMember(c => c.Status,
                     s => s.MapFrom(c => c.StatusName));
 
-            CreateMap<entity.Models.Company, UpdateCompanyViewModel>()
-                .ForMember(c => c.CompanyServices,
-                    s => s.Ignore());
-            CreateMap<UpdateCompanyViewModel, entity.Models.Company>()
-                .ForMember(c => c.CompanyServices,
-                    s => s.Ignore());
+            CreateMap<entity.Models.Company, UpdateCompanyViewModel>();
+            CreateMap<UpdateCompanyViewModel, entity.Models.Company>();
             CreateMap<CreateCompanyViewModel, entity.Models.Company>();
 
             CreateMap<entity.Models.Company, GetCompanyViewModel>();
