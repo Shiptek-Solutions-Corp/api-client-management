@@ -115,24 +115,29 @@ namespace xgca.data.Company
 
         public async Task<(entity.Models.Company, string[])> Put(entity.Models.Company payload)
         {
-            var company = await context.Companies.FirstOrDefaultAsync(c => c.Guid.Equals(payload.Guid));
+                var company = await context.Companies
+                .Include(c => c.CompanyTaxSettings)
+                .Include(c => c.Addresses)
+                    .ThenInclude(a => a.AddressTypes)
+                .Include(c => c.ContactDetails)
+                .FirstOrDefaultAsync(c => c.Guid.Equals(payload.Guid));
 
             if (company == null)
                 return (null, new[] { "Company not found" });
 
             context.CompanyTaxSettings.RemoveRange(company.CompanyTaxSettings);
+            context.Entry(company.Addresses).CurrentValues.SetValues(payload.Addresses);
+            context.Entry(company.ContactDetails).CurrentValues.SetValues(payload.ContactDetails);
 
-            company.Addresses = payload.Addresses;
-            company.CompanyTaxSettings = payload.CompanyTaxSettings;
-            company.ContactDetails = payload.ContactDetails;
+            foreach (var taxSetting in payload.CompanyTaxSettings)
+                taxSetting.CompanyId = company.CompanyId;
+
+            context.CompanyTaxSettings.AddRange(payload.CompanyTaxSettings);
+
             company.CompanyName = payload.CompanyName;
             company.ImageURL = payload.ImageURL;
             company.EmailAddress = payload.EmailAddress;
             company.WebsiteURL = payload.WebsiteURL;
-            company.TaxExemption = payload.TaxExemption;
-            company.TaxExemptionStatus = payload.TaxExemptionStatus;
-            company.CUCC = payload.CUCC;
-            company.TaxExemption = payload.TaxExemption;
 
             await context.SaveChangesAsync();
 
@@ -143,7 +148,7 @@ namespace xgca.data.Company
         {
 
             var company = await context.Companies
-                .Include(c => c.CompanyTaxSettings) // Get Only Active
+                .Include(c => c.CompanyTaxSettings)
                 .Include(c => c.Addresses)
                     .ThenInclude(a => a.AddressTypes)
                 .Include(c => c.ContactDetails)

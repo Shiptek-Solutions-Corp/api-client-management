@@ -8,5 +8,6 @@ namespace xgca.core.Models.AddressType
     {
         public string Name { get; set; }
         public Guid Guid { get; set; }
+        public int AddressTypeId { get; set; }
     }
 }

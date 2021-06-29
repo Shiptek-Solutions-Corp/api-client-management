@@ -6,6 +6,7 @@ namespace xgca.core.Models.Address
     {
         public Guid Guid{ get; set; }
         public string AddressId { get; set; }
+        public int AddressTypeId { get; set; }
         public string AddressLine { get; set; }
         public string CityId { get; set; }
         public string CityName { get; set; }
