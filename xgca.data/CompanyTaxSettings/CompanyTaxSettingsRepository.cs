@@ -11,6 +11,7 @@ namespace xgca.data.CompanyTaxSettings
     public interface ICompanyTaxSettingsRepository
     {
         Task<(bool, string[])> Create(Guid companyGuid, entity.Models.CompanyTaxSettings companyTaxSettings);
+        Task<(bool, string[])> CreateBulk(List<entity.Models.CompanyTaxSettings> companyTaxSettings);
         Task<(List<entity.Models.CompanyTaxSettings>, int, string[])> List(string orderBy, string query, int pageNumber = 1, int pageSize = 10);
         Task<(entity.Models.CompanyTaxSettings, string[])> Show(Guid guid);
         Task<(entity.Models.CompanyTaxSettings, string[])> Put(entity.Models.CompanyTaxSettings companyTaxSettings);
@@ -38,6 +39,13 @@ namespace xgca.data.CompanyTaxSettings
             await context.CompanyTaxSettings.AddAsync(companyTaxSettings);
             var result = await context.SaveChangesAsync();
 
+            return (result == 1, null);
+        }
+
+        public async Task<(bool, string[])> CreateBulk(List<entity.Models.CompanyTaxSettings> companyTaxSettings)
+        {
+            context.CompanyTaxSettings.AddRange(companyTaxSettings);
+            var result = await context.SaveChangesAsync();
             return (result == 1, null);
         }
 

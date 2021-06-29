@@ -78,18 +78,27 @@ namespace xgca.core._Mapper
                 .ForMember(c => c.Status,
                     s => s.MapFrom(c => c.StatusName));
 
+            CreateMap<entity.Models.Company, UpdateCompanyViewModel>()
+                .ForMember(c => c.CompanyServices,
+                    s => s.Ignore());
+            CreateMap<UpdateCompanyViewModel, entity.Models.Company>()
+                .ForMember(c => c.CompanyServices,
+                    s => s.Ignore());
+            CreateMap<CreateCompanyViewModel, entity.Models.Company>();
+
             CreateMap<entity.Models.Company, GetCompanyViewModel>();
             CreateMap<entity.Models.CompanyService, GetCompanyServiceModel>();
 
             CreateMap<entity.Models.ContactDetail, GetContactDetailsModel>();
+            CreateMap<UpdateContactDetailModel, entity.Models.ContactDetail>();
+
             CreateMap<entity.Models.Address, GetAddressModel>();
+            CreateMap<UpdateAddressModel, entity.Models.Address>();
             CreateMap<entity.Models.AddressType, GetAddressTypeModel>();
 
-            CreateMap<entity.Models.CompanyTaxSettings, GetCompanyTaxSettingsModel>()
-                .ForMember(c => c.CompanyGuid, 
-                    s => s.Ignore());
-            CreateMap<CreateCompanyTaxSettingsModel, entity.Models.CompanyTaxSettings> ();
-            CreateMap<UpdateCompanyTaxSettingsModel, entity.Models.CompanyTaxSettings> ();
+            CreateMap<CompanyTaxSettings, GetCompanyTaxSettingsModel>();
+            CreateMap<CreateCompanyTaxSettingsModel, CompanyTaxSettings> ();
+            CreateMap<UpdateCompanyTaxSettingsModel, CompanyTaxSettings> ();
             #endregion
 
             #region KYC Mapper Profiles

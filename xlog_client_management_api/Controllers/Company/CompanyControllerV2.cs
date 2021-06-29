@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using xgca.core.Models.Company;
 using xgca.core.Services;
 
 namespace xlog_client_management_api.Controllers.Company
@@ -67,10 +69,18 @@ namespace xlog_client_management_api.Controllers.Company
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Patch(string guid)
+        public async Task<IActionResult> Patch(string guid, [FromBody] JsonPatchDocument<UpdateCompanyViewModel> payload)
         {
-            throw new NotImplementedException();
+            var isValidGuid = Guid.TryParse(guid, out var id);
+            if (!isValidGuid) return BadRequest("Invalid guid");
 
+            var response = await companyService.Patch(id, payload);
+
+            if (response.StatusCode == 400) return BadRequest(response);
+            if (response.StatusCode == 500) return BadRequest(response);
+            if (response.StatusCode == 401) return Unauthorized();
+
+            return Ok(response);
         }
 
         [Route("{guid}")]
@@ -78,10 +88,18 @@ namespace xlog_client_management_api.Controllers.Company
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Put(string guid)
+        public async Task<IActionResult> Put(string guid, UpdateCompanyViewModel payload)
         {
-            throw new NotImplementedException();
+            var isValidGuid = Guid.TryParse(guid, out var id);
+            if (!isValidGuid) return BadRequest("Invalid guid");
 
+            var result = await companyService.Put(payload);
+
+            if (result.StatusCode == 400) return BadRequest(result);
+            if (result.StatusCode == 500) return BadRequest(result);
+            if (result.StatusCode == 401) return Unauthorized();
+
+            return Ok(result);
         }
 
         [Route("{guid}")]
@@ -92,7 +110,6 @@ namespace xlog_client_management_api.Controllers.Company
         public async Task<IActionResult> Delete(string guid)
         {
             throw new NotImplementedException();
-
         }
     }
 }

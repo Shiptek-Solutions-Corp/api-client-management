@@ -16,7 +16,7 @@ namespace xgca.data.Company
         Task<(List<entity.Models.Company>, int, string[])> List(string orderBy, string query, int pageNumber = 1, int pageSize = 10);
         Task<(entity.Models.Company, string[])> Show(Guid guid);
         Task<(entity.Models.Company, string[])> Put(entity.Models.Company company);
-        Task<(entity.Models.Company, string[])> Patch(Guid guid, entity.Models.Company company);
+        Task<(entity.Models.Company, string[])> Patch(entity.Models.Company company);
         Task<(bool, string[])> Delete(Guid guid);
     }
 
@@ -99,14 +99,43 @@ namespace xgca.data.Company
             return (pagedList.Items, pagedList.TotalCount, null);
         }
 
-        public Task<(entity.Models.Company, string[])> Patch(Guid guid, entity.Models.Company company)
+        public async Task<(entity.Models.Company, string[])> Patch(entity.Models.Company company)
         {
-            throw new NotImplementedException();
+            company.ModifiedOn = DateTime.UtcNow;
+            company.ModifiedBy = 0;
+            context.Companies.Update(company);
+            var result = await context.SaveChangesAsync();
+
+            if (result < 1)
+                return (null, new string[] { "An error occured on updating company details" });
+
+            return (company, null);
         }
 
-        public Task<(entity.Models.Company, string[])> Put(entity.Models.Company company)
+        public async Task<(entity.Models.Company, string[])> Put(entity.Models.Company payload)
         {
-            throw new NotImplementedException();
+            var company = await context.Companies.FirstOrDefaultAsync(c => c.Guid.Equals(payload.Guid));
+
+            if (company == null)
+                return (null, new[] { "Company not found" });
+
+            context.CompanyTaxSettings.RemoveRange(company.CompanyTaxSettings);
+
+            company.Addresses = payload.Addresses;
+            company.CompanyTaxSettings = payload.CompanyTaxSettings;
+            company.ContactDetails = payload.ContactDetails;
+            company.CompanyName = payload.CompanyName;
+            company.ImageURL = payload.ImageURL;
+            company.EmailAddress = payload.EmailAddress;
+            company.WebsiteURL = payload.WebsiteURL;
+            company.TaxExemption = payload.TaxExemption;
+            company.TaxExemptionStatus = payload.TaxExemptionStatus;
+            company.CUCC = payload.CUCC;
+            company.TaxExemption = payload.TaxExemption;
+
+            await context.SaveChangesAsync();
+
+            return (company, null);
         }
 
         public async Task<(entity.Models.Company, string[])> Show(Guid guid)
