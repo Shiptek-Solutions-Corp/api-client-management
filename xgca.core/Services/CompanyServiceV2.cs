@@ -23,10 +23,13 @@ namespace xgca.core.Services
     {
         private readonly ICompanyDataV2 companyData;
         private readonly IMapper mapper;
-        public CompanyServiceV2(ICompanyDataV2 companyData, IMapper mapper)
+        private readonly IGLobalCmsService gLobalCmsService;
+
+        public CompanyServiceV2(IGLobalCmsService gLobalCmsService, ICompanyDataV2 companyData, IMapper mapper)
         {
             this.companyData = companyData;
             this.mapper = mapper;
+            this.gLobalCmsService = gLobalCmsService;
         }
 
         public async Task<GenericResponse<GetCompanyViewModel>> GetCompany(Guid guid)
@@ -36,7 +39,11 @@ namespace xgca.core.Services
             if (errors != null)
                 return new GenericResponse<GetCompanyViewModel>(null, errors.Select(e => new ErrorField("message", e)).ToList(), "Error on fetching company details", 400);
 
-            return new GenericResponse<GetCompanyViewModel>(mapper.Map<GetCompanyViewModel>(company), "Company retreived successfully.", 200);
+            var response = mapper.Map<GetCompanyViewModel>(company);
+            var services = await gLobalCmsService.GetAllService();
+            response.CompanyServices.Select(c => { c.ImageUrl = services.Where(s => s.IntServiceId.Equals(c.ServiceId)).FirstOrDefault()?.ImageURL; return c; }).ToList();
+
+            return new GenericResponse<GetCompanyViewModel>(response, "Company retreived successfully.", 200);
         }
 
         public async Task<PagedResponse<List<GetCompanyListingViewModel>>> GetCompanyList(int pageNumber = 1, int pageSize = 10, string orderBy = null, string query = null)
