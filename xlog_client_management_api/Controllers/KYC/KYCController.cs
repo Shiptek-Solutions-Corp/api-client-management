@@ -152,7 +152,7 @@ namespace xlog_client_management_api.Controllers
         public async Task<IActionResult> ApproveCompanyStructureSection([FromBody] ApproveCompanySectionModel obj)
         {
             //GlobalVariables.LoggedInUsername = Request.HttpContext?.User?.Claims.First(x => x.Type == "cognito:username").Value.ToString();
-            var response = await _companySectionService.ApproveCompanyBeneficialOwnerSection(obj.CompanyId);
+            var response = await _companySectionService.ApproveCompanyStructureSection(obj.CompanyId);
 
             if (response.statusCode == 400)
             {

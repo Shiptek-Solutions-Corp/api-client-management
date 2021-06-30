@@ -271,7 +271,7 @@ namespace xgca.core.Services
                 int count = 0;
                 foreach(var sectionStatus in sectionStatuses)
                 {
-                    if (sectionStatus.Equals(Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.APP)))
+                    if (sectionStatus.Equals(Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.APP)) || sectionStatus.Equals(Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.AP)))
                     {
                         count++;
                     }

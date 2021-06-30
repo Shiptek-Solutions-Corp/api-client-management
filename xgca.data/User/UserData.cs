@@ -255,7 +255,7 @@ namespace xgca.data.User
             var data = await _context.Users
                 .Where(u => u.Username == username)
                 .FirstOrDefaultAsync();
-            return data.UserId;
+            return data?.UserId ?? 0;
         }
 
         public bool UsernameExists(string username)
