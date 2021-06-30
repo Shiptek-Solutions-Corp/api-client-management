@@ -225,7 +225,7 @@ namespace xgca.core.Services
 
         public async Task<IGeneralModel> GetCompanySectionsByCompanyGuid(string companyGuid)
         {
-            GlobalVariables.LoggedInUserId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
+            //GlobalVariables.LoggedInUserId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
             int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(companyGuid));
             var companySections = await GetCompanySection(companyId);
 

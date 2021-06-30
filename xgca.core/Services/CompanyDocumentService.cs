@@ -39,7 +39,7 @@ namespace xgca.core.Services
 
         public async Task<IGeneralModel> GetCompanyDocumentsByCompanyId(int companyId)
         {
-            GlobalVariables.LoggedInUserId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
+            //GlobalVariables.LoggedInUserId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
 
             var (companyDocuments, pbaDoc, ocDoc, message) = await _repository.GetCompanyDocumentsByCompanyId(companyId);
 

@@ -37,7 +37,7 @@ namespace xgca.core.Services
 
         public async Task<IGeneralModel> GetByCompanyId(int companyId)
         {
-            GlobalVariables.LoggedInUserId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
+            //GlobalVariables.LoggedInUserId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
 
             var (companies, individuals, message) = await _repository.GetByCompanyId(companyId);
 
