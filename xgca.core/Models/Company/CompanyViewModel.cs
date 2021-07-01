@@ -36,6 +36,8 @@ namespace xgca.core.Models.Company
         public string Status { get; set; }
         public string KycStatusCode { get; set; }
         public string Guid { get; set; }
+        public string StateName { get; set; }
+        public string PricingSettingsDescription { get; set; }
     }
     public class GetCompanyViewModel : UpdateCompanyViewModel
     {

@@ -13,7 +13,7 @@ namespace xgca.core.Services
 {
     public interface ICompanyServiceV2
     {
-        Task<PagedResponse<List<GetCompanyListingViewModel>>> GetCompanyList(int pageNumber = 1, int pageSize = 10, string orderBy = null, string query = null);
+        Task<PagedResponse<List<GetCompanyListingViewModel>>> GetCompanyList(bool isFromSettings = false, int pageNumber = 1, int pageSize = 10, string orderBy = null, string query = null);
         Task<GenericResponse<GetCompanyViewModel>> GetCompany(Guid guid);
         Task<GenericResponse<GetCompanyViewModel>> Put(UpdateCompanyViewModel payload);
         Task<GenericResponse<GetCompanyViewModel>> Patch(Guid guid, JsonPatchDocument<UpdateCompanyViewModel> payload);
@@ -46,9 +46,9 @@ namespace xgca.core.Services
             return new GenericResponse<GetCompanyViewModel>(response, "Company retreived successfully.", 200);
         }
 
-        public async Task<PagedResponse<List<GetCompanyListingViewModel>>> GetCompanyList(int pageNumber = 1, int pageSize = 10, string orderBy = null, string query = null)
+        public async Task<PagedResponse<List<GetCompanyListingViewModel>>> GetCompanyList(bool isFromSettings = false, int pageNumber = 1, int pageSize = 10, string orderBy = null, string query = null)
         {
-            var (result, totalCount, errors) = await companyData.List(orderBy, query, pageNumber, pageSize);
+            var (result, totalCount, errors) = await companyData.List(isFromSettings, orderBy, query, pageNumber, pageSize);
             var companies = mapper.Map<List<GetCompanyListingViewModel>>(result).ToList();
 
             return new PagedResponse<List<GetCompanyListingViewModel>>(companies, "List of companies", 200, pageNumber, pageSize, totalCount, orderBy, query, null);

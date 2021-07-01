@@ -25,9 +25,9 @@ namespace xlog_client_management_api.Controllers.Company
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Index([FromQuery] string orderBy, string query, int pageNumber = 1, int pageSize = 10)
+        public async Task<IActionResult> Index([FromQuery] string orderBy, string query, int pageNumber = 1, int pageSize = 10, bool isFromSettings = false)
         {
-            var result = await companyService.GetCompanyList(pageNumber, pageSize, orderBy, query);
+            var result = await companyService.GetCompanyList(isFromSettings, pageNumber, pageSize, orderBy, query);
             if (result.StatusCode == 400) return BadRequest(result);
             if (result.StatusCode == 500) return BadRequest(result);
             if (result.StatusCode == 401) return Unauthorized();

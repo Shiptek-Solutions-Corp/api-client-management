@@ -75,6 +75,8 @@ namespace xgca.core._Mapper
                     s => s.MapFrom(c => string.Join(",", c.CompanyServices.Select(s => s.ServiceName).ToArray())))
                 .ForMember(c => c.CountryName,
                     s => s.MapFrom(c => c.Addresses.CountryName))
+                .ForMember(c => c.StateName,
+                    s => s.MapFrom(c => c.Addresses.StateName))
                 .ForMember(c => c.Status,
                     s => s.MapFrom(c => c.StatusName));
 

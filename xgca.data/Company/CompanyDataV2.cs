@@ -13,7 +13,7 @@ namespace xgca.data.Company
 {
     public interface ICompanyDataV2
     {
-        Task<(List<entity.Models.Company>, int, string[])> List(string orderBy, string query, int pageNumber = 1, int pageSize = 10);
+        Task<(List<entity.Models.Company>, int, string[])> List(bool isFromSettings, string orderBy, string query, int pageNumber = 1, int pageSize = 10);
         Task<(entity.Models.Company, string[])> Show(Guid guid);
         Task<(entity.Models.Company, string[])> Put(entity.Models.Company company);
         Task<(entity.Models.Company, string[])> Patch(entity.Models.Company company);
@@ -33,7 +33,7 @@ namespace xgca.data.Company
             throw new NotImplementedException();
         }
 
-        public async Task<(List<entity.Models.Company>, int, string[])> List(string orderBy, string query, int pageNumber = 1, int pageSize = 10)
+        public async Task<(List<entity.Models.Company>, int, string[])> List(bool isFromSettings, string orderBy, string query, int pageNumber = 1, int pageSize = 10)
         {
             var companies = context.Companies
                 .Include(c => c.Addresses)
@@ -49,12 +49,19 @@ namespace xgca.data.Company
                 if (queries.ContainsKey("all"))
                 {
                     queries.TryGetValue("all", out var value);
-                    companies = companies.Where(
+                    string queryStrings =
                         $"Addresses.CountryName.ToLower().Contains(@0) or " +
                         $"CompanyName.ToLower().Contains(@0) or " +
                         $"CompanyServices.Any(c => c.ServiceName.ToLower().Contains(@0)) or " +
                         $"StatusName.ToLower().Contains(@0) or " +
-                        $"KycStatusCode.ToLower().Contains(@0)",
+                        $"KycStatusCode.ToLower().Contains(@0)";
+
+                    if (isFromSettings) // Check if request is from Company Settings Tab
+                        queryStrings += 
+                            $" or Addresses.StateName.ToLower().Contains(@0) or " + 
+                            $"PricingSettingsDescription.ToLower().Contains(@0)";
+
+                    companies = companies.Where(queryStrings,
                         value);
                 } 
                 else
@@ -75,7 +82,12 @@ namespace xgca.data.Company
                         switch (key)
                         {
                             case "country":
+                            case "countryName":
                                 companies = companies.Where(c => c.Addresses.CountryName.ToLower().Contains(filterValue));
+                                continue;
+                            case "state":
+                            case "stateName":
+                                companies = companies.Where(c => c.Addresses.StateName.ToLower().Contains(filterValue));
                                 continue;
                             case "serviceName":
                                 companies = companies.Where(c => c.CompanyServices.Any(cs => cs.ServiceName.ToLower().Contains(filterValue)));
