@@ -38,6 +38,7 @@ namespace xgca.core.Models.Company
         public string Guid { get; set; }
         public string StateName { get; set; }
         public string PricingSettingsDescription { get; set; }
+        public string ImageURL { get; set; }
     }
     public class GetCompanyViewModel : UpdateCompanyViewModel
     {
