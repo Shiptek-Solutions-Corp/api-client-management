@@ -56,7 +56,7 @@ namespace xgca.core.Services
 
         public async Task<GenericResponse<GetCompanyViewModel>> Patch(Guid guid, JsonPatchDocument<UpdateCompanyViewModel> payload)
         {
-            var (company, errors) = await companyData.Show(guid);
+            var (company, errors) = await companyData.Get(guid);
 
             if (errors != null)
                 return new GenericResponse<GetCompanyViewModel>(null, errors.Select(e => new ErrorField("message", e)).ToList(), "Error on updating company details", 400);

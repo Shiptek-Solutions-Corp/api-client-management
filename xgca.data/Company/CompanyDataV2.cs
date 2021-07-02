@@ -15,6 +15,7 @@ namespace xgca.data.Company
     {
         Task<(List<entity.Models.Company>, int, string[])> List(bool isFromSettings, string orderBy, string query, int pageNumber = 1, int pageSize = 10);
         Task<(entity.Models.Company, string[])> Show(Guid guid);
+        Task<(entity.Models.Company, string[])> Get(Guid guid);
         Task<(entity.Models.Company, string[])> Put(entity.Models.Company company);
         Task<(entity.Models.Company, string[])> Patch(entity.Models.Company company);
         Task<(bool, string[])> Delete(Guid guid);
@@ -31,6 +32,17 @@ namespace xgca.data.Company
         public Task<(bool, string[])> Delete(Guid guid)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<(entity.Models.Company, string[])> Get(Guid guid)
+        {
+            var company = await context.Companies
+                .FirstOrDefaultAsync(c => c.Guid == guid);
+
+            if (company != null)
+                return (company, null);
+
+            return (null, new[] { "Company not found" });
         }
 
         public async Task<(List<entity.Models.Company>, int, string[])> List(bool isFromSettings, string orderBy, string query, int pageNumber = 1, int pageSize = 10)
@@ -183,6 +195,7 @@ namespace xgca.data.Company
                   ImageURL = c.ImageURL,
                   EmailAddress = c.EmailAddress,
                   WebsiteURL = c.WebsiteURL,
+                  Status = c.Status,
                   StatusName = c.StatusName,
                   TaxExemption =  c.TaxExemption,
                   TaxExemptionStatus = c.TaxExemptionStatus,
