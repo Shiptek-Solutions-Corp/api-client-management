@@ -205,6 +205,7 @@ namespace xgca.core.Company
                 ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid(),
                 Status = 0,
+                StatusName = "Inactive",
                 KycStatusCode = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.NEW)
             };
 
