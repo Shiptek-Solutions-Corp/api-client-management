@@ -138,7 +138,13 @@ namespace xgca.data.Company
                 return (null, new[] { "Company not found" });
 
             context.CompanyTaxSettings.RemoveRange(company.CompanyTaxSettings);
+
+            payload.Addresses.CreatedOn = company.CreatedOn;
+            payload.Addresses.ModifiedOn = DateTime.UtcNow;
             context.Entry(company.Addresses).CurrentValues.SetValues(payload.Addresses);
+
+            payload.ContactDetails.CreatedOn = company.CreatedOn;
+            payload.ContactDetails.ModifiedOn = DateTime.UtcNow;
             context.Entry(company.ContactDetails).CurrentValues.SetValues(payload.ContactDetails);
 
             foreach (var taxSetting in payload.CompanyTaxSettings)
@@ -150,6 +156,8 @@ namespace xgca.data.Company
             company.ImageURL = payload.ImageURL;
             company.EmailAddress = payload.EmailAddress;
             company.WebsiteURL = payload.WebsiteURL;
+            company.ModifiedOn = DateTime.UtcNow;
+            company.ModifiedBy = 0;
 
             await context.SaveChangesAsync();
 
