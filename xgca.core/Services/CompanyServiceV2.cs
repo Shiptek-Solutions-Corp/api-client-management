@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using xgca.core.Models.Company;
 using xgca.data.Company;
 using Microsoft.AspNetCore.JsonPatch;
+using xgca.core.Helpers;
+using xgca.core.AuditLog;
 
 namespace xgca.core.Services
 {
@@ -24,12 +26,14 @@ namespace xgca.core.Services
         private readonly ICompanyDataV2 companyData;
         private readonly IMapper mapper;
         private readonly IGLobalCmsService gLobalCmsService;
+        private readonly IAuditLogCore auditLog;
 
-        public CompanyServiceV2(IGLobalCmsService gLobalCmsService, ICompanyDataV2 companyData, IMapper mapper)
+        public CompanyServiceV2(IAuditLogCore auditLog, IGLobalCmsService gLobalCmsService, ICompanyDataV2 companyData, IMapper mapper)
         {
             this.companyData = companyData;
             this.mapper = mapper;
             this.gLobalCmsService = gLobalCmsService;
+            this.auditLog = auditLog;
         }
 
         public async Task<GenericResponse<GetCompanyViewModel>> GetCompany(Guid guid)
@@ -61,6 +65,7 @@ namespace xgca.core.Services
             if (errors != null)
                 return new GenericResponse<GetCompanyViewModel>(null, errors.Select(e => new ErrorField("message", e)).ToList(), "Error on updating company details", 400);
 
+            var (oldCompany, fetchError) = await companyData.Show(guid);
 
             var companyToPatch = mapper.Map<UpdateCompanyViewModel>(company);
 
@@ -72,19 +77,52 @@ namespace xgca.core.Services
 
             if (patchErrors != null)
                 return new GenericResponse<GetCompanyViewModel>(null, patchErrors.Select(e => new ErrorField("message", e)).ToList(), "Error on updating company details", 400);
+            
+            var (newCompany, newFetchError) = await companyData.Show(guid);
 
+            // Audit Logs
+            await CreateAuditLog(oldCompany, newCompany);
 
             return new GenericResponse<GetCompanyViewModel>(mapper.Map<GetCompanyViewModel>(company), "Company updated successfully.", 200);
         }
 
         public async Task<GenericResponse<GetCompanyViewModel>> Put(UpdateCompanyViewModel payload)
         {
+            var (oldCompany, fetchError) = await companyData.Show(Guid.Parse(payload.Guid));
+
             var (result, errors) = await companyData.Put(mapper.Map<entity.Models.Company>(payload));
 
             if (errors != null)
                 return new GenericResponse<GetCompanyViewModel>(null, errors.Select(e => new ErrorField("message", e)).ToList(), "Error on updating company details", 400);
 
+            // Audit Logs
+            await CreateAuditLog(oldCompany, result);
+
             return new GenericResponse<GetCompanyViewModel>(mapper.Map<GetCompanyViewModel>(result), "Company updated successfully.", 200);
+        }
+        private async Task CreateAuditLog(entity.Models.Company oldCompany, entity.Models.Company newCompany)
+        {
+            var services = await gLobalCmsService.GetAllService();
+
+            var oldValue = CompanyHelper.BuildCompanyValue(oldCompany, BuildCompanyService(oldCompany.CompanyServices, services));
+
+            var newValue = CompanyHelper.BuildCompanyValue(newCompany, BuildCompanyService(newCompany.CompanyServices, services));
+
+            await auditLog.CreateAuditLog("Update", newCompany.GetType().Name, newCompany.CompanyId, 0, oldValue, newValue);
+        }
+
+        private dynamic BuildCompanyService(ICollection<entity.Models.CompanyService> companyServices, List<Models.GlobalCms.ServicesModel> services)
+        {
+            return companyServices.Select(c => new
+            {
+                CompanyServiceId = c.Guid,
+                services.Where(s => s.IntServiceId.Equals(c.ServiceId)).FirstOrDefault()?.ServiceId,
+                Code = services.Where(s => s.IntServiceId.Equals(c.ServiceId)).FirstOrDefault()?.ServiceCode,
+                Name = services.Where(s => s.IntServiceId.Equals(c.ServiceId)).FirstOrDefault()?.ServiceName,
+                services.Where(s => s.IntServiceId.Equals(c.ServiceId)).FirstOrDefault()?.ImageURL,
+                StaticId = services.Where(s => s.IntServiceId.Equals(c.ServiceId)).FirstOrDefault()?.IntServiceId,
+                c.Status
+            }).ToList();
         }
     }
 }

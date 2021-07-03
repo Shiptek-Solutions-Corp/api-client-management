@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using LinqKit;
 using System.Linq.Dynamic.Core;
 using otm.data.Helpers;
+using Newtonsoft.Json;
 
 namespace xgca.data.Company
 {
@@ -144,6 +145,7 @@ namespace xgca.data.Company
                 .Include(c => c.Addresses)
                     .ThenInclude(a => a.AddressTypes)
                 .Include(c => c.ContactDetails)
+                .Include(c => c.CompanyServices)
                 .FirstOrDefaultAsync(c => c.Guid.Equals(payload.Guid));
 
             if (company == null)
@@ -189,19 +191,28 @@ namespace xgca.data.Company
                 .Select(c => new entity.Models.Company
                 {
                   CompanyId = c.CompanyId,
-                  Guid = c.Guid,
+                  ClientId = c.ClientId,
                   CompanyCode = c.CompanyCode,
                   CompanyName = c.CompanyName,
+                  AddressId = c.AddressId,
+                  ContactDetailId = c.ContactDetailId,
                   ImageURL = c.ImageURL,
                   EmailAddress = c.EmailAddress,
                   WebsiteURL = c.WebsiteURL,
                   Status = c.Status,
                   StatusName = c.StatusName,
-                  TaxExemption =  c.TaxExemption,
+                  IsDeleted = c.IsDeleted,
+                  TaxExemption = c.TaxExemption,
                   TaxExemptionStatus = c.TaxExemptionStatus,
                   CUCC = c.CUCC,
+                  CreatedBy = c.CreatedBy,
+                  CreatedOn = c.CreatedOn,
+                  ModifiedBy = c.ModifiedBy,
+                  ModifiedOn = c.ModifiedOn,
+                  Guid = c.Guid,
                   AccreditedBy = c.AccreditedBy,
                   KycStatusCode = c.KycStatusCode,
+                  PricingSettingsDescription = c.PricingSettingsDescription,
                   Addresses = c.Addresses,
                   ContactDetails = c.ContactDetails,
                   CompanyServices = c.CompanyServices,
