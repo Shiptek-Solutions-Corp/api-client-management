@@ -684,6 +684,12 @@ namespace xgca.data.Company
             record.ModifiedBy = userId;
             record.ModifiedOn = DateTime.UtcNow;
 
+            if (kycStatusCode == "APP") // Update company status to active when overall KYC status is approved
+            {
+                record.Status = 1;
+                record.StatusName = "Active";
+            }
+           
             var result = await _context.SaveChangesAsync();
             return (result > 0)
                 ? (kycStatusCode, "Company KYC Status updated successfully")

@@ -58,6 +58,8 @@ namespace xgca.core.Helpers
                 company.ImageURL,
                 company.WebsiteURL,
                 company.EmailAddress,
+                company.Status,
+                company.StatusName,
                 Phone = String.Concat(company.ContactDetails.PhonePrefix, company.ContactDetails.Phone),
                 Mobile = String.Concat(company.ContactDetails.MobilePrefix, company.ContactDetails.Mobile),
                 Fax = String.Concat(company.ContactDetails.FaxPrefix, company.ContactDetails.Fax),

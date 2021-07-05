@@ -16,6 +16,7 @@ namespace xgca.entity.Models
         public int CompanyServiceId { get; set; }
         public int CompanyId { get; set; }
         public int ServiceId { get; set; }
+        public string ServiceName { get; set; }
         public int CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
         public int ModifiedBy { get; set; }

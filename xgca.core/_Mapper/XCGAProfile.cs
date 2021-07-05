@@ -24,6 +24,11 @@ using xgca.core.Models.DocumentType;
 using xgca.entity.Models;
 using xgca.core.Constants;
 using xgca.core.Enums;
+using System.Linq;
+using xgca.core.Models.Address;
+using xgca.core.Models.AddressType;
+using xgca.core.Models.ContactDetail;
+using xgca.core.Models.CompanyTaxSettings;
 
 namespace xgca.core._Mapper
 {
@@ -63,6 +68,39 @@ namespace xgca.core._Mapper
             CreateMap<UpdateGuestContact, entity.Models.Guest>();
 
             CreateMap<CreatePreferredProvider, entity.Models.PreferredProvider>();
+
+            #region Company V2 Profiles
+            CreateMap<entity.Models.Company, GetCompanyListingViewModel>()
+                .ForMember(c => c.ServiceName, 
+                    s => s.MapFrom(c => string.Join(",", c.CompanyServices.Select(s => s.ServiceName).ToArray())))
+                .ForMember(c => c.CountryName,
+                    s => s.MapFrom(c => c.Addresses.CountryName))
+                .ForMember(c => c.StateName,
+                    s => s.MapFrom(c => c.Addresses.StateName))
+                .ForMember(c => c.Status,
+                    s => s.MapFrom(c => c.Status == 1 ? "Active" : "Inactive"));
+
+            CreateMap<entity.Models.Company, UpdateCompanyViewModel>();
+            CreateMap<UpdateCompanyViewModel, entity.Models.Company>();
+            CreateMap<CreateCompanyViewModel, entity.Models.Company>();
+
+            CreateMap<entity.Models.Company, GetCompanyViewModel>()
+                .ForMember(c => c.StatusName,
+                    s => s.MapFrom(c => c.Status == 1 ? "Active" : "Inactive"));
+
+            CreateMap<entity.Models.CompanyService, GetCompanyServiceModel>();
+
+            CreateMap<entity.Models.ContactDetail, GetContactDetailsModel>();
+            CreateMap<UpdateContactDetailModel, entity.Models.ContactDetail>();
+
+            CreateMap<entity.Models.Address, GetAddressModel>();
+            CreateMap<UpdateAddressModel, entity.Models.Address>();
+            CreateMap<entity.Models.AddressType, GetAddressTypeModel>();
+
+            CreateMap<CompanyTaxSettings, GetCompanyTaxSettingsModel>();
+            CreateMap<CreateCompanyTaxSettingsModel, CompanyTaxSettings> ();
+            CreateMap<UpdateCompanyTaxSettingsModel, CompanyTaxSettings> ();
+            #endregion
 
             #region KYC Mapper Profiles
             CreateMap<CreateCompanyStructureModel, entity.Models.CompanyStructure>()

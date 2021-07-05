@@ -64,12 +64,12 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-sections/{companyId}")]
         [HttpGet]
         public async Task<IActionResult> GetCompanySectionsByCompanyGuid([FromRoute] string companyId)
         {
-            GlobalVariables.LoggedInUsername = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value.ToString();
+            //GlobalVariables.LoggedInUsername = Request.HttpContext?.User?.Claims.First(x => x.Type == "cognito:username")?.Value.ToString();
             var response = await _companySectionService.GetCompanySectionsByCompanyGuid(companyId);
 
             if (response.statusCode == 400)
@@ -126,12 +126,12 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-structure/reject")]
         [HttpPut]
         public async Task<IActionResult> RejectCompanyStructureSection([FromBody] RejectCompanySectionModel obj)
         {
-            GlobalVariables.LoggedInUsername = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value.ToString();
+            //GlobalVariables.LoggedInUsername = Request.HttpContext?.User?.Claims.First(x => x.Type == "cognito:username").Value.ToString();
             var response = await _companySectionService.RejectCompanyStructureSection(obj.CompanyId);
 
             if (response.statusCode == 400)
@@ -146,13 +146,13 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-structure/approve")]
         [HttpPut]
         public async Task<IActionResult> ApproveCompanyStructureSection([FromBody] ApproveCompanySectionModel obj)
         {
-            GlobalVariables.LoggedInUsername = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value.ToString();
-            var response = await _companySectionService.ApproveCompanyBeneficialOwnerSection(obj.CompanyId);
+            //GlobalVariables.LoggedInUsername = Request.HttpContext?.User?.Claims.First(x => x.Type == "cognito:username").Value.ToString();
+            var response = await _companySectionService.ApproveCompanyStructureSection(obj.CompanyId);
 
             if (response.statusCode == 400)
             {
@@ -208,12 +208,12 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-beneficial-owners/reject")]
         [HttpPut]
         public async Task<IActionResult> RejectCompanyBeneficialOwnerSection([FromBody] RejectCompanySectionModel obj)
         {
-            GlobalVariables.LoggedInUsername = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value.ToString();
+            //GlobalVariables.LoggedInUsername = Request.HttpContext?.User?.Claims.First(x => x.Type == "cognito:username").Value.ToString();
             var response = await _companySectionService.RejectCompanyBeneficialOwnerSection(obj.CompanyId);
 
             if (response.statusCode == 400)
@@ -228,12 +228,12 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-beneficial-owners/approve")]
         [HttpPut]
         public async Task<IActionResult> ApproveCompanyBeneficialOwnerSection([FromBody] ApproveCompanySectionModel obj)
         {
-            GlobalVariables.LoggedInUsername = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value.ToString();
+            //GlobalVariables.LoggedInUsername = Request.HttpContext?.User?.Claims.First(x => x.Type == "cognito:username").Value.ToString();
             var response = await _companySectionService.ApproveCompanyBeneficialOwnerSection(obj.CompanyId);
 
             if (response.statusCode == 400)
@@ -290,12 +290,12 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-directors/reject")]
         [HttpPut]
         public async Task<IActionResult> RejectCompanyDirectorsSection([FromBody] RejectCompanySectionModel obj)
         {
-            GlobalVariables.LoggedInUsername = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value.ToString();
+            //GlobalVariables.LoggedInUsername = Request.HttpContext?.User?.Claims.First(x => x.Type == "cognito:username").Value.ToString();
             var response = await _companySectionService.RejectCompanyDirectorSection(obj.CompanyId);
 
             if (response.statusCode == 400)
@@ -310,12 +310,12 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-directors/approve")]
         [HttpPut]
         public async Task<IActionResult> ApproveCompanyDirectorsSection([FromBody] ApproveCompanySectionModel obj)
         {
-            GlobalVariables.LoggedInUsername = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value.ToString();
+            //GlobalVariables.LoggedInUsername = Request.HttpContext?.User?.Claims.First(x => x.Type == "cognito:username").Value.ToString();
             var response = await _companySectionService.ApproveCompanyDirectorSection(obj.CompanyId);
 
             if (response.statusCode == 400)
@@ -370,7 +370,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
         [Route("overall-kyc-status/{companyId}")]
         [HttpGet]
         public async Task<IActionResult> GetOverallKYCStatus([FromRoute] string companyId)

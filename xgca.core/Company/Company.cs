@@ -205,6 +205,7 @@ namespace xgca.core.Company
                 ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid(),
                 Status = 0,
+                StatusName = "Inactive",
                 KycStatusCode = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.NEW)
             };
 
@@ -258,7 +259,8 @@ namespace xgca.core.Company
                 ModifiedBy = GlobalVariables.SystemUserId,
                 ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid(),
-                Status = 0, // Default Inactive
+                Status = 0, // Default Inactive,
+                StatusName = "Inactive",
                 KycStatusCode = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.NEW)
             };
 
@@ -901,6 +903,7 @@ namespace xgca.core.Company
                     ModifiedOn = DateTime.UtcNow,
                     Guid = Guid.NewGuid(),
                     Status = 1,
+                    StatusName = "Active",
                     AccreditedBy = o.AccreditedBy,
                     KycStatusCode = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.NEW)
                 };

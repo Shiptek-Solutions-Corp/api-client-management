@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using xgca.entity;
 
 namespace xgca.entity.Migrations
 {
     [DbContext(typeof(XGCAContext))]
-    partial class XGCAContextModelSnapshot : ModelSnapshot
+    [Migration("20210624051143_add_new_columns_to_company_and_companyService_tables")]
+    partial class add_new_columns_to_company_and_companyService_tables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -140,22 +142,22 @@ namespace xgca.entity.Migrations
                         {
                             AddressTypeId = 1,
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2021, 6, 28, 4, 8, 9, 202, DateTimeKind.Utc).AddTicks(5977),
+                            CreatedOn = new DateTime(2021, 6, 24, 5, 11, 42, 669, DateTimeKind.Utc).AddTicks(4098),
                             Guid = new Guid("1e0621b2-b7ea-4d48-8be2-f09980694816"),
                             IsDeleted = (byte)0,
                             ModifiedBy = 0,
-                            ModifiedOn = new DateTime(2021, 6, 28, 4, 8, 9, 202, DateTimeKind.Utc).AddTicks(6673),
+                            ModifiedOn = new DateTime(2021, 6, 24, 5, 11, 42, 669, DateTimeKind.Utc).AddTicks(4771),
                             Name = "Company"
                         },
                         new
                         {
                             AddressTypeId = 2,
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2021, 6, 28, 4, 8, 9, 203, DateTimeKind.Utc).AddTicks(5995),
+                            CreatedOn = new DateTime(2021, 6, 24, 5, 11, 42, 670, DateTimeKind.Utc).AddTicks(3862),
                             Guid = new Guid("95ec682b-074f-42bb-9fed-d4dbde41e41d"),
                             IsDeleted = (byte)0,
                             ModifiedBy = 0,
-                            ModifiedOn = new DateTime(2021, 6, 28, 4, 8, 9, 203, DateTimeKind.Utc).AddTicks(6009),
+                            ModifiedOn = new DateTime(2021, 6, 24, 5, 11, 42, 670, DateTimeKind.Utc).AddTicks(3878),
                             Name = "Residential"
                         });
                 });
@@ -319,9 +321,6 @@ namespace xgca.entity.Migrations
 
                     b.Property<DateTime>("ModifiedOn")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("PricingSettingsDescription")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint");
@@ -1076,68 +1075,6 @@ namespace xgca.entity.Migrations
                     b.HasKey("CompanyId");
 
                     b.ToTable("CompanyStructure","Company");
-                });
-
-            modelBuilder.Entity("xgca.entity.Models.CompanyTaxSettings", b =>
-                {
-                    b.Property<int>("CompanyTaxSettingsId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(max)")
-                        .HasDefaultValue("Admin");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("(getutcdate())");
-
-                    b.Property<Guid>("Guid")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("(newid())");
-
-                    b.Property<bool>("IsTaxExcempted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("ModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
-
-                    b.Property<string>("StatusName")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(max)")
-                        .HasDefaultValue("Active");
-
-                    b.Property<decimal>("TaxPercentageRate")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("TaxTypeDescription")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TaxTypeId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("CompanyTaxSettingsId");
-
-                    b.HasIndex("CompanyId");
-
-                    b.ToTable("CompanyTaxSettings","Company");
                 });
 
             modelBuilder.Entity("xgca.entity.Models.CompanyUser", b =>
@@ -2064,15 +2001,6 @@ namespace xgca.entity.Migrations
                         .WithOne("CompanyStructure")
                         .HasForeignKey("xgca.entity.Models.CompanyStructure", "CompanyId")
                         .HasConstraintName("FK_CompanyStructure_Company")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("xgca.entity.Models.CompanyTaxSettings", b =>
-                {
-                    b.HasOne("xgca.entity.Models.Company", "Company")
-                        .WithMany("CompanyTaxSettings")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

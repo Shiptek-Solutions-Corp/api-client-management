@@ -115,6 +115,7 @@ namespace xgca.core.CompanyService
             {
                 CompanyId = companyId,
                 ServiceId = service.data.ServiceId,
+                ServiceName = service.data.name,
                 Status = 1,
                 CreatedBy = userId,
                 CreatedOn = DateTime.UtcNow,
@@ -137,6 +138,7 @@ namespace xgca.core.CompanyService
                 companyServices.Add(new entity.Models.CompanyService
                 {
                     ServiceId = service.data.serviceId,
+                    ServiceName = service.data.name,
                     CompanyId = companyId,
                     Status = 1,
                     CreatedBy = userId,
@@ -190,6 +192,7 @@ namespace xgca.core.CompanyService
                     {
                         CompanyId = companyId,
                         ServiceId = Convert.ToInt32((serviceJson)["data"]["serviceId"]),
+                        ServiceName = Convert.ToString((serviceJson)["data"]["name"]),
                         Guid = Guid.NewGuid(),
                         Status = 1,
                         CreatedBy = userId,
@@ -206,6 +209,7 @@ namespace xgca.core.CompanyService
                         CompanyServiceId = companyServiceId,
                         CompanyId = companyId,
                         ServiceId = Convert.ToInt32((serviceJson)["data"]["serviceId"]),
+                        ServiceName = Convert.ToString((serviceJson)["data"]["name"]),
                         Status = Convert.ToByte((serviceObj)["status"]),
                         ModifiedBy = userId,
                         ModifiedOn = DateTime.UtcNow,

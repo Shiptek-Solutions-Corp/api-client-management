@@ -67,6 +67,7 @@ using xgca.core.Helpers.PreferredProvider;
 using xgca.core.Helpers.Service;
 using xgca.data.Repositories;
 using Z.EntityFramework.Extensions;
+using xgca.data.CompanyTaxSettings;
 
 namespace xlog_client_management_api
 {
@@ -171,7 +172,8 @@ namespace xlog_client_management_api
             services.AddScoped<IKYCStatusRepository, KYCStatusRepository>();
             services.AddScoped<ICompanySectionRepository, CompanySectionRepository>();
             services.AddScoped<ISectionRepository, SectionRepository>();
-
+            services.AddTransient<ICompanyDataV2, CompanyDataV2>();
+            services.AddTransient<ICompanyTaxSettingsRepository, CompanyTaxSettingsRepository>();
 
 
             services.AddScoped<ICompanyGroupResource, CompanyGroupResource>();
@@ -215,6 +217,8 @@ namespace xlog_client_management_api
             services.AddTransient<ICompanyDocumentService, CompanyDocumentService>();
             services.AddTransient<ICompanySectionService, CompanySectionService>();
             services.AddTransient<IDocumentTypeService, DocumentTypeService>();
+            services.AddTransient<ICompanyServiceV2, CompanyServiceV2>();
+            services.AddTransient<ICompanyTaxSettingsService, CompanyTaxSettingsService>();
 
             services.AddScoped<IGLobalCmsService, xgca.core.Services.GlobalCmsService>();
 
@@ -257,6 +261,8 @@ namespace xlog_client_management_api
                 o.SendProviderInviteTemplate = Configuration.GetSection("EmailTemplate:SendProviderInviteTemplate").Value;
                 o.SendCompanyActivationTemplate = Configuration.GetSection("EmailTemplate:SendCompanyActivationTemplate").Value;
             });
+
+            services.Configure<EvaultEndPoints>(option => Configuration.GetSection("EvaultEndPoints").Bind(option));
 
             services.AddHttpClient();
             services.AddMvc().AddNewtonsoftJson(options => {
