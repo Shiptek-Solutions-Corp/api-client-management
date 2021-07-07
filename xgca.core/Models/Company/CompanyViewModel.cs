@@ -42,6 +42,8 @@ namespace xgca.core.Models.Company
     }
     public class GetCompanyViewModel : UpdateCompanyViewModel
     {
+        public string CreatedOn { get; set; }
+        public string CompanyCode { get; set; }
         public ICollection<GetCompanyServiceModel> CompanyServices { get; set; }
     }
 
