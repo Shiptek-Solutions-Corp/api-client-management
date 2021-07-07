@@ -425,19 +425,29 @@ namespace xgca.core.Services
 
             GlobalVariables.LoggedInUserId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
 
-            var updateCompanyStructureModel = _mapper.Map<UpdateCompanyStructureModel>(obj.Details);
-            var companyStructureResponse = await _companyStructureService.UpdateCompanyStructure(updateCompanyStructureModel);
-            if (!companyStructureResponse.isSuccessful)
+            if (obj.Details.Id.Equals("NEW"))
             {
-                return _general.Response(null, 400, "Error in updating company structure details", false);
+                var createCompanyStructureModel = _mapper.Map<CreateCompanyStructureModel>(obj.Details);
+                var createCompanyStructureResponse = await _companyStructureService.CreateCompanyStructure(createCompanyStructureModel);
+                if (!createCompanyStructureResponse.isSuccessful)
+                {
+                    return _general.Response(null, 400, "Error in creating company structure details", false);
+                }
             }
-
+            else
+            {
+                var updateCompanyStructureModel = _mapper.Map<UpdateCompanyStructureModel>(obj.Details);
+                var updateCompanyStructureResponse = await _companyStructureService.UpdateCompanyStructure(updateCompanyStructureModel);
+                if (!updateCompanyStructureResponse.isSuccessful)
+                {
+                    return _general.Response(null, 400, "Error in updating company structure details", false);
+                }
+            }
             var companyDocumentResponse = await _companyDocumentService.ProcessCompanyDocuments(obj.BusinessRegistrationCertificates, obj.ProofOfBusinessAddress, obj.OrganizationalChart);
             if (!companyDocumentResponse.isSuccessful)
             {
                 return _general.Response(null, 400, "Error in processing company documents", false);
             }
-
 
             var draftModel = new CompanySections
             {
