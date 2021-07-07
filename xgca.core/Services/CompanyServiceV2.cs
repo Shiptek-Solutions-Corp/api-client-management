@@ -88,6 +88,13 @@ namespace xgca.core.Services
 
         public async Task<GenericResponse<GetCompanyViewModel>> Put(UpdateCompanyViewModel payload)
         {
+            if (payload.CompanyTaxSettings.Count > 0)
+            {
+                var duplicates = payload.CompanyTaxSettings.GroupBy(c => c.TaxTypeDescription).Any(g => g.Count() > 1);
+
+                if(duplicates)
+                    return new GenericResponse<GetCompanyViewModel>(null, new List<ErrorField> { new ErrorField("message", "Duplicate tax settings found. Please remove the duplicate tax settings") }, "Error on updating company details", 400);
+            }
             var (oldCompany, fetchError) = await companyData.Show(Guid.Parse(payload.Guid));
 
             var (result, errors) = await companyData.Put(mapper.Map<entity.Models.Company>(payload));

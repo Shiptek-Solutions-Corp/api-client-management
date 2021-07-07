@@ -151,10 +151,10 @@ namespace xgca.data.Company
             if (company == null)
                 return (null, new[] { "Company not found" });
 
-            var duplicate = company.CompanyTaxSettings.Where(c => payload.CompanyTaxSettings.Select(p => p.TaxTypeDescription).ToArray().Contains(c.TaxTypeDescription)).FirstOrDefault();
+            //var duplicate = company.CompanyTaxSettings.Where(c => payload.CompanyTaxSettings.Select(p => p.TaxTypeDescription).ToArray().Contains(c.TaxTypeDescription)).FirstOrDefault();
 
-            if(duplicate != null)
-                return (null, new[] { $"Duplicate tax settings found. Please remove the duplicate tax setting: {duplicate.TaxTypeDescription}"});
+            //if(duplicate != null)
+            //    return (null, new[] { $"Duplicate tax settings found. Please remove the duplicate tax setting: {duplicate.TaxTypeDescription}"});
 
             context.CompanyTaxSettings.RemoveRange(company.CompanyTaxSettings);
 
