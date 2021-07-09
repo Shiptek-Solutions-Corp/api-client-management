@@ -30,6 +30,7 @@ namespace xgca.core.Models.Company
     public class GetCompanyListingViewModel
     {
         public string CompanyName { get; set; }
+        public string CompanyCode { get; set; }
         public string CountryName { get; set; }
         public string ServiceName { get; set; }
         public string CreatedOn { get; set; }
@@ -39,6 +40,7 @@ namespace xgca.core.Models.Company
         public string StateName { get; set; }
         public string PricingSettingsDescription { get; set; }
         public string ImageURL { get; set; }
+        public dynamic Services { get; set; }
     }
     public class GetCompanyViewModel : UpdateCompanyViewModel
     {

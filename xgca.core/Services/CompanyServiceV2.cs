@@ -55,6 +55,23 @@ namespace xgca.core.Services
             var (result, totalCount, errors) = await companyData.List(isFromSettings, orderBy, query, pageNumber, pageSize);
             var companies = mapper.Map<List<GetCompanyListingViewModel>>(result).ToList();
 
+            var services = await gLobalCmsService.GetAllService();
+
+            var serviceGuids = result.SelectMany(c => c.CompanyServices).Select(s => new
+            {
+                CompanyGuid = s.Companies.Guid,
+                Service = new Dictionary<string, string>() 
+                {
+                    { s.ServiceName,  services.Where(e => e.ServiceName.Equals(s.ServiceName)).FirstOrDefault()?.ServiceId.ToString() } 
+                }
+            });
+
+            companies.All(c =>
+            {
+                c.Services = serviceGuids.Where(s => s.CompanyGuid.Equals(Guid.Parse(c.Guid))).Select(s => s.Service).ToList();
+                return true;
+            });
+
             return new PagedResponse<List<GetCompanyListingViewModel>>(companies, "List of companies", 200, pageNumber, pageSize, totalCount, orderBy, query, null);
         }
 
