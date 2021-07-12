@@ -13,5 +13,6 @@ namespace xgca.core.Models.CompanySection
         public bool IsDraft { get; set; }
         public List<GetCompanyBeneficialOwnerModel> Company { get; set; }
         public List<GetIndividualBeneficialOwnerModel> Individual { get; set; }
+        public string LatestRemarks { get; set; }
     }
 }

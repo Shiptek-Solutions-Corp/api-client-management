@@ -12,5 +12,6 @@ namespace xgca.core.Models.CompanySection
         public string SectionName { get; set; }
         public bool IsDraft { get; set; }
         public List<GetCompanyDirectorModel> Directors { get; set; }
+        public string LatestRemarks { get; set; }
     }
 }

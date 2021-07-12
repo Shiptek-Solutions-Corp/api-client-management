@@ -7,5 +7,6 @@ namespace xgca.core.Models.CompanySection
     public class ApproveCompanySectionModel
     {
         public string CompanyId { get; set; }
+        public string Remarks { get; set; }
     }
 }
