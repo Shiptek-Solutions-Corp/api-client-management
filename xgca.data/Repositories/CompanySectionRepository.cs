@@ -100,6 +100,7 @@ namespace xgca.data.Repositories
         public async Task<(List<CompanySections>, string)> GetListByCompanyId(int companyId)
         {
             var records = await _context.CompanySections.AsNoTracking()
+                .Include(i => i.KYCLogs)
                 .Include(i => i.SectionCodeNavigation)
                 .Include(i => i.SectionStatusCodeNavigation)
                 .Where(x => x.CompanyId == companyId && x.IsDeleted == false)
@@ -247,7 +248,7 @@ namespace xgca.data.Repositories
         public async Task<(bool, string)> RejectCompanySectionsByCompanyId(CompanySections obj)
         {
             var records = await _context.CompanySections
-                .Where(x => x.CompanyId == obj.CompanyId && x.IsDeleted == false)
+                .Where(x => x.CompanyId == obj.CompanyId && x.IsDeleted == false && x.SectionStatusCode != obj.SectionStatusCode)
                 .ToListAsync();
 
             if (records.Count == 0)

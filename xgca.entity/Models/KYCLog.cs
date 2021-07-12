@@ -22,6 +22,5 @@ namespace xgca.entity.Models
 
         public virtual Company Company { get; set; }
         public virtual CompanySections CompanySections { get; set; }
-        public virtual SectionStatus SectionStatus { get; set; }
     }
 }
