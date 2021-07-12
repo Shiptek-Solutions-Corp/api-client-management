@@ -792,7 +792,8 @@ namespace xgca.core.Company
                     c.ContactDetails.FaxPrefix,
                     c.ContactDetails.Fax,
                 },
-                c.CUCC
+                c.CUCC,
+                c.Status
             });
 
             return _general.Response(new { Companies = companies }, 200, "Get Successful", true);
