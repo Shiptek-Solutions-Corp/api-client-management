@@ -9,7 +9,8 @@ namespace xgca.core.Enums
         /* 0 */ ALL,
         /* 1 */ NEW,
         /* 2 */ PEN,
-        /* 3 */ REJ,
-        /* 4 */ APP
+        /* 3 */ PER,
+        /* 4 */ APP,
+        /* 5 */ REJ
     }
 }
