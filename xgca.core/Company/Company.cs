@@ -699,7 +699,8 @@ namespace xgca.core.Company
                 CompanyId = c.Guid,
                 c.CompanyName,
                 c.CompanyCode,
-                c.ImageURL
+                c.ImageURL,
+                c.Status
             });
 
             return _general.Response(new { Companies = companies }, 200, "Get Successful", true);
@@ -761,7 +762,8 @@ namespace xgca.core.Company
                     c.ContactDetails.FaxPrefix,
                     c.ContactDetails.Fax,
                 },
-                c.CUCC
+                c.CUCC,
+                c.Status
             });
 
             return _general.Response(new { Companies = companies }, 200, "Get Successful", true);
