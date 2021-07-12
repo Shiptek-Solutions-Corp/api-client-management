@@ -63,5 +63,6 @@ namespace xgca.entity.Models
         public virtual ICollection<CompanyDirectors> CompanyDirectors { get; set; }
         public virtual ICollection<CompanyDocuments> CompanyDocuments { get; set; }
         public virtual ICollection<CompanySections> CompanySections { get; set; }
+        public virtual ICollection<KYCLog> KYCLogs { get; set; }
     }
 }

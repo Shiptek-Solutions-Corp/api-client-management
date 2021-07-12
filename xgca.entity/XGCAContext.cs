@@ -42,6 +42,7 @@ namespace xgca.entity
         DbSet<Section> Sections { get; set; }
         DbSet<SectionStatus> SectionStatuses { get; set; }
         DbSet<CompanyTaxSettings> CompanyTaxSettings { get; set; }
+        DbSet<KYCLog> KYCLogs { get; set; }
 
     }
     public static class ModelBuilderExtensions
@@ -112,6 +113,7 @@ namespace xgca.entity
         public virtual DbSet<Section> Sections { get; set; }
         public virtual DbSet<SectionStatus> SectionStatuses { get; set; }
         public DbSet<CompanyTaxSettings> CompanyTaxSettings { get; set; }
+        public DbSet<KYCLog> KYCLogs { get; set; }
 
         public Task<int> SaveChangesAsync() => base.SaveChangesAsync();
         public Task<int> SaveChangesAuditable()

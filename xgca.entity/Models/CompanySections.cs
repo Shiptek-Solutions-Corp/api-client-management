@@ -23,5 +23,6 @@ namespace xgca.entity.Models
         public virtual Company Company { get; set; }
         public virtual Section SectionCodeNavigation { get; set; }
         public virtual SectionStatus SectionStatusCodeNavigation { get; set; }
+        public virtual ICollection<KYCLog> KYCLogs { get; set; }
     }
 }

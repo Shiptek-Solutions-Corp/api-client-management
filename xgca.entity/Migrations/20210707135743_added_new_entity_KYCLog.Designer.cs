@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using xgca.entity;
 
 namespace xgca.entity.Migrations
 {
     [DbContext(typeof(XGCAContext))]
-    partial class XGCAContextModelSnapshot : ModelSnapshot
+    [Migration("20210707135743_added_new_entity_KYCLog")]
+    partial class added_new_entity_KYCLog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -140,22 +142,22 @@ namespace xgca.entity.Migrations
                         {
                             AddressTypeId = 1,
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2021, 7, 9, 16, 26, 58, 181, DateTimeKind.Utc).AddTicks(1048),
+                            CreatedOn = new DateTime(2021, 7, 7, 13, 57, 42, 329, DateTimeKind.Utc).AddTicks(509),
                             Guid = new Guid("1e0621b2-b7ea-4d48-8be2-f09980694816"),
                             IsDeleted = (byte)0,
                             ModifiedBy = 0,
-                            ModifiedOn = new DateTime(2021, 7, 9, 16, 26, 58, 181, DateTimeKind.Utc).AddTicks(2214),
+                            ModifiedOn = new DateTime(2021, 7, 7, 13, 57, 42, 329, DateTimeKind.Utc).AddTicks(1523),
                             Name = "Company"
                         },
                         new
                         {
                             AddressTypeId = 2,
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2021, 7, 9, 16, 26, 58, 182, DateTimeKind.Utc).AddTicks(8158),
+                            CreatedOn = new DateTime(2021, 7, 7, 13, 57, 42, 331, DateTimeKind.Utc).AddTicks(90),
                             Guid = new Guid("95ec682b-074f-42bb-9fed-d4dbde41e41d"),
                             IsDeleted = (byte)0,
                             ModifiedBy = 0,
-                            ModifiedOn = new DateTime(2021, 7, 9, 16, 26, 58, 182, DateTimeKind.Utc).AddTicks(8211),
+                            ModifiedOn = new DateTime(2021, 7, 7, 13, 57, 42, 331, DateTimeKind.Utc).AddTicks(124),
                             Name = "Residential"
                         });
                 });
@@ -1561,13 +1563,7 @@ namespace xgca.entity.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("Guid")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Remarks")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SectionStatusCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("KYCLogId");
