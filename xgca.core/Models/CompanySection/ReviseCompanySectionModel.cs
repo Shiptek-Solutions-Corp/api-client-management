@@ -4,7 +4,7 @@ using System.Text;
 
 namespace xgca.core.Models.CompanySection
 {
-    public class RejectCompanySectionModel
+    public class ReviseCompanySectionModel
     {
         public string CompanyId { get; set; }
         public string Remarks { get; set; }

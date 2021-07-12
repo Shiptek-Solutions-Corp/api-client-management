@@ -12,6 +12,7 @@ namespace xgca.data.Repositories
     public interface ICompanySectionRepository : IRepository<CompanySections>, IRetrievableRepository<CompanySections>
     {
         Task<(CompanySections, string)> GetBySectionCode(string sectionCode);
+        Task<(CompanySections, string)> GetCompanySection(string sectionCode, int companyId);
         Task<(List<CompanySections>, string)> GetListByCompanyId(int companyId);
         Task<(List<CompanySections>, string)> CreateCompanySections(List<CompanySections> obj);
         Task<(bool, string)> UpdateMultipleStatusByCompanyId(CompanySections obj);
@@ -19,6 +20,7 @@ namespace xgca.data.Repositories
         Task<(CompanySections, string)> UpdateStatus(CompanySections obj);
         Task<(CompanySections, string)> UpdateStatusByCompanyId(CompanySections obj);
         Task<(bool, string)> CheckIfCompanyHaveCompanySections(int companyId);
+        Task<(bool, string)> RejectCompanySectionsByCompanyId(CompanySections obj);
 
     }
     public class CompanySectionRepository : ICompanySectionRepository
@@ -98,6 +100,7 @@ namespace xgca.data.Repositories
         public async Task<(List<CompanySections>, string)> GetListByCompanyId(int companyId)
         {
             var records = await _context.CompanySections.AsNoTracking()
+                .Include(i => i.KYCLogs)
                 .Include(i => i.SectionCodeNavigation)
                 .Include(i => i.SectionStatusCodeNavigation)
                 .Where(x => x.CompanyId == companyId && x.IsDeleted == false)
@@ -108,14 +111,28 @@ namespace xgca.data.Repositories
                 : (records, "Company Sections retrieved");
         }
 
-        public Task<(string, string)> GetGuidById(int id)
+        public async Task<(string, string)> GetGuidById(int id)
         {
-            throw new NotImplementedException();
+            string guid = await _context.CompanySections.AsNoTracking()
+                .Where(x => x.CompanySectionsId == id)
+                .Select(c => c.Guid.ToString())
+                .FirstOrDefaultAsync();
+
+            return (guid is null)
+                ? (null, "Record does not exists or may have been deleted")
+                : (guid, "Company Section GUID retrieved successfully");
         }
 
-        public Task<(int, string)> GetIdByGuid(string id)
+        public async Task<(int, string)> GetIdByGuid(string id)
         {
-            throw new NotImplementedException();
+            int companySectionsId = await _context.CompanySections.AsNoTracking()
+                .Where(x => x.Guid == Guid.Parse(id))
+                .Select(c => c.CompanySectionsId)
+                .FirstOrDefaultAsync();
+
+            return (companySectionsId == 0)
+                ? (0, "Record does not exists or may have been deleted")
+                : (companySectionsId, "Company Section Id retrieved successfully");
         }
 
         public Task<(List<CompanySections>, string)> List()
@@ -226,6 +243,45 @@ namespace xgca.data.Repositories
             return (result > 0)
                 ? (record, "Company Section status updated successfully")
                 : (null, " Error in updating Company Section status");
+        }
+
+        public async Task<(bool, string)> RejectCompanySectionsByCompanyId(CompanySections obj)
+        {
+            var records = await _context.CompanySections
+                .Where(x => x.CompanyId == obj.CompanyId && x.IsDeleted == false && x.SectionStatusCode != obj.SectionStatusCode)
+                .ToListAsync();
+
+            if (records.Count == 0)
+            {
+                return (false, "Record(s) does not exists or may have been deleted");
+            }
+
+            records.ForEach(e =>
+            {
+                e.SectionStatusCode = obj.SectionStatusCode;
+                e.UpdatedBy = obj.UpdatedBy;
+                e.UpdatedOn = e.UpdatedOn;
+            });
+
+            var result = await _context.SaveChangesAsync();
+
+            return (result > 0)
+                ? (true, "Company Sections rejected successfully")
+                : (false, "Error in rejecting company section");
+        }
+
+        public async Task<(CompanySections, string)> GetCompanySection(string sectionCode, int companyId)
+        {
+            var record = await _context.CompanySections.AsNoTracking()
+                .Include(i => i.SectionCodeNavigation)
+                .Include(i => i.SectionStatusCodeNavigation)
+                .Where(x => x.CompanyId == companyId && x.SectionCode == sectionCode && x.IsDeleted == false)
+                .FirstOrDefaultAsync();
+
+
+            return (record is null)
+                ? (null, "Record does not exists or may have been deleted")
+                : (record, "Company Section retrieved");
         }
     }
 }

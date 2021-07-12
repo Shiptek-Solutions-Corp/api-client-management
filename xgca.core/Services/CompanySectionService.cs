@@ -16,6 +16,7 @@ using System.Linq;
 using xgca.data.Company;
 using xgca.data.User;
 using Microsoft.Extensions.Configuration;
+using xgca.core.Models.KYCLog;
 
 namespace xgca.core.Services
 {
@@ -35,9 +36,13 @@ namespace xgca.core.Services
         Task<IGeneralModel> RejectCompanyStructureSection(string companyGuid);
         Task<IGeneralModel> RejectCompanyBeneficialOwnerSection(string companyGuid);
         Task<IGeneralModel> RejectCompanyDirectorSection(string companyGuid);
-        Task<IGeneralModel> ApproveCompanyStructureSection(string companyGuid);
-        Task<IGeneralModel> ApproveCompanyBeneficialOwnerSection(string companyGuid);
-        Task<IGeneralModel> ApproveCompanyDirectorSection(string companyGuid);
+        Task<IGeneralModel> RejectCompanySection(RejectCompanySectionModel obj);
+        Task<IGeneralModel> ApproveCompanyStructureSection(ApproveCompanySectionModel obj);
+        Task<IGeneralModel> ApproveCompanyBeneficialOwnerSection(ApproveCompanySectionModel obj);
+        Task<IGeneralModel> ApproveCompanyDirectorSection(ApproveCompanySectionModel obj);
+        Task<IGeneralModel> ReviseCompanyStructureSection(ReviseCompanySectionModel obj);
+        Task<IGeneralModel> ReviseCompanyBeneficialOwnerSection(ReviseCompanySectionModel obj);
+        Task<IGeneralModel> ReviseCompanyDirectorSection(ReviseCompanySectionModel obj);
         Task<string> CheckOverallKYCStatus(int companyId);
 
     }
@@ -47,12 +52,13 @@ namespace xgca.core.Services
         private readonly ICompanyDocumentService _companyDocumentService;
         private readonly ICompanyBeneficialOwnerService _companyBeneficialOwnerService;
         private readonly ICompanyDirectorService _companyDirectorService;
-        private readonly ICompanyData _companyRepository;
-        private readonly IUserData _userRepository;
+        private readonly IKYCLogService _kycLogService;
 
         private readonly IMapper _mapper;
         private readonly ICompanySectionRepository _repository;
         private readonly ISectionRepository _sectionRepository;
+        private readonly ICompanyData _companyRepository;
+        private readonly IUserData _userRepository;
         private readonly IGeneral _general;
 
         private readonly string _draftSpiel;
@@ -60,7 +66,7 @@ namespace xgca.core.Services
 
         public CompanySectionService(IMapper _mapper, ICompanySectionRepository _repository, ISectionRepository _sectionRepository, IGeneral _general,
             ICompanyStructureService _companyStructureService, ICompanyDocumentService _companyDocumentService, ICompanyBeneficialOwnerService _companyBeneficialOwnerService, 
-            ICompanyDirectorService _companyDirectorService, ICompanyData _companyRepository, IUserData _userRepository, IConfiguration _configuration)
+            ICompanyDirectorService _companyDirectorService, IKYCLogService _kycLogService, ICompanyData _companyRepository, IUserData _userRepository, IConfiguration _configuration)
         {
             this._mapper = _mapper;
             this._repository = _repository;
@@ -70,6 +76,7 @@ namespace xgca.core.Services
             this._companyDocumentService = _companyDocumentService;
             this._companyBeneficialOwnerService = _companyBeneficialOwnerService;
             this._companyDirectorService = _companyDirectorService;
+            this._kycLogService = _kycLogService;
             this._companyRepository = _companyRepository;
             this._userRepository = _userRepository;
             _draftSpiel = _configuration["KYCSpiels:Draft"];
@@ -119,6 +126,26 @@ namespace xgca.core.Services
                 return _general.Response(null, 400, createMessage, false);
             }
 
+            var kycLogs = new BulkCreateKYCLogModel();
+            foreach (var companySection in createResult)
+            {
+                var (companySectionId, message) = await _repository.GetIdByGuid(companySection.Guid.ToString());
+                if (companySectionId == 0)
+                {
+                    continue;
+                }
+
+                kycLogs.KYCLogs.Add(new CreateKYCLogModel
+                {
+                    CompanyId = GlobalVariables.LoggedInCompanyId,
+                    CompanySectionsId = companySectionId,
+                    Remarks = "Created section",
+                    SectionStatusCode = companySection.SectionStatusCode
+                });
+            }
+
+            await _kycLogService.BulkCreateKYCLogs(kycLogs);
+
             return _general.Response(createResult, 200, createMessage, true);
         }
 
@@ -152,6 +179,26 @@ namespace xgca.core.Services
                 return _general.Response(null, 400, createMessage, false);
             }
 
+            var kycLogs = new BulkCreateKYCLogModel();
+            foreach (var companySection in createResult)
+            {
+                var (companySectionId, message) = await _repository.GetIdByGuid(companySection.Guid.ToString());
+                if (companySectionId == 0)
+                {
+                    continue;
+                }
+
+                kycLogs.KYCLogs.Add(new CreateKYCLogModel
+                {
+                    CompanyId = GlobalVariables.LoggedInCompanyId,
+                    CompanySectionsId = companySectionId,
+                    Remarks = "Created section",
+                    SectionStatusCode = companySection.SectionStatusCode
+                });
+            }
+
+            await _kycLogService.BulkCreateKYCLogs(kycLogs);
+
             var companySections = await GetCompanySection(GlobalVariables.LoggedInCompanyId);
 
             return _general.Response(new { CompanySections = companySections }, 200, createMessage, true);
@@ -181,10 +228,18 @@ namespace xgca.core.Services
                 var proofOfBusinessAddress = (GetPBADocumentModel)companyDocumentResponse.data.ProofOfBusinessAddress;
                 var organizationalChart = (GetOCDocumentModel)companyDocumentResponse.data.OrganizationalChart;
 
+                string latestRemarks = "-";
+                if (tempCompanyStructureSection.KYCLogs.Count != 0)
+                {
+                    latestRemarks = tempCompanyStructureSection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
+                }
+
                 companyStructureSection.Details = companyStructure;
                 companyStructureSection.BusinessRegistrationCertificates = businessRegistrationCertificate;
                 companyStructureSection.ProofOfBusinessAddress = proofOfBusinessAddress;
                 companyStructureSection.OrganizationalChart = organizationalChart;
+                companyStructureSection.LatestRemarks = latestRemarks;
+
             }
 
             var tempCompanyBeneficialOwnerSection = companySectionResult.Find(x => x.SectionCode == Enum.GetName(typeof(Enums.Section), Enums.Section.BO));
@@ -197,8 +252,15 @@ namespace xgca.core.Services
                 var companies = (List<GetCompanyBeneficialOwnerModel>)companyBeneficialOwnerResponse.data.Companies;
                 var individuals = (List<GetIndividualBeneficialOwnerModel>)companyBeneficialOwnerResponse.data.Individuals;
 
+                string latestRemarks = "-";
+                if (tempCompanyBeneficialOwnerSection.KYCLogs.Count != 0)
+                {
+                    latestRemarks = tempCompanyBeneficialOwnerSection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
+                }
+
                 companyBeneficialOwnerSection.Company = companies;
                 companyBeneficialOwnerSection.Individual = individuals;
+                companyBeneficialOwnerSection.LatestRemarks = latestRemarks;
             }
 
             var tempCompanyDirectorSection = companySectionResult.Find(x => x.SectionCode == Enum.GetName(typeof(Enums.Section), Enums.Section.CD));
@@ -210,7 +272,14 @@ namespace xgca.core.Services
                 var companyDirectorResponse = await _companyDirectorService.GetByCompanyId(companyId);
                 var directors = (List<GetCompanyDirectorModel>)companyDirectorResponse.data.Directors;
 
+                string latestRemarks = "-";
+                if (tempCompanyDirectorSection.KYCLogs.Count != 0)
+                {
+                    latestRemarks = tempCompanyDirectorSection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
+                }
+
                 companyDirectorSection.Directors = directors;
+                companyDirectorSection.LatestRemarks = latestRemarks;
             }
 
             var companySections = new GetCompanySectionModel
@@ -230,8 +299,13 @@ namespace xgca.core.Services
             var companySections = await GetCompanySection(companyId);
 
             string overallKYCStatus = await _companyRepository.GetKYCStatus(companyId);
+            string reason = "-";
+            if (overallKYCStatus == Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.REJ))
+            {
+                reason = companySections.CompanyStructure.LatestRemarks;
+            }
 
-            return _general.Response(new { OverallKYCStatus = overallKYCStatus, AdditionalInformation = companySections }, 200, "Company Sections retrieved successfully", true);
+            return _general.Response(new { OverallKYCStatus = overallKYCStatus, AdditionalInformation = companySections, Reason = reason }, 200, "Company Sections retrieved successfully", true);
         }
 
         public async Task<IGeneralModel> GetCompanySectionsByCompanyId(int companyId)
@@ -240,8 +314,13 @@ namespace xgca.core.Services
             var companySections = await GetCompanySection(companyId);
 
             string overallKYCStatus = await _companyRepository.GetKYCStatus(companyId);
+            string reason = "-";
+            if (overallKYCStatus == Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.REJ))
+            {
+                reason = companySections.CompanyStructure.LatestRemarks;
+            }
 
-            return _general.Response(new { OverallKYCStatus = overallKYCStatus, AdditionalInformation = companySections }, 200, "Company Sections retrieved successfully", true);
+            return _general.Response(new { OverallKYCStatus = overallKYCStatus, AdditionalInformation = companySections, Reason = reason }, 200, "Company Sections retrieved successfully", true);
         }
 
         public async Task<string> CheckOverallKYCStatus(int companyId)
@@ -258,9 +337,13 @@ namespace xgca.core.Services
             sectionStatuses.Add(companyDirectorStatus);
 
             
-            if(sectionStatuses.Contains(Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.PR)))
+            if(sectionStatuses.Contains(Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.RJ)))
             {
                 kycStatus = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.REJ);
+            }
+            else if (sectionStatuses.Contains(Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.PR)))
+            {
+                kycStatus = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.PER);
             }
             else if (sectionStatuses.Contains(Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.PA)))
             {
@@ -303,10 +386,17 @@ namespace xgca.core.Services
                 var proofOfBusinessAddress = (GetPBADocumentModel)companyDocumentResponse.data.ProofOfBusinessAddress;
                 var organizationalChart = (GetOCDocumentModel)companyDocumentResponse.data.OrganizationalChart;
 
+                string latestRemarks = "-";
+                if (companySection.KYCLogs.Count != 0)
+                {
+                    latestRemarks = companySection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
+                }
+
                 companyStructureSection.Details = companyStructure;
                 companyStructureSection.BusinessRegistrationCertificates = businessRegistrationCertificate;
                 companyStructureSection.ProofOfBusinessAddress = proofOfBusinessAddress;
                 companyStructureSection.OrganizationalChart = organizationalChart;
+                companyStructureSection.LatestRemarks = latestRemarks;
             }
 
             return companyStructureSection;
@@ -325,8 +415,15 @@ namespace xgca.core.Services
                 var companies = (List<GetCompanyBeneficialOwnerModel>)companyBeneficialOwnerResponse.data.Companies;
                 var individuals = (List<GetIndividualBeneficialOwnerModel>)companyBeneficialOwnerResponse.data.Individuals;
 
+                string latestRemarks = "-";
+                if (companySection.KYCLogs.Count != 0)
+                {
+                    latestRemarks = companySection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
+                }
+
                 companyBeneficialOwnerSection.Company = companies;
                 companyBeneficialOwnerSection.Individual = individuals;
+                companyBeneficialOwnerSection.LatestRemarks = latestRemarks;
             }
 
             return companyBeneficialOwnerSection;
@@ -344,7 +441,14 @@ namespace xgca.core.Services
                 var companyDirectorResponse = await _companyDirectorService.GetByCompanyId(companySection.CompanyId);
                 var directors = (List<GetCompanyDirectorModel>)companyDirectorResponse.data.Directors;
 
+                string latestRemarks = "-";
+                if (companySection.KYCLogs.Count != 0)
+                {
+                    latestRemarks = companySection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
+                }
+
                 companyDirectorSection.Directors = directors;
+                companyDirectorSection.LatestRemarks = latestRemarks;
             }
 
             return companyDirectorSection;
@@ -404,6 +508,18 @@ namespace xgca.core.Services
             string kycStatus = await CheckOverallKYCStatus(companyId);
             int userId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
             var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, userId);
+
+            var (companySectionId, companySectionMessage) = await _repository.GetIdByGuid(obj.Id);
+            if (companySectionId != 0)
+            {
+                await _kycLogService.CreateKYCLogs(new CreateKYCLogModel
+                {
+                    CompanyId = GlobalVariables.LoggedInCompanyId,
+                    CompanySectionsId = companySectionId,
+                    Remarks = obj.Remarks,
+                    SectionStatusCode = updateResult.SectionStatusCode
+                });
+            }
 
             var companyStructureSection = await GetCompanyStructureSection(obj.Id);
 
@@ -465,6 +581,18 @@ namespace xgca.core.Services
             int userId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
             var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, userId);
 
+            var (companySectionId, companySectionMessage) = await _repository.GetIdByGuid(obj.Id);
+            if (companySectionId != 0)
+            {
+                await _kycLogService.CreateKYCLogs(new CreateKYCLogModel
+                {
+                    CompanyId = GlobalVariables.LoggedInCompanyId,
+                    CompanySectionsId = companySectionId,
+                    Remarks = obj.Remarks,
+                    SectionStatusCode = draftResult.SectionStatusCode
+                });
+            }
+
             var companyStructureSection = await GetCompanyStructureSection(obj.Id);
 
             var data = new
@@ -504,6 +632,18 @@ namespace xgca.core.Services
             int userId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
             var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, userId);
 
+            var (companySectionId, companySectionMessage) = await _repository.GetIdByGuid(obj.Id);
+            if (companySectionId != 0)
+            {
+                await _kycLogService.CreateKYCLogs(new CreateKYCLogModel
+                {
+                    CompanyId = GlobalVariables.LoggedInCompanyId,
+                    CompanySectionsId = companySectionId,
+                    Remarks = obj.Remarks,
+                    SectionStatusCode = updateResult.SectionStatusCode
+                });
+            }
+
             var companyBeneficialOwnerSection = await GetCompanyBeneficialOwnerSection(obj.Id);
 
             var data = new
@@ -541,6 +681,18 @@ namespace xgca.core.Services
             string kycStatus = await CheckOverallKYCStatus(companyId);
             int userId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
             var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, userId);
+
+            var (companySectionId, companySectionMessage) = await _repository.GetIdByGuid(obj.Id);
+            if (companySectionId != 0)
+            {
+                await _kycLogService.CreateKYCLogs(new CreateKYCLogModel
+                {
+                    CompanyId = GlobalVariables.LoggedInCompanyId,
+                    CompanySectionsId = companySectionId,
+                    Remarks = obj.Remarks,
+                    SectionStatusCode = draftResult.SectionStatusCode
+                });
+            }
 
             var companyBeneficialOwnerSection = await GetCompanyBeneficialOwnerSection(obj.Id);
 
@@ -585,6 +737,18 @@ namespace xgca.core.Services
             int userId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
             var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, userId);
 
+            var (companySectionId, companySectionMessage) = await _repository.GetIdByGuid(obj.Id);
+            if (companySectionId != 0)
+            {
+                await _kycLogService.CreateKYCLogs(new CreateKYCLogModel
+                {
+                    CompanyId = GlobalVariables.LoggedInCompanyId,
+                    CompanySectionsId = companySectionId,
+                    Remarks = obj.Remarks,
+                    SectionStatusCode = updateResult.SectionStatusCode
+                });
+            }
+
             var companyDirectorSection = await GetCompanyDirectorSection(obj.Id);
 
             var data = new
@@ -622,6 +786,18 @@ namespace xgca.core.Services
             string kycStatus = await CheckOverallKYCStatus(companyId);
             int userId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
             var companyKYCStatus = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, userId);
+
+            var (companySectionId, companySectionMessage) = await _repository.GetIdByGuid(obj.Id);
+            if (companySectionId != 0)
+            {
+                await _kycLogService.CreateKYCLogs(new CreateKYCLogModel
+                {
+                    CompanyId = GlobalVariables.LoggedInCompanyId,
+                    CompanySectionsId = companySectionId,
+                    Remarks = obj.Remarks,
+                    SectionStatusCode = draftResult.SectionStatusCode
+                });
+            }
 
             var companyDirectorSection = await GetCompanyDirectorSection(obj.Id);
 
@@ -766,14 +942,14 @@ namespace xgca.core.Services
             return _general.Response(data, 200, updateMessage, true);
         }
 
-        public async Task<IGeneralModel> ApproveCompanyStructureSection(string companyGuid)
+        public async Task<IGeneralModel> ApproveCompanyStructureSection(ApproveCompanySectionModel obj)
         {
-            if(Guid.Parse(companyGuid) == Guid.Empty)
+            if(Guid.Parse(obj.CompanyId) == Guid.Empty)
             {
                 return _general.Response(null, 400, "Invalid company id", false);
             }
 
-            int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(companyGuid));
+            int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(obj.CompanyId));
             if (companyId == 0)
             {
                 return _general.Response(null, 400, "Invalid company id", false);
@@ -794,6 +970,18 @@ namespace xgca.core.Services
                 return _general.Response(null, 400, updateMessage, false);
             }
 
+            var (companySectionObj, companySectionMessage) = await _repository.GetCompanySection(Enum.GetName(typeof(Enums.Section), Enums.Section.CS), companyId);
+            if (!(companySectionObj is null))
+            {
+                await _kycLogService.CreateKYCLogs(new CreateKYCLogModel
+                {
+                    CompanyId = companyId,
+                    CompanySectionsId = companySectionObj.CompanySectionsId,
+                    Remarks = obj.Remarks,
+                    SectionStatusCode = updateResult.SectionStatusCode
+                });
+            }
+
             string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
 
             var data = new
@@ -805,14 +993,14 @@ namespace xgca.core.Services
             return _general.Response(data, 200, updateMessage, true);
         }
 
-        public async Task<IGeneralModel> ApproveCompanyBeneficialOwnerSection(string companyGuid)
+        public async Task<IGeneralModel> ApproveCompanyBeneficialOwnerSection(ApproveCompanySectionModel obj)
         {
-            if (Guid.Parse(companyGuid) == Guid.Empty)
+            if (Guid.Parse(obj.CompanyId) == Guid.Empty)
             {
                 return _general.Response(null, 400, "Invalid company id", false);
             }
 
-            int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(companyGuid));
+            int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(obj.CompanyId));
             if (companyId == 0)
             {
                 return _general.Response(null, 400, "Invalid company id", false);
@@ -833,6 +1021,18 @@ namespace xgca.core.Services
                 return _general.Response(null, 400, updateMessage, false);
             }
 
+            var (companySectionObj, companySectionMessage) = await _repository.GetCompanySection(Enum.GetName(typeof(Enums.Section), Enums.Section.BO), companyId);
+            if (!(companySectionObj is null))
+            {
+                await _kycLogService.CreateKYCLogs(new CreateKYCLogModel
+                {
+                    CompanyId = companyId,
+                    CompanySectionsId = companySectionObj.CompanySectionsId,
+                    Remarks = obj.Remarks,
+                    SectionStatusCode = updateResult.SectionStatusCode
+                });
+            }
+
             string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
 
             var data = new
@@ -844,14 +1044,14 @@ namespace xgca.core.Services
             return _general.Response(data, 200, updateMessage, true);
         }
 
-        public async Task<IGeneralModel> ApproveCompanyDirectorSection(string companyGuid)
+        public async Task<IGeneralModel> ApproveCompanyDirectorSection(ApproveCompanySectionModel obj)
         {
-            if (Guid.Parse(companyGuid) == Guid.Empty)
+            if (Guid.Parse(obj.CompanyId) == Guid.Empty)
             {
                 return _general.Response(null, 400, "Invalid company id", false);
             }
 
-            int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(companyGuid));
+            int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(obj.CompanyId));
             if (companyId == 0)
             {
                 return _general.Response(null, 400, "Invalid company id", false);
@@ -872,6 +1072,18 @@ namespace xgca.core.Services
                 return _general.Response(null, 400, updateMessage, false);
             }
 
+            var (companySectionObj, companySectionMessage) = await _repository.GetCompanySection(Enum.GetName(typeof(Enums.Section), Enums.Section.CD), companyId);
+            if (!(companySectionObj is null))
+            {
+                await _kycLogService.CreateKYCLogs(new CreateKYCLogModel
+                {
+                    CompanyId = companyId,
+                    CompanySectionsId = companySectionObj.CompanySectionsId,
+                    Remarks = obj.Remarks,
+                    SectionStatusCode = updateResult.SectionStatusCode
+                });
+            }
+
             string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
 
             var data = new
@@ -890,6 +1102,222 @@ namespace xgca.core.Services
             var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, userId);
 
             return companyKYCStatus;
+        }
+
+        public async Task<IGeneralModel> RejectCompanySection(RejectCompanySectionModel obj)
+        {
+            if (Guid.Parse(obj.CompanyId) == Guid.Empty)
+            {
+                return _general.Response(null, 400, "Invalid company GUID", false);
+            }
+
+            int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(obj.CompanyId));
+            if (companyId == 0)
+            {
+                return _general.Response(null, 400, "Invalid company GUID", false);
+            }
+
+            var rejectModel = new CompanySections
+            {
+                CompanyId = companyId,
+                SectionStatusCode = Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.RJ),
+                UpdatedBy = GlobalVariables.LoggedInUsername,
+                UpdatedOn = DateTime.UtcNow,
+            };
+
+            var (rejectResult, rejectMessage) = await _repository.RejectCompanySectionsByCompanyId(rejectModel);
+            if (!(rejectResult))
+            {
+                return _general.Response(null, 400, rejectMessage, false);
+            }
+
+            var (updateKYCStatusReturn, updateKYCStatusMessage) = await _companyRepository.UpdateKYCStatus(companyId, Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.REJ), GlobalVariables.LoggedInUserId);
+
+            if (updateKYCStatusReturn is null)
+            {
+                return _general.Response(null, 400, updateKYCStatusMessage, false);
+            }
+
+            var (companySectionsResult, companySectionsMessage) = await _repository.GetListByCompanyId(companyId);
+            if (companySectionsResult.Count != 0)
+            {
+                var listModel = new List<CreateKYCLogModel>();
+                companySectionsResult.ForEach(e =>
+                {
+                    listModel.Add(new CreateKYCLogModel
+                    {
+                        CompanyId = companyId,
+                        CompanySectionsId = e.CompanySectionsId,
+                        Remarks = obj.Remarks,
+                        SectionStatusCode = Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.RJ)
+                    });
+                });
+
+                var bulkModel = new BulkCreateKYCLogModel();
+                bulkModel.KYCLogs = listModel;
+                await _kycLogService.BulkCreateKYCLogs(bulkModel);
+            }
+
+            var data = new
+            {
+                OverallKYCStatus = updateKYCStatusReturn,
+                Remarks = obj.Remarks
+            };
+
+            return _general.Response(data, 200, rejectMessage, true);
+        }
+
+        public async Task<IGeneralModel> ReviseCompanyStructureSection(ReviseCompanySectionModel obj)
+        {
+            if (Guid.Parse(obj.CompanyId) == Guid.Empty)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(obj.CompanyId));
+            if (companyId == 0)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            var updateModel = new CompanySections
+            {
+                CompanyId = companyId,
+                SectionCode = Enum.GetName(typeof(Enums.Section), Enums.Section.CS),
+                SectionStatusCode = Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.PR),
+                UpdatedBy = GlobalVariables.LoggedInUsername,
+                UpdatedOn = DateTime.UtcNow,
+            };
+
+            var (updateResult, updateMessage) = await _repository.UpdateStatusByCompanyId(updateModel);
+            if (updateResult is null)
+            {
+                return _general.Response(null, 400, updateMessage, false);
+            }
+
+            var (companySectionObj, companySectionMessage) = await _repository.GetCompanySection(Enum.GetName(typeof(Enums.Section), Enums.Section.CS), companyId);
+            if (!(companySectionObj is null))
+            {
+                await _kycLogService.CreateKYCLogs(new CreateKYCLogModel
+                {
+                    CompanyId = companyId,
+                    CompanySectionsId = companySectionObj.CompanySectionsId,
+                    Remarks = obj.Remarks,
+                    SectionStatusCode = updateResult.SectionStatusCode
+                });
+            }
+
+            string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
+
+            var data = new
+            {
+                OverallKYCStatus = overallKYCStatus,
+                CompanyStructure = updateResult
+            };
+
+            return _general.Response(data, 200, updateMessage, true);
+        }
+
+        public async Task<IGeneralModel> ReviseCompanyBeneficialOwnerSection(ReviseCompanySectionModel obj)
+        {
+            if (Guid.Parse(obj.CompanyId) == Guid.Empty)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(obj.CompanyId));
+            if (companyId == 0)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            var updateModel = new CompanySections
+            {
+                CompanyId = companyId,
+                SectionCode = Enum.GetName(typeof(Enums.Section), Enums.Section.BO),
+                SectionStatusCode = Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.PR),
+                UpdatedBy = GlobalVariables.LoggedInUsername,
+                UpdatedOn = DateTime.UtcNow,
+            };
+
+            var (updateResult, updateMessage) = await _repository.UpdateStatusByCompanyId(updateModel);
+            if (updateResult is null)
+            {
+                return _general.Response(null, 400, updateMessage, false);
+            }
+
+            var (companySectionObj, companySectionMessage) = await _repository.GetCompanySection(Enum.GetName(typeof(Enums.Section), Enums.Section.BO), companyId);
+            if (!(companySectionObj is null))
+            {
+                await _kycLogService.CreateKYCLogs(new CreateKYCLogModel
+                {
+                    CompanyId = companyId,
+                    CompanySectionsId = companySectionObj.CompanySectionsId,
+                    Remarks = obj.Remarks,
+                    SectionStatusCode = updateResult.SectionStatusCode
+                });
+            }
+
+            string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
+
+            var data = new
+            {
+                OverallKYCStatus = overallKYCStatus,
+                UltimateBeneficialOwners = updateResult
+            };
+
+            return _general.Response(data, 200, updateMessage, true);
+        }
+
+        public async Task<IGeneralModel> ReviseCompanyDirectorSection(ReviseCompanySectionModel obj)
+        {
+            if (Guid.Parse(obj.CompanyId) == Guid.Empty)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(obj.CompanyId));
+            if (companyId == 0)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            var updateModel = new CompanySections
+            {
+                CompanyId = companyId,
+                SectionCode = Enum.GetName(typeof(Enums.Section), Enums.Section.CD),
+                SectionStatusCode = Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.PR),
+                UpdatedBy = GlobalVariables.LoggedInUsername,
+                UpdatedOn = DateTime.UtcNow,
+            };
+
+            var (updateResult, updateMessage) = await _repository.UpdateStatusByCompanyId(updateModel);
+            if (updateResult is null)
+            {
+                return _general.Response(null, 400, updateMessage, false);
+            }
+
+            var (companySectionObj, companySectionMessage) = await _repository.GetCompanySection(Enum.GetName(typeof(Enums.Section), Enums.Section.CD), companyId);
+            if (!(companySectionObj is null))
+            {
+                await _kycLogService.CreateKYCLogs(new CreateKYCLogModel
+                {
+                    CompanyId = companyId,
+                    CompanySectionsId = companySectionObj.CompanySectionsId,
+                    Remarks = obj.Remarks,
+                    SectionStatusCode = updateResult.SectionStatusCode
+                });
+            }
+
+            string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
+
+            var data = new
+            {
+                OverallKYCStatus = overallKYCStatus,
+                CompanyDirectors = updateResult
+            };
+
+            return _general.Response(data, 200, updateMessage, true);
         }
     }
 }

@@ -10,6 +10,7 @@ namespace xgca.core.Enums
         /* 1 */ NW,
         /* 2 */ PA,
         /* 3 */ PR,
-        /* 4 */ AP
+        /* 4 */ AP,
+        /* 5 */ RJ
     }
 }

@@ -10,5 +10,6 @@ namespace xgca.core.Models.CompanySection
         public string Id { get; set; }
         public List<GetCompanyBeneficialOwnerModel> Companies { get; set; }
         public List<GetIndividualBeneficialOwnerModel> Individuals { get; set; }
+        public string Remarks { get; set; }
     }
 }

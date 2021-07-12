@@ -9,5 +9,6 @@ namespace xgca.core.Models.CompanySection
     {
         public string Id { get; set; }
         public List<GetCompanyDirectorModel> CompanyDirectors { get; set; }
+        public string Remarks { get; set; }
     }
 }

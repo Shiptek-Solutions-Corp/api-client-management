@@ -29,6 +29,7 @@ using xgca.core.Models.Address;
 using xgca.core.Models.AddressType;
 using xgca.core.Models.ContactDetail;
 using xgca.core.Models.CompanyTaxSettings;
+using xgca.core.Models.KYCLog;
 
 namespace xgca.core._Mapper
 {
@@ -442,6 +443,18 @@ namespace xgca.core._Mapper
             CreateMap<entity.Models.DocumentType, GetDocumentTypeModel>()
                 .ForMember(i => i.Id,
                     d => d.MapFrom(m => m.Guid.ToString()));
+
+            CreateMap<entity.Models.KYCLog, GetKYCLogModel>()
+                .ForMember(i => i.Id,
+                    d => d.MapFrom(m => m.Guid.ToString()));
+
+            CreateMap<CreateKYCLogModel, entity.Models.KYCLog>()
+                .ForMember(i => i.Guid,
+                    d => d.MapFrom(m => Guid.NewGuid()))
+                .ForMember(i => i.CreatedBy,
+                    d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
+                .ForMember(i => i.CreatedOn,
+                    d => d.MapFrom(m => DateTime.UtcNow));
             #endregion
         }
     }

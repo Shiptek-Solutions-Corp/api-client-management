@@ -16,5 +16,6 @@ namespace xgca.core.Models.CompanySection
         public List<GetCompanyDocumentModel> BusinessRegistrationCertificates { get; set; }
         public GetPBADocumentModel ProofOfBusinessAddress { get; set; }
         public GetOCDocumentModel OrganizationalChart { get; set; }
+        public string LatestRemarks { get; set; }
     }
 }
