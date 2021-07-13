@@ -74,6 +74,7 @@ namespace xgca.data.Repositories
         public async Task<(CompanySections, string)> Get(string id)
         {
             var record = await _context.CompanySections.AsNoTracking()
+                .Include(i => i.KYCLogs)
                 .Include(i => i.SectionCodeNavigation)
                 .Include(i => i.SectionStatusCodeNavigation)
                 .Where(x => x.Guid == Guid.Parse(id) && x.IsDeleted == false)
@@ -87,6 +88,7 @@ namespace xgca.data.Repositories
         public async Task<(CompanySections, string)> GetBySectionCode(string sectionCode)
         {
             var record = await _context.CompanySections.AsNoTracking()
+                .Include(i => i.KYCLogs)
                 .Include(i => i.SectionCodeNavigation)
                 .Include(i => i.SectionStatusCodeNavigation)
                 .Where(x => x.SectionStatusCode == sectionCode && x.IsDeleted == false)
