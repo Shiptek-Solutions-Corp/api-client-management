@@ -140,7 +140,7 @@ namespace xgca.core.Services
                     CompanyId = GlobalVariables.LoggedInCompanyId,
                     CompanySectionsId = companySectionId,
                     Remarks = "Created section",
-                    SectionStatusCode = companySection.SectionStatusCode
+                    SectionStatusCode = Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.NW)
                 });
             }
 
@@ -193,7 +193,7 @@ namespace xgca.core.Services
                     CompanyId = GlobalVariables.LoggedInCompanyId,
                     CompanySectionsId = companySectionId,
                     Remarks = "Created section",
-                    SectionStatusCode = companySection.SectionStatusCode
+                    SectionStatusCode = Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.NW)
                 });
             }
 
