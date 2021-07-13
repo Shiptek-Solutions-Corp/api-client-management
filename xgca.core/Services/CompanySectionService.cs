@@ -577,15 +577,15 @@ namespace xgca.core.Services
             string kycStatus = await CheckOverallKYCStatus(companyId);
             var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
 
-            var (companySectionId, companySectionMessage) = await _repository.GetIdByGuid(obj.Id);
-            if (companySectionId != 0)
+            var (companySection, companySectionMessage) = await _repository.Get(obj.Id);
+            if (!(companySection is null))
             {
                 await _kycLogService.CreateKYCLogs(new CreateKYCLogModel
                 {
                     CompanyId = GlobalVariables.LoggedInCompanyId,
-                    CompanySectionsId = companySectionId,
-                    Remarks = "Drafted company structure section",
-                    SectionStatusCode = draftResult.SectionStatusCode
+                    CompanySectionsId = companySection.CompanySectionsId,
+                    Remarks = obj.Remarks,
+                    SectionStatusCode = companySection.SectionStatusCode
                 });
             }
 
@@ -676,15 +676,15 @@ namespace xgca.core.Services
             string kycStatus = await CheckOverallKYCStatus(companyId);
             var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
 
-            var (companySectionId, companySectionMessage) = await _repository.GetIdByGuid(obj.Id);
-            if (companySectionId != 0)
+            var (companySection, companySectionMessage) = await _repository.Get(obj.Id);
+            if (!(companySection is null))
             {
                 await _kycLogService.CreateKYCLogs(new CreateKYCLogModel
                 {
                     CompanyId = GlobalVariables.LoggedInCompanyId,
-                    CompanySectionsId = companySectionId,
+                    CompanySectionsId = companySection.CompanySectionsId,
                     Remarks = "Drafted ultimate beneficial owner section",
-                    SectionStatusCode = draftResult.SectionStatusCode
+                    SectionStatusCode = companySection.SectionStatusCode
                 });
             }
 
@@ -779,15 +779,15 @@ namespace xgca.core.Services
             string kycStatus = await CheckOverallKYCStatus(companyId);
             var companyKYCStatus = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
 
-            var (companySectionId, companySectionMessage) = await _repository.GetIdByGuid(obj.Id);
-            if (companySectionId != 0)
+            var (companySection, companySectionMessage) = await _repository.Get(obj.Id);
+            if (!(companySection is null))
             {
                 await _kycLogService.CreateKYCLogs(new CreateKYCLogModel
                 {
                     CompanyId = GlobalVariables.LoggedInCompanyId,
-                    CompanySectionsId = companySectionId,
+                    CompanySectionsId = companySection.CompanySectionsId,
                     Remarks = obj.Remarks,
-                    SectionStatusCode = draftResult.SectionStatusCode
+                    SectionStatusCode = companySection.SectionStatusCode
                 });
             }
 
