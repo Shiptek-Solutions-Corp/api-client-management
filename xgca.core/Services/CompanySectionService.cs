@@ -231,7 +231,7 @@ namespace xgca.core.Services
                 string latestRemarks = "-";
                 if (tempCompanyStructureSection.KYCLogs.Count != 0)
                 {
-                    latestRemarks = (tempCompanyStructureSection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString() is null)
+                    latestRemarks = (tempCompanyStructureSection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks is null)
                         ? "-"
                         : tempCompanyStructureSection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
                 }
@@ -257,7 +257,7 @@ namespace xgca.core.Services
                 string latestRemarks = "-";
                 if (tempCompanyBeneficialOwnerSection.KYCLogs.Count != 0)
                 {
-                    latestRemarks = (tempCompanyBeneficialOwnerSection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString() is null)
+                    latestRemarks = (tempCompanyBeneficialOwnerSection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks is null)
                         ? "-"
                         : tempCompanyBeneficialOwnerSection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
                 }
@@ -279,7 +279,7 @@ namespace xgca.core.Services
                 string latestRemarks = "-";
                 if (tempCompanyDirectorSection.KYCLogs.Count != 0)
                 {
-                    latestRemarks = (tempCompanyDirectorSection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString() is null)
+                    latestRemarks = (tempCompanyDirectorSection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks is null)
                         ? "-"
                         : tempCompanyDirectorSection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
                 }
@@ -395,7 +395,7 @@ namespace xgca.core.Services
                 string latestRemarks = "-";
                 if (companySection.KYCLogs.Count != 0)
                 {
-                    latestRemarks = (companySection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString() is null)
+                    latestRemarks = (companySection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks is null)
                         ? "-"
                         : companySection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
                 }
@@ -426,7 +426,7 @@ namespace xgca.core.Services
                 string latestRemarks = "-";
                 if (companySection.KYCLogs.Count != 0)
                 {
-                    latestRemarks = (companySection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString() is null)
+                    latestRemarks = (companySection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks is null)
                         ? "-"
                         : companySection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
                 }
@@ -454,7 +454,7 @@ namespace xgca.core.Services
                 string latestRemarks = "-";
                 if (companySection.KYCLogs.Count != 0)
                 {
-                    latestRemarks = (companySection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString() is null)
+                    latestRemarks = (companySection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks is null)
                         ? "-"
                         : companySection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
                 }
