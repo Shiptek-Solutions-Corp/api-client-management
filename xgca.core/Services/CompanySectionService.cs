@@ -463,8 +463,6 @@ namespace xgca.core.Services
 
             GlobalVariables.LoggedInUserId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
 
-
-
             if (obj.Details.Id.Equals("NEW"))
             {
                 var createCompanyStructureModel = _mapper.Map<CreateCompanyStructureModel>(obj.Details);
@@ -506,8 +504,7 @@ namespace xgca.core.Services
             }
 
             string kycStatus = await CheckOverallKYCStatus(companyId);
-            int userId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
-            var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, userId);
+            var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
 
             var (companySectionId, companySectionMessage) = await _repository.GetIdByGuid(obj.Id);
             if (companySectionId != 0)
@@ -516,7 +513,7 @@ namespace xgca.core.Services
                 {
                     CompanyId = GlobalVariables.LoggedInCompanyId,
                     CompanySectionsId = companySectionId,
-                    Remarks = obj.Remarks,
+                    Remarks = "Submitted company structure section",
                     SectionStatusCode = updateResult.SectionStatusCode
                 });
             }
@@ -578,8 +575,7 @@ namespace xgca.core.Services
             }
 
             string kycStatus = await CheckOverallKYCStatus(companyId);
-            int userId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
-            var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, userId);
+            var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
 
             var (companySectionId, companySectionMessage) = await _repository.GetIdByGuid(obj.Id);
             if (companySectionId != 0)
@@ -588,7 +584,7 @@ namespace xgca.core.Services
                 {
                     CompanyId = GlobalVariables.LoggedInCompanyId,
                     CompanySectionsId = companySectionId,
-                    Remarks = obj.Remarks,
+                    Remarks = "Drafted company structure section",
                     SectionStatusCode = draftResult.SectionStatusCode
                 });
             }
@@ -629,8 +625,7 @@ namespace xgca.core.Services
             }
 
             string kycStatus = await CheckOverallKYCStatus(companyId);
-            int userId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
-            var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, userId);
+            var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
 
             var (companySectionId, companySectionMessage) = await _repository.GetIdByGuid(obj.Id);
             if (companySectionId != 0)
@@ -639,7 +634,7 @@ namespace xgca.core.Services
                 {
                     CompanyId = GlobalVariables.LoggedInCompanyId,
                     CompanySectionsId = companySectionId,
-                    Remarks = obj.Remarks,
+                    Remarks = "Submitted ultimate beneficial owner section",
                     SectionStatusCode = updateResult.SectionStatusCode
                 });
             }
@@ -679,8 +674,7 @@ namespace xgca.core.Services
             }
 
             string kycStatus = await CheckOverallKYCStatus(companyId);
-            int userId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
-            var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, userId);
+            var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
 
             var (companySectionId, companySectionMessage) = await _repository.GetIdByGuid(obj.Id);
             if (companySectionId != 0)
@@ -689,7 +683,7 @@ namespace xgca.core.Services
                 {
                     CompanyId = GlobalVariables.LoggedInCompanyId,
                     CompanySectionsId = companySectionId,
-                    Remarks = obj.Remarks,
+                    Remarks = "Drafted ultimate beneficial owner section",
                     SectionStatusCode = draftResult.SectionStatusCode
                 });
             }
@@ -734,8 +728,7 @@ namespace xgca.core.Services
             }
 
             string kycStatus = await CheckOverallKYCStatus(companyId);
-            int userId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
-            var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, userId);
+            var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
 
             var (companySectionId, companySectionMessage) = await _repository.GetIdByGuid(obj.Id);
             if (companySectionId != 0)
@@ -744,7 +737,7 @@ namespace xgca.core.Services
                 {
                     CompanyId = GlobalVariables.LoggedInCompanyId,
                     CompanySectionsId = companySectionId,
-                    Remarks = obj.Remarks,
+                    Remarks = "Submitted company directors section",
                     SectionStatusCode = updateResult.SectionStatusCode
                 });
             }
@@ -784,8 +777,7 @@ namespace xgca.core.Services
             }
 
             string kycStatus = await CheckOverallKYCStatus(companyId);
-            int userId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
-            var companyKYCStatus = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, userId);
+            var companyKYCStatus = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
 
             var (companySectionId, companySectionMessage) = await _repository.GetIdByGuid(obj.Id);
             if (companySectionId != 0)

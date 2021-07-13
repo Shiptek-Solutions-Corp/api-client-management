@@ -119,8 +119,10 @@ namespace xgca.core.Services
                     }
                 }
             }
-
-            var (createResult, createMessage) = await _repository.CreateBeneficialOwners(newBeneficialOwners);
+            if (newBeneficialOwners.Count != 0)
+            {
+                var (createResult, createMessage) = await _repository.CreateBeneficialOwners(newBeneficialOwners);
+            }
 
             if (updateBeneficialOwners.Count != 0)
             {
@@ -130,7 +132,10 @@ namespace xgca.core.Services
                 }
             }
 
-            var (deleteResult, deleteMessage) = await _repository.DeleteBeneficialOwners(deleteBeneficialOwners, GlobalVariables.LoggedInUsername);
+            if (deleteBeneficialOwners.Count != 0)
+            {
+                var (deleteResult, deleteMessage) = await _repository.DeleteBeneficialOwners(deleteBeneficialOwners, GlobalVariables.LoggedInUsername);
+            }
 
             var (cboCompanies, cboIndividuals, message) = await _repository.GetByCompanyId(GlobalVariables.LoggedInCompanyId);
 
