@@ -87,7 +87,10 @@ namespace xgca.core.Services
                 }
             }
 
-            var (createResult, createMessage) = await _repository.BulkCreate(newDirectors);
+            if (newDirectors.Count != 0)
+            {
+                var (createResult, createMessage) = await _repository.BulkCreate(newDirectors);
+            }
             
             if (updateDirectors.Count != 0)
             {
