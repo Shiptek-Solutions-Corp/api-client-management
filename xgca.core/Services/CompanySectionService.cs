@@ -799,7 +799,7 @@ namespace xgca.core.Services
             }
 
             string kycStatus = await CheckOverallKYCStatus(companyId);
-            var companyKYCStatus = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
+            var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
 
             var (companySection, companySectionMessage) = await _repository.Get(obj.Id);
             if (!(companySection is null))
