@@ -74,6 +74,7 @@ namespace xgca.core.Company
         Task<IGeneralModel> GetCompanyCode(string companyGuid);
         Task<IGeneralModel> GetInvoiceActors(string billerId, string customerId);
         Task<byte[]> DownloadCompanyProfileLogs(int companyId);
+        Task<IGeneralModel> GetAccreditorShippingLine(string companyId);
 
     }
     public class Company : ICompany
@@ -1088,6 +1089,35 @@ namespace xgca.core.Company
             await using var memoryStream = new MemoryStream();
             wb.SaveAs(memoryStream);
             return memoryStream.ToArray();
+        }
+
+        public async Task<IGeneralModel> GetAccreditorShippingLine(string companyId)
+        {
+            if (companyId is null)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            if (Guid.Parse(companyId) == Guid.Empty)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            var (company, message) = await _companyData.GetAccreditorByCompnyGuid(companyId);
+
+            if (company is null)
+            {
+                return _general.Response(null, 400, message, false);
+            }
+
+            var accreditor = new
+            {
+                CompanyId = company.Guid.ToString(),
+                company.CompanyName,
+                company.ImageURL
+            };
+
+            return _general.Response(new { Accreditor = accreditor }, 200, "Service provider returned", true);
         }
 
         //public async Task<IGeneralModel> GetCompanyAndGuestByIds(List<string> guids)
