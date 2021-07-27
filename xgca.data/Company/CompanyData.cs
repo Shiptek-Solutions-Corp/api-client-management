@@ -46,6 +46,7 @@ namespace xgca.data.Company
         Task<string> GetCompanyCode(string companyGuid);
         Task<(Biller, Customer)> GetInvoiceActors(string billerId, string customerId);
         Task<string> GetKYCStatus(int companyId);
+        Task<(entity.Models.Company, string)> GetAccreditorByCompnyGuid(string guid);
     }
 
     public class ActorReturn
@@ -511,6 +512,11 @@ namespace xgca.data.Company
                 .Select(x => new { Key = x.AccreditedBy })
                 .FirstOrDefaultAsync();
 
+            if (accreditor is null)
+            {
+                return null;
+            }
+
             if (accreditor.Key is null)
             {
                 return null;
@@ -706,6 +712,30 @@ namespace xgca.data.Company
                 .FirstOrDefaultAsync();
 
             return kycStatus;
+        }
+
+        public async Task<(entity.Models.Company, string)> GetAccreditorByCompnyGuid(string guid)
+        {
+            string accreditorId = await _context.Companies.AsNoTracking()
+                .Where(x => x.Guid == Guid.Parse(guid) && x.Status == 1 && x.IsDeleted == 0)
+                .Select(x => x.AccreditedBy)
+                .FirstOrDefaultAsync();
+
+            if (accreditorId is null)
+            {
+                return (null, "Company has not been accredited by any shipping line company");
+            }
+
+            var accreditor = await _context.Companies.AsNoTracking()
+                .Include(i => i.Addresses)
+                .Include(i => i.ContactDetails)
+                .Where(x => x.Guid == Guid.Parse(accreditorId) && x.Status == 1 && x.IsDeleted == 0)
+                .FirstOrDefaultAsync();
+
+
+            return (accreditor is null)
+                ? (null, "Company has not been accredited by any shipping line company")
+                : (accreditor, "Accreditor Shipping Line retrieved");
         }
     }
 }

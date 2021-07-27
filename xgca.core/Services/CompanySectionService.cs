@@ -131,7 +131,7 @@ namespace xgca.core.Services
                 return _general.Response(null, 400, createMessage, false);
             }
 
-            var kycLogs = new BulkCreateKYCLogModel();
+            var tempKYCLogs = new List<CreateKYCLogModel>();
             foreach (var companySection in createResult)
             {
                 var (companySectionId, message) = await _repository.GetIdByGuid(companySection.Guid.ToString());
@@ -140,16 +140,21 @@ namespace xgca.core.Services
                     continue;
                 }
 
-                kycLogs.KYCLogs.Add(new CreateKYCLogModel
+                tempKYCLogs.Add(new CreateKYCLogModel
                 {
                     CompanyId = GlobalVariables.LoggedInCompanyId,
                     CompanySectionsId = companySectionId,
                     Remarks = "Created section",
-                    SectionStatusCode = companySection.SectionStatusCode
+                    SectionStatusCode = Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.NW)
                 });
             }
 
-            await _kycLogService.BulkCreateKYCLogs(kycLogs);
+            if (tempKYCLogs.Count != 0)
+            {
+                var kycLogs = new BulkCreateKYCLogModel();
+                kycLogs.KYCLogs = tempKYCLogs;
+                await _kycLogService.BulkCreateKYCLogs(kycLogs);
+            }
 
             return _general.Response(createResult, 200, createMessage, true);
         }
@@ -184,7 +189,7 @@ namespace xgca.core.Services
                 return _general.Response(null, 400, createMessage, false);
             }
 
-            var kycLogs = new BulkCreateKYCLogModel();
+            var tempKYCLogs = new List<CreateKYCLogModel>();
             foreach (var companySection in createResult)
             {
                 var (companySectionId, message) = await _repository.GetIdByGuid(companySection.Guid.ToString());
@@ -193,16 +198,21 @@ namespace xgca.core.Services
                     continue;
                 }
 
-                kycLogs.KYCLogs.Add(new CreateKYCLogModel
+                tempKYCLogs.Add(new CreateKYCLogModel
                 {
                     CompanyId = GlobalVariables.LoggedInCompanyId,
                     CompanySectionsId = companySectionId,
                     Remarks = "Created section",
-                    SectionStatusCode = companySection.SectionStatusCode
+                    SectionStatusCode = Enum.GetName(typeof(Enums.SectionStatus), Enums.SectionStatus.NW)
                 });
             }
 
-            await _kycLogService.BulkCreateKYCLogs(kycLogs);
+            if (tempKYCLogs.Count != 0)
+            {
+                var kycLogs = new BulkCreateKYCLogModel();
+                kycLogs.KYCLogs = tempKYCLogs;
+                await _kycLogService.BulkCreateKYCLogs(kycLogs);
+            }
 
             var companySections = await GetCompanySection(GlobalVariables.LoggedInCompanyId);
 
@@ -804,7 +814,7 @@ namespace xgca.core.Services
             }
 
             string kycStatus = await CheckOverallKYCStatus(companyId);
-            var companyKYCStatus = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
+            var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
 
             var (companySection, companySectionMessage) = await _repository.Get(obj.Id);
             if (!(companySection is null))
