@@ -66,24 +66,14 @@ namespace xlog_client_management_api.Controllers.AuditLog
 
         [Route("logs/{tableName}/{keyFieldId}/download")]
         [HttpGet]
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> DownloadAuditLogs([FromRoute] string tableName, string keyFieldId)
+        public async Task<FileResult> DownloadAuditLogs([FromRoute] string tableName, [FromRoute] string keyFieldId, [FromQuery] string fileType = "xlsx")
         {
-            var response = await _auditLog.ListByTableNameAndKeyFieldId(tableName, keyFieldId);
-
-            if (response.statusCode == 400)
-            {
-                return BadRequest(response);
-            }
-            else if (response.statusCode == 401)
-            {
-                return Unauthorized(response);
-            }
-
-            return Ok(response);
+            var response = await _auditLog.DownloadByTableNameAndKeyFieldId(tableName, keyFieldId, fileType);
+            return File(response.Bytes, MimeTypes.GetMimeType(response.FileName), response.FileName);
         }
 
         [Route("audit-logs")]

@@ -23,6 +23,7 @@ using xgca.data.CompanyServiceRole;
 using System.Data;
 using ClosedXML.Excel;
 using System.IO;
+using Microsoft.AspNetCore.Mvc;
 
 namespace xgca.core.AuditLog
 {
@@ -30,7 +31,7 @@ namespace xgca.core.AuditLog
     {
         Task<IGeneralModel> ListByTableNameAndKeyFieldId(string tableName, int keyFieldId);
         Task<IGeneralModel> ListByTableNameAndKeyFieldId(string tableName, string keyFieldId);
-        Task<byte[]> DownloadByTableNameAndKeyFieldId(string tableName, string keyFieldId);
+        Task<FileResponse> DownloadByTableNameAndKeyFieldId(string tableName, string keyFieldId, string fileType);
         Task<IGeneralModel> RetrieveDetails(string key);
         Task<IGeneralModel> CreateAuditLog(string auditLogAction, string tableName, int keyFieldId, int createdBy, dynamic oldObj, dynamic newObj = null);
         Task<IGeneralModel> GetCompanyServiceRoleLogs(string type, string companyServiceGuid, string keyGuid);
@@ -129,11 +130,35 @@ namespace xgca.core.AuditLog
                 : _general.Response(null, 400, "Failed in creating audit log data!", false);
         }
 
-        public async Task<byte[]> DownloadByTableNameAndKeyFieldId(string tableName, string keyFieldId)
+        public async Task<FileResponse>DownloadByTableNameAndKeyFieldId(string tableName, string keyFieldId, string type)
         {
-            var data = await ListByTableNameAndKeyFieldId(tableName, keyFieldId);
+            var result = await ListByTableNameAndKeyFieldId(tableName, keyFieldId);
+            var logs = result?.data?.Logs;
 
-            return await GenerateExcelFile(data);
+            var fileName = $"AuditLogs{DateTime.Now:yyyyMMddhhmmss}.{type}";
+
+            switch (type)
+            {
+                case "csv":
+                    {
+                        var bytes = await FileHelper.GetCsvBytes(logs);
+                        return new FileResponse(bytes, fileName);
+                    }
+                case "xlsx":
+                    {
+                        var bytes = await FileHelper.GetXlsxBytes(logs);
+                        return new FileResponse(bytes, fileName);
+                    }
+                default:
+                    {
+                        var errors = new List<ErrorField>
+                    {
+                        new ErrorField("type", "File Type not supported")
+                    };
+
+                        return new FileResponse(errors);
+                    }
+            }
         }
 
         public async Task<byte[]> DownloadCompanyServiceRoleLogs(string type, string companyServiceGuid, string keyGuid)
