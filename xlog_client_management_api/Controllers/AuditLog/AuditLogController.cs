@@ -22,7 +22,7 @@ namespace xlog_client_management_api.Controllers.AuditLog
 
         [Route("logs/{tableName}/{keyFieldId}")]
         [HttpGet]
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -44,7 +44,7 @@ namespace xlog_client_management_api.Controllers.AuditLog
 
         [Route("logs/details/{auditLogId}")]
         [HttpGet]
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

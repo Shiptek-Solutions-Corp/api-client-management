@@ -219,6 +219,7 @@ namespace xgca.core.AuditLog
                     keyId = await _user.GetIdByGuid(Guid.Parse(keyFieldId));
                     break;
                 default:
+                    keyId = int.Parse(keyFieldId);
                     break;
             }
 
