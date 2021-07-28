@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using xgca.core.Invite;
 using xgca.core.Models.Invite;
+using xgca.core.Response;
 
 namespace xlog_client_management_api.Controllers.Invite
 {
@@ -23,12 +24,17 @@ namespace xlog_client_management_api.Controllers.Invite
 
         /****** Invite Preferred Providers ******/
 
+        /// <summary>
+        /// Providers Send invite
+        /// </summary>
+        /// <response code="200">Success</response>
+        /// <response code="400">An Error Occured</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Internal Server Error</response>
+        [ProducesResponseType(typeof(IGeneralModel), 200)]
         [Route("preferred-providers/send-invite")]
         [TokenAuthorize("scope", "preferredProviders.post")]
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> SendProviderInvite([FromBody] ListReceiverEmails emails)
         {
             var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
@@ -44,13 +50,17 @@ namespace xlog_client_management_api.Controllers.Invite
 
             return Ok(response);
         }
-
+        /// <summary>
+        /// Providers Check invite by code
+        /// </summary>
+        /// <response code="200">Success</response>
+        /// <response code="400">An Error Occured</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Internal Server Error</response>
+        [ProducesResponseType(typeof(IGeneralModel), 200)]
         [Route("preferred-providers/check-invite/{code}")]
         [TokenAuthorize("scope", "preferredProviders.get")]
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> CheckProviderInvite([FromRoute] string code)
         {
             var response = await _invite.CheckInviteCode(code, 2);
@@ -66,12 +76,17 @@ namespace xlog_client_management_api.Controllers.Invite
             return Ok(response);
         }
 
+        /// <summary>
+        /// Providers Accept Invite
+        /// </summary>
+        /// <response code="200">Success</response>
+        /// <response code="400">An Error Occured</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Internal Server Error</response>
+        [ProducesResponseType(typeof(IGeneralModel), 200)]
         [Route("preferred-providers/accept-invite")]
         [TokenAuthorize("scope", "preferredProviders.post")]
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> AcceptProviderInvite([FromBody] AcceptInviteCode accept)
         {
             var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
@@ -91,12 +106,17 @@ namespace xlog_client_management_api.Controllers.Invite
 
         /****** Invite Contacts ******/
 
+        /// <summary>
+        /// Contacts Send invite
+        /// </summary>
+        /// <response code="200">Success</response>
+        /// <response code="400">An Error Occured</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Internal Server Error</response>
+        [ProducesResponseType(typeof(IGeneralModel), 200)]
         [Route("preferred-contacts/send-invite")]
         [TokenAuthorize("scope", "contacts.post")]
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> SendContactInvite([FromBody] ListReceiverEmails emails)
         {
             var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
@@ -112,13 +132,17 @@ namespace xlog_client_management_api.Controllers.Invite
 
             return Ok(response);
         }
-
+        /// <summary>
+        /// Contacts Check invite by code
+        /// </summary>
+        /// <response code="200">Success</response>
+        /// <response code="400">An Error Occured</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Internal Server Error</response>
+        [ProducesResponseType(typeof(IGeneralModel), 200)]
         [Route("preferred-contacts/check-invite/{code}")]
         [TokenAuthorize("scope", "contacts.get")]
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> CheckContactInvite([FromRoute] string code)
         {
             var response = await _invite.CheckInviteCode(code, 1);
@@ -134,12 +158,17 @@ namespace xlog_client_management_api.Controllers.Invite
             return Ok(response);
         }
 
+        /// <summary>
+        /// Contacts Accept Invite
+        /// </summary>
+        /// <response code="200">Success</response>
+        /// <response code="400">An Error Occured</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Internal Server Error</response>
+        [ProducesResponseType(typeof(IGeneralModel), 200)]
         [Route("preferred-contacts/accept-invite")]
         [TokenAuthorize("scope", "contacts.post")]
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> AcceptContactInvite([FromBody] AcceptInviteCode accept)
         {
             var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
