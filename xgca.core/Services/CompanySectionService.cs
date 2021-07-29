@@ -17,6 +17,8 @@ using xgca.data.Company;
 using xgca.data.User;
 using Microsoft.Extensions.Configuration;
 using xgca.core.Models.KYCLog;
+using xgca.core.User;
+using Microsoft.AspNetCore.Http;
 
 namespace xgca.core.Services
 {
@@ -60,11 +62,12 @@ namespace xgca.core.Services
         private readonly ICompanyData _companyRepository;
         private readonly IUserData _userRepository;
         private readonly IGeneral _general;
-
+        private readonly IUser _userService;
+        private readonly IHttpContextAccessor contextAccessor;
         private readonly string _draftSpiel;
         private readonly string _submitSpiel;
 
-        public CompanySectionService(IMapper _mapper, ICompanySectionRepository _repository, ISectionRepository _sectionRepository, IGeneral _general,
+        public CompanySectionService(IHttpContextAccessor contextAccessor, IUser _userService, IMapper _mapper, ICompanySectionRepository _repository, ISectionRepository _sectionRepository, IGeneral _general,
             ICompanyStructureService _companyStructureService, ICompanyDocumentService _companyDocumentService, ICompanyBeneficialOwnerService _companyBeneficialOwnerService, 
             ICompanyDirectorService _companyDirectorService, IKYCLogService _kycLogService, ICompanyData _companyRepository, IUserData _userRepository, IConfiguration _configuration)
         {
@@ -81,6 +84,8 @@ namespace xgca.core.Services
             this._userRepository = _userRepository;
             _draftSpiel = _configuration["KYCSpiels:Draft"];
             _submitSpiel = _configuration["KYCSpiels:Submit"];
+            this._userService = _userService;
+            this.contextAccessor = contextAccessor;
         }
         public async Task<bool> CheckIfCompanyHaveCompanySections(int companyId)
         {
@@ -379,6 +384,16 @@ namespace xgca.core.Services
                 kycStatus = (count == 3)
                     ? Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.APP)
                     : Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.NEW);
+
+                //if (count.Equals(3))
+                //{
+                //    var companyDetails = await _companyRepository.Retrieve(companyId);
+                //    if (!companyDetails.KycStatusCode.Equals("APP"))
+                //    {
+                //        string token = contextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Remove(0, 7);
+                //        await _userService.ActivateCompanyUser(companyDetails.CompanyUsers.Select(c => c.Users).First()?.EmailAddress, true, token);
+                //    }
+                //}
             }
 
             return kycStatus;

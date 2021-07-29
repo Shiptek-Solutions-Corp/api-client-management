@@ -186,6 +186,8 @@ namespace xgca.data.Company
                     .ThenInclude(at => at.AddressTypes)
                 .Include(cn => cn.ContactDetails)
                 .Include(cs => cs.CompanyServices)
+                .Include(cs => cs.CompanyUsers)
+                .ThenInclude(c => c.Users)
                 .Where(c => c.CompanyId == key && c.IsDeleted == 0).FirstOrDefaultAsync();
             return data;
         }
