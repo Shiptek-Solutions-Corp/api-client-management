@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using xgca.core.Company.DTO;
+using xgca.core.Constants;
 using xgca.core.Models.Company;
 using xgca.core.Response;
 using xlog_client_management_api;
@@ -582,6 +583,29 @@ namespace xlog_company_service_api.Controllers.Company
             return Ok(response);
         }
 
+        [Route("company/company-code")]
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetCompanyCode()
+        {
+            GlobalVariables.LoggedInCompanyId = Convert.ToInt32(Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value);
+            var response = await _company.GetCompanyCode();
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
         [Route("company/{companyId}/company-code")]
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -613,6 +637,28 @@ namespace xlog_company_service_api.Controllers.Company
         public async Task<IActionResult> GetInvoiceActors([FromBody] InvoiceActorRequestModel obj)
         {
             var response = await _company.GetInvoiceActors(obj.BillerId, obj.CustomerId);
+
+            if (response.statusCode == 400)
+            {
+                return BadRequest(response);
+            }
+            else if (response.statusCode == 401)
+            {
+                return Unauthorized(response);
+            }
+
+            return Ok(response);
+        }
+
+        [Route("company/{code}/information")]
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetByCompanyCode([FromRoute] string code)
+        {
+            var response = await _company.GetByCompanyCode(code);
 
             if (response.statusCode == 400)
             {

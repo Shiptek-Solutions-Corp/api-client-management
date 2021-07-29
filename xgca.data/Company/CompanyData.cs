@@ -47,6 +47,7 @@ namespace xgca.data.Company
         Task<(Biller, Customer)> GetInvoiceActors(string billerId, string customerId);
         Task<string> GetKYCStatus(int companyId);
         Task<(entity.Models.Company, string)> GetAccreditorByCompnyGuid(string guid);
+        Task<(entity.Models.Company, string)> GetByCompanyCode(string code);
     }
 
     public class ActorReturn
@@ -734,6 +735,23 @@ namespace xgca.data.Company
             return (accreditor is null)
                 ? (null, "Company has not been accredited by any shipping line company")
                 : (accreditor, "Accreditor Shipping Line retrieved");
+        }
+
+        public async Task<(entity.Models.Company, string)> GetByCompanyCode(string code)
+        {
+            var data = await _context.Companies
+                .Include(a => a.Addresses)
+                    .ThenInclude(at => at.AddressTypes)
+                .Include(cn => cn.ContactDetails)
+                .Include(cs => cs.CompanyServices)
+                .Where(c => c.CompanyCode == code && c.IsDeleted == 0).FirstOrDefaultAsync();
+
+            if (data is null)
+            {
+                return (null, "Record does not exists or may have been deleted");
+            }
+
+            return (data, "Company information retrieved");
         }
     }
 }
