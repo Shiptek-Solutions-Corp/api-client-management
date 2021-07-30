@@ -385,15 +385,13 @@ namespace xgca.core.Services
                     ? Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.APP)
                     : Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.NEW);
 
-                //if (count.Equals(3))
-                //{
-                //    var companyDetails = await _companyRepository.Retrieve(companyId);
-                //    if (!companyDetails.KycStatusCode.Equals("APP"))
-                //    {
-                //        string token = contextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Remove(0, 7);
-                //        await _userService.ActivateCompanyUser(companyDetails.CompanyUsers.Select(c => c.Users).First()?.EmailAddress, true, token);
-                //    }
-                //}
+
+                if (kycStatus.Equals("APP"))
+                {
+                    var companyDetails = await _companyRepository.Retrieve(companyId);
+                    string token = contextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Remove(0, 7);
+                    await _userService.ActivateCompanyUser(companyDetails.CompanyUsers.Select(c => c.Users).First()?.EmailAddress, true, token);
+                }
             }
 
             return kycStatus;
