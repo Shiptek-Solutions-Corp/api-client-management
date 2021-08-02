@@ -140,9 +140,10 @@ namespace xgca.data.Repositories
                 return (null, "Record does not exists or may have been deleted");
             }
 
-            record.DocumentDescription = obj.DocumentDescription;
-            record.DocumentNo = obj.DocumentNo;
+            record.DocumentDescription ??= obj.DocumentDescription;
+            record.DocumentNo ??= obj.DocumentNo;
             record.DocumentTypeId = obj.DocumentTypeId;
+            record.FileUrl = obj.FileUrl;
             record.UpdatedBy = obj.UpdatedBy;
             record.UpdatedOn = obj.UpdatedOn;
 

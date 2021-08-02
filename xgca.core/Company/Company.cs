@@ -72,9 +72,11 @@ namespace xgca.core.Company
         Task<IGeneralModel> SetCUCC(UpdateCUCCCodeDTO obj);
         Task<IGeneralModel> GetAccreditor(int companyId);
         Task<IGeneralModel> GetCompanyCode(string companyGuid);
+        Task<IGeneralModel> GetCompanyCode();
         Task<IGeneralModel> GetInvoiceActors(string billerId, string customerId);
         Task<byte[]> DownloadCompanyProfileLogs(int companyId);
         Task<IGeneralModel> GetAccreditorShippingLine(string companyId);
+        Task<IGeneralModel> GetByCompanyCode(string code);
 
     }
     public class Company : ICompany
@@ -1118,6 +1120,95 @@ namespace xgca.core.Company
             };
 
             return _general.Response(new { Accreditor = accreditor }, 200, "Service provider returned", true);
+        }
+
+        public async Task<IGeneralModel> GetCompanyCode()
+        {
+            string companyGuid = await _companyData.GetGuidById(GlobalVariables.LoggedInCompanyId);
+            var code = await _companyData.GetCompanyCode(companyGuid);
+
+            if (code == null)
+            {
+                code = "XLOG1";
+            }
+
+            return _general.Response(new { CompanyCode = code }, 200, "Company code retrieved", true);
+        }
+
+        public async Task<IGeneralModel> GetByCompanyCode(string code)
+        {
+            var (result, message) = await _companyData.GetByCompanyCode(code);
+
+            if (result is null)
+            { return _general.Response(null, 400, "Selected company might have been deleted or does not exists", false); }
+
+            var cityResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetCity}/", result.Addresses.CityId, AuthToken.Contra);
+            var cityJson = (JObject)cityResponse;
+            var stateResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetState}/", result.Addresses.StateId, AuthToken.Contra);
+            var stateJson = (JObject)stateResponse;
+
+            var companyServices = await _coreCompanyService.ListByCompanyId(result.Guid.ToString());
+
+            var kycReturn = await _kycRepository.GetByKycStatusCode(result.KycStatusCode);
+
+            var data = new
+            {
+                CompanyId = result.Guid,
+                result.CompanyName,
+                result.ImageURL,
+                AddressId = result.Addresses.Guid,
+                result.Addresses.AddressLine,
+                City = new
+                {
+                    CityId = (cityJson)["data"]["cityId"],
+                    result.Addresses.CityName,
+                },
+                State = new
+                {
+                    StateId = (stateJson)["data"]["stateId"],
+                    result.Addresses.StateName,
+                },
+                Country = new
+                {
+                    result.Addresses.CountryId,
+                    result.Addresses.CountryName,
+                },
+                result.Addresses.ZipCode,
+                result.Addresses.FullAddress,
+                result.Addresses.Longitude,
+                result.Addresses.Latitude,
+                result.Addresses.AddressAdditionalInformation,
+                result.WebsiteURL,
+                result.EmailAddress,
+                ContactDetailId = result.ContactDetails.Guid,
+                Phone = new
+                {
+                    result.ContactDetails.PhonePrefixId,
+                    result.ContactDetails.PhonePrefix,
+                    result.ContactDetails.Phone,
+                },
+                Mobile = new
+                {
+                    result.ContactDetails.MobilePrefixId,
+                    result.ContactDetails.MobilePrefix,
+                    result.ContactDetails.Mobile,
+                },
+                Fax = new
+                {
+                    result.ContactDetails.FaxPrefixId,
+                    result.ContactDetails.FaxPrefix,
+                    result.ContactDetails.Fax,
+                },
+                result.CUCC,
+                result.TaxExemption,
+                result.TaxExemptionStatus,
+                CompanyServices = companyServices.data.companyService,
+                Status = (result.Status == 1) ? "Active" : "Inactive",
+                KYCStatusCode = kycReturn.Item1.KycStatusCode,
+                KYCStatus = (kycReturn.Item1 is null) ? "NEW" : kycReturn.Item1.Description
+            };
+
+            return _general.Response(new { company = data }, 200, "Configurable information for selected company has been displayed", true);
         }
 
         //public async Task<IGeneralModel> GetCompanyAndGuestByIds(List<string> guids)
