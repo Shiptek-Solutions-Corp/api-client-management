@@ -743,61 +743,68 @@ namespace xgca.core.Company
         {
             var data = await _companyData.ListCompaniesByGuids(obj.CompanyIDs);
 
+            var companies = new List<GetCompanyInformation>();
 
-
-            var companies = data.Select(c => new
+            foreach (var d in data)
             {
+                var cityResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetCity}/", d.Addresses.CityId, AuthToken.Contra);
+                var cityJson = (JObject)cityResponse;
+                var stateResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetState}/", d.Addresses.StateId, AuthToken.Contra);
+                var stateJson = (JObject)stateResponse;
 
-                CompanyId = c.Guid,
-                c.CompanyName,
-                c.CompanyCode,
-                c.ImageURL,
-                AddressId = c.Addresses.Guid,
-                c.Addresses.AddressLine,
-                City = new
+                companies.Add(new GetCompanyInformation
                 {
-                    c.Addresses.CityId,
-                    c.Addresses.CityName,
-                },
-                State = new
-                {
-                    c.Addresses.StateId,
-                    c.Addresses.StateName,
-                },
-                Country = new
-                {
-                    c.Addresses.CountryId,
-                    c.Addresses.CountryName,
-                },
-                c.Addresses.ZipCode,
-                c.Addresses.FullAddress,
-                c.Addresses.Longitude,
-                c.Addresses.Latitude,
-                c.Addresses.AddressAdditionalInformation,
-                c.WebsiteURL,
-                c.EmailAddress,
-                ContactDetailId = c.ContactDetails.Guid,
-                Phone = new
-                {
-                    c.ContactDetails.PhonePrefixId,
-                    c.ContactDetails.PhonePrefix,
-                    c.ContactDetails.Phone,
-                },
-                Mobile = new
-                {
-                    c.ContactDetails.MobilePrefixId,
-                    c.ContactDetails.MobilePrefix,
-                    c.ContactDetails.Mobile,
-                },
-                Fax = new
-                {
-                    c.ContactDetails.FaxPrefixId,
-                    c.ContactDetails.FaxPrefix,
-                    c.ContactDetails.Fax,
-                },
-                c.CUCC,
-                c.Status
-            });
+                    CompanyId = d.Guid.ToString(),
+                    CompanyName = d.CompanyName,
+                    CompanyCode = d.CompanyCode,
+                    ImageURL = d.ImageURL,
+                    AddressId = d.Addresses.Guid.ToString(),
+                    AddressLine = d.Addresses.AddressLine,
+                    City = new City
+                    {
+                        CityId = (cityJson)["data"]["cityId"].ToString(),
+                        CityName = d.Addresses.CityName,
+                    },
+                    State = new State
+                    {
+                        StateId = (stateJson)["data"]["stateId"].ToString(),
+                        StateName = d.Addresses.StateName,
+                    },
+                    Country = new Country
+                    {
+                        CountryId = d.Addresses.CountryId,
+                        CountryName = d.Addresses.CountryName,
+                    },
+                    ZipCode = d.Addresses.ZipCode,
+                    FullAddress = d.Addresses.FullAddress,
+                    Longitude = d.Addresses.Longitude,
+                    Latitude = d.Addresses.Latitude,
+                    AddressAdditionalInformation = d.Addresses.AddressAdditionalInformation,
+                    WebsiteURL = d.WebsiteURL,
+                    EmailAddress = d.EmailAddress,
+                    ContactDetailId = d.ContactDetails.Guid.ToString(),
+                    Phone = new PhoneNumber
+                    {
+                        PhonePrefixId = d.ContactDetails.PhonePrefixId,
+                        PhonePrefix = d.ContactDetails.PhonePrefix,
+                        Phone = d.ContactDetails.Phone,
+                    },
+                    Mobile = new MobileNumber
+                    {
+                        MobilePrefixId = d.ContactDetails.MobilePrefixId,
+                        MobilePrefix = d.ContactDetails.MobilePrefix,
+                        Mobile = d.ContactDetails.Mobile,
+                    },
+                    Fax = new FaxNumber
+                    {
+                        FaxPrefixId = d.ContactDetails.FaxPrefixId,
+                        FaxPrefix = d.ContactDetails.FaxPrefix,
+                        Fax = d.ContactDetails.Fax,
+                    },
+                    CUCC = d.CUCC,
+                    Status = d.Status
+                });
+            }
 
             return _general.Response(new { Companies = companies }, 200, "Get Successful", true);
         }
