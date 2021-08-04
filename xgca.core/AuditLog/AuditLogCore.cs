@@ -37,6 +37,17 @@ namespace xgca.core.AuditLog
         Task<IGeneralModel> GetCompanyServiceRoleLogs(string type, string companyServiceGuid, string keyGuid);
         Task<byte[]> DownloadCompanyServiceRoleLogs(string type, string companyServiceGuid, string keyGuid);
         Task<IGeneralModel> BatchCreateAuditLog(List<CreateAuditLog> obj, int modifiedById);
+        Task<IGeneralModel> ListPaginate(
+            string tableName,
+            int keyFieldId,
+            DateTime createdDateFrom,
+            DateTime createdDateTo,
+            string action,
+            string username,
+            string orderBy,
+            string search,
+            int pageNumber,
+            int pageSize);
     }
 
     public class AuditLogCore : IAuditLogCore
@@ -47,8 +58,10 @@ namespace xgca.core.AuditLog
         private readonly IGeneral _general;
         private readonly ICompanyService companyService;
         private readonly ICompanyServiceRole companyServiceRole;
+        private readonly IPagedResponse pagination;
 
         public AuditLogCore(
+            IPagedResponse pagination,
             IAuditLogData auditLog, 
             IAuditLogHelper auditLogHelper, 
             IUserData user, 
@@ -62,6 +75,7 @@ namespace xgca.core.AuditLog
             _general = general;
             this.companyService = companyService;
             this.companyServiceRole = companyServiceRole;
+            this.pagination = pagination;
         }
 
         public async Task<IGeneralModel> BatchCreateAuditLog(List<CreateAuditLog> obj, int createdById)
@@ -359,6 +373,13 @@ namespace xgca.core.AuditLog
             }
 
             return _general.Response(new { AuditLog = log }, 200, "Audit log details has been displayed", true);
+        }
+
+        public async Task<IGeneralModel> ListPaginate(string tableName, int keyFieldId, DateTime createdDateFrom, DateTime createdDateTo, string action, string username, string orderBy, string search, int pageNumber, int pageSize)
+        {
+            var data = await _auditLog.ListPaginate(tableName, keyFieldId, createdDateFrom, createdDateTo, action, username, orderBy, search, pageNumber, pageSize);
+
+            return _general.Response(pagination.Paginate(data.Item1, data.Item2, pageNumber, pageSize ), 200, "Configurable audit logs has been listed", true);
         }
     }
 }
