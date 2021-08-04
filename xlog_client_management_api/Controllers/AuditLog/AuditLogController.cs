@@ -66,6 +66,28 @@ namespace xlog_client_management_api.Controllers.AuditLog
             return Ok(response);
         }
 
+        [Route("logs/{tableName}/{keyFieldId}/filter/download")]
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> DownloadFiltered(
+            [FromQuery] DateTime createdDateFrom,
+            [FromQuery] DateTime createdDateTo,
+            [FromRoute] string tableName,
+            [FromRoute] int keyFieldId,
+            [FromQuery] string action = "",
+            [FromQuery] string username = "",
+            [FromQuery] string orderBy = "CreatedOn",
+            [FromQuery] string search = "",
+            [FromQuery] int pageNumber = 0,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string fileType = "xlsx")
+        {
+            var response = await _auditLog.DownloadFiltered(tableName, keyFieldId, createdDateFrom, createdDateTo, action, username, orderBy, search, pageNumber, pageSize, fileType);
+            return File(response.Bytes, MimeTypes.GetMimeType(response.FileName), response.FileName);
+        }
+
         [Route("logs/details/{auditLogId}")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]

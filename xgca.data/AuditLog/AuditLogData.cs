@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using LinqKit;
 using System.Collections;
 using Microsoft.AspNetCore.Http;
+using xgca.data.ViewModels;
 
 namespace xgca.data.AuditLog
 {
@@ -17,7 +18,7 @@ namespace xgca.data.AuditLog
         Task<List<entity.Models.AuditLog>> List();
         Task<entity.Models.AuditLog> Retrieve(int key);
         Task<int> GetIdByGuid(Guid key);
-        Task<(ICollection, int)> ListPaginate(
+        Task<(List<GetAuditLogListingViewModel>, int)> ListPaginate(
             string tableName, 
             int keyFieldId,
             DateTime createdDateFrom,
@@ -138,7 +139,7 @@ namespace xgca.data.AuditLog
             return ids;
         }
 
-        public async Task<(ICollection, int)> ListPaginate(string tableName, int keyFieldId, DateTime createdDateFrom, DateTime createdDateTo, string action, string username, string orderBy, string search, int pageNumber, int pageSize)
+        public async Task<(List<GetAuditLogListingViewModel>, int)> ListPaginate(string tableName, int keyFieldId, DateTime createdDateFrom, DateTime createdDateTo, string action, string username, string orderBy, string search, int pageNumber, int pageSize)
         {
             var isFromCms = contextAccessor.HttpContext.User.Claims.Any(t => t.Type == "custom:isCMS" && t.Value.Contains("1"));
 
@@ -164,16 +165,17 @@ namespace xgca.data.AuditLog
                                    (createdDateFrom.Date == currentDate.Date ? currentDate.Date : a.CreatedOn.Date) >= (createdDateFrom.Date == currentDate.Date ? currentDate.Date : createdDateFrom.Date)
                                     && (createdDateTo.Date == currentDate.Date ? currentDate.Date : a.CreatedOn.Date) <= (createdDateTo.Date == currentDate.Date ? currentDate.Date : createdDateTo.Date)
                                    )
-                              select new {
-                                a.CreatedOn,
+                              select new GetAuditLogListingViewModel{
+                                CreatedOn = a.CreatedOn,
                                 Module = isFromCms && tableName.Equals("company") ? "Manage Account" : "--",
                                 SubModule = isFromCms && tableName.Equals("company") ? "Company" : "--",
-                                a.AuditLogAction,
+                                AuditLogAction = a.AuditLogAction,
                                 Description = "--",
                                 Username = ul.Username ?? "System",
-                                a.NewValue,
-                                a.OldValue,
-                              }).ToListAsync();
+                                NewValue = a.NewValue,
+                                OldValue = a.OldValue,
+                              }).OrderByDescending(a => a.CreatedOn)
+                              .ToListAsync();
 
 
             int recordCount = data.Count();
