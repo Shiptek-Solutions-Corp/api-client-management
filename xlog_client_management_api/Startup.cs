@@ -68,6 +68,7 @@ using xgca.core.Helpers.Service;
 using xgca.data.Repositories;
 using Z.EntityFramework.Extensions;
 using xgca.data.CompanyTaxSettings;
+using xgca.core.ResponseV2;
 
 namespace xlog_client_management_api
 {
@@ -221,6 +222,7 @@ namespace xlog_client_management_api
             services.AddTransient<ICompanyServiceV2, CompanyServiceV2>();
             services.AddTransient<ICompanyTaxSettingsService, CompanyTaxSettingsService>();
             services.AddTransient<IKYCLogService, KYCLogService>();
+            services.AddTransient<IPaginationResponse, PaginationResponse>();
 
             services.AddScoped<IGLobalCmsService, xgca.core.Services.GlobalCmsService>();
 
