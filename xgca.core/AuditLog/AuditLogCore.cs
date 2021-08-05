@@ -25,6 +25,7 @@ using ClosedXML.Excel;
 using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using xgca.data.ViewModels;
+using xgca.core.ResponseV2;
 
 namespace xgca.core.AuditLog
 {
@@ -71,10 +72,10 @@ namespace xgca.core.AuditLog
         private readonly IGeneral _general;
         private readonly ICompanyService companyService;
         private readonly ICompanyServiceRole companyServiceRole;
-        private readonly IPagedResponse pagination;
+        private readonly IPaginationResponse pagination;
 
         public AuditLogCore(
-            IPagedResponse pagination,
+            IPaginationResponse pagination,
             IAuditLogData auditLog, 
             IAuditLogHelper auditLogHelper, 
             IUserData user, 
