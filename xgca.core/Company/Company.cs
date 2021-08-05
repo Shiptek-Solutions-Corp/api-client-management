@@ -762,12 +762,14 @@ namespace xgca.core.Company
                     AddressLine = d.Addresses.AddressLine,
                     City = new City
                     {
-                        CityId = (cityJson)["data"]["cityId"].ToString(),
+                        CityId = d.Addresses.CityId,
+                        CityGuid = (cityJson)["data"]["cityId"].ToString(),
                         CityName = d.Addresses.CityName,
                     },
                     State = new State
                     {
-                        StateId = (stateJson)["data"]["stateId"].ToString(),
+                        StateId = d.Addresses.StateId,
+                        StateGuid = (stateJson)["data"]["stateId"].ToString(),
                         StateName = d.Addresses.StateName,
                     },
                     Country = new Country

@@ -6,12 +6,14 @@ namespace xgca.core.Models.Company
 {
     public class City
     {
-        public string CityId { get; set; }
+        public string CityGuid { get; set; }
+        public int CityId { get; set; }
         public string CityName { get; set; }
     }
     public class State
     {
-        public string StateId { get; set; }
+        public string StateGuid { get; set; }
+        public int StateId { get; set; }
         public string StateName { get; set; }
     }
     public class Country
