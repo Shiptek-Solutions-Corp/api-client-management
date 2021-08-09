@@ -12,7 +12,7 @@ using xgca.core.Services;
 namespace xlog_client_management_api.Controllers.Company
 {
     [Route("clients/api/v2/companies")]
-    //[Authorize(AuthenticationSchemes = "Bearer")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     public class CompanyControllerV2 : Controller
     {
         private readonly ICompanyServiceV2 companyService;
