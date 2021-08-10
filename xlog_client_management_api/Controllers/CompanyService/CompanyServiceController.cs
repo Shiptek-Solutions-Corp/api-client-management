@@ -13,6 +13,7 @@ using xgca.core.Enums;
 
 namespace xlog_client_management_api.Controllers.CompanyService
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1")]
     [ApiController]
     public class CompanyServiceController : Controller

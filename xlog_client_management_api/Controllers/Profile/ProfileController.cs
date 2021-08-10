@@ -12,6 +12,7 @@ using xgca.core.Constants;
 
 namespace xlog_client_management_api.Controllers.Profile
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1")]
     public class ProfileController : Controller
     {

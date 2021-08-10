@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace xlog_client_management_api.Controllers
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1/kyc")]
     public class KYCController : Controller
     {

@@ -11,6 +11,7 @@ using xgca.core.Response;
 
 namespace xlog_client_management_api.Controllers.Invite
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Authorize(AuthenticationSchemes = "Bearer")]
     [Route("clients/api/v1")]
     public class InviteController : Controller

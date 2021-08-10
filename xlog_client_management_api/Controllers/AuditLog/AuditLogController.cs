@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 
 namespace xlog_client_management_api.Controllers.AuditLog
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1")]
     [Authorize(AuthenticationSchemes = "Bearer")]
     public class AuditLogController : Controller

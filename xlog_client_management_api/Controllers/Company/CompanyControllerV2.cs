@@ -11,6 +11,7 @@ using xgca.core.Services;
 
 namespace xlog_client_management_api.Controllers.Company
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v2/companies")]
     [Authorize(AuthenticationSchemes = "Bearer")]
     public class CompanyControllerV2 : Controller

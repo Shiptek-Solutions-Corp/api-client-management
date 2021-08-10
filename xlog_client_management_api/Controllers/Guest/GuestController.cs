@@ -10,6 +10,7 @@ using xgca.core.Response;
 
 namespace xlog_client_management_api.Controllers.Guest
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1")]
     [Authorize(AuthenticationSchemes = "Bearer")]
     public class GuestController : ControllerBase

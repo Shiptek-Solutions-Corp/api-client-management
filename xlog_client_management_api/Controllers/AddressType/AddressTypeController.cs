@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 
 namespace xlog_company_service_api.Controllers.AddressType
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1")]
     public class AddressTypeController : Controller
     {

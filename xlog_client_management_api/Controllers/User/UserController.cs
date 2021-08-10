@@ -15,6 +15,7 @@ using xgca.core.Models.User;
 
 namespace xlog_client_management_api.Controllers.User
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1")]
     public class UserController : Controller
     {

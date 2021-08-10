@@ -79,16 +79,15 @@ namespace xlog_client_management_api
     //EntityFrameworkCore\Add-Migration nameofmigration
     public class Startup
     {
+        private string[] envLst = new string[] { "local", "dev2" };
+        private string currentEnvironment = String.Empty;
+
+        public IConfiguration Configuration { get; }
+        private string conString { get; set; }
+
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
-            //var d = env.EnvironmentName;
-            //var builder = new ConfigurationBuilder()
-            // .SetBasePath(env.ContentRootPath)
-            // .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            // .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-            // .AddEnvironmentVariables();
-            //configuration = builder.Build();
-            //Configuration = configuration;
+            currentEnvironment = env.EnvironmentName;
 
             var builder = new ConfigurationBuilder()
                .SetBasePath(env.ContentRootPath)
@@ -112,9 +111,7 @@ namespace xlog_client_management_api
             }
         }
 
-        public IConfiguration Configuration { get; }
 
-        private string conString { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -297,49 +294,45 @@ namespace xlog_client_management_api
                 };
             });
 
-            //services.AddSwaggerGen(c =>
-            //{
-            //    c.SwaggerDoc("v1", new OpenApiInfo { Title = "XLOG Client Management API", Version = "v1" });
-            //    // Set the comments path for the Swagger JSON and UI.
-            //    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            //    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-            //    c.IncludeXmlComments(xmlPath);
-            //});
-
-            services.AddSwaggerGen(c =>
+            if (envLst.Contains(currentEnvironment))
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "XLOG Client Management API", Version = "v1" });
-                // Set the comments path for the Swagger JSON and UI.
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                c.IncludeXmlComments(xmlPath);
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                services.AddSwaggerGen(c =>
                 {
-                    Description = "Cognito Access Token",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer"
-                });
+                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "XLOG Client Management API", Version = "v1" });
+                    c.SwaggerDoc("v2", new OpenApiInfo { Title = "XLOG Accreditation API", Version = "v1" });
 
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
-                {
+                    // Set the comments path for the Swagger JSON and UI.
+                    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                    c.IncludeXmlComments(xmlPath);
+                    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                     {
-                        new OpenApiSecurityScheme
+                        Description = "Cognito Access Token",
+                        Name = "Authorization",
+                        In = ParameterLocation.Header,
+                        Type = SecuritySchemeType.ApiKey,
+                        Scheme = "Bearer"
+                    });
+
+                    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                    {
                         {
-                            Reference = new OpenApiReference
+                            new OpenApiSecurityScheme
                             {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                },
+                                Scheme = "oauth2",
+                                Name = "Bearer",
+                                In = ParameterLocation.Header
                             },
-                            Scheme = "oauth2",
-                            Name = "Bearer",
-                            In = ParameterLocation.Header
-                        },
-                        new List<string>()
-                    }
+                            new List<string>()
+                        }
+                    });
                 });
-            });
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -347,13 +340,16 @@ namespace xlog_client_management_api
         {
             app.UseDeveloperExceptionPage();
 
-            app.UseSwagger();
-
-            app.UseSwaggerUI(c =>
+            if (envLst.Contains(currentEnvironment))
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", name: "Client Management API V1");
-                c.RoutePrefix = string.Empty;
-            });
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", name: "Client Management API V1");
+                    c.SwaggerEndpoint("/swagger/v2/swagger.json", name: "Accreditation API V1");
+                    c.RoutePrefix = string.Empty;
+                });
+            }
 
             app.UseHttpsRedirection();
 

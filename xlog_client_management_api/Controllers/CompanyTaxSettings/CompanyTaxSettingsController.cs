@@ -9,6 +9,7 @@ using xgca.core.Services;
 
 namespace xlog_client_management_api.Controllers.CompanyTaxSettings
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1/company-tax-settings")]
     public class CompanyTaxSettingsController : ControllerBase
     {

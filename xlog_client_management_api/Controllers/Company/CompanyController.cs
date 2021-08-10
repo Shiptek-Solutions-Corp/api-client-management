@@ -16,6 +16,7 @@ using xlog_client_management_api;
 
 namespace xlog_company_service_api.Controllers.Company
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1")]
     public class CompanyController : Controller
     {

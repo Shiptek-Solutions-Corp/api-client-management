@@ -15,6 +15,7 @@ using xgca.core.Helpers;
 
 namespace xlog_client_management_api.Controllers.CompanyServiceRole
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1")]
     [ApiController]
     public class CompanyServiceRoleController : Controller

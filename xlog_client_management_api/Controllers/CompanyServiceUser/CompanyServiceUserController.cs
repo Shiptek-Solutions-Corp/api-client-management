@@ -13,6 +13,7 @@ using xgca.core.Models.CompanyServiceUser;
 
 namespace xlog_client_management_api.Controllers.CompanyServiceUser
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1")]
     [ApiController]
     public class CompanyServiceUserController : Controller
