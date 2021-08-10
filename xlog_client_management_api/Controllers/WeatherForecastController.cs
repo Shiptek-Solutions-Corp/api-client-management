@@ -29,10 +29,16 @@ namespace xlog_client_management_api.Controllers
             _logger = logger;
             _authorizationService = authorizationService;
         }
+        [HttpGet]
+        [Route("time-info")]
+        public IActionResult GetTimeInfo()
+        {
+            return Ok(TimeZoneInfo.GetSystemTimeZones());
+        }
 
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
-        {            
+        {          
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
