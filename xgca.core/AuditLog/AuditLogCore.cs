@@ -409,8 +409,8 @@ namespace xgca.core.AuditLog
                 var auditLog = new ExportAuditLogData
                 {
                     No = recordCount += 1,
-                    //DateTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(Convert.ToDateTime(l.CreatedOn), "Asia/Taipei").ToString("MMM dd yyyy, hh:mm tt"),
-                    DateTime = Convert.ToDateTime(l.CreatedOn).ToString("MMM dd yyyy, hh:mm tt"),
+                    DateTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(Convert.ToDateTime(l.CreatedOn), "Asia/Taipei").ToString("MMM dd yyyy, hh:mm tt"),
+                    //DateTime = Convert.ToDateTime(l.CreatedOn).ToString("MMM dd yyyy, hh:mm tt"),
                     Module = l.Module,
                     SubModule = l.SubModule,
                     Action = l.AuditLogAction,
