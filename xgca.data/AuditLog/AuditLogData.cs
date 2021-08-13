@@ -167,7 +167,7 @@ namespace xgca.data.AuditLog
                                    )
                               select new GetAuditLogListingViewModel{
                                 CreatedOn = a.CreatedOn,
-                                Module = isFromCms && tableName.Equals("company") ? "Manage Account" : "--",
+                                Module = isFromCms && tableName.Equals("company") ? "Managed Account" : "--",
                                 SubModule = isFromCms && tableName.Equals("company") ? "Company" : "--",
                                 AuditLogAction = a.AuditLogAction,
                                 Description = "--",
