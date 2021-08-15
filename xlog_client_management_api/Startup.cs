@@ -84,6 +84,7 @@ namespace xlog_client_management_api
             //configuration = builder.Build();
             //Configuration = configuration;
 
+            currentEnvironment = env.EnvironmentName;
             var builder = new ConfigurationBuilder()
                .SetBasePath(env.ContentRootPath)
                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
