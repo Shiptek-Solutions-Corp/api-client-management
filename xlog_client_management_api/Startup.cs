@@ -70,6 +70,9 @@ namespace xlog_client_management_api
 {
     public class Startup
     {
+        private string[] envLst = new string[] { "local", "dev2" };
+        private string[] envLstRedoc = new string[] { "local", "dev2", "dev" };
+        private string currentEnvironment = String.Empty;
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             //var d = env.EnvironmentName;
@@ -272,40 +275,43 @@ namespace xlog_client_management_api
             //    c.IncludeXmlComments(xmlPath);
             //});
 
-            services.AddSwaggerGen(c =>
+            if (envLstRedoc.Contains(currentEnvironment))
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "XLOG Client Management API", Version = "v1" });
-                // Set the comments path for the Swagger JSON and UI.
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                c.IncludeXmlComments(xmlPath);
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                services.AddSwaggerGen(c =>
                 {
-                    Description = "Cognito Access Token",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer"
-                });
-
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
-                {
+                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "XLOG Client Management API", Version = "v1" });
+                    // Set the comments path for the Swagger JSON and UI.
+                    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                    c.IncludeXmlComments(xmlPath);
+                    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                     {
-                        new OpenApiSecurityScheme
+                        Description = "Cognito Access Token",
+                        Name = "Authorization",
+                        In = ParameterLocation.Header,
+                        Type = SecuritySchemeType.ApiKey,
+                        Scheme = "Bearer"
+                    });
+
+                    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                    {
                         {
-                            Reference = new OpenApiReference
+                            new OpenApiSecurityScheme
                             {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                },
+                                Scheme = "oauth2",
+                                Name = "Bearer",
+                                In = ParameterLocation.Header
                             },
-                            Scheme = "oauth2",
-                            Name = "Bearer",
-                            In = ParameterLocation.Header
-                        },
-                        new List<string>()
-                    }
+                            new List<string>()
+                        }
+                    });
                 });
-            });
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -315,11 +321,14 @@ namespace xlog_client_management_api
 
             app.UseSwagger();
 
-            app.UseSwaggerUI(c =>
+            if (envLst.Contains(currentEnvironment))
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", name: "Client Management API V1");
-                c.RoutePrefix = string.Empty;
-            });
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", name: "Client Management API V1");
+                    c.RoutePrefix = string.Empty;
+                });
+            }
 
             app.UseHttpsRedirection();
 
