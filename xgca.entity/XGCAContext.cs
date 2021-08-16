@@ -82,7 +82,13 @@ namespace xgca.entity
         public DbSet<CompanyTaxSettings> CompanyTaxSettings { get; set; }
         public DbSet<KYCLog> KYCLogs { get; set; }
 
-      
+        //Accreditation
+        public virtual DbSet<AccreditationStatusConfig> AccreditationStatusConfig { get; set; }
+        public virtual DbSet<PortArea> PortArea { get; set; }
+        public virtual DbSet<Request> Request { get; set; }
+        public virtual DbSet<ServiceRoleConfig> ServiceRoleConfig { get; set; }
+        public virtual DbSet<TruckArea> TruckArea { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CompanyTaxSettings>(entity => {
@@ -654,6 +660,91 @@ namespace xgca.entity
                     .HasDefaultValueSql("(N'ADMIN')");
 
                 entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
+            });
+
+
+            //Accreditation
+            modelBuilder.Entity<AccreditationStatusConfig>(entity =>
+            {
+                entity.ToTable("AccreditationStatusConfig", "Accreditation");
+
+                entity.HasIndex(e => e.Guid)
+                    .HasName("IX_AccreditationStatusConfig")
+                    .IsUnique();
+
+                entity.Property(e => e.CreatedBy).IsRequired();
+
+                entity.Property(e => e.Guid).HasDefaultValueSql("(newid())");
+            });
+
+            modelBuilder.Entity<PortArea>(entity =>
+            {
+                entity.ToTable("PortArea", "Accreditation");
+
+                entity.HasIndex(e => e.Guid)
+                    .HasName("IX_PortArea")
+                    .IsUnique();
+
+                entity.Property(e => e.Guid).HasDefaultValueSql("(newid())");
+
+                entity.HasOne(d => d.Request)
+                    .WithMany(p => p.PortArea)
+                    .HasForeignKey(d => d.RequestId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_PortArea_Request");
+            });
+
+            modelBuilder.Entity<Request>(entity =>
+            {
+                entity.ToTable("Request", "Accreditation");
+
+                entity.HasIndex(e => e.Guid)
+                    .HasName("IX_Request")
+                    .IsUnique();
+
+                entity.Property(e => e.CreatedBy).IsRequired();
+
+                entity.Property(e => e.Guid).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+
+                entity.HasOne(d => d.AccreditationStatusConfig)
+                    .WithMany(p => p.Request)
+                    .HasForeignKey(d => d.AccreditationStatusConfigId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Request_AccreditationStatusConfig");
+            });
+
+            modelBuilder.Entity<ServiceRoleConfig>(entity =>
+            {
+                entity.ToTable("ServiceRoleConfig", "Accreditation");
+
+                entity.HasIndex(e => e.Guid)
+                    .HasName("IX_ServiceRoleConfig")
+                    .IsUnique();
+
+                entity.Property(e => e.CreatedBy).IsRequired();
+
+                entity.Property(e => e.Guid).HasDefaultValueSql("(newid())");
+            });
+
+            modelBuilder.Entity<TruckArea>(entity =>
+            {
+                entity.ToTable("TruckArea", "Accreditation");
+
+                entity.HasIndex(e => e.Guid)
+                    .HasName("IX_TruckArea")
+                    .IsUnique();
+
+                entity.Property(e => e.CreatedBy).IsRequired();
+
+                entity.Property(e => e.Guid).HasDefaultValueSql("(newid())");
+
+                entity.HasOne(d => d.Request)
+                    .WithMany(p => p.TruckArea)
+                    .HasForeignKey(d => d.RequestId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_TruckArea_Request");
             });
 
 

@@ -69,10 +69,16 @@ using xgca.data.Repositories;
 using Z.EntityFramework.Extensions;
 using xgca.data.CompanyTaxSettings;
 using xgca.core.ResponseV2;
+using xas.core.accreditation.Request;
+using xas.data.accreditation.PortArea;
+using xas.data.accreditation.TruckArea;
+using xas.data.accreditation.Request;
+using xas.core._ResponseModel;
 
 namespace xlog_client_management_api
 {
-    //Scaffold-dbContext "Server=127.0.0.1,11433;Initial Catalog=Dev-Client;User ID=userClientDev;Password=VlormyFrbidrt" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -t Company.Company, Settings.KycStatus, Company.CompanyStructure, Company.CompanyDocuments, Company.CompanyBeneficialOwners, Company.CompanyDirectors, Company.CompanySections, Settings.DocumentType, Settings.DocumentCategory, Settings.BeneficialOwnersType, Settings.SectionStatus, Settings.Section -ContextDir Context -Context GlobalCmsServiceContext -f
+    //Scaffold-dbContext "Server=127.0.0.1,11433;Initial Catalog=Dev-Client;User ID=userClientDev;Password=VlormyFrbidrt" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -t Company.Company, Settings.KycStatus, Company.CompanyStructure, Company.CompanyDocuments, Company.CompanyBeneficialOwners, Company.CompanyDirectors, Company.CompanySections, Settings.DocumentType, Settings.DocumentCategory, Settings.BeneficialOwnersType, Settings.SectionStatus, Settings.Section -ContextDir Context -Context ClientServiceContext -f
+    //Scaffold-dbContext "Server=127.0.0.1,11433;Initial Catalog=Dev-Client;User ID=userClientDev;Password=VlormyFrbidrt" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -t Accreditation.AccreditationStatusConfig, Accreditation.Request, Accreditation.TruckArea, Accreditation.PortArea, Accreditation.ServiceRoleConfig -ContextDir Context -Context ClientServiceContext -f
 
     //$env:ASPNETCORE_ENVIRONMENT='local'
     //Script-Migration -Idempotent
@@ -131,14 +137,14 @@ namespace xlog_client_management_api
                 options.Audience = Configuration.GetSection("AWSCognito:UserPoolClientId").Value;
                 options.Authority = $"https://cognito-idp.{Configuration.GetSection("AWSCognito:Region").Value}.amazonaws.com/{Configuration.GetSection("AWSCognito:UserPoolId").Value}";
             });
-
+            services.AddDbContext<XGCAContext>(i => i.UseSqlServer(conString));
             //services.AddDbContext<XGCAContext>(opts => opts.UseLazyLoadingProxies(false).UseSqlServer(Configuration["ConnectionString:XGCADb"]));
 
-            services.AddDbContextPool<XGCAContext>(opts => opts.UseSqlServer(conString, builder =>
-            {
-                builder.EnableRetryOnFailure();
-                //builder.ServerVersion(new System.Version("5.6.10"), ServerType.MySql);
-            }));
+            //services.AddDbContextPool<XGCAContext>(opts => opts.UseSqlServer(conString, builder =>
+            //{
+            //    builder.EnableRetryOnFailure();
+            //    //builder.ServerVersion(new System.Version("5.6.10"), ServerType.MySql);
+            //}));
 
             //services.AddSingleton<IAmazonCognitoIdentityProvider>(cognitoIdentityProvider);
             //services.AddSingleton<CognitoUserPool>(userPool);
@@ -222,6 +228,13 @@ namespace xlog_client_management_api
             services.AddTransient<IPaginationResponse, PaginationResponse>();
 
             services.AddScoped<IGLobalCmsService, xgca.core.Services.GlobalCmsService>();
+
+            //Accreditation
+            services.AddScoped<IRequestCore, RequestCore>();
+            services.AddScoped<IPortAreaData, PortAreaData>();
+            services.AddScoped<ITruckAreaData, TruckAreaData>();
+            services.AddScoped<IRequestData, RequestData>();
+            services.AddScoped<IGeneralResponse, GeneralResponse>();     
 
             services.Configure<xgca.core.Helpers.GlobalCmsService>(o =>
             {

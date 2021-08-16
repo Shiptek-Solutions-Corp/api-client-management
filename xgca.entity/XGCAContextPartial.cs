@@ -44,6 +44,13 @@ namespace xgca.entity
         DbSet<CompanyTaxSettings> CompanyTaxSettings { get; set; }
         DbSet<KYCLog> KYCLogs { get; set; }
 
+        //Accreditation
+        DbSet<AccreditationStatusConfig> AccreditationStatusConfig { get; set; }
+        DbSet<PortArea> PortArea { get; set; }
+        DbSet<Request> Request { get; set; }
+        DbSet<ServiceRoleConfig> ServiceRoleConfig { get; set; }
+        DbSet<TruckArea> TruckArea { get; set; }
+
     }
     public partial class XGCAContext: IXGCAContext
     {
@@ -54,6 +61,7 @@ namespace xgca.entity
             UpdateAuditEntities(null, userName);
             return base.SaveChangesAsync();
         }
+
         public Task<int> SaveChangesAuditable()
         {
             UpdateAuditEntities();
