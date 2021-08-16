@@ -52,5 +52,6 @@ namespace xgca.core.Models.Company
     public class UpdateCompanyViewModel : CreateCompanyViewModel
     {
         public int CompanyId { get; set; }
+        public string PricingSettingsDescription { get; set; }
     }
 }
