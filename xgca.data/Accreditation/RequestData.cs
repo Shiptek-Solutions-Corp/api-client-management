@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using xgca.entity.Models;
 using xgca.entity;
+using xgca.data.ViewModels.Request;
 
 namespace xas.data.accreditation.Request
 {
@@ -28,10 +29,10 @@ namespace xas.data.accreditation.Request
         Task<int> CheckRequestIfExistById(Guid CompanyIdTo, Guid RequestId);
         Task<int> GetRequestIdByGuid(Guid requestId);
         Task<int> GetRequestId(string companyIdFrom, string companyIdTo);
-        Task<(ICollection, int)> GetAllTruckingIncomingRequest(Guid CompanyId, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize);
-        Task<(ICollection, int)> GetAllTruckingOutgoingRequest(Guid CompanyId, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize);
-        Task<dynamic> GetStatisticsInbound(Guid companyId, string serviceRoleId);
-        Task<dynamic> GetStatisticsOutbound(Guid companyId, string serviceRoleId);
+        Task<(List<TruckingResponseDataModel>, int)> GetAllTruckingIncomingRequest(int CompanyId, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize);
+        Task<(List<TruckingResponseDataModel>, int)> GetAllTruckingOutgoingRequest(int CompanyId, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize);
+        Task<dynamic> GetStatisticsInbound(int companyId, string serviceRoleId);
+        Task<dynamic> GetStatisticsOutbound(int companyId, string serviceRoleId);
     }
 
     public class RequestData: IRequestData
@@ -206,8 +207,9 @@ namespace xas.data.accreditation.Request
             return requestId;
         }
 
-        public async Task<(ICollection, int)> GetAllTruckingIncomingRequest(Guid CompanyId, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize)
+        public async Task<(List<TruckingResponseDataModel>, int)> GetAllTruckingIncomingRequest(int CompanyId, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize)
         {
+
             var data = await (from ir in _context.Request 
                               join cd in _context.Companies on  ir.CompanyIdFrom  equals cd.Guid
                               join ad in _context.Addresses on cd.AddressId equals ad.AddressId
@@ -223,45 +225,38 @@ namespace xas.data.accreditation.Request
                                 cd.CompanyName.ToLower().Contains(company.ToLower()) &&
                                 ad.FullAddress.ToLower().Contains(address.ToLower()) &&
                                 ta.CountryName.ToLower().Contains(truckArea.ToLower()) &&
-                                ir.CompanyIdTo == CompanyId &&
+                                //ir.CompanyIdTo == CompanyId &&
+                                toCo.CompanyId == CompanyId &&
                                 ir.ServiceRoleIdFrom == Guid.Parse(serviceRoleId) &&
                                 ir.IsDeleted == false &&
                                 (status.Equals(0) ? !(ir.AccreditationStatusConfigId.Equals(0)) : ir.AccreditationStatusConfigId == status) 
-                                        select new
-                                        {
-                                            AccreditationStatusConfig = ir.AccreditationStatusConfig,
-                                            RequestId = ir.Guid,
-                                            CompanyId = cd.CompanyId,
-                                            CompanyName = cd.CompanyName,
-                                            FullAddress = ad.FullAddress,
-                                            EmailAddress = cd.EmailAddress,
-                                            Fax = contact.Fax,
-                                            FaxPrefix = contact.FaxPrefix,
-                                            FaxPrefixId = contact.FaxPrefixId,
-                                            Mobile = contact.Mobile,
-                                            MobilePrefix= contact.MobilePrefix,
-                                            MobilePrefixId = contact.MobilePrefixId,
-                                            Phone = contact.Phone,
-                                            PhonePrefix = contact.PhonePrefix,
-                                            PhonePrefixId = contact.PhonePrefixId,
-                                            WebsiteUrl = cd.WebsiteURL,
-                                            ImageUrl = cd.ImageURL,
-                                            CountryId = ad.CountryId,
-                                            CountryName = ad.CountryName,
-                                            Latitude = ad.Latitude,
-                                            Longitude = ad.Longitude,
-                                            ServiceRoleId = "",
-                                            ServiceRoleName = "",
-                                            Status = ir.AccreditationStatusConfigId,
-                                            TruckArea = ta.CountryName,
-                                            CompanyDetails = toCo,
-                                            CompanyIdFrom = ir.CompanyIdFrom,
-                                            CompanyIdTo = ir.CompanyIdTo,
-                                            ServiceRoleIdFrom = ir.ServiceRoleIdFrom,
-                                            ServiceRoleIdTo = ir.ServiceRoleIdTo
-                                        })
-                                        .Distinct()
-                                        .ToListAsync();
+                                select new TruckingResponseDataModel
+                                {
+                                    RequestId = ir.Guid.ToString(),
+                                    CompanyId = cd.CompanyId.ToString(),
+                                    CompanyName = cd.CompanyName,
+                                    FullAddress = ad.FullAddress,
+                                    EmailAddress = cd.EmailAddress,
+                                    Fax = contact.Fax,
+                                    FaxPrefix = contact.FaxPrefix,
+                                    FaxPrefixId = contact.FaxPrefixId.ToString(),
+                                    Mobile = contact.Mobile,
+                                    MobilePrefix = contact.MobilePrefix,
+                                    MobilePrefixId = contact.MobilePrefixId.ToString(),
+                                    Phone = contact.Phone,
+                                    PhonePrefix = contact.PhonePrefix,
+                                    PhonePrefixId = contact.PhonePrefixId.ToString(),
+                                    WebsiteUrl = cd.WebsiteURL,
+                                    ImageUrl = cd.ImageURL,
+                                    CountryId = ad.CountryId,
+                                    CountryName = ad.CountryName,
+                                    Latitude = ad.Latitude,
+                                    Longitude = ad.Longitude,
+                                    TruckArea = ta.CountryName,
+                                    Status = ir.AccreditationStatusConfigId == 1 ? "New" : ir.AccreditationStatusConfigId == 2 ? "Approved" : ir.AccreditationStatusConfigId == 3 ? "Rejected" : "Unknown"
+                                })
+                                .Distinct()
+                                .ToListAsync();
 
             if (orderBy != "")
             {
@@ -298,7 +293,7 @@ namespace xas.data.accreditation.Request
             return (result, recordCount);
         }
 
-        public async Task<(ICollection, int)> GetAllTruckingOutgoingRequest(Guid CompanyId, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize)
+        public async Task<(List<TruckingResponseDataModel>, int)> GetAllTruckingOutgoingRequest(int CompanyId, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize)
         {
             var data = await (from or in _context.Request
                               join foCo in _context.Companies on or.CompanyIdFrom equals foCo.Guid
@@ -317,42 +312,36 @@ namespace xas.data.accreditation.Request
                                 foCo.CompanyName.ToLower().Contains(company.ToLower()) &&
                                 ad.FullAddress.ToLower().Contains(address.ToLower()) &&
                                 ta.CountryName.ToLower().Contains(truckArea.ToLower()) &&
-                                or.CompanyIdFrom == CompanyId &&
+                                //or.CompanyIdFrom == CompanyId &&
+                                foCo.CompanyId == CompanyId &&
                                 or.ServiceRoleIdTo == Guid.Parse(serviceRoleId) &&
                                 or.IsDeleted == false &&
                                 (status.Equals(0) ? !(or.AccreditationStatusConfigId.Equals(0)) : or.AccreditationStatusConfigId == status)
-                                        select new 
+                                        select new TruckingResponseDataModel
                                         {
-                                            AccreditationStatusConfig = or.AccreditationStatusConfig,
-                                            RequestId = or.Guid,
-                                            CompanyId = toCo.CompanyId,
+                                            RequestId = or.Guid.ToString(),
+                                            CompanyId = toCo.CompanyId.ToString(),
                                             CompanyName = toCo.CompanyName,
-                                            FullAddress = toAd.FullAddress,
+                                            FullAddress = ad.FullAddress,
                                             EmailAddress = toCo.EmailAddress,
                                             Fax = toContact.Fax,
                                             FaxPrefix = toContact.FaxPrefix,
-                                            FaxPrefixId = toContact.FaxPrefixId,
+                                            FaxPrefixId = toContact.FaxPrefixId.ToString(),
                                             Mobile = toContact.Mobile,
                                             MobilePrefix = toContact.MobilePrefix,
-                                            MobilePrefixId = toContact.MobilePrefixId,
+                                            MobilePrefixId = toContact.MobilePrefixId.ToString(),
                                             Phone = toContact.Phone,
                                             PhonePrefix = toContact.PhonePrefix,
-                                            PhonePrefixId = toContact.PhonePrefixId,
+                                            PhonePrefixId = toContact.PhonePrefixId.ToString(),
                                             WebsiteUrl = toCo.WebsiteURL,
                                             ImageUrl = toCo.ImageURL,
-                                            CountryId = toAd.CountryId,
-                                            CountryName = toAd.CountryName,
-                                            Latitude = toAd.Latitude,
-                                            Longitude = toAd.Longitude,
-                                            ServiceRoleId = "",
-                                            ServiceRoleName = "",
-                                            Status = or.AccreditationStatusConfigId,
+                                            CountryId = ad.CountryId,
+                                            CountryName = ad.CountryName,
+                                            Latitude = ad.Latitude,
+                                            Longitude = ad.Longitude,
                                             TruckArea = ta.CountryName,
-                                            CompanyDetails = toCo,
-                                            CompanyIdFrom = or.CompanyIdFrom,
-                                            CompanyIdTo = or.CompanyIdTo,
-                                            ServiceRoleIdFrom = or.ServiceRoleIdFrom,
-                                            ServiceRoleIdTo = or.ServiceRoleIdTo
+                                            Status = or.AccreditationStatusConfigId == 1 ? "New" : or.AccreditationStatusConfigId == 2 ? "Approved" : or.AccreditationStatusConfigId == 3 ? "Rejected" : "Unknown"
+
                                         })
                                         .Distinct()
                                         .ToListAsync();
@@ -392,11 +381,12 @@ namespace xas.data.accreditation.Request
             return (result, recordCount);
         }
 
-        public async Task<dynamic> GetStatisticsInbound(Guid companyId, string serviceRoleId)
+        public async Task<dynamic> GetStatisticsInbound(int companyId, string serviceRoleId)
         {
+            var companyGuid = await _context.Companies.Where(i => i.CompanyId == companyId).Select(x => x.Guid).SingleOrDefaultAsync();
             var data = await _context.Request
                 .Where(t => 
-                    t.CompanyIdTo == companyId && 
+                    t.CompanyIdTo == companyGuid && 
                     t.ServiceRoleIdFrom == Guid.Parse(serviceRoleId) &&
                     t.IsDeleted == false)
                         .ToListAsync();
@@ -411,11 +401,12 @@ namespace xas.data.accreditation.Request
             return stats;
         }
 
-        public async Task<dynamic> GetStatisticsOutbound(Guid companyId, string serviceRoleId)
+        public async Task<dynamic> GetStatisticsOutbound(int companyId, string serviceRoleId)
         {
+            var companyGuid = await _context.Companies.Where(i => i.CompanyId == companyId).Select(x => x.Guid).SingleOrDefaultAsync();
             var data = await _context.Request
                 .Where(t =>
-                    t.CompanyIdFrom == companyId &&
+                    t.CompanyIdFrom == companyGuid &&
                     t.ServiceRoleIdTo == Guid.Parse(serviceRoleId) &&
                     t.IsDeleted == false)
                         .ToListAsync();

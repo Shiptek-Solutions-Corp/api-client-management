@@ -217,7 +217,7 @@ namespace xlog_accreditation_service.Controllers
         {
             _optionsToken.Value.GetToken = Request.Headers["Authorization"];
             var serviceRole = Request.HttpContext.Request.Headers["x-service-role"]; 
-            var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
+            var companyId = int.Parse(Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value);
 
             var response = await _requestCore.GetTruckingAccreditationRequest(companyId, bound, serviceRole, quicksearch, company, address, truckArea, orderBy, isDescending, status, pageNumber, pageSize);
             if (!(response.isSuccessful))
@@ -245,7 +245,7 @@ namespace xlog_accreditation_service.Controllers
         {
             _optionsToken.Value.GetToken = Request.Headers["Authorization"];
             var serviceRole = Request.HttpContext.Request.Headers["x-service-role"];
-            var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
+            int companyId = int.Parse(Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value);
 
             var fileName = $"Accreditation_ExportListing{bound}.csv";
             var response = await _requestCore.ExportTruckingAccreditationRequest(companyId, bound, serviceRole, quicksearch, company, address, truckArea, orderBy, isDescending, status, pageNumber, pageSize);
@@ -269,9 +269,9 @@ namespace xlog_accreditation_service.Controllers
         {
             _optionsToken.Value.GetToken = Request.Headers["Authorization"];
             var serviceRoleId = Request.HttpContext.Request.Headers["x-service-role"];
-            var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
+            var companyId = int.Parse(Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value);
 
-            var response = await _requestCore.GetAccreditationStats(Convert.ToInt32(companyId), bound, serviceRoleId);
+            var response = await _requestCore.GetAccreditationStats(companyId, bound, serviceRoleId);
             if (response.statusCode == StatusCodes.Status400BadRequest)
             {
                 return BadRequest(response);

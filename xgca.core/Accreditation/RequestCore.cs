@@ -52,8 +52,8 @@ namespace xas.core.accreditation.Request
         Task<byte[]> GenerateCSVFile(List<CSVResponseDTO> companyList, string CSVtype = "");
         Task<int> GetRequestId(string companyIdFrom, string companyIdTo);
         Task<int> GetRequestIdByGuid(string guid);
-        Task<GeneralModel> GetTruckingAccreditationRequest(string companyId, string bound, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize);
-        Task<byte[]> ExportTruckingAccreditationRequest(string companyId, string bound, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize);
+        Task<GeneralModel> GetTruckingAccreditationRequest(int companyId, string bound, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize);
+        Task<byte[]> ExportTruckingAccreditationRequest(int companyId, string bound, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize);
         Task<byte[]> ExportTruckingAccreditationRequestTemplate();
         Task<GeneralModel> GetAccreditationStats(int companyId, string bound, string serviceRoleId);
     }
@@ -556,24 +556,20 @@ namespace xas.core.accreditation.Request
             return requestId;
         }
 
-        public async Task<GeneralModel> GetTruckingAccreditationRequest(string companyId, string bound, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize)
+        public async Task<GeneralModel> GetTruckingAccreditationRequest(int companyId, string bound, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize)
         {
-            //Get GUID ID of the logged on company from token
-            var objectResponse = (JObject)await _httpHelper.Get(_optionsClient.Value.BasePath +
-                _optionsClient.Value.CompanyGuidById.Replace("{companyId}", companyId), null, _optionsToken.Value.GetToken.Split(" ")[1].ToString());
-
             //Transport Bound validations
             ICollection data = new List<string>();
             int recordCount = 0;
             if (bound == "incoming")
             {
-                var repoData = await _requestData.GetAllTruckingIncomingRequest(Guid.Parse(objectResponse["data"]["companyId"].ToString()), serviceRoleId, quicksearch, company, address, truckArea, orderBy, isDescending, status, pageNumber, pageSize);
+                var repoData = await _requestData.GetAllTruckingIncomingRequest(companyId, serviceRoleId, quicksearch, company, address, truckArea, orderBy, isDescending, status, pageNumber, pageSize);
                 data = repoData.Item1;
                 recordCount = repoData.Item2;
             }
             else if (bound == "outgoing")
             {
-                var repoData = await _requestData.GetAllTruckingOutgoingRequest(Guid.Parse(objectResponse["data"]["companyId"].ToString()), serviceRoleId, quicksearch, company, address, truckArea, orderBy, isDescending, status, pageNumber, pageSize);
+                var repoData = await _requestData.GetAllTruckingOutgoingRequest(companyId, serviceRoleId, quicksearch, company, address, truckArea, orderBy, isDescending, status, pageNumber, pageSize);
                 data = repoData.Item1;
                 recordCount = repoData.Item2;
             }
@@ -582,60 +578,23 @@ namespace xas.core.accreditation.Request
                 return _generalResponse.Response(null, StatusCodes.Status400BadRequest, "Invalid Bound Value", false);
             }
 
-            var sezData = JsonConvert.SerializeObject(data);
-            var desData = JsonConvert.DeserializeObject<List<TruckingResponseDTO>>(sezData);
-
-            var response = new List<TruckingResponseDTO>();
-            foreach (var companyData in desData)
-            {
-                var companyRecord = new TruckingResponseDTO
-                {
-                    RequestId = companyData.RequestId,
-                    CompanyId = companyData.CompanyId,
-                    CompanyName = companyData.CompanyName,
-                    FullAddress = companyData.FullAddress,
-                    EmailAddress = companyData.EmailAddress,
-                    Fax = companyData.Fax,
-                    FaxPrefix = companyData.FaxPrefix,
-                    FaxPrefixId = companyData.FaxPrefixId,
-                    Mobile = companyData.Mobile,
-                    MobilePrefix = companyData.MobilePrefix,
-                    MobilePrefixId = companyData.MobilePrefixId,
-                    Phone = companyData.Phone,
-                    PhonePrefix = companyData.PhonePrefix,
-                    PhonePrefixId = companyData.PhonePrefixId,
-                    WebsiteUrl = companyData.WebsiteUrl,
-                    ImageUrl = companyData.ImageUrl,
-                    CountryId = companyData.CountryId,
-                    CountryName = companyData.CountryName,
-                    Latitude = companyData.Latitude,
-                    Longitude = companyData.Longitude,
-                    TruckArea = companyData.TruckArea,
-                    Status = companyData.Status == 1.ToString() ? "New" : companyData.Status == 2.ToString() ? "Approved" : companyData.Status == 3.ToString() ? "Rejected" : "Unknown"
-                };
-                response.Add(companyRecord);
-            }
-
-            return _generalResponse.Response(_pageresponse.Paginate(response, recordCount, pageNumber, pageSize), StatusCodes.Status200OK, $"{bound} requests has been listed!", true);
+ 
+            return _generalResponse.Response(_pageresponse.Paginate(data, recordCount, pageNumber, pageSize), StatusCodes.Status200OK, $"{bound} requests has been listed!", true);
         }
 
-        public async Task<byte[]> ExportTruckingAccreditationRequest(string companyId, string bound, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize)
+        public async Task<byte[]> ExportTruckingAccreditationRequest(int companyId, string bound, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize)
         {
-            //Get GUID ID of the logged on company from token
-            var objectResponse = (JObject)await _httpHelper.Get(_optionsClient.Value.BasePath +
-                _optionsClient.Value.CompanyGuidById.Replace("{companyId}", companyId), null, _optionsToken.Value.GetToken.Split(" ")[1].ToString());
-
             //Transport Bound validations
             ICollection data = new List<string>();
             int recordCount = 0;
             if (bound == "incoming")
             {
-                var repoData = await _requestData.GetAllTruckingIncomingRequest(Guid.Parse(objectResponse["data"]["companyId"].ToString()), serviceRoleId, quicksearch, company, address, truckArea, orderBy, isDescending, status, pageNumber, pageSize);
+                var repoData = await _requestData.GetAllTruckingIncomingRequest(companyId, serviceRoleId, quicksearch, company, address, truckArea, orderBy, isDescending, status, pageNumber, pageSize);
                 data = repoData.Item1;
             }
             else if (bound == "outgoing")
             {
-                var repoData = await _requestData.GetAllTruckingOutgoingRequest(Guid.Parse(objectResponse["data"]["companyId"].ToString()), serviceRoleId, quicksearch, company, address, truckArea, orderBy, isDescending, status, pageNumber, pageSize);
+                var repoData = await _requestData.GetAllTruckingOutgoingRequest(companyId, serviceRoleId, quicksearch, company, address, truckArea, orderBy, isDescending, status, pageNumber, pageSize);
                 data = repoData.Item1;
             }
 
@@ -691,20 +650,16 @@ namespace xas.core.accreditation.Request
         }
 
         public async Task<GeneralModel> GetAccreditationStats(int companyId, string bound, string serviceRoleId)
-        {
-            var objectResponse = (JObject)await _httpHelper.Get(_optionsClient.Value.BasePath +
-                _optionsClient.Value.CompanyGuidById.Replace("{companyId}", companyId.ToString()), null, _optionsToken.Value.GetToken.Split(" ")[1].ToString());
-            var companyGuid = Guid.Parse(objectResponse["data"]["companyId"].ToString());
-
+        {            
             var response = new object();
 
             if (bound == "incoming")
             {
-                response = await _requestData.GetStatisticsInbound(companyGuid, serviceRoleId);
+                response = await _requestData.GetStatisticsInbound(companyId, serviceRoleId);
             }
             else if (bound == "outgoing")
             {
-                response = await _requestData.GetStatisticsOutbound(companyGuid, serviceRoleId);
+                response = await _requestData.GetStatisticsOutbound(companyId, serviceRoleId);
             }
             else
             {
