@@ -1,6 +1,7 @@
 ﻿using Amazon.S3.Model;
 using Amazon.S3.Model.Internal.MarshallTransformations;
 using DocumentFormat.OpenXml.Office2010.Drawing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -15,14 +16,16 @@ namespace xgca.core.Email
 {
     public class Email : IEmail
     {
+        private readonly IConfiguration _configuration;
         private readonly IOptions<EmailTemplate> _emailTemplate;
         private readonly IOptions<EmailApi> _emailOptions;
         private readonly IOptions<WebsiteLinks> _website;
         private readonly IHttpHelper _httpHelper;
         private readonly IGeneral _general;
 
-        public Email(IOptions<EmailTemplate> emailTemplate, IOptions<EmailApi> emailOptions, IOptions<WebsiteLinks> website, IHttpHelper httpHelper, IGeneral general)
+        public Email(IConfiguration configuration, IOptions<EmailTemplate> emailTemplate, IOptions<EmailApi> emailOptions, IOptions<WebsiteLinks> website, IHttpHelper httpHelper, IGeneral general)
         {
+            _configuration = configuration;
             _emailTemplate = emailTemplate;
             _emailOptions = emailOptions;
             _website = website;
@@ -40,7 +43,7 @@ namespace xgca.core.Email
 
             EmailPayload payload = new EmailPayload
             {
-                sender = "no-reply@myxlog.com",
+                sender = _configuration.GetSection("EmailApi:Sender").Value,
                 to = model.Payload.EmailAddress,
                 subject = "XLOG: Your Company Has Been Activated",
                 message = message
@@ -63,7 +66,7 @@ namespace xgca.core.Email
 
             EmailPayload payload = new EmailPayload
             {
-                sender = "no-reply@myxlog.com",
+                sender = _configuration.GetSection("EmailApi:Sender").Value,
                 to = model.Payload.EmailAddress,
                 subject = "XLOG: Contact Invite",
                 message = message
@@ -86,7 +89,7 @@ namespace xgca.core.Email
 
             EmailPayload payload = new EmailPayload
             {
-                sender = "no-reply@myxlog.com",
+                sender = _configuration.GetSection("EmailApi:Sender").Value,
                 to = model.Payload.EmailAddress,
                 subject = $"XLOG: Add {model.Payload.SenderCompanyName} as preferred provider",
                 message = message
