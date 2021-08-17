@@ -150,7 +150,6 @@ namespace xgca.core.Helpers.Http
             var json = JsonConvert.SerializeObject(data);
             var stringContent = new StringContent(json, UnicodeEncoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(endpointUrl, stringContent);
-            var result2 = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
             {
