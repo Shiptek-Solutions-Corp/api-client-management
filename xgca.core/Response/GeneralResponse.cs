@@ -18,5 +18,18 @@ namespace xas.core._ResponseModel
             };
             return dataResponse;
         }
+
+        public GeneralModel Response(dynamic data, List<ErrorField> errors, int statusCode, string message, bool isSuccessful)
+        {
+            var dataResponse = new GeneralModel()
+            {
+                isSuccessful = isSuccessful,
+                statusCode = statusCode,
+                message = message,
+                data = data,
+                errors = errors
+            };
+            return dataResponse;
+        }
     }
 }

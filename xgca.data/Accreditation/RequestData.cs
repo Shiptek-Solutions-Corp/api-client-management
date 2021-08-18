@@ -13,18 +13,17 @@ namespace xas.data.accreditation.Request
 {
     public interface IRequestData
     {
-        Task<(xgca.entity.Models.Request, int)> Create(xgca.entity.Models.Request obj);
-        Task Create(List<xgca.entity.Models.Request> entity);
+        Task<List<xgca.entity.Models.Request>> CreateRequest(List<xgca.entity.Models.Request> entity);
         Task<dynamic> GetStatusStatisticsInbound(int companyId);
         Task<dynamic> GetStatusStatisticsOutbound(int companyId);
-        Task UpdateAccreditationRequest(Guid requestId, Guid companyIdTo, int status);
+        Task UpdateAccreditationRequest(Guid requestId, int companyIdTo, int status);
         Task<ICollection<xgca.entity.Models.Request>> GetAllIncommingRequest(Guid CompanyId);
         Task<ICollection<xgca.entity.Models.Request>> GetAllOutgoingRequest(Guid CompanyId);
         Task<List<xgca.entity.Models.AccreditationStatusConfig>> GetAccreditationStatus();
-        Task<int> CheckRequestIfExist(Guid CompanyIdFrom, Guid CompanyIdTo);
+        Task<bool> ValidateCheckRequestIfExist(Guid CompanyIdFrom, Guid CompanyIdTo);
         Task<int> CheckRequestIfDeleted(Guid CompanyIdFrom, Guid CompanyIdTo);
-        Task<object> ValidateIfRequestStatusUpdateIsAllowed(Guid requestId, Guid companyId);
-        Task DeleteRequest(Guid companyId, Guid requestId);
+        Task<object> ValidateIfRequestStatusUpdateIsAllowed(Guid requestId, int companyId);
+        Task DeleteRequest(Guid requestId);
         Task ReAddRequest(xgca.entity.Models.Request data);
         Task<int> CheckRequestIfExistById(Guid CompanyIdTo, Guid RequestId);
         Task<int> GetRequestIdByGuid(Guid requestId);
@@ -43,18 +42,12 @@ namespace xas.data.accreditation.Request
         { 
             _context = context;
         }
-        public async Task Create(List<xgca.entity.Models.Request> entity)
+        public async Task<List<xgca.entity.Models.Request>> CreateRequest(List<xgca.entity.Models.Request> entity)
         {
             _context.Request.AddRange(entity);
-            await _context.SaveChangesAsync();
-        }
+            await _context.SaveChangesAsync(null, true);
 
-        public async Task<(xgca.entity.Models.Request, int)> Create(xgca.entity.Models.Request obj)
-        {
-            await _context.Request.AddAsync(obj);
-
-            int records = await _context.SaveChangesAsync();
-            return (obj, records);
+            return entity;
         }
 
         public async Task<dynamic> GetStatusStatisticsInbound(int companyId)
@@ -86,12 +79,15 @@ namespace xas.data.accreditation.Request
             return stats;
         }
 
-        public async Task UpdateAccreditationRequest(Guid requestId, Guid companyIdTo, int status)
+        public async Task UpdateAccreditationRequest(Guid requestId, int companyIdTo, int status)
         {
+            var companyToGuid = await _context.Companies.Where(i => i.CompanyId == companyIdTo).Select(f => f.Guid).SingleOrDefaultAsync();
             var intRequestId = await _context.Request.Where(t => t.Guid == requestId && t.IsDeleted == false).FirstOrDefaultAsync();
-            var d = await _context.Request.Where(t => t.RequestId == intRequestId.RequestId && t.CompanyIdTo == companyIdTo && t.IsDeleted == false).FirstOrDefaultAsync();
+            var d = await _context.Request.Where(t => t.RequestId == intRequestId.RequestId && t.CompanyIdTo == companyToGuid && t.IsDeleted == false).FirstOrDefaultAsync();
             d.AccreditationStatusConfigId = status;
-            await _context.SaveChangesAsync();
+
+            _context.Request.Update(d);
+            await _context.SaveChangesAsync(null, true);
         }
 
         public async Task<ICollection<xgca.entity.Models.Request>> GetAllIncommingRequest(Guid CompanyId)
@@ -152,10 +148,12 @@ namespace xas.data.accreditation.Request
             return data;
         }
 
-        public async Task<int> CheckRequestIfExist(Guid CompanyIdFrom, Guid CompanyIdTo)
+        public async Task<bool> ValidateCheckRequestIfExist(Guid CompanyIdFrom, Guid CompanyIdTo)
         {
+            bool IsDuplicate = false;
             var data = await _context.Request.Where(t => t.CompanyIdFrom == CompanyIdFrom && t.CompanyIdTo == CompanyIdTo && t.IsDeleted == false).ToListAsync();
-            return data.Count;
+            if (data.Count > 0) IsDuplicate = true;
+            return IsDuplicate;
         }
 
         public async Task<int> CheckRequestIfDeleted(Guid CompanyIdFrom, Guid CompanyIdTo)
@@ -164,17 +162,20 @@ namespace xas.data.accreditation.Request
             return data.Count;
         }
 
-        public async Task<object> ValidateIfRequestStatusUpdateIsAllowed(Guid requestId, Guid companyId)
+        public async Task<object> ValidateIfRequestStatusUpdateIsAllowed(Guid requestId, int companyId)
         {
-            var data = await _context.Request.Where(t => t.Guid == requestId && t.CompanyIdTo == companyId && t.IsDeleted == false).FirstOrDefaultAsync();
+            var companyGuid = await _context.Companies.Where(i => i.CompanyId == companyId).Select(f => f.Guid).SingleOrDefaultAsync();
+            var data = await _context.Request.Where(t => t.Guid == requestId && t.CompanyIdTo == companyGuid && t.IsDeleted == false).FirstOrDefaultAsync();
             return data;
         }
 
-        public async Task DeleteRequest(Guid companyId, Guid requestId)
+        public async Task DeleteRequest(Guid requestId)
         {
             var data = await _context.Request.Where(t => t.Guid == requestId && t.IsDeleted == false).FirstOrDefaultAsync();
             data.IsDeleted = true;
-            await _context.SaveChangesAsync();
+
+            _context.Request.Update(data);
+            await _context.SaveChangesAsync(null, true);
         }
 
         public async Task ReAddRequest(xgca.entity.Models.Request data)

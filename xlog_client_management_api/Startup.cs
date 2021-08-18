@@ -74,6 +74,9 @@ using xas.data.accreditation.PortArea;
 using xas.data.accreditation.TruckArea;
 using xas.data.accreditation.Request;
 using xas.core._ResponseModel;
+using FluentValidation;
+using xas.core.Request;
+using xgca.core.Validators.Request;
 
 namespace xlog_client_management_api
 {
@@ -234,7 +237,8 @@ namespace xlog_client_management_api
             services.AddScoped<IPortAreaData, PortAreaData>();
             services.AddScoped<ITruckAreaData, TruckAreaData>();
             services.AddScoped<IRequestData, RequestData>();
-            services.AddScoped<IGeneralResponse, GeneralResponse>();     
+            services.AddScoped<IGeneralResponse, GeneralResponse>();
+            services.AddScoped<IValidator<List<RequestModel>>, CreateRequestValidator>();
 
             services.Configure<xgca.core.Helpers.GlobalCmsService>(o =>
             {

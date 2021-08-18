@@ -30,6 +30,7 @@ using xgca.core.Models.AddressType;
 using xgca.core.Models.ContactDetail;
 using xgca.core.Models.CompanyTaxSettings;
 using xgca.core.Models.KYCLog;
+using xas.core.Request;
 
 namespace xgca.core._Mapper
 {
@@ -455,6 +456,12 @@ namespace xgca.core._Mapper
                     d => d.MapFrom(m => GlobalVariables.LoggedInUsername))
                 .ForMember(i => i.CreatedOn,
                     d => d.MapFrom(m => DateTime.UtcNow));
+            #endregion
+
+            #region Accreditation
+            
+             CreateMap<RequestModel, entity.Models.Request>();
+
             #endregion
         }
     }

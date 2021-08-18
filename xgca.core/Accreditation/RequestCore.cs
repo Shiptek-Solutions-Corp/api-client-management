@@ -34,19 +34,19 @@ using xgca.core.Response;
 using xgca.core.Helpers.Http;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using FluentValidation;
 
 namespace xas.core.accreditation.Request
 {
     public interface IRequestCore
     {
-        Task<GeneralModel> CreateRequest(List<RequestModel> data, int companyId);
-        Task<GeneralModel> CreateSingleRequest(RequestModel data, int companyId);
+        Task<GeneralModel> CreateRequest(List<RequestModel> requestInfo);
         Task<GeneralModel> UpdateRequestStatus(int companyId, Guid requestId, int status);
         //Task<GeneralModel> GetAccreditationRequest(string bound, GetAccreditationRequestDTO paramData);
         //Task<GeneralModel> GetAccreditationRequestCSVFormat(string bound, GetAccreditationRequestDTO paramData);
         Task<GeneralModel> GetAccreditationStats(int companyId, string bound);
-        Task<GeneralModel> DeleteAccreditaitonRequest(int companyId, Guid requestId);
-        Task<GeneralModel> DeleteAccreditaitonRequestBulk(int companyId, List<Guid> requestId);
+        Task<GeneralModel> DeleteAccreditaitonRequest(Guid requestId);
+        Task<GeneralModel> DeleteAccreditaitonRequestBulk(List<Guid> requestId);
         Task<GeneralModel> UpdateRequestStatusBulk(int companyId, List<Guid> requestId, int status);
         Task<byte[]> GenerateExcelFile(List<ResponseDTO> companyList);
         Task<byte[]> GenerateCSVFile(List<CSVResponseDTO> companyList, string CSVtype = "");
@@ -70,6 +70,7 @@ namespace xas.core.accreditation.Request
         private readonly IOptions<GlobalCMS> _optionsGlobal;
         private readonly IPagedResponse _pageresponse;
         private readonly ITruckAreaData _truckAreaData;
+        private readonly IValidator<List<RequestModel>> _validatorCreateRequest;
 
         public RequestCore(
             IRequestData requestData,
@@ -81,7 +82,8 @@ namespace xas.core.accreditation.Request
             IOptions<ClientToken> optionsToken,
             IOptions<GlobalCMS> optionsGlobal,
             IPagedResponse pageresponse,
-            ITruckAreaData truckAreaData)
+            ITruckAreaData truckAreaData,
+            IValidator<List<RequestModel>> validatorCreateRequest)
         {
             _requestData = requestData;
             _portAreaData = portAreaData;
@@ -93,6 +95,7 @@ namespace xas.core.accreditation.Request
             _optionsGlobal = optionsGlobal;
             _pageresponse = pageresponse;
             _truckAreaData = truckAreaData;
+            _validatorCreateRequest = validatorCreateRequest;
         }
 
         public async Task<GeneralModel> GetAccreditationStats(int companyId, string bound)
@@ -120,81 +123,24 @@ namespace xas.core.accreditation.Request
             return _generalResponse.Response(response, 200, "Accreditation statistics has been retrieved!", true);
         }
 
-        public async Task<GeneralModel> CreateRequest(List<RequestModel> data, int companyId)
+        public async Task<GeneralModel> CreateRequest(List<RequestModel> requestInfo)
         {
-            //Get Company Guid ID from Client CMS
-            var objectResponse = (JObject)await _httpHelper.Get(_optionsClient.Value.BasePath +
-                _optionsClient.Value.CompanyGuidById.Replace("{companyId}", companyId.ToString()), null, _optionsToken.Value.GetToken.Split(" ")[1].ToString());
-
-            //Set CompanyId for each
-
-            var newRequests = new List<xgca.entity.Models.Request>();
-            var readdRequest = new List<xgca.entity.Models.Request>();
-
-            foreach (var t in data)
+            //Validate Request 
+            var validatorResponse = await _validatorCreateRequest.ValidateAsync(requestInfo);
+            if (!validatorResponse.IsValid)
             {
-                t.CompanyIdFrom = t.CompanyIdFrom == Guid.Empty ? t.CompanyIdFrom = Guid.Parse(objectResponse["data"]["companyId"].ToString()) : t.CompanyIdFrom;
-                t.Status = 1;
-                t.Guid = Guid.NewGuid();
-                if (await _requestData.CheckRequestIfDeleted(t.CompanyIdFrom, t.CompanyIdTo) > 0)
-                {
-
-                    readdRequest.Add(_mapper.Map<xgca.entity.Models.Request>(t));
-                }
-                else
-                {
-                    if (await _requestData.CheckRequestIfExist(t.CompanyIdFrom, t.CompanyIdTo) == 0)
-                    {
-                        newRequests.Add(_mapper.Map<xgca.entity.Models.Request>(t));
-                    }
-                    else
-                    {
-                        return _generalResponse.Response(null, 400, "Error: Your request cannot be processed as it's either your company is already accredited or has a pending accreditation request with the company your are trying to apply with.", false);
-                    }
-                }
+                var errors = validatorResponse.Errors.Select(error => new ErrorField(error.PropertyName, error.ErrorMessage)).ToList();
+                return _generalResponse.Response(null, errors, StatusCodes.Status400BadRequest, "Error encoutered", true);
             }
 
-            if (newRequests.Count() > 0)
-            {
-                //Insert Data
-                await _requestData.Create(_mapper.Map<List<xgca.entity.Models.Request>>(data));
-            }
+            var requestList = _mapper.Map<List<xgca.entity.Models.Request>>(requestInfo);
+            requestList.ForEach(i => { i.AccreditationStatusConfigId = 1; });
 
-            foreach (var reaAdd in readdRequest)
-            {
-                await _requestData.ReAddRequest(_mapper.Map<xgca.entity.Models.Request>(reaAdd));
-            }
-
-            return _generalResponse.Response(null, 200, "Request has been generated!", true);
+            var response = await _requestData.CreateRequest(requestList);    
+            return _generalResponse.Response(response, StatusCodes.Status200OK, "Request has been submitted.", true);
         }
 
-        public async Task<GeneralModel> CreateSingleRequest(RequestModel data, int companyId)
-        {
-            var objectResponse = (JObject)await _httpHelper.Get(_optionsClient.Value.BasePath +
-                           _optionsClient.Value.CompanyGuidById.Replace("{companyId}", companyId.ToString()), null, _optionsToken.Value.GetToken.Split(" ")[1].ToString());
-
-            //Set CompanyId for each
-            var newRequests = new List<xgca.entity.Models.Request>();
-
-            data.CompanyIdFrom = data.CompanyIdFrom == Guid.Empty ? data.CompanyIdFrom = Guid.Parse(objectResponse["data"]["companyId"].ToString()) : data.CompanyIdFrom;
-            data.Status = 1;
-            data.Guid = Guid.NewGuid();
-
-            if (await _requestData.CheckRequestIfExist(data.CompanyIdFrom, data.CompanyIdTo) == 0)
-            {
-                newRequests.Add(_mapper.Map<xgca.entity.Models.Request>(data));
-            }
-            else
-            {
-                return _generalResponse.Response(null, StatusCodes.Status400BadRequest, "Error: Your request cannot be processed as it's either your company is already accredited or has a pending accreditation request with the company your are trying to apply with.", false);
-            }
-
-            //Insert Data
-            var response = await _requestData.Create(_mapper.Map<xgca.entity.Models.Request>(data));
-
-            return _generalResponse.Response(response.Item1.RequestId, StatusCodes.Status200OK, "Request has been generated!", true);
-        }
-
+       
         //public async Task<GeneralModel> GetAccreditationRequest(string bound, GetAccreditationRequestDTO paramData)
         //{
         //ReBuildObject:
@@ -330,70 +276,56 @@ namespace xas.core.accreditation.Request
         //    #endregion
         //}
 
-        public async Task<GeneralModel> DeleteAccreditaitonRequest(int companyId, Guid requestId)
+        public async Task<GeneralModel> DeleteAccreditaitonRequest(Guid requestId)
         {
-            var objectResponse = (JObject)await _httpHelper.Get(_optionsClient.Value.BasePath +
-             _optionsClient.Value.CompanyGuidById.Replace("{companyId}", companyId.ToString()), null, _optionsToken.Value.GetToken.Split(" ")[1].ToString());
-            await _requestData.DeleteRequest(Guid.Parse(objectResponse["data"]["companyId"].ToString()), requestId);
-            return _generalResponse.Response(null, 200, "Request deletion has been succesful!", true);
+            await _requestData.DeleteRequest(requestId);
+            return _generalResponse.Response(null, StatusCodes.Status200OK, "Request deletion has been succesful!", true);
         }
 
-        public async Task<GeneralModel> DeleteAccreditaitonRequestBulk(int companyId, List<Guid> requestId)
+        public async Task<GeneralModel> DeleteAccreditaitonRequestBulk(List<Guid> requestId)
         {
-            var objectResponse = (JObject)await _httpHelper.Get(_optionsClient.Value.BasePath +
-             _optionsClient.Value.CompanyGuidById.Replace("{companyId}", companyId.ToString()), null, _optionsToken.Value.GetToken.Split(" ")[1].ToString());
-            //loop requestId
+               //loop requestId
             foreach (var request in requestId)
             {
-                await _requestData.DeleteRequest(Guid.Parse(objectResponse["data"]["companyId"].ToString()), request);
+                await _requestData.DeleteRequest(request);
             }
 
-            return _generalResponse.Response(null, 200, "Request deletion has been succesful!", true);
+            return _generalResponse.Response(null, StatusCodes.Status200OK, "Request deletion has been succesful!", true);
         }
 
         public async Task<GeneralModel> UpdateRequestStatus(int companyId, Guid requestId, int status)
         {
-            //Get Company Guid ID from Client CMS
-            var objectResponse = (JObject)await _httpHelper.Get(_optionsClient.Value.BasePath +
-                _optionsClient.Value.CompanyGuidById.Replace("{companyId}", companyId.ToString()), null, _optionsToken.Value.GetToken.Split(" ")[1].ToString());
-            var companyGuid = Guid.Parse(objectResponse["data"]["companyId"].ToString());
-
             //Check if request exist
-            if (await _requestData.ValidateIfRequestStatusUpdateIsAllowed(requestId, companyGuid) != null)
+            if (await _requestData.ValidateIfRequestStatusUpdateIsAllowed(requestId, companyId) != null)
             {
-                await _requestData.UpdateAccreditationRequest(requestId, companyGuid, status);
+                await _requestData.UpdateAccreditationRequest(requestId, companyId, status);
             }
             else
             {
-                return _generalResponse.Response(null, 400, "Selected accreditation requet does not exist!", false);
+                return _generalResponse.Response(null, StatusCodes.Status404NotFound, "Selected accreditation requet does not exist!", false);
             }
 
             //update Accreditation Status
-            return _generalResponse.Response(null, 200, "Status has been updated", true);
+            return _generalResponse.Response(null, StatusCodes.Status200OK, "Status has been updated", true);
         }
 
         public async Task<GeneralModel> UpdateRequestStatusBulk(int companyId, List<Guid> requestId, int status)
         {
-            //Get Company Guid ID from Client CMS
-            var objectResponse = (JObject)await _httpHelper.Get(_optionsClient.Value.BasePath +
-                _optionsClient.Value.CompanyGuidById.Replace("{companyId}", companyId.ToString()), null, _optionsToken.Value.GetToken.Split(" ")[1].ToString());
-            var companyGuid = Guid.Parse(objectResponse["data"]["companyId"].ToString());
-
             //Check if request exist
             foreach (var request in requestId)
             {
-                if (await _requestData.ValidateIfRequestStatusUpdateIsAllowed(request, companyGuid) != null)
+                if (await _requestData.ValidateIfRequestStatusUpdateIsAllowed(request, companyId) != null)
                 {
-                    await _requestData.UpdateAccreditationRequest(request, companyGuid, status);
+                    await _requestData.UpdateAccreditationRequest(request, companyId, status);
                 }
                 else
                 {
-                    return _generalResponse.Response(null, 400, "Selected accreditation requet does not exist!", false);
+                    return _generalResponse.Response(null, StatusCodes.Status404NotFound, "Selected accreditation requet does not exist!", false);
                 }
             }
             //update Accreditation Status
 
-            return _generalResponse.Response(null, 200, "Status has been updated", true);
+            return _generalResponse.Response(null, StatusCodes.Status200OK, "Status has been updated", true);
         }
 
         public async Task<byte[]> GenerateExcelFile(List<ResponseDTO> companyList)
