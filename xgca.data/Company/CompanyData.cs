@@ -48,6 +48,7 @@ namespace xgca.data.Company
         Task<string> GetKYCStatus(int companyId);
         Task<(entity.Models.Company, string)> GetAccreditorByCompnyGuid(string guid);
         Task<(entity.Models.Company, string)> GetByCompanyCode(string code);
+
     }
 
     public class ActorReturn

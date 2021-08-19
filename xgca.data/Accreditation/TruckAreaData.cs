@@ -6,16 +6,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using xas.data.CustomModel.TruckArea;
+using xgca.data.ViewModels.TruckArea;
 using xgca.entity;
 
-namespace xas.data.accreditation.TruckArea
+namespace xas.data.DataModel.TruckArea
 {
     public interface ITruckAreaData
-    {
+    { 
         Task<(xgca.entity.Models.TruckArea, string)> Create(xgca.entity.Models.TruckArea obj);
         Task<(xgca.entity.Models.TruckArea, string)> Update(xgca.entity.Models.TruckArea obj);
         Task<List<xgca.entity.Models.TruckArea>> List(int requestId);
-        Task<(List<CustomGetTruckArea>, int)> List(int requestId, string search, string city, string state, string country, string postal, string sortBy, string sortOrder, int pageNumber, int pageSize);
+        Task<(List<GetTruckAreaModel>, int)> List(Guid requestGuid, string search, string city, string state, string country, string postal, string sortBy, string sortOrder, int pageNumber, int pageSize);
         Task<(bool, string)> Delete(xgca.entity.Models.TruckArea obj);
         Task<(bool, string)> DeleteBulk(List<Guid> ids, string deletedBy);
     }
@@ -119,79 +120,35 @@ namespace xas.data.accreditation.TruckArea
             return data;
         }
 
-        public async Task<(List<CustomGetTruckArea>, int)> List(int requestId, string search, string city, string state, string country, string postal, string sortBy, string sortOrder, int pageNumber, int pageSize)
+        public async Task<(List<GetTruckAreaModel>, int)> List(Guid requestGuid, string search, string city, string state, string country, string postal, string sortBy, string sortOrder, int pageNumber, int pageSize)
         {
-            var predicate = PredicateBuilder.New<xgca.entity.Models.TruckArea>();
 
-            if (!(search is null))
-            {
-                predicate = predicate.Or(x => EF.Functions.Like(x.CountryName, $"%{search}%"));
-                predicate = predicate.Or(x => EF.Functions.Like(x.StateName, $"%{search}%"));
-                predicate = predicate.Or(x => EF.Functions.Like(x.CityName, $"%{search}%"));
-                predicate = predicate.Or(x => EF.Functions.Like(x.PostalCode, $"%{search}%"));
-            }
+            var tempRecords = await (from r in _context.TruckArea
+                                     where r.Guid == requestGuid
+                                     && (r.CountryName + r.StateName + r.CityName + r.PostalCode).ToUpper().Contains(search.ToUpper())
+                                     && r.CountryName.ToUpper().Contains(country.ToUpper()) 
+                                     && r.StateName.ToUpper().Contains(state.ToUpper())
+                                     && r.CityName.ToUpper().Contains(city.ToUpper())
+                                     && r.PostalCode.ToUpper().Contains(postal.ToUpper())
+                                     select new GetTruckAreaModel
+                                     {
+                                         CityId = r.CityId
+                                         , CityName = r.CityName 
+                                         , CountryId = r.CountryId 
+                                         , CountryName = r.CountryName 
+                                         , PostalCode = r.PostalCode 
+                                         , PostalId = r.PostalId 
+                                         , StateId = r.StateId 
+                                         , StateName = r.StateName 
+                                         , TruckAreaId = r.TruckAreaId
+                                         , TruckAreaGuid = r.Guid
+                                     }).ToListAsync();
 
-            if (!(city is null))
-            {
-                predicate = predicate.And(x => EF.Functions.Like(x.CityName, $"%{city}%"));
-            }
+            if (sortOrder.Equals("asc")) tempRecords = tempRecords.OrderBy(i => typeof(GetTruckAreaModel).GetProperty(sortBy).GetValue(i).ToString()).ToList(); //Ascending
+            if (sortOrder.Equals("desc")) tempRecords = tempRecords.OrderByDescending(i => typeof(GetTruckAreaModel).GetProperty(sortBy).GetValue(i).ToString()).ToList(); //Descending
 
-            if (!(state is null))
-            {
-                predicate = predicate.And(x => EF.Functions.Like(x.StateName, $"%{state}%"));
-            }
-
-            if (!(country is null))
-            {
-                predicate = predicate.And(x => EF.Functions.Like(x.CountryName, $"%{country}%"));
-            }
-
-            if (!(postal is null))
-            {
-                predicate = predicate.And(x => EF.Functions.Like(x.PostalCode, $"%{postal}%"));
-            }
-
-            predicate = predicate.And(x => x.RequestId == requestId && x.IsActive == 1 && x.IsDeleted == false);
-
-            var recordCount = await _context.TruckArea.AsNoTracking().Where(predicate).CountAsync();
-
-            IQueryable<xgca.entity.Models.TruckArea> tempRecords = _context.TruckArea
-                .Where(predicate);
-
-
-            if (sortOrder.Equals("asc"))
-            {
-                if (sortBy.ToLower().Equals("city")) tempRecords = tempRecords.OrderBy(o => o.CityName);
-                if (sortBy.ToLower().Equals("state")) tempRecords = tempRecords.OrderBy(o => o.StateName);
-                if (sortBy.ToLower().Equals("country")) tempRecords = tempRecords.OrderBy(o => o.CountryName);
-                if (sortBy.ToLower().Equals("postal")) tempRecords = tempRecords.OrderBy(o => o.PostalCode);
-            }
-
-            if (sortOrder.Equals("desc"))
-            {
-                if (sortBy.ToLower().Equals("city")) tempRecords = tempRecords.OrderByDescending(o => o.CityName);
-                if (sortBy.ToLower().Equals("state")) tempRecords = tempRecords.OrderByDescending(o => o.StateName);
-                if (sortBy.ToLower().Equals("country")) tempRecords = tempRecords.OrderByDescending(o => o.CountryName);
-                if (sortBy.ToLower().Equals("postal")) tempRecords = tempRecords.OrderByDescending(o => o.PostalCode);
-            }
-
-            var records = await tempRecords
-                .Select(c => new CustomGetTruckArea
-                {
-                    Guid = c.Guid.ToString(),
-                    CountryId = c.CountryId,
-                    CountryName = c.CountryName,
-                    StateId = c.StateId,
-                    StateName = c.StateName,
-                    CityId = c.CityId,
-                    CityName = c.CityName,
-                    PostalCode = c.PostalCode,
-                    PostalId = c.PostalId
-                })
-                .Skip(pageSize * pageNumber)
-                .Take(pageSize)
-                .AsNoTracking()
-                .ToListAsync();
+            var recordCount = tempRecords.Count();
+            var records = tempRecords = tempRecords.Skip(pageSize * (pageNumber)).Take(pageSize).ToList();
 
             return (records, recordCount);
         }

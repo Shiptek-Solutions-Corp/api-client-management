@@ -71,12 +71,13 @@ using xgca.data.CompanyTaxSettings;
 using xgca.core.ResponseV2;
 using xas.core.accreditation.Request;
 using xas.data.accreditation.PortArea;
-using xas.data.accreditation.TruckArea;
 using xas.data.accreditation.Request;
 using xas.core._ResponseModel;
 using FluentValidation;
 using xas.core.Request;
 using xgca.core.Validators.Request;
+using xas.core.TruckArea;
+using xas.data.DataModel.TruckArea;
 
 namespace xlog_client_management_api
 {
@@ -239,6 +240,9 @@ namespace xlog_client_management_api
             services.AddScoped<IRequestData, RequestData>();
             services.AddScoped<IGeneralResponse, GeneralResponse>();
             services.AddScoped<IValidator<List<RequestModel>>, CreateRequestValidator>();
+            services.AddScoped<ITruckAreaCore, TruckAreaCore>();
+        
+
 
             services.Configure<xgca.core.Helpers.GlobalCmsService>(o =>
             {
@@ -281,7 +285,8 @@ namespace xlog_client_management_api
             });
 
             services.Configure<EvaultEndPoints>(option => Configuration.GetSection("EvaultEndPoints").Bind(option));
-
+            services.Configure<AuthConfig>(option => Configuration.GetSection("AuthConfig").Bind(option));
+            
             services.AddHttpClient();
             services.AddMvc().AddNewtonsoftJson(options => {
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();

@@ -31,6 +31,8 @@ using xgca.core.Models.ContactDetail;
 using xgca.core.Models.CompanyTaxSettings;
 using xgca.core.Models.KYCLog;
 using xas.core.Request;
+using xas.core.TruckArea.Models;
+using xas.data.CustomModel.TruckArea;
 
 namespace xgca.core._Mapper
 {
@@ -459,8 +461,50 @@ namespace xgca.core._Mapper
             #endregion
 
             #region Accreditation
-            
-             CreateMap<RequestModel, entity.Models.Request>();
+
+            CreateMap<RequestModel, entity.Models.Request>();
+
+            #region Truck Area Mapper Profiles
+            CreateMap<CreateTruckArea, entity.Models.TruckArea>()
+                .ForMember(t => t.RequestId,
+                    k => k.Ignore())
+                .ForMember(t => t.Guid,
+                    k => k.MapFrom(p => Guid.NewGuid()))
+                .ForMember(t => t.CreatedBy,
+                    k => k.MapFrom(p => GlobalVariables.LoggedInUsername))
+                .ForMember(t => t.CreatedOn,
+                    k => k.MapFrom(p => DateTime.UtcNow))
+                .ForMember(t => t.UpdatedBy,
+                    k => k.MapFrom(p => GlobalVariables.LoggedInUsername))
+                .ForMember(t => t.UpdatedOn,
+                    k => k.MapFrom(p => DateTime.UtcNow))
+                .ForMember(t => t.IsDeleted,
+                    k => k.MapFrom(p => false))
+                .ForMember(t => t.IsActive,
+                    k => k.MapFrom(p => 1));
+
+            CreateMap<UpdateTruckArea, entity.Models.TruckArea>()
+                .ForMember(t => t.TruckAreaId,
+                    k => k.Ignore())
+                .ForMember(t => t.Guid,
+                    k => k.MapFrom(p => Guid.Parse(p.TruckAreaId)))
+                .ForMember(t => t.UpdatedBy,
+                    k => k.MapFrom(p => GlobalVariables.LoggedInUsername))
+                .ForMember(t => t.UpdatedOn,
+                    k => k.MapFrom(p => DateTime.UtcNow));
+
+            CreateMap<CustomGetTruckArea, GetTruckArea>()
+                .ForMember(t => t.TruckAreaId,
+                    k => k.MapFrom(p => p.Guid.ToString()));
+            CreateMap<entity.Models.TruckArea, GetTruckArea>()
+                .ForMember(t => t.TruckAreaId,
+                    k => k.MapFrom(p => p.Guid.ToString()));
+
+            CreateMap<entity.Models.TruckArea, xas.core.Request.TruckArea>()
+                .ForMember(a => a.TruckAreaId, k => k.MapFrom(x => x.Guid));
+
+            CreateMap<List<entity.Models.TruckArea>, List<xas.core.Request.TruckArea>>();
+            #endregion
 
             #endregion
         }

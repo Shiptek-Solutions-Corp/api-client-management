@@ -26,6 +26,12 @@ namespace xgca.core.Constants
         public static string LoggedInUsername = "system";
         public static int LoggedInCompanyId = 0;
 
+        public static string LoggedInServiceRole = "";
+        public static string LoggedInToken = "scheme token";
+
+        public static string AuthToken = "token";
+        public static string AuthScheme = "scheme";
+
         public static List<int> BookingPartyGroup = new List<int>
         {
             (int)Enums.ServiceRole.ShipperConsignee, 

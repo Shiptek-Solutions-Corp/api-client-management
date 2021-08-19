@@ -88,4 +88,13 @@ namespace xgca.core.Helpers
     {
         public string Login { get; set; }
     }
+
+    public class AuthConfig
+    {
+        public string BasePath { get; set; }
+        public string CustomerRegistration { get; set; }
+        public string BulkCreateCustomerAccreditation { get; set; }
+
+    }
+  
 }

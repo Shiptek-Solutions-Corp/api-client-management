@@ -28,18 +28,23 @@ using System.Globalization;
 using CsvHelper;
 using xas.data.accreditation.PortArea;
 using Microsoft.AspNetCore.Http;
-using xas.data.accreditation.TruckArea;
 using System.Collections;
 using xgca.core.Response;
 using xgca.core.Helpers.Http;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using FluentValidation;
+using xas.core.CustomerAccreditation.DTO;
+using xgca.core.Company;
+using xgca.data.Company;
+using xgca.core.Helpers;
+using xas.data.DataModel.TruckArea;
 
 namespace xas.core.accreditation.Request
 {
     public interface IRequestCore
     {
+        #region Request
         Task<GeneralModel> CreateRequest(List<RequestModel> requestInfo);
         Task<GeneralModel> UpdateRequestStatus(int companyId, Guid requestId, int status);
         //Task<GeneralModel> GetAccreditationRequest(string bound, GetAccreditationRequestDTO paramData);
@@ -56,6 +61,11 @@ namespace xas.core.accreditation.Request
         Task<byte[]> ExportTruckingAccreditationRequest(int companyId, string bound, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize);
         Task<byte[]> ExportTruckingAccreditationRequestTemplate();
         Task<GeneralModel> GetAccreditationStats(int companyId, string bound, string serviceRoleId);
+        #endregion
+
+        #region Customer Accreditation
+        Task<dynamic> CreateCustomerAccreditation(CustomerRegistrationDTO customerRegistrationDTO, int companyId, string username, string serviceRole, string serviceRoleId);
+        #endregion
     }
 
     public class RequestCore : IRequestCore
@@ -71,6 +81,9 @@ namespace xas.core.accreditation.Request
         private readonly IPagedResponse _pageresponse;
         private readonly ITruckAreaData _truckAreaData;
         private readonly IValidator<List<RequestModel>> _validatorCreateRequest;
+        private readonly ICompanyData _companyData;
+        private readonly IOptions<AuthConfig> _authhConfig;
+
 
         public RequestCore(
             IRequestData requestData,
@@ -83,7 +96,9 @@ namespace xas.core.accreditation.Request
             IOptions<GlobalCMS> optionsGlobal,
             IPagedResponse pageresponse,
             ITruckAreaData truckAreaData,
-            IValidator<List<RequestModel>> validatorCreateRequest)
+            IValidator<List<RequestModel>> validatorCreateRequest,
+            ICompanyData companyData,
+            IOptions<AuthConfig> authhConfig)
         {
             _requestData = requestData;
             _portAreaData = portAreaData;
@@ -96,8 +111,11 @@ namespace xas.core.accreditation.Request
             _pageresponse = pageresponse;
             _truckAreaData = truckAreaData;
             _validatorCreateRequest = validatorCreateRequest;
+            _companyData = companyData;
+            _authhConfig = authhConfig;
         }
 
+        #region Request
         public async Task<GeneralModel> GetAccreditationStats(int companyId, string bound)
         {
             ////Get Company Guid ID from Client CMS
@@ -117,10 +135,10 @@ namespace xas.core.accreditation.Request
             }
             else
             {
-                _generalResponse.Response(null, 400, "Invalid bound value", false);
+                _generalResponse.Response(null, StatusCodes.Status404NotFound, "Invalid bound value", false);
             }
 
-            return _generalResponse.Response(response, 200, "Accreditation statistics has been retrieved!", true);
+            return _generalResponse.Response(response, StatusCodes.Status200OK, "Accreditation statistics has been retrieved!", true);
         }
 
         public async Task<GeneralModel> CreateRequest(List<RequestModel> requestInfo)
@@ -132,6 +150,35 @@ namespace xas.core.accreditation.Request
                 var errors = validatorResponse.Errors.Select(error => new ErrorField(error.PropertyName, error.ErrorMessage)).ToList();
                 return _generalResponse.Response(null, errors, StatusCodes.Status400BadRequest, "Error encoutered", true);
             }
+
+            //For Trucking
+            ////Create Empty Truck Area 
+            //xgca.entity.Models.TruckArea truckAreaInfo = new xgca.entity.Models.TruckArea(); ;
+
+            //if (serviceRole.ToLower() == "trucking")
+            //{
+            //    truckAreaInfo = new xgca.entity.Models.TruckArea
+            //    {
+            //        RequestId = 0,
+            //        CountryId = customerRegistrationDTO.countryId,
+            //        CountryName = customerRegistrationDTO.countryName,
+            //        StateId = customerRegistrationDTO.stateId,
+            //        StateName = customerRegistrationDTO.stateName,
+            //        CityId = customerRegistrationDTO.cityId,
+            //        CityName = customerRegistrationDTO.cityName,
+            //        PostalId = "-",
+            //        PostalCode = customerRegistrationDTO.zipCode,
+            //        Latitude = customerRegistrationDTO.latitude,
+            //        Longitude = customerRegistrationDTO.longitude
+            //    };
+            //}
+
+            ////Create Request
+            //requestList[0].TruckArea.Add(truckAreaInfo);
+
+
+            //Shipping Agency Port Area
+
 
             var requestList = _mapper.Map<List<xgca.entity.Models.Request>>(requestInfo);
             requestList.ForEach(i => { i.AccreditationStatusConfigId = 1; });
@@ -600,5 +647,62 @@ namespace xas.core.accreditation.Request
 
             return _generalResponse.Response(response, StatusCodes.Status200OK, "Accreditation statistics has been retrieved!", true);
         }
+
+
+        #endregion
+
+        #region CustomerAccreditation
+        //Shipping/Cosignee = Requestor
+        public async Task<dynamic> CreateCustomerAccreditation(CustomerRegistrationDTO customerRegistrationDTO, int companyId, string username, string serviceRole, string serviceRoleId)
+        {
+            if (! await _companyData.CheckIfExistsByCompanyName(customerRegistrationDTO.companyName))
+            {
+                return _generalResponse.Response(null, StatusCodes.Status404NotFound, "Error on Accreditation: Existing Company", false);
+            }
+
+            //New Company Registration
+            var companyGuid = await RegisterCompany(customerRegistrationDTO);
+
+            if (companyGuid != String.Empty)
+            {
+                List<xgca.entity.Models.Request> requestList = new List<xgca.entity.Models.Request>();
+                var fetchedCompanyId = await _companyData.GetGuidById(companyId);
+                var request = new RequestModel()
+                {
+                    ServiceRoleIdFrom = Guid.Parse(customerRegistrationDTO.serviceRoleId),
+                    CompanyIdFrom = Guid.Parse(companyGuid),
+                    ServiceRoleIdTo = Guid.Parse(serviceRoleId),
+                    CompanyIdTo = Guid.Parse(fetchedCompanyId.ToString())
+                };
+
+                var requestInfo = _mapper.Map<xgca.entity.Models.Request>(request);
+                requestInfo.IsActive = true;
+                requestInfo.AccreditationStatusConfigId = 2; //1 - New, 2 - Accepted, 3 - Rejected
+                requestList.Add(requestInfo);
+
+                var result = await _requestData.CreateRequest(requestList);
+
+                //Update Accredited By 
+                await _companyData.SetAccreditedBy(companyGuid, fetchedCompanyId.ToString(), 0);
+            }
+
+            return _generalResponse.Response(null, StatusCodes.Status200OK, "Company Successfully Registered & Accredited", true);
+        }
+
+        public async Task<string> RegisterCompany(CustomerRegistrationDTO customerRegistrationDTO)
+        {
+            string reqUrl = _authhConfig.Value.BasePath + _authhConfig.Value.CustomerRegistration;
+            var response = await _httpHelper.PostAsync(reqUrl, String.Empty, customerRegistrationDTO, null);
+            var json = (JObject)response;
+
+            if (Convert.ToInt32((json)["statusCode"]) != StatusCodes.Status200OK)
+            {
+                return String.Empty;
+            }
+
+            string companyId = (json)["data"]["companyGuid"].ToString();
+            return companyId;
+        }
+        #endregion
     }
 }

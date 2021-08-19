@@ -26,13 +26,11 @@ namespace xlog_accreditation_service.Controllers
     public class RequestController : Controller
     {
         private readonly IRequestCore _requestCore;
-        private readonly IMapper _mapper;
         private readonly IOptions<ClientToken> _optionsToken;
 
-        public RequestController(IRequestCore requestCore, IMapper mapper, IOptions<ClientToken> optionsToken)
+        public RequestController(IRequestCore requestCore, IOptions<ClientToken> optionsToken)
         {
             _requestCore = requestCore;
-            _mapper = mapper;
             _optionsToken = optionsToken;
         }
 
