@@ -25,6 +25,13 @@ namespace xlog_accreditation_service.Controllers.TruckArea
             this._service = _service;
         }
 
+        /// <summary>
+        /// Creation of Truck Area
+        /// </summary>
+        /// <response code="200">Success</response>  
+        /// <response code="400">Error Found!</response>  
+        /// <response code="401">Unauthorized!</response>
+        /// <response code="500">Internal Server Error!</response>
         [HttpPost]
         [Route("truck-area")]
         public async Task<IActionResult> CreateTruckArea([FromBody] CreateTruckArea obj)
@@ -40,6 +47,13 @@ namespace xlog_accreditation_service.Controllers.TruckArea
             return Ok(response);
         }
 
+        /// <summary>
+        /// Updating of Truck Area
+        /// </summary>
+        /// <response code="200">Success</response>  
+        /// <response code="400">Error Found!</response>  
+        /// <response code="401">Unauthorized!</response>
+        /// <response code="500">Internal Server Error!</response>
         [HttpPut]
         [Route("truck-area")]
         public async Task<IActionResult> UpdateTruckArea([FromBody] UpdateTruckArea obj)
@@ -55,6 +69,13 @@ namespace xlog_accreditation_service.Controllers.TruckArea
             return Ok(response);
         }
 
+        /// <summary>
+        /// Listing of Truck Area Per Request
+        /// </summary>
+        /// <response code="200">Success</response>  
+        /// <response code="400">Error Found!</response>  
+        /// <response code="401">Unauthorized!</response>
+        /// <response code="500">Internal Server Error!</response>
         [HttpGet]
         [Route("truck-area")]
         public async Task<IActionResult> ListTruckAreas([FromQuery] Guid requestGuid,
@@ -74,6 +95,13 @@ namespace xlog_accreditation_service.Controllers.TruckArea
             return Ok(response);
         }
 
+        /// <summary>
+        /// Deletion for Truck Area
+        /// </summary>
+        /// <response code="200">Success</response>  
+        /// <response code="400">Error Found!</response>  
+        /// <response code="401">Unauthorized!</response>
+        /// <response code="500">Internal Server Error!</response>
         [HttpDelete]
         [Route("truck-area/{id}")]
         public async Task<IActionResult> DeleteTruckArea([FromRoute] string id)
@@ -88,6 +116,14 @@ namespace xlog_accreditation_service.Controllers.TruckArea
 
             return Ok(response);
         }
+
+        /// <summary>
+        /// Multiple Deletion of Truck Area
+        /// </summary>
+        /// <response code="200">Success</response>  
+        /// <response code="400">Error Found!</response>  
+        /// <response code="401">Unauthorized!</response>
+        /// <response code="500">Internal Server Error!</response>
         [HttpDelete]
         [Route("truck-area/multiple")]
         public async Task<IActionResult> DeleteTruckAreas([FromBody] DeleteMultipleTruckArea list)

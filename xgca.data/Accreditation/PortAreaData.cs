@@ -8,21 +8,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using xas.data._IOptionsModel;
+using xgca.data.ViewModels.PortArea;
 using xgca.entity;
 
-namespace xas.data.accreditation.PortArea
+namespace xas.data.DataModel.PortArea
 {
     public interface IPortAreaData
     {
-        Task AddPortResponsibility(List<xgca.entity.Models.PortArea> data);
+        Task<List<xgca.entity.Models.PortArea>> AddPortResponsibility(List<xgca.entity.Models.PortArea> data);
         Task<bool> CheckIfPortExists(Guid portId, Guid requestId);
         Task ReAddPortResponsibility(xgca.entity.Models.PortArea data);
-        Task RemovePortResponsibility(Guid portAreaId);
-        Task<List<xgca.entity.Models.PortArea>> GetPortList(Guid requestId);
+        Task<xgca.entity.Models.PortArea> RemovePortResponsibility(Guid portAreaId);
+        Task<List<PortAreaResponseModel>> GetPortList(Guid requestId);
         Task<bool> CheckIfPortIsDeleted(Guid portId);
         Task<bool> RemovePortAccreditation(Guid portId);
     }
-
     public class PortAreaData : IPortAreaData
     {
         private readonly IXGCAContext _context;
@@ -34,28 +34,47 @@ namespace xas.data.accreditation.PortArea
             _clientToken = clientToken;
         }
 
-        public async Task<List<xgca.entity.Models.PortArea>> GetPortList(Guid requestId)
+        public async Task<List<PortAreaResponseModel>> GetPortList(Guid requestId)
         {
-            var requestGuid = await _context.Request.Where(t => t.Guid == requestId).FirstOrDefaultAsync();
-            var ports = await _context.PortArea.Where(t => t.Request.RequestId == requestGuid.RequestId && t.IsDeleted == false).ToListAsync();
-            return ports;
+            var portList = await (from p in _context.PortArea
+                                     join r in _context.Request on p.RequestId equals r.RequestId
+                                     where r.Guid == requestId
+                                     select new PortAreaResponseModel
+                                     {
+                                         CityName = p.CityName 
+                                         , CountryAreaId = p.CountryAreaId 
+                                         , CountryCode = p.CountryCode 
+                                         , CountryName = p.CountryName 
+                                         , IsDeleted = p.IsDeleted 
+                                         , Latitude = p.Latitude
+                                         , Location = p.Location 
+                                         , LoCode = p.Locode 
+                                         , Longitude = p.Longitude 
+                                         , Name = ""
+                                         , PortAreaId = p.PortAreaId
+                                         , PortId = p.PortId
+                                         , PortOfDischarge = (p.PortOfDischarge == 1 ? "yes" : "no")                                        
+                                         , PortOfLoading = (p.PortOfLoading == 1 ? "yes" : "no")
+                                     }).ToListAsync();
+                
+       
+            return portList;
         }
 
-        public async Task AddPortResponsibility(List<xgca.entity.Models.PortArea> data)
+        public async Task<List<xgca.entity.Models.PortArea>> AddPortResponsibility(List<xgca.entity.Models.PortArea> data)
         {
-            await _context.PortArea.AddRangeAsync(data);
-            await _context.SaveChangesAsync();
+            _context.PortArea.AddRange(data);
+            await _context.SaveChangesAsync(null, true);
+            return data;
         }
 
-        public async Task RemovePortResponsibility(Guid portAreaId)
+        public async Task<xgca.entity.Models.PortArea> RemovePortResponsibility(Guid portAreaId)
         {
-            var d = await _context.PortArea.Where(t => t.Guid == portAreaId && t.IsDeleted == false).FirstOrDefaultAsync();
-            d.IsDeleted = true;
-            d.DeletedBy = _clientToken.Value.GetUsername;
-            d.UpdatedBy = _clientToken.Value.GetUsername;   
-            d.UpdatedOn = DateTime.UtcNow;
-            d.DeletedOn = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
+            var portitem = await _context.PortArea.Where(t => t.Guid == portAreaId).SingleOrDefaultAsync();
+            _context.PortArea.Remove(portitem);
+
+            await _context.SaveChangesAsync(null, true);
+            return portitem;
         }
 
         public async Task ReAddPortResponsibility(xgca.entity.Models.PortArea data)

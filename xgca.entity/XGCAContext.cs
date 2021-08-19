@@ -685,7 +685,23 @@ namespace xgca.entity
                     .HasName("IX_PortArea")
                     .IsUnique();
 
+                entity.Property(e => e.CityName).HasMaxLength(150);
+
+                entity.Property(e => e.CountryCode).HasMaxLength(2);
+
+                entity.Property(e => e.CountryName).HasMaxLength(100);
+
                 entity.Property(e => e.Guid).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.Latitude).HasMaxLength(20);
+
+                entity.Property(e => e.Location).HasMaxLength(500);
+
+                entity.Property(e => e.Locode).HasMaxLength(15);
+
+                entity.Property(e => e.Longitude).HasMaxLength(20);
+
+                entity.Property(e => e.StateName).HasMaxLength(100);
 
                 entity.HasOne(d => d.Request)
                     .WithMany(p => p.PortArea)

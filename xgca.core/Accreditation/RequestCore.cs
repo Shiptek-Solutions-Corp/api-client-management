@@ -26,7 +26,6 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using System.Text;
 using System.Globalization;
 using CsvHelper;
-using xas.data.accreditation.PortArea;
 using Microsoft.AspNetCore.Http;
 using System.Collections;
 using xgca.core.Response;
@@ -39,6 +38,7 @@ using xgca.core.Company;
 using xgca.data.Company;
 using xgca.core.Helpers;
 using xas.data.DataModel.TruckArea;
+using xas.data.DataModel.PortArea;
 
 namespace xas.core.accreditation.Request
 {

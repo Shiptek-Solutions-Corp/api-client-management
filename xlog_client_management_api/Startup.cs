@@ -70,7 +70,6 @@ using Z.EntityFramework.Extensions;
 using xgca.data.CompanyTaxSettings;
 using xgca.core.ResponseV2;
 using xas.core.accreditation.Request;
-using xas.data.accreditation.PortArea;
 using xas.data.accreditation.Request;
 using xas.core._ResponseModel;
 using FluentValidation;
@@ -78,6 +77,8 @@ using xas.core.Request;
 using xgca.core.Validators.Request;
 using xas.core.TruckArea;
 using xas.data.DataModel.TruckArea;
+using xas.data.DataModel.PortArea;
+using xas.core.PortArea;
 
 namespace xlog_client_management_api
 {
@@ -236,6 +237,7 @@ namespace xlog_client_management_api
             //Accreditation
             services.AddScoped<IRequestCore, RequestCore>();
             services.AddScoped<IPortAreaData, PortAreaData>();
+            services.AddScoped<IPortAreaCore, PortAreaCore>();
             services.AddScoped<ITruckAreaData, TruckAreaData>();
             services.AddScoped<IRequestData, RequestData>();
             services.AddScoped<IGeneralResponse, GeneralResponse>();
