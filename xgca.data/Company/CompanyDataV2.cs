@@ -67,7 +67,7 @@ namespace xgca.data.Company
                         $"CompanyName.ToLower().Contains(@0) or " +
                         $"CompanyServices.Any(c => c.ServiceName.ToLower().Contains(@0)) or " +
                         $"StatusName.ToLower().Contains(@0) or " +
-                        $"KycStatusCode.ToLower().Contains(@0)";
+                        $"KycStatusCodeNavigation.Description.ToLower().Contains(@0)";
 
                     if (isFromSettings) // Check if request is from Company Settings Tab
                         queryStrings += 
