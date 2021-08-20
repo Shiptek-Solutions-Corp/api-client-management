@@ -24,12 +24,13 @@ using xas.data.accreditation.Request;
 using xgca.core.Helpers.Http;
 using xgca.data.Company;
 using xgca.data.ViewModels.PortArea;
+using xgca.core.Models.Accreditation.PortArea;
 
 namespace xas.core.PortArea
 {
     public interface IPortAreaCore
     {
-        Task<GeneralModel> AddPortOfResponsibility(PortAreaDTO data, int companyId);
+        Task<GeneralModel> AddPortOfResponsibility(List<CreatePortAreaModel> portInfoList);
         Task<GeneralModel> GetListofPorts(Guid requestId);
         Task<byte[]> GenerateExcelFile(Guid requestId);
         Task<GeneralModel> RemovePortResponsibility(Guid portAreaId);
@@ -63,39 +64,13 @@ namespace xas.core.PortArea
 
         }
 
-        public async Task<GeneralModel> AddPortOfResponsibility(PortAreaDTO data, int companyId)
+        public async Task<GeneralModel> AddPortOfResponsibility(List<CreatePortAreaModel> portInfoList)
         {
-            data.CompanyId = Guid.Parse(await _companyData.GetGuidById(companyId));
 
-            if (await _requestData.CheckRequestIfExistById(data.CompanyId, data.RequestId) > 0)
-            {
-                var portAreas = new List<xgca.entity.Models.PortArea>();
-                var requestId = await _requestData.GetRequestIdByGuid(data.RequestId);
-                foreach (var t in data.PortAreas)
-                {
-                    if (!await _portAreaData.CheckIfPortExists(t.PortId, data.RequestId))
-                    {
-                        portAreas.Add(new xgca.entity.Models.PortArea
-                        {
-                            PortId = t.PortId,
-                            CountryAreaId = t.CountryAreaId,
-                            PortOfDischarge = t.PortOfDischarge,
-                            PortOfLoading = t.PortOfLoading,
-                            RequestId = requestId,
-                            IsDeleted = false,
-                            CreatedOn = DateTime.UtcNow,
-                            Guid = Guid.NewGuid()
-                        });
-                    }
-                }
-                await _portAreaData.AddPortResponsibility(portAreas);
-            }
-            else
-            {
-                return _generalResponse.Response(null, StatusCodes.Status404NotFound, $"No request with id:{data.RequestId} was found.", false);
-            }
+            var lstPorts = _mapper.Map<List<xgca.entity.Models.PortArea>>(portInfoList);
+            var response = await _portAreaData.AddPortResponsibility(lstPorts);
 
-            return _generalResponse.Response(null, StatusCodes.Status200OK, "Successfully Added Port", true);
+            return _generalResponse.Response(response, StatusCodes.Status200OK, "Successfully Added Port", true);
         }
 
         public async Task<byte[]> GenerateCSVFile(Guid requestId, string CSVtype = "")

@@ -11,6 +11,7 @@ using xas.core._Helpers.IOptionModels;
 using xas.core.PortArea;
 using xas.core.PortArea.DTO;
 using xas.data._IOptionsModel;
+using xgca.core.Models.Accreditation.PortArea;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -32,13 +33,21 @@ namespace xlog_accreditation_service.Controllers.PortArea
             _optionsTokenData = optionsTokenData;
         }
 
+
+        /// <summary>
+        /// Multiple Add Port Area
+        /// </summary>
+        /// <response code="200">Success</response>  
+        /// <response code="400">Error Found!</response>  
+        /// <response code="401">Unauthorized!</response>
+        /// <response code="500">Internal Server Error!</response>
         [HttpPost]
         [Route("request/port")]
-        public async Task<IActionResult> AddPort([FromBody]PortAreaDTO data)
+        public async Task<IActionResult> AddPort([FromBody] List<CreatePortAreaModel> portInfoList)
         {
-            _optionsToken.Value.GetToken = Request.Headers["Authorization"];
-            int companyId = int.Parse(Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value);
-            var response =  await _portAreaCore.AddPortOfResponsibility(data, companyId);
+            var response =  await _portAreaCore.AddPortOfResponsibility(portInfoList);
+            if (response.statusCode == StatusCodes.Status400BadRequest) return BadRequest(response);
+            if (response.statusCode == StatusCodes.Status401Unauthorized) return Unauthorized(response);
             return Ok(response);
         }
 

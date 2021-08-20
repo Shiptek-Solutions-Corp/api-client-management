@@ -33,6 +33,7 @@ using xgca.core.Models.KYCLog;
 using xas.core.Request;
 using xas.core.TruckArea.Models;
 using xas.data.CustomModel.TruckArea;
+using xgca.core.Models.Accreditation.PortArea;
 
 namespace xgca.core._Mapper
 {
@@ -463,7 +464,7 @@ namespace xgca.core._Mapper
             #region Accreditation
 
             CreateMap<RequestModel, entity.Models.Request>();
-
+            CreateMap<CreatePortAreaModel, entity.Models.PortArea>(); 
             #region Truck Area Mapper Profiles
             CreateMap<CreateTruckArea, entity.Models.TruckArea>()
                 .ForMember(t => t.RequestId,
