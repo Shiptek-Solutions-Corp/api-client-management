@@ -17,6 +17,7 @@ namespace xgca.entity.Models
         public Guid Guid { get; set; }
         public int CountryAreaId { get; set; }
         public Guid PortId { get; set; }
+        public string PortName { get; set; }
         public int PortOfLoading { get; set; }
         public int PortOfDischarge { get; set; }
         public string CountryCode { get; set; }

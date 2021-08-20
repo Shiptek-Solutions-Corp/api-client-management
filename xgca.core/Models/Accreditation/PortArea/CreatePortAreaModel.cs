@@ -9,6 +9,7 @@ namespace xgca.core.Models.Accreditation.PortArea
         public int RequestId { get; set; }
         public int CountryAreaId { get; set; }
         public Guid PortId { get; set; }
+        public string PortName { get; set; }
         public int PortOfLoading { get; set; }
         public int PortOfDischarge { get; set; }
         public string CountryCode { get; set; }
@@ -21,5 +22,6 @@ namespace xgca.core.Models.Accreditation.PortArea
         public string Longitude { get; set; }
         public string Latitude { get; set; }
         public string Location { get; set; }
+
     }
 }
