@@ -70,7 +70,7 @@ namespace xlog_client_management_api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCompanySectionsByCompanyGuid([FromRoute] string companyId)
         {
-            //GlobalVariables.LoggedInUsername = Request.HttpContext?.User?.Claims.First(x => x.Type == "cognito:username")?.Value.ToString();
+            GlobalVariables.LoggedInUsername = Request.HttpContext?.User?.Claims.First(x => x.Type == "cognito:username")?.Value.ToString();
             var response = await _companySectionService.GetCompanySectionsByCompanyGuid(companyId);
 
             if (response.statusCode == 400)
@@ -127,7 +127,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
-        //[Authorize(AuthenticationSchemes = "Bearer")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-structure/reject")]
         [HttpPut]
         public async Task<IActionResult> RejectCompanyStructureSection([FromBody] RejectCompanySectionModel obj)
@@ -168,6 +168,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-structure/revise")]
         [HttpPut]
         public async Task<IActionResult> ReviseCompanyStructureSection([FromBody] ReviseCompanySectionModel obj)
@@ -270,6 +271,7 @@ namespace xlog_client_management_api.Controllers
             return Ok(response);
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [Route("company-beneficial-owners/revise")]
         [HttpPut]
         public async Task<IActionResult> ReviseCompanyBeneficialOwnerSection([FromBody] ReviseCompanySectionModel obj)
