@@ -34,7 +34,7 @@ namespace xas.data.accreditation.Request
         Task<dynamic> GetStatisticsInbound(int companyId, string serviceRoleId);
         Task<dynamic> GetStatisticsOutbound(int companyId, string serviceRoleId);
         Task<List<xgca.entity.Models.Request>> ActivateDeactivateRequest(List<Guid> requestIds, bool status);
-        Task<(List<GetRequestModel>, int)> GetRequestList(string bound, int pageSize, int pageNumber, int companyId, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy);
+        Task<(List<GetRequestModel>, int)> GetRequestList(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy, string quickSearch);
         Task<xgca.entity.Models.Request> PortOfResponsibilityAccreditedCustomer(string companyId, string portId);
     }
 
@@ -451,16 +451,19 @@ namespace xas.data.accreditation.Request
             return lstRequest;
         }
 
-        public async Task<(List<GetRequestModel>, int)> GetRequestList(string bound, int pageSize, int pageNumber, int companyId, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy)
+        public async Task<(List<GetRequestModel>, int)> GetRequestList(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy, string quickSearch)
         {
             //Filter Company Info Either From or To
+            Guid defaultGuid = Guid.NewGuid();
             var companyRequestInfo = await (from r in _context.Request.Include(i => i.PortArea).Include(t => t.TruckArea)
                                             .Include(i => i.AccreditationStatusConfig).AsNoTracking()
                                             join coFrom in _context.Companies.Include(i => i.Addresses).AsNoTracking() on r.CompanyIdFrom equals coFrom.Guid
                                             join coTo in _context.Companies.Include(i => i.Addresses).AsNoTracking() on r.CompanyIdTo equals coTo.Guid
                                             where r.IsDeleted == false 
-                                                && (bound.ToUpper() == "INCOMING" ? coTo.CompanyId : 0) == (bound.ToUpper() == "INCOMING" ? companyId : 0)
-                                                && (bound.ToUpper() == "OUTGOING" ? coFrom.CompanyId : 0) == (bound.ToUpper() == "OUTGOING" ? companyId : 0)
+                                                && (bound.ToUpper() == "INCOMING" ? r.CompanyIdTo : defaultGuid) == (bound.ToUpper() == "INCOMING" ? companyGuid : defaultGuid)
+                                                && (bound.ToUpper() == "OUTGOING" ? r.CompanyIdFrom : defaultGuid) == (bound.ToUpper() == "OUTGOING" ? companyGuid : defaultGuid)
+                                                && (bound.ToUpper() == "INCOMING" ? r.ServiceRoleIdTo : defaultGuid) == (bound.ToUpper() == "INCOMING" ? serviceRoleGuid : defaultGuid)
+                                                && (bound.ToUpper() == "OUTGOING" ? r.ServiceRoleIdFrom : defaultGuid) == (bound.ToUpper() == "OUTGOING" ? serviceRoleGuid : defaultGuid)
                                                 && (portAreaResponsibility.Length != 0? _context.PortArea.Where(i => i.PortCode.ToUpper().Contains(portAreaResponsibility.ToUpper()))
                                                                                                          .Select(x => x.RequestId)
                                                                                                          .Contains(r.RequestId)
@@ -473,7 +476,7 @@ namespace xas.data.accreditation.Request
                                             {
                                                 
                                                RequestInfo = r
-                                             , CompanyInfo = (bound.ToUpper() == "INCOMING" ? coTo : coFrom)
+                                             , CompanyInfo = (bound.ToUpper() == "INCOMING" ? coFrom : coTo)
                                               
                                             }).ToListAsync();
 
@@ -501,6 +504,7 @@ namespace xas.data.accreditation.Request
                                         , CompanyFullAddress = r.CompanyInfo.Addresses.FullAddress
                                    }).ToList();
 
+            requestListInfo = requestListInfo.Where(i => (i.CompanyName + i.CompanyCountryName + i.CompanyStateCityName + i.CompanyFullAddress + i.PortAreaList + i.TruckAreaList).ToUpper().Contains(quickSearch.ToUpper())).ToList();
 
             if (sortOrder.Equals("asc")) requestListInfo = requestListInfo.OrderBy(i => typeof(GetRequestModel).GetProperty(sortBy).GetValue(i).ToString()).ToList(); //Ascending
             if (sortOrder.Equals("desc")) requestListInfo = requestListInfo.OrderByDescending(i => typeof(GetRequestModel).GetProperty(sortBy).GetValue(i).ToString()).ToList(); //Descending
@@ -519,5 +523,6 @@ namespace xas.data.accreditation.Request
                 .FirstOrDefaultAsync();
             return data;
         }
+
     }
 }
