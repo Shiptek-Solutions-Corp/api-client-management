@@ -79,6 +79,9 @@ using xas.core.TruckArea;
 using xas.data.DataModel.TruckArea;
 using xas.data.DataModel.PortArea;
 using xas.core.PortArea;
+using xas.core.ServiceRoleConfig;
+using xas.core.ServiceProvider;
+using xas.data.DataModel.ServiceRoleConfig;
 
 namespace xlog_client_management_api
 {
@@ -243,6 +246,9 @@ namespace xlog_client_management_api
             services.AddScoped<IGeneralResponse, GeneralResponse>();
             services.AddScoped<IValidator<List<RequestModel>>, CreateRequestValidator>();
             services.AddScoped<ITruckAreaCore, TruckAreaCore>();
+            services.AddScoped<IServiceRoleConfigCore, ServiceRoleConfigCore>();
+            services.AddScoped<ICServiceProvider, CServiceProvider>();
+            services.AddScoped<IServiceRoleConfigData, ServiceRoleConfigData>();
         
 
 
@@ -256,7 +262,13 @@ namespace xlog_client_management_api
                 o.GetCity = Configuration.GetSection("GlobalCmsService:GetCity").Value;
                 o.GetUserType = Configuration.GetSection("GlobalCmsService:GetUserType").Value;
                 o.GetResourcesForAuthorization = Configuration.GetSection("GlobalCmsService:GetResourcesForAuthorization").Value;
-            });
+                o.ServiceList = Configuration.GetSection("GlobalCmsService:ServiceList").Value;
+                o.PortDetailsBulk = Configuration.GetSection("GlobalCmsService:PortDetailsBulk").Value;
+                o.RetrieveService = Configuration.GetSection("GlobalCmsService:RetrieveService").Value;
+                o.GetServiceRoleId = Configuration.GetSection("GlobalCmsService:GetServiceRoleId").Value;
+
+               
+    });
 
             services.Configure<OptimusAuthService>(o => {
                 o.BaseUrl = Configuration.GetSection("OptimusAuthService:BaseUrl").Value;

@@ -184,7 +184,7 @@ namespace xlog_accreditation_service.Controllers
 
 
         /// <summary>
-        /// Single delete of request
+        /// Multiple delete of request
         /// </summary>
         /// <response code="200">Success</response>  
         /// <response code="400">Error Found!</response>  
@@ -193,9 +193,9 @@ namespace xlog_accreditation_service.Controllers
         [HttpDelete]
         [Route("request/delete")]
         [TokenAuthorize("scope", "accreditationShippingAgency.delete|accreditationShippingLine.delete")]
-        public async Task<IActionResult> DeleteAcccreditationRequest([FromBody]AccreditationDeleteDTO data)
+        public async Task<IActionResult> DeleteAcccreditationRequest([FromBody] List<Guid> requestIds)
         {
-            var response = await _requestCore.DeleteAccreditaitonRequest(data.requestId);
+            var response = await _requestCore.DeleteAccreditaitonRequest(requestIds);
 
             if (response.statusCode == StatusCodes.Status400BadRequest) return BadRequest(response);
             if (response.statusCode == StatusCodes.Status401Unauthorized) return Unauthorized(response);
@@ -204,24 +204,22 @@ namespace xlog_accreditation_service.Controllers
 
 
         /// <summary>
-        /// Multiple delete of request
+        /// Activate Deactivate list of Request
         /// </summary>
         /// <response code="200">Success</response>  
         /// <response code="400">Error Found!</response>  
         /// <response code="401">Unauthorized!</response>
         /// <response code="500">Internal Server Error!</response>
-        [HttpDelete]
-        [Route("request/bulk-delete")]
-        [TokenAuthorize("scope", "accreditationShippingAgency.delete|accreditationShippingLine.delete")]
-        public async Task<IActionResult> DeleteAcccreditationRequestBulk([FromBody] Cus_DeleteBulk data)
-        {        
-            var response = await _requestCore.DeleteAccreditaitonRequestBulk(data.RequestId);
+        [HttpPut]
+        [Route("request/activate-deactivate")]
+        public async Task<IActionResult> ActivateDeactivateRequest([FromBody] List<Guid> requestIds, [FromQuery] bool status)
+        {
+            var response = await _requestCore.ActivateDeactivateRequest(requestIds, status);
 
             if (response.statusCode == StatusCodes.Status400BadRequest) return BadRequest(response);
             if (response.statusCode == StatusCodes.Status401Unauthorized) return Unauthorized(response);
             return Ok(response);
         }
-
 
         /// <summary>
         /// Get All Status Statistics
@@ -255,6 +253,13 @@ namespace xlog_accreditation_service.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Export list of Request to CSV
+        /// </summary>
+        /// <response code="200">Success</response>  
+        /// <response code="400">Error Found!</response>  
+        /// <response code="401">Unauthorized!</response>
+        /// <response code="500">Internal Server Error!</response>
         [HttpGet]
         [Route("requests/trucking/{bound}/csv")]
         [TokenAuthorize("scope", "accreditationShippingAgency.get|accreditationShippingLine.get")]
@@ -279,6 +284,13 @@ namespace xlog_accreditation_service.Controllers
             return File(response, "application/octet-stream", fileName);
         }
 
+        /// <summary>
+        /// Export list of Request to CSV Template
+        /// </summary>
+        /// <response code="200">Success</response>  
+        /// <response code="400">Error Found!</response>  
+        /// <response code="401">Unauthorized!</response>
+        /// <response code="500">Internal Server Error!</response>
         [HttpGet]
         [Route("requests/trucking/csv/template")]
         [TokenAuthorize("scope", "accreditationShippingAgency.get|accreditationShippingLine.get")]
@@ -290,7 +302,7 @@ namespace xlog_accreditation_service.Controllers
         }
 
         /// <summary>
-        /// Create accreditation request
+        /// Get Trucking Statistics
         /// </summary>
         /// <response code="200">Success</response>  
         /// <response code="400">Error Found!</response>  
@@ -310,5 +322,46 @@ namespace xlog_accreditation_service.Controllers
             if (response.statusCode == StatusCodes.Status401Unauthorized) return Unauthorized(response);
             return Ok(response);
         }
+
+
+        /// <summary>
+        /// Get List of Request
+        /// </summary>
+        /// <response code="200">Success</response>  
+        /// <response code="400">Error Found!</response>  
+        /// <response code="401">Unauthorized!</response>
+        /// <response code="500">Internal Server Error!</response>
+        [HttpGet]//DONE
+        [Route("request/{bound}")]
+        [TokenAuthorize("scope", "accreditationShippingAgency.get|accreditationShippingLine.get")]
+        public async Task<IActionResult> GetRequestList(string bound = "INCOMING", int pageSize = 10, int pageNumber = 0, string companyName = "", string companyAddress = "", string companyCountryName = "", string companyStateCityName = "", string portAreaResponsibility = "", string truckAreaResponsibility = "", string sortOrder = "asc", string sortBy = "RequestId")
+        {
+            var companyId = int.Parse(Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value);
+            var response = await _requestCore.GetRequestList(bound, pageSize, pageNumber, companyId, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, truckAreaResponsibility, sortOrder, sortBy);
+
+            if (response.statusCode == StatusCodes.Status400BadRequest) return BadRequest(response);
+            if (response.statusCode == StatusCodes.Status401Unauthorized) return Unauthorized(response);
+            return Ok(response);
+        }
+
+        /// <summary>
+        /// Get List of Request By CompanyId
+        /// </summary>
+        /// <response code="200">Success</response>  
+        /// <response code="400">Error Found!</response>  
+        /// <response code="401">Unauthorized!</response>
+        /// <response code="500">Internal Server Error!</response>
+        [HttpGet]//DONE
+        [Route("request/companyId")]
+        [TokenAuthorize("scope", "accreditationShippingAgency.get|accreditationShippingLine.get")]
+        public async Task<IActionResult> GetRequestListByCompanyId(string bound = "INCOMING", int pageSize = 10, int pageNumber = 0, int companyId = 0, string companyName = "", string companyAddress = "", string companyCountryName = "", string companyStateCityName = "", string portAreaResponsibility = "", string truckAreaResponsibility = "", string sortOrder = "asc", string sortBy = "RequestId")
+        {
+            var response = await _requestCore.GetRequestList(bound, pageSize, pageNumber, companyId, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, truckAreaResponsibility, sortOrder, sortBy);
+
+            if (response.statusCode == StatusCodes.Status400BadRequest) return BadRequest(response);
+            if (response.statusCode == StatusCodes.Status401Unauthorized) return Unauthorized(response);
+            return Ok(response);
+        }
+
     }
 }

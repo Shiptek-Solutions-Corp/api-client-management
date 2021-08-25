@@ -41,27 +41,14 @@ namespace xas.core.PortArea
     {
         private readonly IPortAreaData _portAreaData;
         private readonly IGeneralResponse _generalResponse;
-        private readonly IRequestData _requestData;
         private readonly IMapper _mapper;
-        private readonly IOptions<ClientToken> _optionsToken;
-        private readonly IHttpHelper _httpHelper;
-        private readonly IOptions<ClientManagement> _optionsClient;
-        private readonly IOptions<GlobalCMS> _optionsGlobal;
-        private readonly ICompanyData _companyData;
 
-        public PortAreaCore(IPortAreaData portAreaData, IGeneralResponse generalResponse, IRequestData requestData, IMapper mapper, IOptions<ClientToken> optionsToken, IHttpHelper httpHelper, IOptions<ClientManagement> optionsClient, IOptions<GlobalCMS> optionsGlobal, ICompanyData companyData)
+
+        public PortAreaCore(IPortAreaData portAreaData, IGeneralResponse generalResponse,  IMapper mapper)
         {
             _portAreaData = portAreaData;
             _generalResponse = generalResponse;
-            _requestData = requestData;
             _mapper = mapper;
-            _optionsToken = optionsToken;
-            _optionsClient = optionsClient;
-            _optionsGlobal = optionsGlobal;
-            _httpHelper = httpHelper;
-            _optionsClient = optionsClient;
-            _companyData = companyData;
-
         }
 
         public async Task<GeneralModel> AddPortOfResponsibility(List<CreatePortAreaModel> portInfoList)

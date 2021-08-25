@@ -39,6 +39,7 @@ using xgca.data.Company;
 using xgca.core.Helpers;
 using xas.data.DataModel.TruckArea;
 using xas.data.DataModel.PortArea;
+using xgca.core.ResponseV2;
 
 namespace xas.core.accreditation.Request
 {
@@ -50,8 +51,8 @@ namespace xas.core.accreditation.Request
         //Task<GeneralModel> GetAccreditationRequest(string bound, GetAccreditationRequestDTO paramData);
         //Task<GeneralModel> GetAccreditationRequestCSVFormat(string bound, GetAccreditationRequestDTO paramData);
         Task<GeneralModel> GetAccreditationStats(int companyId, string bound);
-        Task<GeneralModel> DeleteAccreditaitonRequest(Guid requestId);
-        Task<GeneralModel> DeleteAccreditaitonRequestBulk(List<Guid> requestId);
+        Task<GeneralModel> DeleteAccreditaitonRequest(List<Guid> requestIdss);
+        Task<GeneralModel> ActivateDeactivateRequest(List<Guid> requestIds, bool status);
         Task<GeneralModel> UpdateRequestStatusBulk(int companyId, List<Guid> requestId, int status);
         Task<byte[]> GenerateExcelFile(List<ResponseDTO> companyList);
         Task<byte[]> GenerateCSVFile(List<CSVResponseDTO> companyList, string CSVtype = "");
@@ -61,10 +62,13 @@ namespace xas.core.accreditation.Request
         Task<byte[]> ExportTruckingAccreditationRequest(int companyId, string bound, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize);
         Task<byte[]> ExportTruckingAccreditationRequestTemplate();
         Task<GeneralModel> GetAccreditationStats(int companyId, string bound, string serviceRoleId);
+        Task<GeneralModel> GetRequestList(string bound, int pageSize, int pageNumber, int companyId, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy);
+        
         #endregion
 
         #region Customer Accreditation
         Task<dynamic> CreateCustomerAccreditation(CustomerRegistrationDTO customerRegistrationDTO, int companyId, string username, string serviceRole, string serviceRoleId);
+        Task<GeneralModel> PortOfResponsibilityAccreditedCustomer(ListPortOfResponsibility obj);
         #endregion
     }
 
@@ -75,14 +79,11 @@ namespace xas.core.accreditation.Request
         private readonly IMapper _mapper;
         private readonly IGeneralResponse _generalResponse;
         private readonly IHttpHelper _httpHelper;
-        private readonly IOptions<ClientManagement> _optionsClient;
-        private readonly IOptions<ClientToken> _optionsToken;
-        private readonly IOptions<GlobalCMS> _optionsGlobal;
         private readonly IPagedResponse _pageresponse;
-        private readonly ITruckAreaData _truckAreaData;
         private readonly IValidator<List<RequestModel>> _validatorCreateRequest;
         private readonly ICompanyData _companyData;
         private readonly IOptions<AuthConfig> _authhConfig;
+        private readonly IPaginationResponse _pagination;
 
 
         public RequestCore(
@@ -91,28 +92,22 @@ namespace xas.core.accreditation.Request
             IMapper mapper,
             IGeneralResponse generalResponse,
             IHttpHelper httpHelper,
-            IOptions<ClientManagement> optionsClient,
-            IOptions<ClientToken> optionsToken,
-            IOptions<GlobalCMS> optionsGlobal,
             IPagedResponse pageresponse,
-            ITruckAreaData truckAreaData,
             IValidator<List<RequestModel>> validatorCreateRequest,
             ICompanyData companyData,
-            IOptions<AuthConfig> authhConfig)
+            IOptions<AuthConfig> authhConfig,
+            IPaginationResponse pagination)
         {
             _requestData = requestData;
             _portAreaData = portAreaData;
             _mapper = mapper;
             _generalResponse = generalResponse;
             _httpHelper = httpHelper;
-            _optionsClient = optionsClient;
-            _optionsToken = optionsToken;
-            _optionsGlobal = optionsGlobal;
             _pageresponse = pageresponse;
-            _truckAreaData = truckAreaData;
             _validatorCreateRequest = validatorCreateRequest;
             _companyData = companyData;
             _authhConfig = authhConfig;
+            _pagination = pagination;
         }
 
         #region Request
@@ -187,7 +182,7 @@ namespace xas.core.accreditation.Request
             return _generalResponse.Response(response, StatusCodes.Status200OK, "Request has been submitted.", true);
         }
 
-       
+
         //public async Task<GeneralModel> GetAccreditationRequest(string bound, GetAccreditationRequestDTO paramData)
         //{
         //ReBuildObject:
@@ -323,21 +318,16 @@ namespace xas.core.accreditation.Request
         //    #endregion
         //}
 
-        public async Task<GeneralModel> DeleteAccreditaitonRequest(Guid requestId)
+        public async Task<GeneralModel> DeleteAccreditaitonRequest(List<Guid> requestIds)
         {
-            await _requestData.DeleteRequest(requestId);
+            await _requestData.DeleteRequest(requestIds);
             return _generalResponse.Response(null, StatusCodes.Status200OK, "Request deletion has been succesful!", true);
         }
 
-        public async Task<GeneralModel> DeleteAccreditaitonRequestBulk(List<Guid> requestId)
+        public async Task<GeneralModel> ActivateDeactivateRequest(List<Guid> requestIds, bool status)
         {
-               //loop requestId
-            foreach (var request in requestId)
-            {
-                await _requestData.DeleteRequest(request);
-            }
-
-            return _generalResponse.Response(null, StatusCodes.Status200OK, "Request deletion has been succesful!", true);
+            var response = await _requestData.ActivateDeactivateRequest(requestIds, status);
+            return _generalResponse.Response(null, StatusCodes.Status200OK, "Request status has been updated.", true);
         }
 
         public async Task<GeneralModel> UpdateRequestStatus(int companyId, Guid requestId, int status)
@@ -648,6 +638,11 @@ namespace xas.core.accreditation.Request
             return _generalResponse.Response(response, StatusCodes.Status200OK, "Accreditation statistics has been retrieved!", true);
         }
 
+        public async Task<GeneralModel> GetRequestList(string bound, int pageSize, int pageNumber, int companyId, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy)
+        {
+            var response = await _requestData.GetRequestList(bound, pageSize, pageNumber, companyId, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, truckAreaResponsibility, sortOrder, sortBy);
+            return _generalResponse.Response(_pagination.Paginate(response.Item1, response.Item2, pageNumber, pageSize), StatusCodes.Status200OK, "Request list successfully loaded.", true);
+        }
 
         #endregion
 
@@ -703,6 +698,22 @@ namespace xas.core.accreditation.Request
             string companyId = (json)["data"]["companyGuid"].ToString();
             return companyId;
         }
+
+        public async Task<GeneralModel> PortOfResponsibilityAccreditedCustomer(ListPortOfResponsibility obj)
+        {
+            if (obj == null)
+            {
+                return _generalResponse.Response(null, StatusCodes.Status400BadRequest, "Company Id is required!", false);
+            }
+
+            ReturnPortOfResponsibility returnPortOfResponsibility = new ReturnPortOfResponsibility();
+
+            var dischargeLine = await _requestData.PortOfResponsibilityAccreditedCustomer(obj.CompanyId, obj.PortOfDischargeId);
+            var loadingLine = await _requestData.PortOfResponsibilityAccreditedCustomer(obj.CompanyId, obj.PortOfLoadingId);
+
+            return _generalResponse.Response(new { companies = new ReturnPortOfResponsibility { PortOfDischargeCompanyId = dischargeLine?.CompanyIdFrom.ToString(), PortOfLoadingCompanyId = loadingLine?.CompanyIdFrom.ToString() } }, StatusCodes.Status200OK, "Accredited Companies has been Listed", true);
+        }
+
         #endregion
     }
 }

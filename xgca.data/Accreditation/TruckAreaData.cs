@@ -17,7 +17,7 @@ namespace xas.data.DataModel.TruckArea
         Task<(xgca.entity.Models.TruckArea, string)> Update(xgca.entity.Models.TruckArea obj);
         Task<List<xgca.entity.Models.TruckArea>> List(int requestId);
         Task<(List<GetTruckAreaModel>, int)> List(Guid requestGuid, string search, string city, string state, string country, string postal, string sortBy, string sortOrder, int pageNumber, int pageSize);
-        Task<(bool, string)> Delete(xgca.entity.Models.TruckArea obj);
+        Task<(bool, string)> Delete(Guid truckAreaId);
         Task<(bool, string)> DeleteBulk(List<Guid> ids, string deletedBy);
     }
 
@@ -80,22 +80,14 @@ namespace xas.data.DataModel.TruckArea
                 : (false, "Error in deleting records");
         }
 
-        public async Task<(bool, string)> Delete(xgca.entity.Models.TruckArea obj)
+        public async Task<(bool, string)> Delete(Guid truckAreaId)
         {
             var record = await _context.TruckArea
-                .Where(x => x.Guid == obj.Guid && x.IsDeleted == false)
-                .FirstOrDefaultAsync();
+                .Where(x => x.Guid == truckAreaId && x.IsDeleted == false)
+                .SingleOrDefaultAsync();
 
-            if (record is null)
-            {
-                return (false, "Record does not exists or may have been deleted");
-            }
-
-            record.IsDeleted = true;
-            record.DeletedBy = obj.DeletedBy;
-            record.DeletedOn = obj.DeletedOn;
-
-            var result = await _context.SaveChangesAsync();
+            _context.TruckArea.Remove(record);
+            var result = await _context.SaveChangesAsync(null, true);
 
             return (result > 0)
                 ? (true, "Record deleted successfully")

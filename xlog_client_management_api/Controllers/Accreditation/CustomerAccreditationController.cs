@@ -30,6 +30,13 @@ namespace xlog_accreditation_service.Controllers.CustomerAccreditation
             _requestCore = requestCore;
         }
 
+        /// <summary>
+        /// Create Customer Accreditation
+        /// </summary>
+        /// <response code="200">Success</response>  
+        /// <response code="400">Error Found!</response>  
+        /// <response code="401">Unauthorized!</response>
+        /// <response code="500">Internal Server Error!</response>
         [HttpPost]
         [Route("company/{serviceRole}")]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -41,15 +48,31 @@ namespace xlog_accreditation_service.Controllers.CustomerAccreditation
             var username = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
             var serviceRoleId = Request.HttpContext.Request.Headers["x-service-role"];
 
-            var authModel = await _requestCore.CreateCustomerAccreditation(customerRegistrationDTO, Convert.ToInt32(companyId), username, serviceRole, serviceRoleId);
-            if (!authModel.IsSuccessful)
-            {
-                return BadRequest(authModel);
-            }
-
-            return Ok(authModel);
+            var response = await _requestCore.CreateCustomerAccreditation(customerRegistrationDTO, Convert.ToInt32(companyId), username, serviceRole, serviceRoleId);
+            if (response.statusCode == StatusCodes.Status400BadRequest) return BadRequest(response);
+            if (response.statusCode == StatusCodes.Status401Unauthorized) return Unauthorized(response);
+            return Ok(response);
         }
 
+
+        /// <summary>
+        /// Get List of Accredited Ports 
+        /// </summary>
+        /// <response code="200">Success</response>  
+        /// <response code="400">Error Found!</response>  
+        /// <response code="401">Unauthorized!</response>
+        /// <response code="500">Internal Server Error!</response>
+        [HttpPost]
+        [Route("customer/accredited/portOfResponsibility")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [TokenAuthorize("scope", "accreditationCustomer.get|bookingReservation.post|serviceRequest.post")]
+        public async Task<IActionResult> GetPortOfResponsibility([FromBody] ListPortOfResponsibility obj)
+        {
+            var response = await _requestCore.PortOfResponsibilityAccreditedCustomer(obj);
+            if (response.statusCode == StatusCodes.Status400BadRequest) return BadRequest(response);
+            if (response.statusCode == StatusCodes.Status401Unauthorized) return Unauthorized(response);
+            return Ok(response);
+        }
 
         //[HttpPost]
         //[Route("customer/bulk")]
@@ -167,7 +190,7 @@ namespace xlog_accreditation_service.Controllers.CustomerAccreditation
         //        return Ok(d);
         //    }
 
-            
+
         //}
 
         //[HttpPut]
@@ -300,22 +323,7 @@ namespace xlog_accreditation_service.Controllers.CustomerAccreditation
         //    return Ok(data);
         //}
 
-        //[HttpPost]
-        //[Route("customer/accredited/portOfResponsibility")]
-        //[Authorize(AuthenticationSchemes = "Bearer")]
-        //[TokenAuthorize("scope", "accreditationCustomer.get|bookingReservation.post|serviceRequest.post")]
-        //public async Task<IActionResult> GetPortOfResponsibility([FromBody] ListPortOfResponsibility obj)
-        //{
-        //    _optionsToken.Value.GetToken = Request.Headers["Authorization"];
-        //    var data = await _customerCore.PortOfResponsibilityAccreditedCustomer(obj);
 
-        //    if (data.statusCode == 400)
-        //    {
-        //        return BadRequest(data);
-        //    }
-
-        //    return Ok(data);
-        //}
 
         //[HttpGet]
         //[Route("customer/accredited/individual/portOfResponsibility/{companyId}/{portId}")]
