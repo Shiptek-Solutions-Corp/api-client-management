@@ -96,11 +96,11 @@ namespace xgca.data.PreferredContact
         public async Task<(List<RegisteredContacts>, List<string>)> GetRegisteredIds(int profileId, string profileGuid)
         {
             var registeredIds = await _context.PreferredContacts
-                .Where(pc => pc.ProfileId == profileId && pc.CompanyId != profileGuid && pc.ContactType == 1)
+                .Where(pc => pc.ProfileId == profileId && pc.CompanyId != profileGuid && pc.ContactType == 1 && pc.IsDeleted == 0)
                 .Select(x => x.CompanyId).ToListAsync();
 
             var registered = await _context.PreferredContacts
-                .Where(pc => pc.ProfileId == profileId && pc.CompanyId != profileGuid && pc.ContactType == 1)
+                .Where(pc => pc.ProfileId == profileId && pc.CompanyId != profileGuid && pc.ContactType == 1 && pc.IsDeleted == 0)
                 .Select(x => new RegisteredContacts
                 {
                     PreferredContactId = x.Guid.ToString(),
