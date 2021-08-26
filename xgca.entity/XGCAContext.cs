@@ -701,6 +701,8 @@ namespace xgca.entity
 
                 entity.Property(e => e.Longitude).HasMaxLength(20);
 
+                entity.Property(e => e.PortCode).HasMaxLength(10);
+
                 entity.Property(e => e.PortName).HasMaxLength(100);
 
                 entity.Property(e => e.StateName).HasMaxLength(100);

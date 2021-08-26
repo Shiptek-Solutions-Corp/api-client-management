@@ -39,6 +39,9 @@ using xgca.data.Company;
 using xgca.core.Helpers;
 using xas.data.DataModel.TruckArea;
 using xas.data.DataModel.PortArea;
+using xgca.core.ResponseV2;
+using xgca.data.ViewModels.Request;
+using xgca.core.Models.Accreditation;
 
 namespace xas.core.accreditation.Request
 {
@@ -46,25 +49,20 @@ namespace xas.core.accreditation.Request
     {
         #region Request
         Task<GeneralModel> CreateRequest(List<RequestModel> requestInfo);
-        Task<GeneralModel> UpdateRequestStatus(int companyId, Guid requestId, int status);
-        //Task<GeneralModel> GetAccreditationRequest(string bound, GetAccreditationRequestDTO paramData);
-        //Task<GeneralModel> GetAccreditationRequestCSVFormat(string bound, GetAccreditationRequestDTO paramData);
         Task<GeneralModel> GetAccreditationStats(int companyId, string bound);
-        Task<GeneralModel> DeleteAccreditaitonRequest(Guid requestId);
-        Task<GeneralModel> DeleteAccreditaitonRequestBulk(List<Guid> requestId);
+        Task<GeneralModel> DeleteAccreditaitonRequest(List<Guid> requestIdss);
+        Task<GeneralModel> ActivateDeactivateRequest(List<Guid> requestIds, bool status);
         Task<GeneralModel> UpdateRequestStatusBulk(int companyId, List<Guid> requestId, int status);
-        Task<byte[]> GenerateExcelFile(List<ResponseDTO> companyList);
-        Task<byte[]> GenerateCSVFile(List<CSVResponseDTO> companyList, string CSVtype = "");
-        Task<int> GetRequestId(string companyIdFrom, string companyIdTo);
         Task<int> GetRequestIdByGuid(string guid);
-        Task<GeneralModel> GetTruckingAccreditationRequest(int companyId, string bound, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize);
-        Task<byte[]> ExportTruckingAccreditationRequest(int companyId, string bound, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize);
-        Task<byte[]> ExportTruckingAccreditationRequestTemplate();
-        Task<GeneralModel> GetAccreditationStats(int companyId, string bound, string serviceRoleId);
+        Task<GeneralModel> GetRequestList(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy, string quickSearch);
+        Task<byte[]> ExportRequestListToCSV(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy, string quickSearch);
+        Task<byte[]> ExportRequestListToCSVTemplate();
+
         #endregion
 
         #region Customer Accreditation
         Task<dynamic> CreateCustomerAccreditation(CustomerRegistrationDTO customerRegistrationDTO, int companyId, string username, string serviceRole, string serviceRoleId);
+        Task<GeneralModel> PortOfResponsibilityAccreditedCustomer(ListPortOfResponsibility obj);
         #endregion
     }
 
@@ -75,14 +73,11 @@ namespace xas.core.accreditation.Request
         private readonly IMapper _mapper;
         private readonly IGeneralResponse _generalResponse;
         private readonly IHttpHelper _httpHelper;
-        private readonly IOptions<ClientManagement> _optionsClient;
-        private readonly IOptions<ClientToken> _optionsToken;
-        private readonly IOptions<GlobalCMS> _optionsGlobal;
         private readonly IPagedResponse _pageresponse;
-        private readonly ITruckAreaData _truckAreaData;
         private readonly IValidator<List<RequestModel>> _validatorCreateRequest;
         private readonly ICompanyData _companyData;
         private readonly IOptions<AuthConfig> _authhConfig;
+        private readonly IPaginationResponse _pagination;
 
 
         public RequestCore(
@@ -91,38 +86,27 @@ namespace xas.core.accreditation.Request
             IMapper mapper,
             IGeneralResponse generalResponse,
             IHttpHelper httpHelper,
-            IOptions<ClientManagement> optionsClient,
-            IOptions<ClientToken> optionsToken,
-            IOptions<GlobalCMS> optionsGlobal,
             IPagedResponse pageresponse,
-            ITruckAreaData truckAreaData,
             IValidator<List<RequestModel>> validatorCreateRequest,
             ICompanyData companyData,
-            IOptions<AuthConfig> authhConfig)
+            IOptions<AuthConfig> authhConfig,
+            IPaginationResponse pagination)
         {
             _requestData = requestData;
             _portAreaData = portAreaData;
             _mapper = mapper;
             _generalResponse = generalResponse;
             _httpHelper = httpHelper;
-            _optionsClient = optionsClient;
-            _optionsToken = optionsToken;
-            _optionsGlobal = optionsGlobal;
             _pageresponse = pageresponse;
-            _truckAreaData = truckAreaData;
             _validatorCreateRequest = validatorCreateRequest;
             _companyData = companyData;
             _authhConfig = authhConfig;
+            _pagination = pagination;
         }
 
         #region Request
         public async Task<GeneralModel> GetAccreditationStats(int companyId, string bound)
         {
-            ////Get Company Guid ID from Client CMS
-            //var objectResponse = (JObject)await _httpHelper.Get(_optionsClient.Value.BasePath +
-            //    _optionsClient.Value.CompanyGuidById.Replace("{companyId}", companyId.ToString()), null, _optionsToken.Value.GetToken.Split(" ")[1].ToString());
-            //var companyGuid = Guid.Parse(objectResponse["data"]["companyId"].ToString());
-
             var response = new object();
 
             if (bound == "incoming")
@@ -187,173 +171,16 @@ namespace xas.core.accreditation.Request
             return _generalResponse.Response(response, StatusCodes.Status200OK, "Request has been submitted.", true);
         }
 
-       
-        //public async Task<GeneralModel> GetAccreditationRequest(string bound, GetAccreditationRequestDTO paramData)
-        //{
-        //ReBuildObject:
-        //    #region LISTING
-        //    //Get GUID ID of the logged on company from token
-        //    var objectResponse = (JObject)await _httpHelper.Get(_optionsClient.Value.BasePath +
-        //        _optionsClient.Value.CompanyGuidById.Replace("{companyId}", paramData.companyId.ToString()), null, _optionsToken.Value.GetToken.Split(" ")[1].ToString());
-
-
-        //    //Transport Bound validations
-        //    ICollection<xgca.entity.Models.Request> data = new List<xgca.entity.Models.Request>();
-        //    if (bound == "incomming")
-        //    {
-        //        data = await _requestData.GetAllIncommingRequest(Guid.Parse(objectResponse["data"]["companyId"].ToString()));
-        //    }
-        //    else if (bound == "outgoing")
-        //    {
-        //        data = await _requestData.GetAllOutgoingRequest(Guid.Parse(objectResponse["data"]["companyId"].ToString()));
-        //    }
-        //    else
-        //    {
-        //        return _generalResponse.Response(null, 400, "Invalid bound value", false);
-        //    }
-
-        //    //Fetch all company ids
-        //    List<string> outGoingCompanies = new List<string>();
-
-        //    data.ToList().ForEach(t =>
-        //    {
-        //        var cidT = bound == "incomming" ? t.CompanyIdFrom.ToString() : t.CompanyIdTo.ToString();
-        //        outGoingCompanies.Add(cidT);
-        //    });
-
-        //    //Get All Company Details
-        //    var d = (JObject)(await _httpHelper.Post(_optionsClient.Value.BasePath + _optionsClient.Value.CompanyDetailsByGuids,
-        //        _optionsToken.Value.GetToken.Split(" ")[1].ToString(),
-        //        new
-        //        {
-        //            companyIDs = outGoingCompanies //[]Array List of companies
-        //        })).Data;
-
-        //    //SerializeToObject
-        //    List<CompanyDTO> companyList = JsonConvert.DeserializeObject<List<CompanyDTO>>(JsonConvert.SerializeObject(d["companies"]));
-
-        //    //Re Generate Response
-        //    List<ResponseDTO> responseData = new List<ResponseDTO>();
-        //    data.ToList().ForEach(t =>
-        //    {
-        //        var cid = bound == "incomming" ? t.CompanyIdFrom.ToString() : t.CompanyIdTo.ToString();
-        //        var cMatch = companyList.Where(g => g.companyId == cid).FirstOrDefault();
-        //        responseData.Add(new ResponseDTO
-        //        {
-        //            requestId = t.Guid,
-        //            companyName = cMatch.companyName,
-        //            fullAddress = cMatch.fullAddress,
-        //            companyDetails = _mapper.Map<xas.core.Request.CompanyDetails>(cMatch),
-        //            portAreas = _mapper.Map<List<PortAreaResponse>>(t.PortArea),
-        //            status = t.AccreditationStatusConfigId == 1 ? "New" : t.AccreditationStatusConfigId == 2 ? "Approved" : t.AccreditationStatusConfigId == 3 ? "Rejected" : "Unknown",
-        //        });
-        //    });
-
-        //    var isModified = false;
-
-        //    //Setting PortArea Details
-        //    foreach (var rDto in responseData)
-        //    {
-        //        foreach (var ports in rDto.portAreas)
-        //        {
-        //            var portDetails = (JObject)await _httpHelper.Get(_optionsGlobal.Value.BasePath +
-        //            _optionsGlobal.Value.PortDetailsBulk.Replace("{portIdsCSV}", ports.PortId.ToString()), null, _optionsToken.Value.GetToken.Split(" ")[1].ToString());
-
-        //            var portArr = portDetails["data"]["ports"];
-
-        //            if (portDetails["data"]["ports"].Count() <= 0)
-        //            {
-        //                var portArea = await _portAreaData.RemovePortAccreditation(ports.PortId);
-        //                isModified = true;
-        //                continue;
-        //            }
-
-        //            ports.CountryCode = portDetails["data"]["ports"][0]["countryCode"].ToString();
-        //            ports.LoCode = portDetails["data"]["ports"][0]["locode"].ToString();
-        //            ports.Name = portDetails["data"]["ports"][0]["name"].ToString();
-        //            ports.Location = portDetails["data"]["ports"][0]["location"].ToString();
-        //            ports.Latitude = portDetails["data"]["ports"][0]["latitude"].ToString();
-        //            ports.Longitude = portDetails["data"]["ports"][0]["longitude"].ToString();
-        //            ports.CountryName = portDetails["data"]["ports"][0]["countryName"].ToString();
-        //            ports.CityName = portDetails["data"]["ports"][0]["cityName"].ToString();
-        //        }
-        //    }
-
-        //    if (isModified)
-        //    {
-        //        goto ReBuildObject;
-        //    }
-
-        //    #endregion
-        //    #region SORTING AND SEARCH FEATURE
-        //    //Filtering
-        //    responseData = responseData.Select(i => new ResponseDTO
-        //    {
-        //        requestId = i.requestId,
-        //        companyName = i.companyName,
-        //        fullAddress = i.fullAddress,
-        //        imageURL = i.imageURL,
-        //        companyDetails = i.companyDetails,
-        //        portAreas = i.portAreas.Where(a => a.CountryName.ToUpper().Contains(paramData.Coperating.ToUpper())
-        //                                        && a.Name.ToUpper().Contains(paramData.CportResp.ToUpper())
-        //                                        && a.LoCode.ToUpper().Contains(paramData.CLocode.ToUpper())
-        //                                        && a.IsDeleted == 0).ToList(),
-        //        status = i.status
-        //    }
-        //                                    ).Where(t => t.companyName.ToUpper().Contains(paramData.CcompanyName.ToUpper())
-        //                                    && t.fullAddress.ToUpper().Contains(paramData.CfullAddress.ToUpper())
-        //                                    && t.status.ToUpper().Contains(paramData.Cstatus.ToUpper())
-        //                                    && (t.companyName + t.fullAddress + t.status + t.portAreas.Select(a => a.CountryName) + t.portAreas.Select(a => a.Name) + t.portAreas.Select(a => a.LoCode)).ToUpper().Contains(paramData.search.ToUpper())
-        //                                    ).ToList();
-
-        //    //TotalRecordCount
-        //    int recordCount = responseData.Count();
-
-        //    //Sorting
-        //    if (paramData.sort.ToUpper() == "ASC") responseData = responseData.OrderBy(i => typeof(ResponseDTO).GetProperty(paramData.columnSort).GetValue(i).ToString()).ToList();
-        //    if (paramData.sort.ToUpper() == "DESC") responseData = responseData.OrderByDescending(i => typeof(ResponseDTO).GetProperty(paramData.columnSort).GetValue(i).ToString()).ToList();
-        //    #endregion
-        //    #region PAGINATION
-        //    //Pagination
-        //    responseData = responseData.Skip(paramData.rowPerPage * paramData.pageNumber).Take(paramData.rowPerPage).ToList();
-
-        //    //response
-        //    var PageResponseData = _pageresponse.Paginate(responseData, recordCount, paramData.pageNumber, paramData.rowPerPage);
-        //    return _generalResponse.Response(PageResponseData, 200, $"{bound} request has been listed!", true);
-        //    #endregion
-        //}
-
-        public async Task<GeneralModel> DeleteAccreditaitonRequest(Guid requestId)
+        public async Task<GeneralModel> DeleteAccreditaitonRequest(List<Guid> requestIds)
         {
-            await _requestData.DeleteRequest(requestId);
+            await _requestData.DeleteRequest(requestIds);
             return _generalResponse.Response(null, StatusCodes.Status200OK, "Request deletion has been succesful!", true);
         }
 
-        public async Task<GeneralModel> DeleteAccreditaitonRequestBulk(List<Guid> requestId)
+        public async Task<GeneralModel> ActivateDeactivateRequest(List<Guid> requestIds, bool status)
         {
-               //loop requestId
-            foreach (var request in requestId)
-            {
-                await _requestData.DeleteRequest(request);
-            }
-
-            return _generalResponse.Response(null, StatusCodes.Status200OK, "Request deletion has been succesful!", true);
-        }
-
-        public async Task<GeneralModel> UpdateRequestStatus(int companyId, Guid requestId, int status)
-        {
-            //Check if request exist
-            if (await _requestData.ValidateIfRequestStatusUpdateIsAllowed(requestId, companyId) != null)
-            {
-                await _requestData.UpdateAccreditationRequest(requestId, companyId, status);
-            }
-            else
-            {
-                return _generalResponse.Response(null, StatusCodes.Status404NotFound, "Selected accreditation requet does not exist!", false);
-            }
-
-            //update Accreditation Status
-            return _generalResponse.Response(null, StatusCodes.Status200OK, "Status has been updated", true);
+            var response = await _requestData.ActivateDeactivateRequest(requestIds, status);
+            return _generalResponse.Response(null, StatusCodes.Status200OK, "Request status has been updated.", true);
         }
 
         public async Task<GeneralModel> UpdateRequestStatusBulk(int companyId, List<Guid> requestId, int status)
@@ -375,279 +202,92 @@ namespace xas.core.accreditation.Request
             return _generalResponse.Response(null, StatusCodes.Status200OK, "Status has been updated", true);
         }
 
-        public async Task<byte[]> GenerateExcelFile(List<ResponseDTO> companyList)
-        {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            using (ExcelPackage pack = new ExcelPackage())
-            {
-                var worksheet = pack.Workbook.Worksheets.Add("companyList");
-
-                string[] Header = { "NO.", "COMPANY NAME", "ADDRESS", "OPERATING COUNTRY", "PORT RESPONSIBILITY", "STATUS", "IMAGE URL" };
-                int count = 1;
-                foreach (var header in Header)
-                {
-                    worksheet.Cells[1, count].Value = header;
-                    worksheet.Cells[1, count].Style.Font.Size = 12;
-                    worksheet.Cells[1, count].Style.Font.Bold = true;
-                    worksheet.Cells[1, count].Style.Border.Top.Style = ExcelBorderStyle.Hair;
-                    count += 1;
-                }
-                int row = 2;
-                int rowcount = 1;
-                foreach (var resP in companyList)
-                {
-                    foreach (var ports in resP.portAreas)
-                    {
-                        worksheet.Cells[row, 4].Value += ports.CountryName + "\n";
-                        worksheet.Cells[row, 5].Value += ports.Name + ports.LoCode + "\n";
-                    }
-                    worksheet.Cells[row, 1].Value = rowcount;
-                    worksheet.Cells[row, 2].Value = resP.companyName;
-                    worksheet.Cells[row, 3].Value = resP.fullAddress;
-                    worksheet.Cells[row, 7].Value = resP.imageURL;
-                    worksheet.Cells[row, 6].Value = resP.status;
-                    row += 1;
-                    rowcount += 1;
-                }
-
-
-                //worksheet.Cells.AutoFitColumns();
-
-                return await pack.GetAsByteArrayAsync();
-            }
-        }
-
-        public async Task<byte[]> GenerateCSVFile(List<CSVResponseDTO> companyList, string CSVtype = "")
-        {
-            string fileName = String.Concat(Directory.GetCurrentDirectory(), @"\DownloadedFiles\serviceCSV.csv");
-            if (File.Exists(fileName)) File.Delete(fileName);
-
-            using (StreamWriter sw = new StreamWriter(fileName, false, new UTF8Encoding(false)))
-            {
-                using (CsvWriter csvWriter = new CsvWriter(sw, CultureInfo.InvariantCulture))
-                {
-                    csvWriter.WriteHeader<CSVResponseDTO>();
-                    csvWriter.NextRecord();
-                    if (CSVtype == "CSV")
-                    {
-                        foreach (CSVResponseDTO resP in companyList)
-                        {
-                            csvWriter.WriteRecord<CSVResponseDTO>(resP);
-                            csvWriter.NextRecord();
-                        }
-                    }
-                }
-                var wClient = new WebClient();
-                byte[] arrayValu = wClient.DownloadData(fileName);
-                return arrayValu;
-            }
-        }
-
-        //public async Task<GeneralModel> GetAccreditationRequestCSVFormat(string bound, GetAccreditationRequestDTO paramData)
-        //{
-        //    #region LISTING
-        //    //Get GUID ID of the logged on company from token
-        //    var objectResponse = (JObject)await _httpHelper.Get(_optionsClient.Value.BasePath +
-        //        _optionsClient.Value.CompanyGuidById.Replace("{companyId}", paramData.companyId.ToString()), null, _optionsToken.Value.GetToken.Split(" ")[1].ToString());
-
-
-        //    //Transport Bound validations
-        //    ICollection<xgca.entity.Models.Request> data = new List<xgca.entity.Models.Request>();
-        //    if (bound == "incomming")
-        //    {
-        //        data = await _requestData.GetAllIncommingRequest(Guid.Parse(objectResponse["data"]["companyId"].ToString()));
-        //    }
-        //    else if (bound == "outgoing")
-        //    {
-        //        data = await _requestData.GetAllOutgoingRequest(Guid.Parse(objectResponse["data"]["companyId"].ToString()));
-        //    }
-        //    else
-        //    {
-        //        return _generalResponse.Response(null, 400, "Invalid bound value", false);
-        //    }
-
-
-        //    //Fetch all company ids
-        //    List<string> outGoingCompanies = new List<string>();
-
-        //    data.ToList().ForEach(t =>
-        //    {
-        //        var cidT = bound == "incomming" ? t.CompanyIdFrom.ToString() : t.CompanyIdTo.ToString();
-        //        outGoingCompanies.Add(cidT);
-        //    });
-
-        //    //Get All Company Details
-        //    var d = (JObject)(await _httpHelper.Post(_optionsClient.Value.BasePath + _optionsClient.Value.CompanyDetailsByGuids,
-        //        _optionsToken.Value.GetToken.Split(" ")[1].ToString(),
-        //        new
-        //        {
-        //            companyIDs = outGoingCompanies //[]Array List of companies
-        //        })).Data;
-
-        //    //SerializeToObject
-        //    List<CompanyDTO> companyList = JsonConvert.DeserializeObject<List<CompanyDTO>>(JsonConvert.SerializeObject(d["companies"]));
-
-        //    //Re Generate Response
-        //    List<CSVResponseDTO> responseData = new List<CSVResponseDTO>();
-        //    data.ToList().ForEach(t =>
-        //    {
-        //        var cid = bound == "incomming" ? t.CompanyIdFrom.ToString() : t.CompanyIdTo.ToString();
-        //        var cMatch = companyList.Where(g => g.companyId == cid).FirstOrDefault();
-        //        responseData.Add(new CSVResponseDTO
-        //        {
-        //            companyDetails = _mapper.Map<xas.core.Request.CSVCompanyDetails>(cMatch),
-        //            status = t.AccreditationStatusConfigId == 1 ? "New" : t.AccreditationStatusConfigId == 2 ? "Approved" : t.AccreditationStatusConfigId == 3 ? "Rejected" : "Unknown"
-        //        });
-        //    });
-
-        //    #endregion
-        //    #region SORTING AND SEARCH FEATURE
-        //    //Filtering
-        //    responseData = responseData.Select(i => new CSVResponseDTO
-        //    {
-        //        companyDetails = i.companyDetails,
-        //        status = i.status
-        //    }).ToList();
-
-        //    //TotalRecordCount
-        //    int recordCount = responseData.Count();
-
-        //    #endregion
-        //    #region PAGINATION
-        //    //Pagination
-        //    responseData = responseData.Skip(paramData.rowPerPage * (paramData.pageNumber - 1)).Take(paramData.rowPerPage).ToList();
-
-        //    //response
-        //    var PageResponseData = _pageresponse.Paginate(responseData, recordCount, paramData.pageNumber, paramData.rowPerPage);
-        //    return _generalResponse.Response(PageResponseData, 200, $"{bound} request has been listed!", true);
-        //    #endregion
-        //}
-
-        public async Task<int> GetRequestId(string companyIdFrom, string companyIdTo)
-        {
-            int requestId = await _requestData.GetRequestId(companyIdFrom, companyIdTo);
-            return requestId;
-        }
-
         public async Task<int> GetRequestIdByGuid(string guid)
         {
             int requestId = await _requestData.GetRequestIdByGuid(Guid.Parse(guid));
             return requestId;
         }
 
-        public async Task<GeneralModel> GetTruckingAccreditationRequest(int companyId, string bound, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize)
+        public async Task<GeneralModel> GetRequestList(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy, string quickSearch)
         {
-            //Transport Bound validations
-            ICollection data = new List<string>();
-            int recordCount = 0;
-            if (bound == "incoming")
-            {
-                var repoData = await _requestData.GetAllTruckingIncomingRequest(companyId, serviceRoleId, quicksearch, company, address, truckArea, orderBy, isDescending, status, pageNumber, pageSize);
-                data = repoData.Item1;
-                recordCount = repoData.Item2;
-            }
-            else if (bound == "outgoing")
-            {
-                var repoData = await _requestData.GetAllTruckingOutgoingRequest(companyId, serviceRoleId, quicksearch, company, address, truckArea, orderBy, isDescending, status, pageNumber, pageSize);
-                data = repoData.Item1;
-                recordCount = repoData.Item2;
-            }
-            else
-            {
-                return _generalResponse.Response(null, StatusCodes.Status400BadRequest, "Invalid Bound Value", false);
-            }
-
- 
-            return _generalResponse.Response(_pageresponse.Paginate(data, recordCount, pageNumber, pageSize), StatusCodes.Status200OK, $"{bound} requests has been listed!", true);
+            var response = await _requestData.GetRequestList(bound, pageSize, pageNumber, companyGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, truckAreaResponsibility, sortOrder, sortBy, quickSearch);
+            return _generalResponse.Response(_pagination.Paginate(response.Item1, response.Item2, pageNumber, pageSize), StatusCodes.Status200OK, "Request list successfully loaded.", true);
         }
 
-        public async Task<byte[]> ExportTruckingAccreditationRequest(int companyId, string bound, string serviceRoleId, string quicksearch, string company, string address, string truckArea, string orderBy, bool isDescending, int status, int pageNumber, int pageSize)
-        {
-            //Transport Bound validations
-            ICollection data = new List<string>();
-            int recordCount = 0;
-            if (bound == "incoming")
-            {
-                var repoData = await _requestData.GetAllTruckingIncomingRequest(companyId, serviceRoleId, quicksearch, company, address, truckArea, orderBy, isDescending, status, pageNumber, pageSize);
-                data = repoData.Item1;
-            }
-            else if (bound == "outgoing")
-            {
-                var repoData = await _requestData.GetAllTruckingOutgoingRequest(companyId, serviceRoleId, quicksearch, company, address, truckArea, orderBy, isDescending, status, pageNumber, pageSize);
-                data = repoData.Item1;
-            }
+        public async Task<byte[]> ExportRequestListToCSV(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy, string quickSearch)
+        {            
+            string fileName = String.Concat(Directory.GetCurrentDirectory(), @"request_exportCSV.csv");
+            if (System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
 
-            var sezData = JsonConvert.SerializeObject(data);
-            var desData = JsonConvert.DeserializeObject<List<TruckingResponseDTO>>(sezData);
+            var data = await _requestData.GetRequestList(bound, pageSize, pageNumber, companyGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, truckAreaResponsibility, sortOrder, sortBy, quickSearch);
 
             MemoryStream ms = new MemoryStream();
             using (StreamWriter sw = new StreamWriter(ms, Encoding.UTF8))
             {
                 CsvWriter cw = new CsvWriter(sw, System.Globalization.CultureInfo.CurrentCulture);
 
-                cw.WriteHeader<GetTruckingAccreditationRequestExport>();
+                cw.WriteHeader<ExportRequestCSVModel>();
                 cw.NextRecord();
 
-                foreach (var companyData in desData)
+                foreach (var p in data.Item1)
                 {
-                    var companyRecord = new GetTruckingAccreditationRequestExport
+                    var request = new ExportRequestCSVModel
                     {
-                        No = recordCount += 1,
-                        Company = companyData.CompanyName,
-                        Address = companyData.FullAddress,
-                        AreaOfResponsibility = companyData.TruckArea,
-                        Status = companyData.Status == 1.ToString() ? "New" : companyData.Status == 2.ToString() ? "Approved" : companyData.Status == 3.ToString() ? "Rejected" : "Unknown"
+                           CompanyName = p.CompanyName 
+                         , CompanyFullAddress = p.CompanyFullAddress 
+                         , CompanyCountryName = p.CompanyCountryName
+                         , CompanyStateCityName = p.CompanyStateCityName 
+                         , PortAreaList = p.PortAreaList 
+                         , TruckAreaList = p.TruckAreaList 
+                         , RequestStatus = p.AccreditationStatusConfigDescription
                     };
 
-                    cw.WriteRecord(companyRecord);
+                    cw.WriteRecord(request);
                     cw.NextRecord();
                 }
                 sw.Flush();
             }
 
             ms.Close();
-            byte[] truckingRequestsExport = ms.ToArray();
-            return truckingRequestsExport;
+            byte[] profileToExport = ms.ToArray();
+            return profileToExport;
         }
-       
-        public async Task<byte[]> ExportTruckingAccreditationRequestTemplate()
+
+        public async Task<byte[]> ExportRequestListToCSVTemplate()
         {
+            string fileName = String.Concat(Directory.GetCurrentDirectory(), @"Country_ExportListing.csv");
+            if (System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
+
+            var data = new List<GetRequestModel>();
+            data.Add(new GetRequestModel { });
+
             MemoryStream ms = new MemoryStream();
             using (StreamWriter sw = new StreamWriter(ms, Encoding.UTF8))
             {
                 CsvWriter cw = new CsvWriter(sw, System.Globalization.CultureInfo.CurrentCulture);
 
-                cw.WriteHeader<GetTruckingAccreditationRequestExport>();
+                cw.WriteHeader<GetRequestModel>();
                 cw.NextRecord();
 
+                foreach (var p in data)
+                {
+                    var request = new GetRequestModel
+                    {
+                         AccreditationStatusConfigDescription = p.AccreditationStatusConfigDescription 
+                         , CompanyName = p.CompanyName 
+                         , CompanyFullAddress = p.CompanyFullAddress 
+                    };
+
+                    cw.WriteRecord(request);
+                    cw.NextRecord();
+                }
                 sw.Flush();
             }
 
             ms.Close();
-            byte[] truckingRequestsExport = ms.ToArray();
-            return truckingRequestsExport;
+            byte[] profileToExport = ms.ToArray();
+            return profileToExport;
         }
-
-        public async Task<GeneralModel> GetAccreditationStats(int companyId, string bound, string serviceRoleId)
-        {            
-            var response = new object();
-
-            if (bound == "incoming")
-            {
-                response = await _requestData.GetStatisticsInbound(companyId, serviceRoleId);
-            }
-            else if (bound == "outgoing")
-            {
-                response = await _requestData.GetStatisticsOutbound(companyId, serviceRoleId);
-            }
-            else
-            {
-                _generalResponse.Response(null, StatusCodes.Status400BadRequest, "Invalid bound value", false);
-            }
-
-            return _generalResponse.Response(response, StatusCodes.Status200OK, "Accreditation statistics has been retrieved!", true);
-        }
-
 
         #endregion
 
@@ -703,6 +343,23 @@ namespace xas.core.accreditation.Request
             string companyId = (json)["data"]["companyGuid"].ToString();
             return companyId;
         }
+
+        public async Task<GeneralModel> PortOfResponsibilityAccreditedCustomer(ListPortOfResponsibility obj)
+        {
+            if (obj == null)
+            {
+                return _generalResponse.Response(null, StatusCodes.Status400BadRequest, "Company Id is required!", false);
+            }
+
+            ReturnPortOfResponsibility returnPortOfResponsibility = new ReturnPortOfResponsibility();
+
+            var dischargeLine = await _requestData.PortOfResponsibilityAccreditedCustomer(obj.CompanyId, obj.PortOfDischargeId);
+            var loadingLine = await _requestData.PortOfResponsibilityAccreditedCustomer(obj.CompanyId, obj.PortOfLoadingId);
+
+            return _generalResponse.Response(new { companies = new ReturnPortOfResponsibility { PortOfDischargeCompanyId = dischargeLine?.CompanyIdFrom.ToString(), PortOfLoadingCompanyId = loadingLine?.CompanyIdFrom.ToString() } }, StatusCodes.Status200OK, "Accredited Companies has been Listed", true);
+        }
+
+       
         #endregion
     }
 }

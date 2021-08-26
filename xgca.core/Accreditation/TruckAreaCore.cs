@@ -79,7 +79,7 @@ namespace xas.core.TruckArea
         {
             if (obj is null)
             {
-                return _general.Response(null, 400, "Data cannot be null", false);
+                return _general.Response(null, StatusCodes.Status400BadRequest, "Data cannot be null", false);
             }
 
             int requestId = await _requestCore.GetRequestIdByGuid(obj.RequestId);
@@ -89,7 +89,7 @@ namespace xas.core.TruckArea
             var (model, message) = await _repository.Create(createModel);
             if (model is null)
             {
-                return _general.Response(null, 400, message, false);
+                return _general.Response(null, StatusCodes.Status400BadRequest, message, false);
             }
 
             var displayModel = _mapper.Map<GetTruckArea>(createModel);
@@ -99,38 +99,20 @@ namespace xas.core.TruckArea
 
         public async Task<GeneralModel> Delete(string id)
         {
-            if(id is null)
-            {
-                return _general.Response(null, 400, "Invalid id", false);
-            }
+            if(id is null) return _general.Response(null, StatusCodes.Status400BadRequest, "Invalid id", false);
+            if (Guid.Parse(id) == Guid.Empty)return _general.Response(null, StatusCodes.Status400BadRequest, "Invalid id", false);
 
-            if (Guid.Parse(id) == Guid.Empty)
-            {
-                return _general.Response(null, 400, "Invalid id", false);
-            }
+            var (result, message) = await _repository.Delete(Guid.Parse(id));
 
-            var deleteModel = new xgca.entity.Models.TruckArea
-            {
-                Guid = Guid.Parse(id),
-                IsDeleted = true,
-                DeletedBy = GlobalVariables.LoggedInUsername,
-                DeletedOn = DateTime.UtcNow
-            };
-
-            var (result, message) = await _repository.Delete(deleteModel);
-
-            if (!(result))
-            {
-                return _general.Response(null, 400, message, result);
-            }
-            return _general.Response(null, 200, message, result);
+            if (!(result)) return _general.Response(null, StatusCodes.Status400BadRequest, message, result);
+            return _general.Response(null, StatusCodes.Status200OK, message, result);
         }
 
         public async Task<GeneralModel> DeleteMultiple(DeleteMultipleTruckArea list)
         {
             if (list.Ids.Count == 0)
             {
-                return _general.Response(null, 400, "No items selected", false);
+                return _general.Response(null, StatusCodes.Status400BadRequest, "No items selected", false);
             }
 
             var guidList = new List<Guid>();
@@ -143,9 +125,9 @@ namespace xas.core.TruckArea
 
             if (!(result))
             {
-                return _general.Response(null, 400, message, result);
+                return _general.Response(null, StatusCodes.Status400BadRequest, message, result);
             }
-            return _general.Response(null, 200, message, result);
+            return _general.Response(null, StatusCodes.Status200OK, message, result);
         }
 
         public async Task<byte[]> ExportToCSV(List<GetTruckArea> list)
@@ -205,18 +187,18 @@ namespace xas.core.TruckArea
         {
             if (obj is null)
             {
-                return _general.Response(null, 400, "Data cannot be null", false);
+                return _general.Response(null, StatusCodes.Status400BadRequest, "Data cannot be null", false);
             }
 
             var updateModel = _mapper.Map<xgca.entity.Models.TruckArea>(obj);
             var (model, message) = await _repository.Update(updateModel);
             if (model is null)
             {
-                return _general.Response(null, 400, message, false);
+                return _general.Response(null, StatusCodes.Status400BadRequest, message, false);
             }
 
             var displayModel = _mapper.Map<GetTruckArea>(model);
-            return _general.Response(new { AreaOfResponsibility = displayModel }, 200, message, true);
+            return _general.Response(new { AreaOfResponsibility = displayModel }, StatusCodes.Status200OK, message, true);
         }
     }
 }
