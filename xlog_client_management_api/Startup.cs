@@ -82,6 +82,7 @@ using xas.core.PortArea;
 using xas.core.ServiceRoleConfig;
 using xas.core.ServiceProvider;
 using xas.data.DataModel.ServiceRoleConfig;
+using Amazon.SecurityToken;
 
 namespace xlog_client_management_api
 {
@@ -249,8 +250,9 @@ namespace xlog_client_management_api
             services.AddScoped<IServiceRoleConfigCore, ServiceRoleConfigCore>();
             services.AddScoped<ICServiceProvider, CServiceProvider>();
             services.AddScoped<IServiceRoleConfigData, ServiceRoleConfigData>();
-        
 
+            //AWS
+            services.AddAWSService<IAmazonSecurityTokenService>();
 
             services.Configure<xgca.core.Helpers.GlobalCmsService>(o =>
             {
