@@ -17,6 +17,7 @@ namespace xgca.data.ViewModels.Request
         public bool? IsActive { get; set; }
         public string PortAreaList { get; set; }
         public string TruckAreaList { get; set; }
+        public string CompanyLogo { get; set; }
         public Guid CompanyGuid { get; set; }
         public string CompanyName { get; set; }
         public string CompanyFullAddress { get; set; }

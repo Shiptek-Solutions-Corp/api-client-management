@@ -42,6 +42,8 @@ using xas.data.DataModel.PortArea;
 using xgca.core.ResponseV2;
 using xgca.data.ViewModels.Request;
 using xgca.core.Models.Accreditation;
+using Microsoft.Extensions.Configuration;
+using Amazon.SecurityToken;
 
 namespace xas.core.accreditation.Request
 {
@@ -78,7 +80,8 @@ namespace xas.core.accreditation.Request
         private readonly ICompanyData _companyData;
         private readonly IOptions<AuthConfig> _authhConfig;
         private readonly IPaginationResponse _pagination;
-
+        private readonly IConfiguration _config;
+        private readonly IAmazonSecurityTokenService _amazonSecurityTokenService;
 
         public RequestCore(
             IRequestData requestData,
@@ -90,7 +93,9 @@ namespace xas.core.accreditation.Request
             IValidator<List<RequestModel>> validatorCreateRequest,
             ICompanyData companyData,
             IOptions<AuthConfig> authhConfig,
-            IPaginationResponse pagination)
+            IPaginationResponse pagination,
+            IConfiguration config,
+            IAmazonSecurityTokenService amazonSecurityTokenService)
         {
             _requestData = requestData;
             _portAreaData = portAreaData;
@@ -102,9 +107,25 @@ namespace xas.core.accreditation.Request
             _companyData = companyData;
             _authhConfig = authhConfig;
             _pagination = pagination;
+            _config = config;
+            _amazonSecurityTokenService = amazonSecurityTokenService;
         }
 
-        #region Request
+        #region Request        
+        public async Task<GeneralModel> GetRequestList(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy, string quickSearch)
+        {
+            var response = await _requestData.GetRequestList(bound, pageSize, pageNumber, companyGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, truckAreaResponsibility, sortOrder, sortBy, quickSearch);
+
+            //Update Image Url for new S3 link
+            response.Item1.ForEach(i =>
+            {
+                var newCompanyLogoUrl = i.CompanyLogo.Split("/").Last();
+                i.CompanyLogo = S3Helper.GetS3URL(newCompanyLogoUrl, _config, _amazonSecurityTokenService).Result;
+            });
+
+            return _generalResponse.Response(_pagination.Paginate(response.Item1, response.Item2, pageNumber, pageSize), StatusCodes.Status200OK, "Request list successfully loaded.", true);
+        }
+
         public async Task<GeneralModel> GetAccreditationStats(int companyId, string bound)
         {
             var response = new object();
@@ -208,11 +229,7 @@ namespace xas.core.accreditation.Request
             return requestId;
         }
 
-        public async Task<GeneralModel> GetRequestList(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy, string quickSearch)
-        {
-            var response = await _requestData.GetRequestList(bound, pageSize, pageNumber, companyGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, truckAreaResponsibility, sortOrder, sortBy, quickSearch);
-            return _generalResponse.Response(_pagination.Paginate(response.Item1, response.Item2, pageNumber, pageSize), StatusCodes.Status200OK, "Request list successfully loaded.", true);
-        }
+
 
         public async Task<byte[]> ExportRequestListToCSV(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy, string quickSearch)
         {            
