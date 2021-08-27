@@ -116,7 +116,7 @@ namespace xas.core.accreditation.Request
         {
             var response = await _requestData.GetRequestList(bound, pageSize, pageNumber, companyGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, truckAreaResponsibility, sortOrder, sortBy, quickSearch);
 
-            //Update Image Url for new S3 link
+            //Update Image Url for new S3 link for each record
             response.Item1.ForEach(i =>
             {
                 var newCompanyLogoUrl = i.CompanyLogo.Split("/").Last();
