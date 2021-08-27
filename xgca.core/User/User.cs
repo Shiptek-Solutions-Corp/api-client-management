@@ -1054,16 +1054,20 @@ namespace xgca.core.User
 
             //Get Secret and Access key
             var response = await _httpHelper.PostAsync(url, String.Empty, apiKeyParams);
-            GeneralModel pResponse = JsonConvert.DeserializeObject<GeneralModel>(response.ToString());
-            EvaultSecretAccessKeyModel credInfo = JsonConvert.DeserializeObject<EvaultSecretAccessKeyModel>(pResponse.data["credentials"].ToString());
+            if (response.statusCode != StatusCodes.Status200OK)
+            {
+                return _general.Response(response.data, response.statusCode, response.message, response.isSuccessful);
+            }
+            EvaultSecretAccessKeyModel credInfo = (response.data["credentials"] as JObject)?.ToObject<EvaultSecretAccessKeyModel>();
 
             //Get Country Code
             string evaultCountryInfoUrl = String.Concat(_evaultEnpoints.evaultCountryInfo, userInfo.CompanyUsers.Companies.Addresses.CountryName);
             var response2 = await _httpHelper.GetAsync(evaultCountryInfoUrl, String.Empty);
-            GeneralModel pResponse2 = JsonConvert.DeserializeObject<GeneralModel>(response2.ToString());
-            EvaultCountryModel countryInfo = JsonConvert.DeserializeObject<EvaultCountryModel>(pResponse2.data["country"].ToString());
-
-
+            if (response2.statusCode != StatusCodes.Status200OK)
+            {
+                return _general.Response(response2.data, response2.statusCode, response2.message, response2.isSuccessful);
+            }
+            EvaultCountryModel countryInfo = (response2.data["country"] as JObject)?.ToObject<EvaultCountryModel>();
 
             //Save Company and user info to Evault
             //Master User
@@ -1117,16 +1121,18 @@ namespace xgca.core.User
             //Get Evault Partner Authentication Token 
             string evaultPartnerAuthenticationUrl = _evaultEnpoints.evaultPartnerAuthentication;
             var response4 = await _httpHelper.PostAsync(evaultPartnerAuthenticationUrl, String.Empty, null, credInfo);
-            GeneralModel pResponse4 = JsonConvert.DeserializeObject<GeneralModel>(response4.ToString());
-            EvaultPartnerAuthModel partnerAuth = JsonConvert.DeserializeObject<EvaultPartnerAuthModel>(pResponse4.data.ToString());
+            if (response4.statusCode != 200)
+            {
+                return _general.Response(response4.data, response4.statusCode, response4.message, response4.isSuccessful);
+            }
+            EvaultPartnerAuthModel partnerAuth = (response4.data as JObject)?.ToObject<EvaultPartnerAuthModel>();
 
             //Save Company Info to Evault
             string evaultRegUrl = _evaultEnpoints.evaultRegister;
             var response3 = await _httpHelper.PostAsync(evaultRegUrl, partnerAuth.access_token, subMerchantInfo);
-            GeneralModel pResponse3 = JsonConvert.DeserializeObject<GeneralModel>(response3.ToString());
-            if (pResponse3.statusCode == StatusCodes.Status200OK)
+            if (response3.statusCode == StatusCodes.Status200OK)
             {
-                EvaultRegistrationResponseModel registrationInfo = JsonConvert.DeserializeObject<EvaultRegistrationResponseModel>(pResponse3.data.ToString());
+                EvaultRegistrationResponseModel registrationInfo = (response3.data as JObject)?.ToObject<EvaultRegistrationResponseModel>();
 
                 registrationInfo.countryCode = countryInfo.ISOCode2;
                 registrationInfo.countryName = countryInfo.Name;
@@ -1138,12 +1144,19 @@ namespace xgca.core.User
                 //Save Company Info to Evault
                 string xlogOnBoaringUrl = _evaultEnpoints.xlogOnBoarding;
                 var response5 = await _httpHelper.PostAsync(xlogOnBoaringUrl, token, registrationInfo);
-                GeneralModel pResponse5 = JsonConvert.DeserializeObject<GeneralModel>(response5.ToString());
+                if (response5.statusCode != 200)
+                {
+                    return _general.Response(response5.data, response5.statusCode, response5.message, response5.isSuccessful);
+                }
+            } 
+            else
+            {
+                return _general.Response(response3.data, response3.statusCode, response3.message, response3.isSuccessful);
             }
 
-            if(pResponse3.errors.Count > 0)
+            if(response3.errors.Count > 0)
             {
-                return _general.Response(pResponse3.errors, StatusCodes.Status400BadRequest, "User and company successfully activated but there is a problem encounter in evault registration.", true);
+                return _general.Response(response3.errors, StatusCodes.Status400BadRequest, "User and company successfully activated but there is a problem encounter in evault registration.", true);
             }
             return _general.Response(null, 200, "User and company successfully activated", true);
         }
