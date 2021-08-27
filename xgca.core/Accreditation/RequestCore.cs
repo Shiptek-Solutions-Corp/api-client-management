@@ -333,14 +333,13 @@ namespace xas.core.accreditation.Request
         {
             string reqUrl = _authhConfig.Value.BasePath + _authhConfig.Value.CustomerRegistration;
             var response = await _httpHelper.PostAsync(reqUrl, String.Empty, customerRegistrationDTO, null);
-            var json = (JObject)response;
 
-            if (Convert.ToInt32((json)["statusCode"]) != StatusCodes.Status200OK)
+            if (response.statusCode != StatusCodes.Status200OK)
             {
                 return String.Empty;
             }
 
-            string companyId = (json)["data"]["companyGuid"].ToString();
+            string companyId = response?.data["companyGuid"];
             return companyId;
         }
 
