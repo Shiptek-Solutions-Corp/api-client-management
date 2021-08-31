@@ -91,9 +91,9 @@ namespace xlog_accreditation_service.Controllers
             return Ok(response);
         }
 
-      
+
         /// <summary>
-        /// Bulk updating of request status.  Approved or Rejected
+        /// Bulk updating of request status.  approved or rejected
         /// </summary>
         /// <response code="200">Success</response>  
         /// <response code="400">Error Found!</response>  
@@ -107,8 +107,8 @@ namespace xlog_accreditation_service.Controllers
             _optionsToken.Value.GetToken = Request.Headers["Authorization"];
             var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
             var response = await _requestCore.UpdateRequestStatusBulk(Convert.ToInt32(companyId), data.requestId,
-                data.status.ToLower() == "approve" ? 2 :
-                data.status.ToLower() == "reject" ? 3 : 0);
+                data.status.ToLower() == "approved" ? 2 :
+                data.status.ToLower() == "rejected" ? 3 : 0);
 
             if (response.statusCode == StatusCodes.Status400BadRequest) return BadRequest(response);
             if (response.statusCode == StatusCodes.Status401Unauthorized) return Unauthorized(response);
