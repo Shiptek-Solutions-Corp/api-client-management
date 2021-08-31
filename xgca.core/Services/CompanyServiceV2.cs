@@ -10,6 +10,8 @@ using xgca.data.Company;
 using Microsoft.AspNetCore.JsonPatch;
 using xgca.core.Helpers;
 using xgca.core.AuditLog;
+using xgca.core.Models.Email;
+using xgca.core.Email;
 
 namespace xgca.core.Services
 {
@@ -27,13 +29,15 @@ namespace xgca.core.Services
         private readonly IMapper mapper;
         private readonly IGLobalCmsService gLobalCmsService;
         private readonly IAuditLogCore auditLog;
+        private readonly IEmail emailService;
 
-        public CompanyServiceV2(IAuditLogCore auditLog, IGLobalCmsService gLobalCmsService, ICompanyDataV2 companyData, IMapper mapper)
+        public CompanyServiceV2(IEmail emailService, IAuditLogCore auditLog, IGLobalCmsService gLobalCmsService, ICompanyDataV2 companyData, IMapper mapper)
         {
             this.companyData = companyData;
             this.mapper = mapper;
             this.gLobalCmsService = gLobalCmsService;
             this.auditLog = auditLog;
+            this.emailService = emailService;
         }
 
         public async Task<GenericResponse<GetCompanyViewModel>> GetCompany(Guid guid)
@@ -94,11 +98,28 @@ namespace xgca.core.Services
 
             if (patchErrors != null)
                 return new GenericResponse<GetCompanyViewModel>(null, patchErrors.Select(e => new ErrorField("message", e)).ToList(), "Error on updating company details", 400);
-            
+
             var (newCompany, newFetchError) = await companyData.Show(guid);
 
             // Audit Logs
             await CreateAuditLog(oldCompany, newCompany);
+
+            // Check if patch payload activates account then send activated email notification
+            if (payload.Operations.Where(o => o.path.Equals("/status") && o.value.Equals("1")).ToList()?.Count > 0)
+            {
+                var masterUser = newCompany.CompanyUsers.Select(c => c.Users).First();
+                EmailModel emailPayload = new EmailModel()
+                {
+                    Payload = new
+                    {
+                        EmailAddress = masterUser?.EmailAddress,
+                        ReceiverName = masterUser?.FirstName,
+                        SenderCompanyName = newCompany.CompanyName
+                    },
+                    Additionals = null,
+                };
+                await emailService.SendCompanyActivationEmail(emailPayload);
+            }
 
             return new GenericResponse<GetCompanyViewModel>(mapper.Map<GetCompanyViewModel>(company), "Company updated successfully.", 200);
         }
