@@ -117,11 +117,11 @@ namespace xas.core.accreditation.Request
             var response = await _requestData.GetRequestList(bound, pageSize, pageNumber, companyGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, truckAreaResponsibility, accreditationStatusConfigId, companyStatus, sortOrder, sortBy, quickSearch);
 
             //Update Image Url for new S3 link for each record
-            response.Item1.ForEach(i =>
-            {
-                var newCompanyLogoUrl = i.CompanyLogo.Split("/").Last();
-                i.CompanyLogo = S3Helper.GetS3URL(newCompanyLogoUrl, _config, _amazonSecurityTokenService).Result;
-            });
+            //response.Item1.ForEach(i =>
+            //{
+            //    var newCompanyLogoUrl = i.CompanyLogo.Split("/").Last();
+            //    i.CompanyLogo = S3Helper.GetS3URL(newCompanyLogoUrl, _config, _amazonSecurityTokenService).Result;
+            //});
 
             return _generalResponse.Response(_pagination.Paginate(response.Item1, response.Item2, pageNumber, pageSize), StatusCodes.Status200OK, "Request list successfully loaded.", true);
         }
