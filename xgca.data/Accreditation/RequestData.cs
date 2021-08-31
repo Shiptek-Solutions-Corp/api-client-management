@@ -42,8 +42,8 @@ namespace xas.data.accreditation.Request
             Guid defaultGuid = Guid.NewGuid();
             var companyRequestInfo = await (from r in _context.Request.Include(i => i.PortArea).Include(t => t.TruckArea)
                                             .Include(i => i.AccreditationStatusConfig).AsNoTracking()
-                                            join coFrom in _context.Companies.Include(i => i.Addresses).AsNoTracking() on r.CompanyIdFrom equals coFrom.Guid
-                                            join coTo in _context.Companies.Include(i => i.Addresses).AsNoTracking() on r.CompanyIdTo equals coTo.Guid
+                                            join coFrom in _context.Companies.Include(i => i.Addresses).Include(c => c.ContactDetails).AsNoTracking() on r.CompanyIdFrom equals coFrom.Guid
+                                            join coTo in _context.Companies.Include(i => i.Addresses).Include(c => c.ContactDetails).AsNoTracking() on r.CompanyIdTo equals coTo.Guid
                                             where r.IsDeleted == false 
                                                 && (bound.ToUpper() == "INCOMING" ? r.CompanyIdTo : defaultGuid) == (bound.ToUpper() == "INCOMING" ? companyGuid : defaultGuid)
                                                 && (bound.ToUpper() == "OUTGOING" ? r.CompanyIdFrom : defaultGuid) == (bound.ToUpper() == "OUTGOING" ? companyGuid : defaultGuid)
@@ -80,7 +80,7 @@ namespace xas.data.accreditation.Request
                                         , ServiceRoleIdTo = r.RequestInfo.ServiceRoleIdTo
                                         , CompanyIdTo = r.RequestInfo.CompanyIdTo
                                         , IsActive = r.RequestInfo.IsActive
-                                        , PortAreaList = String.Join(" / ", r.RequestInfo.PortArea.Select(i => i.PortCode))
+                                        , PortAreaList = String.Join(" / ", r.RequestInfo.PortArea.Select(i => (i.Locode + "-"+ i.PortCode + "-" + i.PortName)))
                                         , PortAreaOperatingCountries = r.RequestInfo.PortArea.Select(i => i.CountryName).Distinct().ToList()
                                         , TruckAreaList = String.Join(" / ", r.RequestInfo.TruckArea.Select(i => i.CountryName))
                                         , CompanyLogo = r.CompanyInfo.ImageURL
@@ -88,7 +88,19 @@ namespace xas.data.accreditation.Request
                                         , CompanyName = r.CompanyInfo.CompanyName 
                                         , CompanyCountryName = r.CompanyInfo.Addresses.CountryName
                                         , CompanyStateCityName = (r.CompanyInfo.Addresses.StateName + "/" + r.CompanyInfo.Addresses.CityName)
+                                        , CompanyStateName = r.CompanyInfo.Addresses.StateName 
+                                        , CompanyCityName = r.CompanyInfo.Addresses.CityName 
+                                        , CompanyPostalCode = r.CompanyInfo.Addresses.ZipCode 
                                         , CompanyFullAddress = r.CompanyInfo.Addresses.FullAddress
+                                        , CompanyCUCC = r.CompanyInfo.CUCC
+                                        , CompanyFaxPrefix = r.CompanyInfo.ContactDetails.FaxPrefix
+                                        , CompanyFaxNumber = r.CompanyInfo.ContactDetails.Fax
+                                        , CompanyMobilePrefix = r.CompanyInfo.ContactDetails.MobilePrefix
+                                        , CompanyMobileNumber = r.CompanyInfo.ContactDetails.Mobile
+                                        , CompanyPhonePrefix = r.CompanyInfo.ContactDetails.PhonePrefix
+                                        , CompanyPhoneNumber = r.CompanyInfo.ContactDetails.Phone
+                                        , CompanyWebsiteURL = r.CompanyInfo.WebsiteURL
+                                        
                                    }).ToList();
 
             requestListInfo = requestListInfo.Where(i => (i.CompanyName + i.CompanyCountryName + i.CompanyStateCityName + i.CompanyFullAddress + i.PortAreaList + i.TruckAreaList).ToUpper().Contains(quickSearch.ToUpper())).ToList();

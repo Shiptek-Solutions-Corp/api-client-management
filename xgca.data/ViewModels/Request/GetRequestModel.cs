@@ -24,6 +24,17 @@ namespace xgca.data.ViewModels.Request
         public string CompanyFullAddress { get; set; }
         public string CompanyCountryName { get; set; }
         public string CompanyStateCityName { get; set; }
+        public string CompanyStateName { get; set; }
+        public string CompanyCityName { get; set; }
+        public string CompanyPhonePrefix { get; set; }
+        public string CompanyPhoneNumber { get; set; }
+        public string CompanyMobilePrefix { get; set; }
+        public string CompanyMobileNumber { get; set; }
+        public string CompanyFaxPrefix { get; set; }
+        public string CompanyFaxNumber { get; set; }
+        public string CompanyCUCC { get; set; }
+        public string CompanyPostalCode { get; set; }
+        public string CompanyWebsiteURL { get; set; }
 
         //public List<GetPortAreaModel> PortAreaDataList { get; set; }
         //public List<GetTruckAreaModel> TruckAreaDataList { get; set; }
