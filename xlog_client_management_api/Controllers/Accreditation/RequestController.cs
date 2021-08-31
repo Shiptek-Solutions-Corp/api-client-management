@@ -45,9 +45,9 @@ namespace xlog_accreditation_service.Controllers
         [HttpGet]
         [Route("request")]
         [TokenAuthorize("scope", "accreditationShippingAgency.get|accreditationShippingLine.get")]
-        public async Task<IActionResult> GetRequestList(Guid companyGuid, Guid serviceRoleGuid, string bound = "INCOMING", int pageSize = 10, int pageNumber = 0, string companyName = "", string companyAddress = "", string companyCountryName = "", string companyStateCityName = "", string portAreaResponsibility = "", string truckAreaResponsibility = "", string sortOrder = "asc", string sortBy = "RequestId", string quickSearch = "")
+        public async Task<IActionResult> GetRequestList(Guid companyGuid, Guid serviceRoleGuid, string bound = "INCOMING", int pageSize = 10, int pageNumber = 0, string companyName = "", string companyAddress = "", string companyCountryName = "", string companyStateCityName = "", string portAreaResponsibility = "", string truckAreaResponsibility = "", int accreditationStatusConfigId = 0, byte? companyStatus = null, string sortOrder = "asc", string sortBy = "RequestId", string quickSearch = "")
         {
-            var response = await _requestCore.GetRequestList(bound, pageSize, pageNumber, companyGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, truckAreaResponsibility, sortOrder, sortBy, quickSearch);
+            var response = await _requestCore.GetRequestList(bound, pageSize, pageNumber, companyGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, truckAreaResponsibility, accreditationStatusConfigId ,companyStatus, sortOrder, sortBy, quickSearch);
 
             if (response.statusCode == StatusCodes.Status400BadRequest) return BadRequest(response);
             if (response.statusCode == StatusCodes.Status401Unauthorized) return Unauthorized(response);
@@ -165,9 +165,9 @@ namespace xlog_accreditation_service.Controllers
         [HttpGet]
         [Route("requests/export/csv")]
         [TokenAuthorize("scope", "accreditationShippingAgency.get|accreditationShippingLine.get")]
-        public async Task<IActionResult> ExportToCSV(Guid companyGuid, Guid serviceRoleGuid, string bound = "INCOMING", int pageSize = 10, int pageNumber = 0, string companyName = "", string companyAddress = "", string companyCountryName = "", string companyStateCityName = "", string portAreaResponsibility = "", string truckAreaResponsibility = "", string sortOrder = "asc", string sortBy = "RequestId", string quickSearch = "")
+        public async Task<IActionResult> ExportToCSV(Guid companyGuid, Guid serviceRoleGuid, string bound = "INCOMING", int pageSize = 10, int pageNumber = 0, string companyName = "", string companyAddress = "", string companyCountryName = "", string companyStateCityName = "", string portAreaResponsibility = "", string truckAreaResponsibility = "", int accreditationStatusConfigId = 0, byte? companyStatus = null, string sortOrder = "asc", string sortBy = "RequestId", string quickSearch = "")
         {
-            var response = await _requestCore.ExportRequestListToCSV(bound, pageSize, pageNumber, companyGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, truckAreaResponsibility, sortOrder, sortBy, quickSearch);
+            var response = await _requestCore.ExportRequestListToCSV(bound, pageSize, pageNumber, companyGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, truckAreaResponsibility, accreditationStatusConfigId, companyStatus, sortOrder, sortBy, quickSearch);
             var fileName = $"request_exportCSV.csv";
             return File(response, "application/octet-stream", fileName);
         }

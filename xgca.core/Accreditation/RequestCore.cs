@@ -56,8 +56,8 @@ namespace xas.core.accreditation.Request
         Task<GeneralModel> ActivateDeactivateRequest(List<Guid> requestIds, bool status);
         Task<GeneralModel> UpdateRequestStatusBulk(int companyId, List<Guid> requestId, int status);
         Task<int> GetRequestIdByGuid(string guid);
-        Task<GeneralModel> GetRequestList(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy, string quickSearch);
-        Task<byte[]> ExportRequestListToCSV(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy, string quickSearch);
+        Task<GeneralModel> GetRequestList(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch);
+        Task<byte[]> ExportRequestListToCSV(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch);
         Task<byte[]> ExportRequestListToCSVTemplate();
 
         #endregion
@@ -112,9 +112,9 @@ namespace xas.core.accreditation.Request
         }
 
         #region Request        
-        public async Task<GeneralModel> GetRequestList(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy, string quickSearch)
+        public async Task<GeneralModel> GetRequestList(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch)
         {
-            var response = await _requestData.GetRequestList(bound, pageSize, pageNumber, companyGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, truckAreaResponsibility, sortOrder, sortBy, quickSearch);
+            var response = await _requestData.GetRequestList(bound, pageSize, pageNumber, companyGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, truckAreaResponsibility, accreditationStatusConfigId, companyStatus, sortOrder, sortBy, quickSearch);
 
             //Update Image Url for new S3 link for each record
             response.Item1.ForEach(i =>
@@ -231,12 +231,12 @@ namespace xas.core.accreditation.Request
 
 
 
-        public async Task<byte[]> ExportRequestListToCSV(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy, string quickSearch)
+        public async Task<byte[]> ExportRequestListToCSV(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch)
         {            
             string fileName = String.Concat(Directory.GetCurrentDirectory(), @"request_exportCSV.csv");
             if (System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
 
-            var data = await _requestData.GetRequestList(bound, pageSize, pageNumber, companyGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, truckAreaResponsibility, sortOrder, sortBy, quickSearch);
+            var data = await _requestData.GetRequestList(bound, pageSize, pageNumber, companyGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, truckAreaResponsibility, accreditationStatusConfigId, companyStatus, sortOrder, sortBy, quickSearch);
 
             MemoryStream ms = new MemoryStream();
             using (StreamWriter sw = new StreamWriter(ms, Encoding.UTF8))

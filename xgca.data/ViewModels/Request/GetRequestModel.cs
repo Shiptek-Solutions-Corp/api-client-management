@@ -14,7 +14,7 @@ namespace xgca.data.ViewModels.Request
         public Guid CompanyIdFrom { get; set; }
         public Guid ServiceRoleIdTo { get; set; }
         public Guid CompanyIdTo { get; set; }
-        public bool? IsActive { get; set; }
+        public bool? RequestIsActive { get; set; }
         public string PortAreaList { get; set; }
         public List<string> PortAreaOperatingCountries { get; set; }
         public string TruckAreaList { get; set; }
@@ -35,6 +35,7 @@ namespace xgca.data.ViewModels.Request
         public string CompanyCUCC { get; set; }
         public string CompanyPostalCode { get; set; }
         public string CompanyWebsiteURL { get; set; }
+        public string CompanyStatus { get; set; }
 
         //public List<GetPortAreaModel> PortAreaDataList { get; set; }
         //public List<GetTruckAreaModel> TruckAreaDataList { get; set; }

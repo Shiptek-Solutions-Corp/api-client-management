@@ -23,7 +23,7 @@ namespace xas.data.accreditation.Request
         Task DeleteRequest(List<Guid> requestIds);
         Task<int> GetRequestIdByGuid(Guid requestId);      
         Task<List<xgca.entity.Models.Request>> ActivateDeactivateRequest(List<Guid> requestIds, bool status);
-        Task<(List<GetRequestModel>, int)> GetRequestList(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy, string quickSearch);
+        Task<(List<GetRequestModel>, int)> GetRequestList(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch);
         Task<xgca.entity.Models.Request> PortOfResponsibilityAccreditedCustomer(string companyId, string portId);
     }
 
@@ -36,7 +36,7 @@ namespace xas.data.accreditation.Request
             _context = context;
         }
         
-        public async Task<(List<GetRequestModel>, int)> GetRequestList(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy, string quickSearch)
+        public async Task<(List<GetRequestModel>, int)> GetRequestList(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch)
         {
             //Filter Company Info Either From or To
             Guid defaultGuid = Guid.NewGuid();
@@ -57,6 +57,7 @@ namespace xas.data.accreditation.Request
                                                                                                         .Select(x => x.RequestId)
                                                                                                         .Contains(r.RequestId)
                                                                                         : true)
+                                                && (accreditationStatusConfigId == 0? 0:r.AccreditationStatusConfigId) == (accreditationStatusConfigId == 0 ? 0 : accreditationStatusConfigId)
                                             select new 
                                             {
                                                 
@@ -69,6 +70,7 @@ namespace xas.data.accreditation.Request
                                    where r.CompanyInfo.CompanyName.ToUpper().Contains(companyName.ToUpper())
                                         && r.CompanyInfo.Addresses.CountryName.ToUpper().Contains(companyCountryName.ToUpper())
                                         && (r.CompanyInfo.Addresses.StateName + r.CompanyInfo.Addresses.CityName).ToUpper().Contains(companyStateCityName.ToUpper())
+                                        && (companyStatus == null? 0:r.CompanyInfo.Status) == (companyStatus == null ? 0 : companyStatus)
                                    select new GetRequestModel
                                    {
                                        AccreditationStatusConfigId = r.RequestInfo.AccreditationStatusConfigId
@@ -79,7 +81,7 @@ namespace xas.data.accreditation.Request
                                         , CompanyIdFrom = r.RequestInfo.CompanyIdFrom
                                         , ServiceRoleIdTo = r.RequestInfo.ServiceRoleIdTo
                                         , CompanyIdTo = r.RequestInfo.CompanyIdTo
-                                        , IsActive = r.RequestInfo.IsActive
+                                        , RequestIsActive = r.RequestInfo.IsActive
                                         , PortAreaList = String.Join(" / ", r.RequestInfo.PortArea.Select(i => (i.Locode + "-"+ i.PortCode + "-" + i.PortName)))
                                         , PortAreaOperatingCountries = r.RequestInfo.PortArea.Select(i => i.CountryName).Distinct().ToList()
                                         , TruckAreaList = String.Join(" / ", r.RequestInfo.TruckArea.Select(i => i.CountryName))
@@ -100,6 +102,7 @@ namespace xas.data.accreditation.Request
                                         , CompanyPhonePrefix = r.CompanyInfo.ContactDetails.PhonePrefix
                                         , CompanyPhoneNumber = r.CompanyInfo.ContactDetails.Phone
                                         , CompanyWebsiteURL = r.CompanyInfo.WebsiteURL
+                                        , CompanyStatus = (r.CompanyInfo.Status == 1? "Active":"Inactive")
                                         
                                    }).ToList();
 
