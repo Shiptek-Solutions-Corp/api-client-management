@@ -133,11 +133,11 @@ namespace xas.data.accreditation.Request
             await _context.SaveChangesAsync(null, true);
         }
 
-        public async Task<dynamic> GetStatusStatisticsInbound(int companyId)
+        public async Task<dynamic> GetStatusStatisticsInbound(int companyId, Guid serviceRoleId)
         {
             var companyGuid = await _context.Companies.Where(i => i.CompanyId == companyId).Select(x => x.Guid).SingleOrDefaultAsync();
 
-            var data = await _context.Request.Where(t => t.CompanyIdTo == companyGuid && t.IsDeleted == false).ToListAsync();
+            var data = await _context.Request.Where(t => t.CompanyIdTo == companyGuid && t.ServiceRoleIdTo == serviceRoleId && t.IsDeleted == false).ToListAsync();
             var stats = new
             {
                 newRequest = data.Count(c => c.AccreditationStatusConfigId == 1),
@@ -149,10 +149,10 @@ namespace xas.data.accreditation.Request
             return stats;
         }
 
-        public async Task<dynamic> GetStatusStatisticsOutbound(int companyId)
+        public async Task<dynamic> GetStatusStatisticsOutbound(int companyId, Guid serviceRoleId)
         {
             var companyGuid = await _context.Companies.Where(i => i.CompanyId == companyId).Select(x => x.Guid).SingleOrDefaultAsync();
-            var data = await _context.Request.Where(t => t.CompanyIdFrom == companyGuid && t.IsDeleted == false).ToListAsync();
+            var data = await _context.Request.Where(t => t.CompanyIdFrom == companyGuid && t.ServiceRoleIdFrom == serviceRoleId && t.IsDeleted == false).ToListAsync();
             var stats = new
             {
                 newRequest = data.Count(c => c.AccreditationStatusConfigId == 1),
