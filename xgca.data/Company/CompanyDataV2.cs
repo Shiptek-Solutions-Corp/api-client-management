@@ -192,6 +192,8 @@ namespace xgca.data.Company
                     .ThenInclude(a => a.AddressTypes)
                 .Include(c => c.ContactDetails)
                 .Include(c => c.CompanyServices)
+                .Include(c => c.CompanyUsers)
+                    .ThenInclude(c => c.Users)
                 .Where(c => c.Guid == guid)
                 .Select(c => new entity.Models.Company
                 {
@@ -221,7 +223,8 @@ namespace xgca.data.Company
                   Addresses = c.Addresses,
                   ContactDetails = c.ContactDetails,
                   CompanyServices = c.CompanyServices,
-                  CompanyTaxSettings = c.CompanyTaxSettings.Where(cts => cts.Status == 1).ToList()
+                  CompanyTaxSettings = c.CompanyTaxSettings.Where(cts => cts.Status == 1).ToList(),
+                  CompanyUsers = c.CompanyUsers
                 })
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
