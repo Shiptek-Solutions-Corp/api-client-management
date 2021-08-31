@@ -81,6 +81,7 @@ namespace xas.data.accreditation.Request
                                         , CompanyIdTo = r.RequestInfo.CompanyIdTo
                                         , IsActive = r.RequestInfo.IsActive
                                         , PortAreaList = String.Join(" / ", r.RequestInfo.PortArea.Select(i => i.PortCode))
+                                        , PortAreaOperatingCountries = r.RequestInfo.PortArea.Select(i => i.CountryName).Distinct().ToList()
                                         , TruckAreaList = String.Join(" / ", r.RequestInfo.TruckArea.Select(i => i.CountryName))
                                         , CompanyLogo = r.CompanyInfo.ImageURL
                                         , CompanyGuid = r.CompanyInfo.Guid
