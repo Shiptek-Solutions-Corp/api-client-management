@@ -143,11 +143,11 @@ namespace xlog_accreditation_service.Controllers
         [HttpGet] 
         [Route("request/statistics/{bound}")]
         [TokenAuthorize("scope", "accreditationShippingAgency.get|accreditationShippingLine.get")]
-        public async Task<IActionResult> GetStatusStatistics([FromRoute]string bound)
+        public async Task<IActionResult> GetStatusStatistics([FromRoute]string bound, Guid serviceRoleId)
         {
             _optionsToken.Value.GetToken = Request.Headers["Authorization"];
             var companyId = Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value;
-            var response = await _requestCore.GetAccreditationStats(Convert.ToInt32(companyId), bound);
+            var response = await _requestCore.GetAccreditationStats(Convert.ToInt32(companyId), bound, serviceRoleId);
 
             if (response.statusCode == StatusCodes.Status400BadRequest) return BadRequest(response);
             if (response.statusCode == StatusCodes.Status401Unauthorized) return Unauthorized(response);

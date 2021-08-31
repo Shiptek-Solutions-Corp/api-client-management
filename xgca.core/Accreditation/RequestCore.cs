@@ -51,7 +51,7 @@ namespace xas.core.accreditation.Request
     {
         #region Request
         Task<GeneralModel> CreateRequest(List<RequestModel> requestInfo);
-        Task<GeneralModel> GetAccreditationStats(int companyId, string bound);
+        Task<GeneralModel> GetAccreditationStats(int companyId, string bound, Guid serviceRoleId);
         Task<GeneralModel> DeleteAccreditaitonRequest(List<Guid> requestIdss);
         Task<GeneralModel> ActivateDeactivateRequest(List<Guid> requestIds, bool status);
         Task<GeneralModel> UpdateRequestStatusBulk(int companyId, List<Guid> requestId, int status);
@@ -126,17 +126,17 @@ namespace xas.core.accreditation.Request
             return _generalResponse.Response(_pagination.Paginate(response.Item1, response.Item2, pageNumber, pageSize), StatusCodes.Status200OK, "Request list successfully loaded.", true);
         }
 
-        public async Task<GeneralModel> GetAccreditationStats(int companyId, string bound)
+        public async Task<GeneralModel> GetAccreditationStats(int companyId, string bound, Guid serviceRoleId)
         {
             var response = new object();
 
             if (bound == "incoming")
             {
-                response = await _requestData.GetStatusStatisticsInbound(companyId);
+                response = await _requestData.GetStatusStatisticsInbound(companyId, serviceRoleId);
             }
             else if (bound == "outgoing")
             {
-                response = await _requestData.GetStatusStatisticsOutbound(companyId);
+                response = await _requestData.GetStatusStatisticsOutbound(companyId, serviceRoleId);
             }
             else
             {

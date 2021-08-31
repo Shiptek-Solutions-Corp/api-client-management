@@ -15,8 +15,8 @@ namespace xas.data.accreditation.Request
     public interface IRequestData
     {
         Task<List<xgca.entity.Models.Request>> CreateRequest(List<xgca.entity.Models.Request> entity);
-        Task<dynamic> GetStatusStatisticsInbound(int companyId);
-        Task<dynamic> GetStatusStatisticsOutbound(int companyId);
+        Task<dynamic> GetStatusStatisticsInbound(int companyId, Guid serviceRoleId);
+        Task<dynamic> GetStatusStatisticsOutbound(int companyId, Guid serviceRoleId);
         Task UpdateAccreditationRequest(Guid requestId, int companyIdTo, int status);
         Task<bool> ValidateCheckRequestIfExist(Guid CompanyIdFrom, Guid CompanyIdTo);
         Task<object> ValidateIfRequestStatusUpdateIsAllowed(Guid requestId, int companyId);
