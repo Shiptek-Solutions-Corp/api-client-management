@@ -126,7 +126,8 @@ namespace xas.data.accreditation.Request
             {
                 newRequest = data.Count(c => c.AccreditationStatusConfigId == 1),
                 approvedRequest = data.Count(c => c.AccreditationStatusConfigId == 2),
-                rejectedRequest = data.Count(c => c.AccreditationStatusConfigId == 3)
+                rejectedRequest = data.Count(c => c.AccreditationStatusConfigId == 3),
+                all = data.Count
             };
 
             return stats;
@@ -140,7 +141,8 @@ namespace xas.data.accreditation.Request
             {
                 newRequest = data.Count(c => c.AccreditationStatusConfigId == 1),
                 approvedRequest = data.Count(c => c.AccreditationStatusConfigId == 2),
-                rejectedRequest = data.Count(c => c.AccreditationStatusConfigId == 3)
+                rejectedRequest = data.Count(c => c.AccreditationStatusConfigId == 3),
+                all = data.Count
             };
 
             return stats;
