@@ -15,15 +15,16 @@ namespace xas.data.accreditation.Request
     public interface IRequestData
     {
         Task<List<xgca.entity.Models.Request>> CreateRequest(List<xgca.entity.Models.Request> entity);
-        Task<dynamic> GetStatusStatisticsInbound(int companyId);
-        Task<dynamic> GetStatusStatisticsOutbound(int companyId);
+        Task<dynamic> GetStatusStatistics(string bound, Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid);
+        //Task<dynamic> GetStatusStatisticsInbound(int companyId, Guid serviceRoleId);
+        //Task<dynamic> GetStatusStatisticsOutbound(int companyId, Guid serviceRoleId);
         Task UpdateAccreditationRequest(Guid requestId, int companyIdTo, int status);
         Task<bool> ValidateCheckRequestIfExist(Guid CompanyIdFrom, Guid CompanyIdTo);
         Task<object> ValidateIfRequestStatusUpdateIsAllowed(Guid requestId, int companyId);
         Task DeleteRequest(List<Guid> requestIds);
         Task<int> GetRequestIdByGuid(Guid requestId);      
         Task<List<xgca.entity.Models.Request>> ActivateDeactivateRequest(List<Guid> requestIds, bool status);
-        Task<(List<GetRequestModel>, int)> GetRequestList(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy, string quickSearch);
+        Task<(List<GetRequestModel>, int)> GetRequestList(string bound, int pageSize, int pageNumber, Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch);
         Task<xgca.entity.Models.Request> PortOfResponsibilityAccreditedCustomer(string companyId, string portId);
     }
 
@@ -36,7 +37,7 @@ namespace xas.data.accreditation.Request
             _context = context;
         }
         
-        public async Task<(List<GetRequestModel>, int)> GetRequestList(string bound, int pageSize, int pageNumber, Guid companyGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, string sortOrder, string sortBy, string quickSearch)
+        public async Task<(List<GetRequestModel>, int)> GetRequestList(string bound, int pageSize, int pageNumber, Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch)
         {
             //Filter Company Info Either From or To
             Guid defaultGuid = Guid.NewGuid();
@@ -45,10 +46,14 @@ namespace xas.data.accreditation.Request
                                             join coFrom in _context.Companies.Include(i => i.Addresses).Include(c => c.ContactDetails).AsNoTracking() on r.CompanyIdFrom equals coFrom.Guid
                                             join coTo in _context.Companies.Include(i => i.Addresses).Include(c => c.ContactDetails).AsNoTracking() on r.CompanyIdTo equals coTo.Guid
                                             where r.IsDeleted == false 
-                                                && (bound.ToUpper() == "INCOMING" ? r.CompanyIdTo : defaultGuid) == (bound.ToUpper() == "INCOMING" ? companyGuid : defaultGuid)
-                                                && (bound.ToUpper() == "OUTGOING" ? r.CompanyIdFrom : defaultGuid) == (bound.ToUpper() == "OUTGOING" ? companyGuid : defaultGuid)
-                                                && (bound.ToUpper() == "INCOMING" ? r.ServiceRoleIdTo : defaultGuid) == (bound.ToUpper() == "INCOMING" ? serviceRoleGuid : defaultGuid)
-                                                && (bound.ToUpper() == "OUTGOING" ? r.ServiceRoleIdFrom : defaultGuid) == (bound.ToUpper() == "OUTGOING" ? serviceRoleGuid : defaultGuid)
+                                                && (bound.ToUpper() == "INCOMING" ? r.CompanyIdTo : defaultGuid) == (bound.ToUpper() == "INCOMING" ? loginCompanyGuid : defaultGuid)
+                                                && (bound.ToUpper() == "OUTGOING" ? r.CompanyIdFrom : defaultGuid) == (bound.ToUpper() == "OUTGOING" ? loginCompanyGuid : defaultGuid)
+                                                && (bound.ToUpper() == "INCOMING" ? r.ServiceRoleIdTo : defaultGuid) == (bound.ToUpper() == "INCOMING" ? loginServiceRoleGuid : defaultGuid)
+                                                && (bound.ToUpper() == "OUTGOING" ? r.ServiceRoleIdFrom : defaultGuid) == (bound.ToUpper() == "OUTGOING" ? loginServiceRoleGuid : defaultGuid)
+
+                                                //For Requestor
+                                                && (bound.ToUpper() == "INCOMING" ? r.ServiceRoleIdFrom : defaultGuid) == (bound.ToUpper() == "INCOMING" ? serviceRoleGuid : defaultGuid)
+                                                && (bound.ToUpper() == "OUTGOING" ? r.ServiceRoleIdTo : defaultGuid) == (bound.ToUpper() == "OUTGOING" ? serviceRoleGuid : defaultGuid)
                                                 && (portAreaResponsibility.Length != 0? _context.PortArea.Where(i => i.PortCode.ToUpper().Contains(portAreaResponsibility.ToUpper()))
                                                                                                          .Select(x => x.RequestId)
                                                                                                          .Contains(r.RequestId)
@@ -57,6 +62,7 @@ namespace xas.data.accreditation.Request
                                                                                                         .Select(x => x.RequestId)
                                                                                                         .Contains(r.RequestId)
                                                                                         : true)
+                                                && (accreditationStatusConfigId == 0? 0:r.AccreditationStatusConfigId) == (accreditationStatusConfigId == 0 ? 0 : accreditationStatusConfigId)
                                             select new 
                                             {
                                                 
@@ -69,6 +75,7 @@ namespace xas.data.accreditation.Request
                                    where r.CompanyInfo.CompanyName.ToUpper().Contains(companyName.ToUpper())
                                         && r.CompanyInfo.Addresses.CountryName.ToUpper().Contains(companyCountryName.ToUpper())
                                         && (r.CompanyInfo.Addresses.StateName + r.CompanyInfo.Addresses.CityName).ToUpper().Contains(companyStateCityName.ToUpper())
+                                        && (companyStatus == null? 0:r.CompanyInfo.Status) == (companyStatus == null ? 0 : companyStatus)
                                    select new GetRequestModel
                                    {
                                        AccreditationStatusConfigId = r.RequestInfo.AccreditationStatusConfigId
@@ -79,7 +86,7 @@ namespace xas.data.accreditation.Request
                                         , CompanyIdFrom = r.RequestInfo.CompanyIdFrom
                                         , ServiceRoleIdTo = r.RequestInfo.ServiceRoleIdTo
                                         , CompanyIdTo = r.RequestInfo.CompanyIdTo
-                                        , IsActive = r.RequestInfo.IsActive
+                                        , RequestIsActive = r.RequestInfo.IsActive
                                         , PortAreaList = String.Join(" / ", r.RequestInfo.PortArea.Select(i => (i.Locode + "-"+ i.PortCode + "-" + i.PortName)))
                                         , PortAreaOperatingCountries = r.RequestInfo.PortArea.Select(i => i.CountryName).Distinct().ToList()
                                         , TruckAreaList = String.Join(" / ", r.RequestInfo.TruckArea.Select(i => i.CountryName))
@@ -100,6 +107,7 @@ namespace xas.data.accreditation.Request
                                         , CompanyPhonePrefix = r.CompanyInfo.ContactDetails.PhonePrefix
                                         , CompanyPhoneNumber = r.CompanyInfo.ContactDetails.Phone
                                         , CompanyWebsiteURL = r.CompanyInfo.WebsiteURL
+                                        , CompanyStatus = (r.CompanyInfo.Status == 1? "Active":"Inactive")
                                         
                                    }).ToList();
 
@@ -129,37 +137,61 @@ namespace xas.data.accreditation.Request
             _context.Request.RemoveRange(requestList);
             await _context.SaveChangesAsync(null, true);
         }
-
-        public async Task<dynamic> GetStatusStatisticsInbound(int companyId)
+        public async Task<dynamic> GetStatusStatistics(string bound, Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid)
         {
-            var companyGuid = await _context.Companies.Where(i => i.CompanyId == companyId).Select(x => x.Guid).SingleOrDefaultAsync();
+            Guid defaultGuid = Guid.NewGuid();
+            var companyRequestInfo = await (from r in _context.Request
+                                            where r.IsDeleted == false
+                                                && (bound.ToUpper() == "INCOMING" ? r.CompanyIdTo : defaultGuid) == (bound.ToUpper() == "INCOMING" ? loginCompanyGuid : defaultGuid)
+                                                && (bound.ToUpper() == "OUTGOING" ? r.CompanyIdFrom : defaultGuid) == (bound.ToUpper() == "OUTGOING" ? loginCompanyGuid : defaultGuid)
+                                                && (bound.ToUpper() == "INCOMING" ? r.ServiceRoleIdTo : defaultGuid) == (bound.ToUpper() == "INCOMING" ? loginServiceRoleGuid : defaultGuid)
+                                                && (bound.ToUpper() == "OUTGOING" ? r.ServiceRoleIdFrom : defaultGuid) == (bound.ToUpper() == "OUTGOING" ? loginServiceRoleGuid : defaultGuid)
 
-            var data = await _context.Request.Where(t => t.CompanyIdTo == companyGuid && t.IsDeleted == false).ToListAsync();
+                                                //For Requestor
+                                                && (bound.ToUpper() == "INCOMING" ? r.ServiceRoleIdFrom : defaultGuid) == (bound.ToUpper() == "INCOMING" ? serviceRoleGuid : defaultGuid)
+                                                && (bound.ToUpper() == "OUTGOING" ? r.ServiceRoleIdTo : defaultGuid) == (bound.ToUpper() == "OUTGOING" ? serviceRoleGuid : defaultGuid)
+                                            select r).ToListAsync();
             var stats = new
             {
-                newRequest = data.Count(c => c.AccreditationStatusConfigId == 1),
-                approvedRequest = data.Count(c => c.AccreditationStatusConfigId == 2),
-                rejectedRequest = data.Count(c => c.AccreditationStatusConfigId == 3),
-                all = data.Count
+                newRequest = companyRequestInfo.Count(c => c.AccreditationStatusConfigId == 1),
+                approvedRequest = companyRequestInfo.Count(c => c.AccreditationStatusConfigId == 2),
+                rejectedRequest = companyRequestInfo.Count(c => c.AccreditationStatusConfigId == 3),
+                all = companyRequestInfo.Count
             };
 
             return stats;
         }
 
-        public async Task<dynamic> GetStatusStatisticsOutbound(int companyId)
-        {
-            var companyGuid = await _context.Companies.Where(i => i.CompanyId == companyId).Select(x => x.Guid).SingleOrDefaultAsync();
-            var data = await _context.Request.Where(t => t.CompanyIdFrom == companyGuid && t.IsDeleted == false).ToListAsync();
-            var stats = new
-            {
-                newRequest = data.Count(c => c.AccreditationStatusConfigId == 1),
-                approvedRequest = data.Count(c => c.AccreditationStatusConfigId == 2),
-                rejectedRequest = data.Count(c => c.AccreditationStatusConfigId == 3),
-                all = data.Count
-            };
+        //public async Task<dynamic> GetStatusStatisticsInbound(int companyId, Guid serviceRoleId)
+        //{
+        //    var loginCompanyGuid = await _context.Companies.Where(i => i.CompanyId == companyId).Select(x => x.Guid).SingleOrDefaultAsync();
 
-            return stats;
-        }
+        //    var data = await _context.Request.Where(t => t.CompanyIdTo == loginCompanyGuid && t.ServiceRoleIdTo == serviceRoleId && t.IsDeleted == false).ToListAsync();
+        //    var stats = new
+        //    {
+        //        newRequest = data.Count(c => c.AccreditationStatusConfigId == 1),
+        //        approvedRequest = data.Count(c => c.AccreditationStatusConfigId == 2),
+        //        rejectedRequest = data.Count(c => c.AccreditationStatusConfigId == 3),
+        //        all = data.Count
+        //    };
+
+        //    return stats;
+        //}
+
+        //public async Task<dynamic> GetStatusStatisticsOutbound(int companyId, Guid serviceRoleId)
+        //{
+        //    var companyGuid = await _context.Companies.Where(i => i.CompanyId == companyId).Select(x => x.Guid).SingleOrDefaultAsync();
+        //    var data = await _context.Request.Where(t => t.CompanyIdFrom == companyGuid && t.ServiceRoleIdFrom == serviceRoleId && t.IsDeleted == false).ToListAsync();
+        //    var stats = new
+        //    {
+        //        newRequest = data.Count(c => c.AccreditationStatusConfigId == 1),
+        //        approvedRequest = data.Count(c => c.AccreditationStatusConfigId == 2),
+        //        rejectedRequest = data.Count(c => c.AccreditationStatusConfigId == 3),
+        //        all = data.Count
+        //    };
+
+        //    return stats;
+        //}
 
         public async Task UpdateAccreditationRequest(Guid requestId, int companyIdTo, int status)
         {
