@@ -54,7 +54,7 @@ namespace xas.data.accreditation.Request
                                                 //For Requestor
                                                 && (bound.ToUpper() == "INCOMING" ? r.ServiceRoleIdFrom : defaultGuid) == (bound.ToUpper() == "INCOMING" ? serviceRoleGuid : defaultGuid)
                                                 && (bound.ToUpper() == "OUTGOING" ? r.ServiceRoleIdTo : defaultGuid) == (bound.ToUpper() == "OUTGOING" ? serviceRoleGuid : defaultGuid)
-                                                && (portAreaResponsibility.Length != 0? _context.PortArea.Where(i => i.PortCode.ToUpper().Contains(portAreaResponsibility.ToUpper()))
+                                                && (portAreaResponsibility.Length != 0? _context.PortArea.Where(i => (i.Locode + i.PortCode + i.PortName).ToUpper().Contains(portAreaResponsibility.ToUpper()))
                                                                                                          .Select(x => x.RequestId)
                                                                                                          .Contains(r.RequestId)
                                                                                         : true)
