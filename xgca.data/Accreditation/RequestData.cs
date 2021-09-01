@@ -92,9 +92,9 @@ namespace xas.data.accreditation.Request
                                         , ServiceRoleIdTo = r.RequestInfo.ServiceRoleIdTo
                                         , CompanyIdTo = r.RequestInfo.CompanyIdTo
                                         , RequestIsActive = r.RequestInfo.IsActive
-                                        , PortAreaList = String.Join(" / ", r.RequestInfo.PortArea.Select(i => (i.Locode + "-"+ i.PortCode + "-" + i.PortName)))
-                                        , PortAreaOperatingCountries = r.RequestInfo.PortArea.Select(i => i.CountryName).Distinct().ToList()
-                                        , TruckAreaList = String.Join(" / ", r.RequestInfo.TruckArea.Select(i => i.CountryName))
+                                        , PortAreaList = String.Join(" / ", r.RequestInfo.PortArea.Where(i => i.IsDeleted == false).Select(i => (i.Locode + "-"+ i.PortCode + "-" + i.PortName)))
+                                        , PortAreaOperatingCountries = r.RequestInfo.PortArea.Where(i => i.IsDeleted == false).Select(i => i.CountryName).Distinct().ToList()
+                                        , TruckAreaList = String.Join(" / ", r.RequestInfo.TruckArea.Where(i => i.IsDeleted == false).Select(i => i.CountryName))
                                         , CompanyLogo = r.CompanyInfo.ImageURL
                                         , CompanyGuid = r.CompanyInfo.Guid
                                         , CompanyName = r.CompanyInfo.CompanyName 
