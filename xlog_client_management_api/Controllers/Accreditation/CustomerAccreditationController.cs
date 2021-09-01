@@ -325,21 +325,21 @@ namespace xlog_accreditation_service.Controllers.CustomerAccreditation
 
 
 
-        //[HttpGet]
-        //[Route("customer/accredited/individual/portOfResponsibility/{companyId}/{portId}")]
-        //[Authorize(AuthenticationSchemes = "Bearer")]
-        //[TokenAuthorize("scope", "accreditationCustomer.get|bookingReservation.post|serviceRequest.post")]
-        //public async Task<IActionResult> GetIndividualPortOfResponsibility([FromRoute] string companyId, string portId)
-        //{
-        //    _optionsToken.Value.GetToken = Request.Headers["Authorization"];
-        //    var data = await _customerCore.GetIndividualPortOfResponsibility(companyId, portId);
+        [HttpGet]
+        [Route("customer/accredited/individual/portOfResponsibility/{companyId}/{portId}")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [TokenAuthorize("scope", "accreditationCustomer.get|bookingReservation.post|serviceRequest.post")]
+        public async Task<IActionResult> GetIndividualPortOfResponsibility([FromRoute] string companyId, string portId)
+        {
+            _optionsToken.Value.GetToken = Request.Headers["Authorization"];
+            var data = await _requestCore.GetIndividualPortOfResponsibility(companyId, portId);
 
-        //    if (data.statusCode == 400)
-        //    {
-        //        return BadRequest(data);
-        //    }
+            if (data.statusCode == 400)
+            {
+                return BadRequest(data);
+            }
 
-        //    return Ok(data);
-        //}
+            return Ok(data);
+        }
     }
 }

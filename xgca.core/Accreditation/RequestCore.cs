@@ -65,6 +65,7 @@ namespace xas.core.accreditation.Request
         #region Customer Accreditation
         Task<dynamic> CreateCustomerAccreditation(CustomerRegistrationDTO customerRegistrationDTO, int companyId, string username, string serviceRole, string serviceRoleId);
         Task<GeneralModel> PortOfResponsibilityAccreditedCustomer(ListPortOfResponsibility obj);
+        Task<GeneralModel> GetIndividualPortOfResponsibility(string companyId, string portId);
         #endregion
     }
 
@@ -82,6 +83,7 @@ namespace xas.core.accreditation.Request
         private readonly IPaginationResponse _pagination;
         private readonly IConfiguration _config;
         private readonly IAmazonSecurityTokenService _amazonSecurityTokenService;
+        private readonly ICompany _companyCore;
 
         public RequestCore(
             IRequestData requestData,
@@ -95,7 +97,8 @@ namespace xas.core.accreditation.Request
             IOptions<AuthConfig> authhConfig,
             IPaginationResponse pagination,
             IConfiguration config,
-            IAmazonSecurityTokenService amazonSecurityTokenService)
+            IAmazonSecurityTokenService amazonSecurityTokenService,
+            ICompany companyCore)
         {
             _requestData = requestData;
             _portAreaData = portAreaData;
@@ -109,6 +112,7 @@ namespace xas.core.accreditation.Request
             _pagination = pagination;
             _config = config;
             _amazonSecurityTokenService = amazonSecurityTokenService;
+            _companyCore = companyCore;
         }
 
         #region Request        
@@ -363,7 +367,29 @@ namespace xas.core.accreditation.Request
             return _generalResponse.Response(new { companies = new ReturnPortOfResponsibility { PortOfDischargeCompanyId = dischargeLine?.CompanyIdFrom.ToString(), PortOfLoadingCompanyId = loadingLine?.CompanyIdFrom.ToString() } }, StatusCodes.Status200OK, "Accredited Companies has been Listed", true);
         }
 
-       
+        public async Task<GeneralModel> GetIndividualPortOfResponsibility(string companyId, string portId)
+        {
+            var details = (dynamic)null;
+            if (companyId == null || portId == null)
+            {
+                return _generalResponse.Response(null, StatusCodes.Status400BadRequest, "Validation error.", false);
+            }
+
+            var agency = await _requestData.PortOfResponsibilityAccreditedCustomer(companyId, portId);
+
+            if (agency != null)
+            {
+                int companyKey = await _companyData.GetIdByGuid(Guid.Parse(companyId));
+                IGeneralModel response = await _companyCore.Retrieve(companyKey);
+                if (response.statusCode == StatusCodes.Status200OK)
+                {
+                    details = response.data;
+                }
+            }
+
+            return _generalResponse.Response(new { accreditation_details = agency, shipping_agency = details }, StatusCodes.Status200OK, "Accredited Shipping Agency has been retreived", true);
+        }
+
         #endregion
     }
 }
