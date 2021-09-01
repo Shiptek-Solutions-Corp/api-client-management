@@ -113,6 +113,7 @@ namespace xas.data.accreditation.Request
                                         , CompanyPhoneNumber = r.CompanyInfo.ContactDetails.Phone
                                         , CompanyWebsiteURL = r.CompanyInfo.WebsiteURL
                                         , CompanyStatus = (r.CompanyInfo.Status == 1? "Active":"Inactive")
+                                        , CompanyEmailAddress = r.CompanyInfo.EmailAddress
                                         
                                    }).ToList();
 

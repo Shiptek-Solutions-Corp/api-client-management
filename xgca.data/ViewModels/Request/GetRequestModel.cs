@@ -36,6 +36,7 @@ namespace xgca.data.ViewModels.Request
         public string CompanyPostalCode { get; set; }
         public string CompanyWebsiteURL { get; set; }
         public string CompanyStatus { get; set; }
+        public string CompanyEmailAddress { get; set; }
 
         //public List<GetPortAreaModel> PortAreaDataList { get; set; }
         //public List<GetTruckAreaModel> TruckAreaDataList { get; set; }
