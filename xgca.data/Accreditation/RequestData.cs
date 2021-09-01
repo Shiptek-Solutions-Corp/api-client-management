@@ -24,7 +24,7 @@ namespace xas.data.accreditation.Request
         Task DeleteRequest(List<Guid> requestIds);
         Task<int> GetRequestIdByGuid(Guid requestId);      
         Task<List<xgca.entity.Models.Request>> ActivateDeactivateRequest(List<Guid> requestIds, bool status);
-        Task<(List<GetRequestModel>, int)> GetRequestList(string bound, int pageSize, int pageNumber, Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch);
+        Task<(List<GetRequestModel>, int)> GetRequestList(string bound, int pageSize, int pageNumber, Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string portAreaOperatingCountryName, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch);
         Task<xgca.entity.Models.Request> PortOfResponsibilityAccreditedCustomer(string companyId, string portId);
     }
 
@@ -37,7 +37,7 @@ namespace xas.data.accreditation.Request
             _context = context;
         }
         
-        public async Task<(List<GetRequestModel>, int)> GetRequestList(string bound, int pageSize, int pageNumber, Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch)
+        public async Task<(List<GetRequestModel>, int)> GetRequestList(string bound, int pageSize, int pageNumber, Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string portAreaOperatingCountryName, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch)
         {
             //Filter Company Info Either From or To
             Guid defaultGuid = Guid.NewGuid();
@@ -58,6 +58,10 @@ namespace xas.data.accreditation.Request
                                                                                                          .Select(x => x.RequestId)
                                                                                                          .Contains(r.RequestId)
                                                                                         : true)
+                                                && (portAreaOperatingCountryName.Length != 0 ? _context.PortArea.Where(i => i.CountryName.ToUpper().Contains(portAreaOperatingCountryName.ToUpper()))
+                                                                                                                    .Select(x => x.RequestId)
+                                                                                                                    .Contains(r.RequestId)
+                                                : true)
                                                 && (truckAreaResponsibility.Length != 0 ? _context.TruckArea.Where(i => i.CountryName.ToUpper().Contains(truckAreaResponsibility.ToUpper()))
                                                                                                         .Select(x => x.RequestId)
                                                                                                         .Contains(r.RequestId)
@@ -75,6 +79,7 @@ namespace xas.data.accreditation.Request
                                    where r.CompanyInfo.CompanyName.ToUpper().Contains(companyName.ToUpper())
                                         && r.CompanyInfo.Addresses.CountryName.ToUpper().Contains(companyCountryName.ToUpper())
                                         && (r.CompanyInfo.Addresses.StateName + r.CompanyInfo.Addresses.CityName).ToUpper().Contains(companyStateCityName.ToUpper())
+                                        && r.CompanyInfo.Addresses.FullAddress.ToUpper().Contains(companyAddress.ToUpper())
                                         && (companyStatus == null? 0:r.CompanyInfo.Status) == (companyStatus == null ? 0 : companyStatus)
                                    select new GetRequestModel
                                    {
