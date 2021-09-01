@@ -379,7 +379,7 @@ namespace xas.core.accreditation.Request
 
             if (agency != null)
             {
-                int companyKey = await _companyData.GetIdByGuid(Guid.Parse(companyId));
+                int companyKey = await _companyData.GetIdByGuid(agency.CompanyIdFrom);
                 IGeneralModel response = await _companyCore.Retrieve(companyKey);
                 if (response.statusCode == StatusCodes.Status200OK)
                 {
