@@ -119,8 +119,10 @@ namespace xas.core.accreditation.Request
             //Update Image Url for new S3 link for each record
             response.Item1.ForEach(i =>
             {
-                var newCompanyLogoUrl = i.CompanyLogo.Split("/").Last();
-                i.CompanyLogo = S3Helper.GetS3URL(newCompanyLogoUrl, _config, _amazonSecurityTokenService).Result;
+                if (i.CompanyLogo != null) {
+                    var newCompanyLogoUrl = i.CompanyLogo.Split("/").Last();
+                    i.CompanyLogo = S3Helper.GetS3URL(newCompanyLogoUrl, _config, _amazonSecurityTokenService).Result;
+                }
             });
 
             return _generalResponse.Response(_pagination.Paginate(response.Item1, response.Item2, pageNumber, pageSize), StatusCodes.Status200OK, "Request list successfully loaded.", true);
