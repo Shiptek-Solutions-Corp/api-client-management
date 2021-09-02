@@ -45,7 +45,10 @@ namespace xlog_accreditation_service.Controllers
         [HttpGet]
         [Route("request")]
         [TokenAuthorize("scope", "accreditationShippingAgency.get|accreditationShippingLine.get")]
-        public async Task<IActionResult> GetRequestList(Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string bound = "INCOMING", int pageSize = 10, int pageNumber = 0, string companyName = "", string companyAddress = "", string companyCountryName = "", string companyStateCityName = "", string portAreaResponsibility = "", string portAreaOperatingCountryName = "", string truckAreaResponsibility = "", int accreditationStatusConfigId = 0, byte? companyStatus = null, string sortOrder = "asc", string sortBy = "RequestId", string quickSearch = "")
+        public async Task<IActionResult> GetRequestList(Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string bound = "INCOMING", int pageSize = 10, int pageNumber = 0
+                                                        , string companyName = "", string companyAddress = "", string companyCountryName = "", string companyStateCityName = "", string portAreaResponsibility = ""
+                                                        , string portAreaOperatingCountryName = "", string truckAreaResponsibility = "", int accreditationStatusConfigId = 0, byte? companyStatus = null
+                                                        , string sortOrder = "asc", string sortBy = "RequestId", string quickSearch = "")
         {
             var response = await _requestCore.GetRequestList(bound, pageSize, pageNumber, loginCompanyGuid, loginServiceRoleGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, portAreaOperatingCountryName, truckAreaResponsibility, accreditationStatusConfigId ,companyStatus, sortOrder, sortBy, quickSearch);
 
@@ -163,9 +166,12 @@ namespace xlog_accreditation_service.Controllers
         [HttpGet]
         [Route("requests/export/csv")]
         [TokenAuthorize("scope", "accreditationShippingAgency.get|accreditationShippingLine.get")]
-        public async Task<IActionResult> ExportToCSV(Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string bound = "INCOMING", int pageSize = 10, int pageNumber = 0, string companyName = "", string companyAddress = "", string companyCountryName = "", string companyStateCityName = "", string portAreaResponsibility = "", string portAreaOperatingCountryName = "", string truckAreaResponsibility = "", int accreditationStatusConfigId = 0, byte? companyStatus = null, string sortOrder = "asc", string sortBy = "RequestId", string quickSearch = "")
+        public async Task<IActionResult> ExportToCSV(Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string bound = "INCOMING", int pageSize = 10, int pageNumber = 0
+                                                    , string companyName = "", string companyAddress = "", string companyCountryName = "", string companyStateCityName = "", string portAreaResponsibility = ""
+                                                    , string portAreaOperatingCountryName = "", string truckAreaResponsibility = "", int accreditationStatusConfigId = 0, byte? companyStatus = null
+                                                    , string sortOrder = "asc", string sortBy = "RequestId", string quickSearch = "", string viewerServiceRoleId = "")
         {
-            var response = await _requestCore.ExportRequestListToCSV(bound, pageSize, pageNumber, loginCompanyGuid, loginServiceRoleGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, portAreaOperatingCountryName, truckAreaResponsibility, accreditationStatusConfigId, companyStatus, sortOrder, sortBy, quickSearch);
+            var response = await _requestCore.ExportRequestListToCSV(bound, pageSize, pageNumber, loginCompanyGuid, loginServiceRoleGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, portAreaOperatingCountryName, truckAreaResponsibility, accreditationStatusConfigId, companyStatus, sortOrder, sortBy, quickSearch, viewerServiceRoleId);
             var fileName = $"request_exportCSV.csv";
             return File(response, "application/octet-stream", fileName);
         }
