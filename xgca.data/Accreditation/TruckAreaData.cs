@@ -114,9 +114,9 @@ namespace xas.data.DataModel.TruckArea
 
         public async Task<(List<GetTruckAreaModel>, int)> List(Guid requestGuid, string search, string city, string state, string country, string postal, string sortBy, string sortOrder, int pageNumber, int pageSize)
         {
-
+            int requestId = await _context.Request.Where(i => i.Guid == requestGuid).Select(x => x.RequestId).SingleOrDefaultAsync();
             var tempRecords = await (from r in _context.TruckArea
-                                     where r.Guid == requestGuid
+                                     where r.IsDeleted == false && r.RequestId == requestId
                                      && (r.CountryName + r.StateName + r.CityName + r.PostalCode).ToUpper().Contains(search.ToUpper())
                                      && r.CountryName.ToUpper().Contains(country.ToUpper()) 
                                      && r.StateName.ToUpper().Contains(state.ToUpper())
