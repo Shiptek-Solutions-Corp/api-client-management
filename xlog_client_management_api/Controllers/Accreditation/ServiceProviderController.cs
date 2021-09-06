@@ -32,7 +32,7 @@ namespace xlog_accreditation_service.Controllers
         [Route("provider/list/{serviceProviderId}")]
         [TokenAuthorize("scope", "accreditationShippingAgency.get|accreditationTrucking.get|accreditationShippingLine.get")]
         [HttpGet]
-        public async Task<IActionResult> ServiceProviderListing([FromHeader(Name = "Authorization")]string auth,[FromRoute]Guid serviceProviderId, [FromQuery]int page, [FromQuery]int rows , [FromQuery] string search=null)
+        public async Task<IActionResult> ServiceProviderListing([FromHeader(Name = "Authorization")]string auth,[FromRoute]Guid serviceProviderId, [FromQuery]int page, [FromQuery]int rows , [FromQuery] string search = "")
         {
             var response = await _serviceProvider.ServiceProviderByServiceId(serviceProviderId, page, rows, auth , search);
             if (response.statusCode == StatusCodes.Status400BadRequest) return BadRequest(response);

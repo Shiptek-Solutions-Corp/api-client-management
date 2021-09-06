@@ -43,14 +43,14 @@ namespace xas.core.ServiceProvider
             _companyData = companyData;
         }
 
-        public async Task<GeneralModel> ServiceProviderByServiceId(Guid guid, int page, int rows, string token = null , string search = null)
+        public async Task<GeneralModel> ServiceProviderByServiceId(Guid guid, int page, int rows, string token = null , string search = "")
         {
             //FETCH CONVERT Guid To int ID from Global
             var objectResponse = (JObject)await _httpHelper.Get(_optionsGlobal.Value.BaseUrl + _optionsGlobal.Value.ServiceList, "?ids=" + guid);
             var serviceId = objectResponse["data"]["services"][0]["intServiceId"].ToString();
 
             //FETCH ALL COMPANY BY SERVICE
-            var companies = await _companyData.ListByService(int.Parse(serviceId), page, rows);
+            var companies = await _companyData.ListByService(int.Parse(serviceId), page, rows, search);
             return _generalResponse.Response(companies, StatusCodes.Status200OK, "Request deletion has been succesful!", true);
         }
     }

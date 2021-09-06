@@ -155,7 +155,7 @@ namespace xgca.core.Company
 
             if (companyName is null)
             {
-                data = await _companyData.ListByService(serviceId, page, rowCount);
+                data = await _companyData.ListByService(serviceId, page, rowCount, "");
             }
             else
             {

@@ -25,7 +25,7 @@ namespace xgca.data.Company
         Task<YourEDIActorReturn> GetCompanyAndMasterUserDetails(string companyKey);
         Task<entity.Models.Company> Retrieve(Guid key);
         Task<dynamic> ListByService(int serviceId, string companyName, int page, int rowCount);
-        Task<dynamic> ListByService(int serviceId, int page, int rowCount);
+        Task<dynamic> ListByService(int serviceId, int page, int rowCount, string quickSearch);
         Task<List<entity.Models.Company>> ListCompaniesByGuids(List<string> guids);
 
         Task<List<entity.Models.Company>> ListRegisteredCompanies(List<string> registeredIds);
@@ -153,12 +153,12 @@ namespace xgca.data.Company
             return response;                
         }
 
-        public async Task<dynamic> ListByService(int serviceId, int page, int rowCount)
+        public async Task<dynamic> ListByService(int serviceId, int page, int rowCount, string quickSearch = "")
         {
             var data = await _context.CompanyServices.AsNoTracking()
                 .Include(c => c.Companies)
-                    .ThenInclude(a => a.Addresses)
-                .Where(t => t.ServiceId == serviceId)
+                .ThenInclude(a => a.Addresses)
+                .Where(t => t.ServiceId == serviceId && (t.Companies.CompanyName + t.Companies.Addresses.FullAddress).ToUpper().Contains(quickSearch.ToUpper()))
                 .Select(t => new
                 { 
                     CompanyId = t.Companies.Guid, 
