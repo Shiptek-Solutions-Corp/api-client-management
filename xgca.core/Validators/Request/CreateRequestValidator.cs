@@ -14,7 +14,7 @@ namespace xgca.core.Validators.Request
         public CreateRequestValidator(IRequestData requestRepo)
         {
             _requestRepo = requestRepo;
-            RuleForEach(i => i).NotNull().NotEmpty().Must(i => !_requestRepo.ValidateCheckRequestIfExist(i.CompanyIdFrom, i.CompanyIdTo).Result).WithMessage("Request already exists.");
+            RuleForEach(i => i).NotNull().NotEmpty().Must(i => !_requestRepo.ValidateCheckRequestIfExist(i.CompanyIdFrom, i.ServiceRoleIdFrom, i.CompanyIdTo , i.ServiceRoleIdTo).Result).WithMessage("Request already exists.");
         }
     }
 

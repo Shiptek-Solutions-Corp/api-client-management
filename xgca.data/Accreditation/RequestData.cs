@@ -19,7 +19,7 @@ namespace xas.data.accreditation.Request
         //Task<dynamic> GetStatusStatisticsInbound(int companyId, Guid serviceRoleId);
         //Task<dynamic> GetStatusStatisticsOutbound(int companyId, Guid serviceRoleId);
         Task UpdateAccreditationRequest(Guid requestId, int companyIdTo, int status);
-        Task<bool> ValidateCheckRequestIfExist(Guid CompanyIdFrom, Guid CompanyIdTo);
+        Task<bool> ValidateCheckRequestIfExist(Guid CompanyIdFrom, Guid CompanyFromServiceRoleId, Guid CompanyIdTo, Guid CompanyToServiceRoleId);
         Task<object> ValidateIfRequestStatusUpdateIsAllowed(Guid requestId, int companyId);
         Task DeleteRequest(List<Guid> requestIds);
         Task<int> GetRequestIdByGuid(Guid requestId);      
@@ -211,10 +211,12 @@ namespace xas.data.accreditation.Request
             await _context.SaveChangesAsync(null, true);
         }
 
-        public async Task<bool> ValidateCheckRequestIfExist(Guid CompanyIdFrom, Guid CompanyIdTo)
+        public async Task<bool> ValidateCheckRequestIfExist(Guid CompanyIdFrom, Guid CompanyFromServiceRoleId, Guid CompanyIdTo, Guid CompanyToServiceRoleId)
         {
             bool IsDuplicate = false;
-            var data = await _context.Request.Where(t => t.CompanyIdFrom == CompanyIdFrom && t.CompanyIdTo == CompanyIdTo && t.IsDeleted == false).ToListAsync();
+            var data = await _context.Request.Where(t => t.CompanyIdFrom == CompanyIdFrom && t.ServiceRoleIdFrom == CompanyFromServiceRoleId
+                                                    && t.CompanyIdTo == CompanyIdTo && t.ServiceRoleIdTo == CompanyToServiceRoleId
+                                                    && t.IsDeleted == false).ToListAsync();
             if (data.Count > 0) IsDuplicate = true;
             return IsDuplicate;
         }
