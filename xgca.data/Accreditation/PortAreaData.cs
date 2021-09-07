@@ -55,6 +55,7 @@ namespace xas.data.DataModel.PortArea
                                          , PortId = p.PortId
                                          , PortOfDischarge = (p.PortOfDischarge == 1 ? "yes" : "no")                                        
                                          , PortOfLoading = (p.PortOfLoading == 1 ? "yes" : "no")
+                                         , PortAreaGuid = p.Guid
                                      }).ToListAsync();
                 
        

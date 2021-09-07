@@ -25,6 +25,7 @@ using xgca.core.Helpers.Http;
 using xgca.data.Company;
 using xgca.data.ViewModels.PortArea;
 using xgca.core.Models.Accreditation.PortArea;
+using xgca.core.Helpers;
 
 namespace xas.core.PortArea
 {
@@ -35,6 +36,7 @@ namespace xas.core.PortArea
         Task<byte[]> GenerateExcelFile(Guid requestId);
         Task<GeneralModel> RemovePortResponsibility(Guid portAreaId);
         Task<byte[]> GenerateCSVFile(Guid requestId, string CSVtype = "");
+        Task<GeneralModel> GetPortList(string portName, string countryName, string unloCode);
        // Task<GeneralModel> GetListofPortsCSVFormat(Guid requestId);
     }
     public class PortAreaCore : IPortAreaCore
@@ -42,13 +44,17 @@ namespace xas.core.PortArea
         private readonly IPortAreaData _portAreaData;
         private readonly IGeneralResponse _generalResponse;
         private readonly IMapper _mapper;
+        private readonly IHttpHelper _httpHelper;
+        private readonly IOptions<GlobalCmsService> _options;
 
 
-        public PortAreaCore(IPortAreaData portAreaData, IGeneralResponse generalResponse,  IMapper mapper)
+        public PortAreaCore(IPortAreaData portAreaData, IGeneralResponse generalResponse,  IMapper mapper, IHttpHelper httpHelper, IOptions<GlobalCmsService> options)
         {
             _portAreaData = portAreaData;
             _generalResponse = generalResponse;
             _mapper = mapper;
+            _httpHelper = httpHelper;
+            _options = options;
         }
 
         public async Task<GeneralModel> AddPortOfResponsibility(List<CreatePortAreaModel> portInfoList)
@@ -135,6 +141,12 @@ namespace xas.core.PortArea
             return _generalResponse.Response(response, StatusCodes.Status200OK, "List of ports has been loaded", true);
         }
 
+        public async Task<GeneralModel> GetPortList(string portName, string countryName, string unloCode)
+        {
+            string url = String.Concat(_options.Value.BaseUrl, _options.Value.PortSearch, "?portName=", portName, "&countryName=", countryName, "&unloCode=", unloCode);
+            var response = await _httpHelper.GetAsync(url, "");
+            return _generalResponse.Response(response.data, StatusCodes.Status200OK, "Port list has been listed.", true);
+        }
         //public async Task<GeneralModel> GetListofPortsCSVFormat(Guid requestId)
         //{
         //    var data = await _portAreaData.GetPortList(requestId);

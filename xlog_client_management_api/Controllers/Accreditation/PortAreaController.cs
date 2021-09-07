@@ -125,5 +125,23 @@ namespace xlog_accreditation_service.Controllers.PortArea
                 return Ok(response);
             }
         }
+
+        /// <summary>
+        /// Get list of Ports 
+        /// </summary>
+        /// <response code="200">Success</response>  
+        /// <response code="400">Error Found!</response>  
+        /// <response code="401">Unauthorized!</response>
+        /// <response code="500">Internal Server Error!</response>
+        [HttpGet]
+        [Route("port-search")]
+        public async Task<IActionResult> GetPortList(string portName = "", string countryName = "", string unloCode = "")
+        {
+            var response = await _portAreaCore.GetPortList(portName , countryName, unloCode);
+
+            if (response.statusCode == StatusCodes.Status400BadRequest) return BadRequest(response);
+            if (response.statusCode == StatusCodes.Status401Unauthorized) return Unauthorized(response);
+            return Ok(response);
+        }
     }
 }

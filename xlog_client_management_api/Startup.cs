@@ -268,9 +268,11 @@ namespace xlog_client_management_api
                 o.PortDetailsBulk = Configuration.GetSection("GlobalCmsService:PortDetailsBulk").Value;
                 o.RetrieveService = Configuration.GetSection("GlobalCmsService:RetrieveService").Value;
                 o.GetServiceRoleId = Configuration.GetSection("GlobalCmsService:GetServiceRoleId").Value;
+                o.PortSearch = Configuration.GetSection("GlobalCmsService:PortSearch").Value;
 
-               
-    });
+
+
+            });
 
             services.Configure<OptimusAuthService>(o => {
                 o.BaseUrl = Configuration.GetSection("OptimusAuthService:BaseUrl").Value;

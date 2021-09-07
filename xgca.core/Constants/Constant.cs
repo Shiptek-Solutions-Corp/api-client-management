@@ -63,6 +63,7 @@ namespace xgca.core.Helpers
         public string PortDetailsBulk { get; set; }
         public string RetrieveService { get; set; }
         public string GetServiceRoleId { get; set; }
+        public string PortSearch { get; set; }
     }
     public class OptimusAuthService : ParentConstant
     {
