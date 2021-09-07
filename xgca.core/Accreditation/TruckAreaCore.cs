@@ -23,6 +23,7 @@ using xgca.core.Constants;
 using xgca.data.Company;
 using xgca.data.ViewModels.TruckArea;
 using xgca.core.ResponseV2;
+using xgca.core.Models.Accreditation;
 
 namespace xas.core.TruckArea
 {
@@ -34,7 +35,7 @@ namespace xas.core.TruckArea
         Task<GeneralModel> PaginateList(List<GetTruckArea> list, int recordCount, int pageNumber, int pageSize);
         Task<GeneralModel> Delete(string id);
         Task<GeneralModel> DeleteMultiple(DeleteMultipleTruckArea list);
-        Task<byte[]> ExportToCSV(List<GetTruckArea> list);
+        Task<byte[]> ExportToCSV(Guid requestGuid, string search, string city, string state, string country, string postal, string sortBy, string sortOrder, int pageNumber, int pageSize);
         Task<byte[]> ExportToTemplate();
     }
 
@@ -130,27 +131,40 @@ namespace xas.core.TruckArea
             return _general.Response(null, StatusCodes.Status200OK, message, result);
         }
 
-        public async Task<byte[]> ExportToCSV(List<GetTruckArea> list)
+        public async Task<byte[]> ExportToCSV(Guid requestGuid, string search, string city, string state, string country, string postal, string sortBy, string sortOrder, int pageNumber, int pageSize)
         {
+           string fileName = String.Concat(Directory.GetCurrentDirectory(), @"AccessManagement_UserExportListing.csv");
+            if (File.Exists(fileName)) File.Delete(fileName);
+
+            var (result, recordCount) = await _repository.List(requestGuid, search, city, state, country, postal, sortBy, sortOrder, pageNumber, pageSize);
+
             MemoryStream ms = new MemoryStream();
             using (StreamWriter sw = new StreamWriter(ms, Encoding.UTF8))
             {
                 CsvWriter cw = new CsvWriter(sw, System.Globalization.CultureInfo.CurrentCulture);
 
-                cw.WriteHeader<TemplateTruckArea>();
+                cw.WriteHeader<ExportCSVTruckAreaModel>();
                 cw.NextRecord();
 
-                foreach (var truckArea in list)
+                foreach (var p in result)
                 {
-                    cw.WriteRecord(_mapper.Map<TemplateTruckArea>(truckArea));
+                    var profile = new ExportCSVTruckAreaModel
+                    {                         
+                           CountryName = p.CountryName       
+                         , StateName = p.StateName 
+                         , CityName =  p.CityName 
+                         , PostalCode = p.PostalCode                    
+                    };
+
+                    cw.WriteRecord(profile);
                     cw.NextRecord();
                 }
                 sw.Flush();
             }
 
             ms.Close();
-            byte[] truckAreaCSV = ms.ToArray();
-            return truckAreaCSV;
+            byte[] profileToExport = ms.ToArray();
+            return profileToExport;
         }
 
         public async Task<byte[]> ExportToTemplate()

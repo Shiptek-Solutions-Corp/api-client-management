@@ -96,6 +96,31 @@ namespace xlog_accreditation_service.Controllers.TruckArea
         }
 
         /// <summary>
+        /// Export to Listing of Truck Area to CSV
+        /// </summary>
+        /// <response code="200">Success</response>  
+        /// <response code="400">Error Found!</response>  
+        /// <response code="401">Unauthorized!</response>
+        /// <response code="500">Internal Server Error!</response>
+        [HttpGet]
+        [Route("truck-area-export-csv")]
+        public async Task<FileResult> ExportToCSVListTruckAreas([FromQuery] Guid requestGuid,
+           [FromQuery] string search = "",
+           [FromQuery] string city = "",
+           [FromQuery] string state = "",
+           [FromQuery] string country = "",
+           [FromQuery] string postal = "",
+           [FromQuery] string sortBy = "CountryName",
+           [FromQuery] string sortOrder = "asc",
+           [FromQuery] int pageNumber = 0,
+           [FromQuery] int pageSize = 10)
+        {
+            var fileName = $"TruckArea_ExportListing.csv";
+            var response = await _service.ExportToCSV(requestGuid, search, city, state, country, postal, sortBy, sortOrder, pageNumber, pageSize);
+            return File(response, "application/octet-stream", fileName);
+        }
+
+        /// <summary>
         /// Deletion for Truck Area
         /// </summary>
         /// <response code="200">Success</response>  
