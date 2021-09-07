@@ -38,7 +38,7 @@ namespace xas.data.DataModel.PortArea
         {
             var portList = await (from p in _context.PortArea
                                      join r in _context.Request on p.RequestId equals r.RequestId
-                                     where r.Guid == requestId
+                                     where r.Guid == requestId && r.IsDeleted == false 
                                      select new PortAreaResponseModel
                                      {
                                          CityName = p.CityName 
