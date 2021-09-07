@@ -22,6 +22,7 @@ namespace xas.data.DataModel.PortArea
         Task<List<PortAreaResponseModel>> GetPortList(Guid requestId);
         Task<bool> CheckIfPortIsDeleted(Guid portId);
         Task<bool> RemovePortAccreditation(Guid portId);
+        Task<bool> ValidateCheckPortAreaResponsibilityIfExist(int requestId, Guid portId);
     }
     public class PortAreaData : IPortAreaData
     {
@@ -50,7 +51,7 @@ namespace xas.data.DataModel.PortArea
                                          , Location = p.Location 
                                          , LoCode = p.Locode 
                                          , Longitude = p.Longitude 
-                                         , Name = ""
+                                         , PortName = p.PortName
                                          , PortAreaId = p.PortAreaId
                                          , PortId = p.PortId
                                          , PortOfDischarge = (p.PortOfDischarge == 1 ? "yes" : "no")                                        
@@ -116,6 +117,14 @@ namespace xas.data.DataModel.PortArea
             }
 
             return true;
+        }
+
+        public async Task<bool> ValidateCheckPortAreaResponsibilityIfExist(int requestId, Guid portId)
+        {
+            bool IsDuplicate = false;
+            var data = await _context.PortArea.Where(t => t.RequestId == requestId && t.PortId == portId && t.IsDeleted == false).ToListAsync();
+            if (data.Count > 0) IsDuplicate = true;
+            return IsDuplicate;
         }
     }
 }

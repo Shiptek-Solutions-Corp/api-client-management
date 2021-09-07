@@ -11,7 +11,7 @@ namespace xgca.data.ViewModels.PortArea
         public int CountryAreaId { get; set; }
         public string CountryCode { get; set; }
         public string LoCode { get; set; }
-        public string Name { get; set; }
+        public string PortName { get; set; }
         public string Location { get; set; }
         public string Latitude { get; set; }
         public string Longitude { get; set; }

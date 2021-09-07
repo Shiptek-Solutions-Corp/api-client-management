@@ -83,6 +83,7 @@ using xas.core.ServiceRoleConfig;
 using xas.core.ServiceProvider;
 using xas.data.DataModel.ServiceRoleConfig;
 using Amazon.SecurityToken;
+using xgca.core.Models.Accreditation.PortArea;
 
 namespace xlog_client_management_api
 {
@@ -250,6 +251,8 @@ namespace xlog_client_management_api
             services.AddScoped<IServiceRoleConfigCore, ServiceRoleConfigCore>();
             services.AddScoped<ICServiceProvider, CServiceProvider>();
             services.AddScoped<IServiceRoleConfigData, ServiceRoleConfigData>();
+            services.AddScoped<IValidator<List<CreatePortAreaModel>>, CreatePortAreadResponsiblityValidator>();
+            
 
             //AWS
             services.AddAWSService<IAmazonSecurityTokenService>();

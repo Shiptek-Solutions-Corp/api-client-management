@@ -26,6 +26,8 @@ using xgca.data.Company;
 using xgca.data.ViewModels.PortArea;
 using xgca.core.Models.Accreditation.PortArea;
 using xgca.core.Helpers;
+using FluentValidation;
+using System.Linq;
 
 namespace xas.core.PortArea
 {
@@ -46,19 +48,29 @@ namespace xas.core.PortArea
         private readonly IMapper _mapper;
         private readonly IHttpHelper _httpHelper;
         private readonly IOptions<GlobalCmsService> _options;
+        private readonly IValidator<List<CreatePortAreaModel>> _validatorCreatePortAreaResponsibility;
 
-
-        public PortAreaCore(IPortAreaData portAreaData, IGeneralResponse generalResponse,  IMapper mapper, IHttpHelper httpHelper, IOptions<GlobalCmsService> options)
+        public PortAreaCore(IPortAreaData portAreaData, IGeneralResponse generalResponse,  IMapper mapper, IHttpHelper httpHelper, IOptions<GlobalCmsService> options, IValidator<List<CreatePortAreaModel>> validatorCreatePortAreaResponsibility)
         {
             _portAreaData = portAreaData;
             _generalResponse = generalResponse;
             _mapper = mapper;
             _httpHelper = httpHelper;
             _options = options;
+            _validatorCreatePortAreaResponsibility = validatorCreatePortAreaResponsibility;
         }
 
         public async Task<GeneralModel> AddPortOfResponsibility(List<CreatePortAreaModel> portInfoList)
         {
+
+            //Validate Request 
+            var validatorResponse = await _validatorCreatePortAreaResponsibility.ValidateAsync(portInfoList);
+            if (!validatorResponse.IsValid)
+            {
+                var errors = validatorResponse.Errors.Select(error => new ErrorField(error.PropertyName, error.ErrorMessage)).ToList();
+                return _generalResponse.Response(null, errors, StatusCodes.Status400BadRequest, "Error encoutered", true);
+            }
+
 
             var lstPorts = _mapper.Map<List<xgca.entity.Models.PortArea>>(portInfoList);
             var response = await _portAreaData.AddPortResponsibility(lstPorts);
@@ -96,7 +108,7 @@ namespace xas.core.PortArea
                         , Location = p.Location 
                         , LoCode = p.LoCode 
                         , Longitude = p.Longitude 
-                        , Name = ""
+                        , PortName = p.PortName
                         , PortAreaId = p.PortAreaId
                         , PortId = p.PortId
                         , PortOfDischarge = p.PortOfDischarge                               
