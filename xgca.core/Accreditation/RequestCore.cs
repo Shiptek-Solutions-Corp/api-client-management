@@ -66,6 +66,7 @@ namespace xas.core.accreditation.Request
         Task<dynamic> CreateCustomerAccreditation(CustomerRegistrationDTO customerRegistrationDTO, int companyId, string username, string serviceRole, string serviceRoleId);
         Task<GeneralModel> PortOfResponsibilityAccreditedCustomer(ListPortOfResponsibility obj);
         Task<GeneralModel> GetIndividualPortOfResponsibility(string companyId, string portId);
+        Task<GeneralModel> CheckCompanyDetail(string companyCode);
         #endregion
     }
 
@@ -372,7 +373,9 @@ namespace xas.core.accreditation.Request
         //Shipping/Cosignee = Requestor
         public async Task<dynamic> CreateCustomerAccreditation(CustomerRegistrationDTO customerRegistrationDTO, int companyId, string username, string serviceRole, string serviceRoleId)
         {
-            if (! await _companyData.CheckIfExistsByCompanyName(customerRegistrationDTO.companyName))
+            customerRegistrationDTO.services = new dynamic[] { customerRegistrationDTO.serviceRoleId.ToString() };
+
+            if (await _companyData.CheckIfExistsByCompanyName(customerRegistrationDTO.companyName))
             {
                 return _generalResponse.Response(null, StatusCodes.Status404NotFound, "Error on Accreditation: Existing Company", false);
             }
@@ -401,6 +404,10 @@ namespace xas.core.accreditation.Request
 
                 //Update Accredited By 
                 await _companyData.SetAccreditedBy(companyGuid, fetchedCompanyId.ToString(), 0);
+            }
+            else
+            {
+                return _generalResponse.Response(null, StatusCodes.Status400BadRequest, "Company Successfully Registered & Accredited", true);
             }
 
             return _generalResponse.Response(null, StatusCodes.Status200OK, "Company Successfully Registered & Accredited", true);
@@ -458,6 +465,20 @@ namespace xas.core.accreditation.Request
             return _generalResponse.Response(new { accreditation_details = agency, shipping_agency = details }, StatusCodes.Status200OK, "Accredited Shipping Agency has been retreived", true);
         }
 
+        #endregion
+
+        #region CompanyDetails
+        public async Task<GeneralModel> CheckCompanyDetail(string companyCode)
+        {
+            var companyClientDetails = await _companyCore.GetByCompanyCode(companyCode);
+            var companyDetails = companyClientDetails.data;
+            if (companyClientDetails.statusCode != StatusCodes.Status200OK)
+            {
+                return _generalResponse.Response(null, StatusCodes.Status400BadRequest, companyClientDetails.message, false);
+            }
+
+            return _generalResponse.Response(companyDetails, StatusCodes.Status200OK, "Company Detail Does Not Exist", true);
+        }
         #endregion
     }
 }
