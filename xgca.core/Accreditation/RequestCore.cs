@@ -374,7 +374,6 @@ namespace xas.core.accreditation.Request
         public async Task<dynamic> CreateCustomerAccreditation(CustomerRegistrationDTO customerRegistrationDTO, int companyId, string username, string serviceRole, string serviceRoleId)
         {
             customerRegistrationDTO.services = new dynamic[] { customerRegistrationDTO.serviceRoleId.ToString() };
-
             if (await _companyData.CheckIfExistsByCompanyName(customerRegistrationDTO.companyName))
             {
                 return _generalResponse.Response(null, StatusCodes.Status404NotFound, "Error on Accreditation: Existing Company", false);
@@ -382,7 +381,6 @@ namespace xas.core.accreditation.Request
 
             //New Company Registration
             var companyGuid = await RegisterCompany(customerRegistrationDTO);
-
             if (companyGuid != String.Empty)
             {
                 List<xgca.entity.Models.Request> requestList = new List<xgca.entity.Models.Request>();
@@ -404,13 +402,12 @@ namespace xas.core.accreditation.Request
 
                 //Update Accredited By 
                 await _companyData.SetAccreditedBy(companyGuid, fetchedCompanyId.ToString(), 0);
+                return _generalResponse.Response(result, StatusCodes.Status200OK, "Company Successfully Registered & Accredited", true);
             }
             else
             {
-                return _generalResponse.Response(null, StatusCodes.Status400BadRequest, "Company Successfully Registered & Accredited", true);
-            }
-
-            return _generalResponse.Response(null, StatusCodes.Status200OK, "Company Successfully Registered & Accredited", true);
+                return _generalResponse.Response(null, StatusCodes.Status400BadRequest, "Error in company registration.", false);
+            }          
         }
 
         public async Task<string> RegisterCompany(CustomerRegistrationDTO customerRegistrationDTO)
