@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace xgca.data.ViewModels.PortArea
+namespace xgca.core.Validators.Request
 {
-    public class PortAreaResponseModel
+    public class ExportPortAreaModel
     {
-        public int PortAreaId { get; set; }
-        public Guid PortId { get; set; }
-        public int CountryAreaId { get; set; }
         public string CountryCode { get; set; }
         public string LoCode { get; set; }
         public string PortName { get; set; }
@@ -19,9 +16,6 @@ namespace xgca.data.ViewModels.PortArea
         public string PortOfDischarge { get; set; }
         public string CountryName { get; set; }
         public string CityName { get; set; }
-        public bool IsDeleted { get; set; }
-        public Guid PortAreaGuid { get; set; }
+        
     }
-
-   
 }

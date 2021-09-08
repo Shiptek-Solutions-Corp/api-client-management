@@ -28,6 +28,7 @@ using xgca.core.Models.Accreditation.PortArea;
 using xgca.core.Helpers;
 using FluentValidation;
 using System.Linq;
+using xgca.core.Validators.Request;
 
 namespace xas.core.PortArea
 {
@@ -92,25 +93,21 @@ namespace xas.core.PortArea
             {
                 CsvWriter cw = new CsvWriter(sw, System.Globalization.CultureInfo.CurrentCulture);
 
-                cw.WriteHeader<PortAreaResponseModel>();
+                cw.WriteHeader<ExportPortAreaModel>();
                 cw.NextRecord();
 
                 foreach (var p in data)
                 {
-                    var profile = new PortAreaResponseModel
+                    var profile = new ExportPortAreaModel
                     {
                         CityName = p.CityName 
-                        , CountryAreaId = p.CountryAreaId 
                         , CountryCode = p.CountryCode 
                         , CountryName = p.CountryName 
-                        , IsDeleted = p.IsDeleted 
                         , Latitude = p.Latitude
                         , Location = p.Location 
                         , LoCode = p.LoCode 
                         , Longitude = p.Longitude 
                         , PortName = p.PortName
-                        , PortAreaId = p.PortAreaId
-                        , PortId = p.PortId
                         , PortOfDischarge = p.PortOfDischarge                               
                         , PortOfLoading = p.PortOfLoading
                     };
