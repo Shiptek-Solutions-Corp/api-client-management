@@ -6,6 +6,8 @@ using xgca.entity;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using LinqKit;
+using System.Collections;
+using xgca.data.ViewModels.Company;
 
 namespace xgca.data.Company
 {
@@ -48,6 +50,7 @@ namespace xgca.data.Company
         Task<string> GetKYCStatus(int companyId);
         Task<(entity.Models.Company, string)> GetAccreditorByCompnyGuid(string guid);
         Task<(entity.Models.Company, string)> GetByCompanyCode(string code);
+        Task<GetCompanyExistModel> CheckIfExistsCompanyByCompanyName(string companyName);
 
     }
 
@@ -417,6 +420,24 @@ namespace xgca.data.Company
             //var company = await _context.Companies.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyName == companyName);
             var company = await _context.Companies.Where(x => x.CompanyName == companyName).FirstOrDefaultAsync();
             return (company is null) ? false : true;
+        }
+
+        public async Task<GetCompanyExistModel> CheckIfExistsCompanyByCompanyName(string companyName)
+        {
+            //var company = await _context.Companies.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyName == companyName);
+            var company = await (from c in _context.Companies
+                                 join a in _context.Addresses on c.AddressId equals a.AddressId
+                                 join ct in _context.ContactDetails on c.ContactDetailId equals ct.ContactDetailId
+                                 where c.CompanyName == companyName
+                                 select new GetCompanyExistModel
+                                 {
+                                       CompanyName = c.CompanyName 
+                                     , CompanyAddress = a.FullAddress 
+                                     , CompanyContactNo = (ct.MobilePrefix + ct.Mobile)
+                                     , CompanyLogo = c.ImageURL
+                                     , CompanyGuid = c.Guid
+                                 }).SingleOrDefaultAsync();
+            return company;
         }
 
         public async Task<string[]> BulkCheckIfExistsByCompanyName(string[] companyName)

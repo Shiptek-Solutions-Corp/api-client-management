@@ -66,6 +66,7 @@ namespace xgca.core.Company
 
         Task<IGeneralModel> ListByCompanyName(string companyName);
         Task<IGeneralModel> CheckIfExistsByCompanyName(string companyName);
+        Task<IGeneralModel> CheckIfCompanyExistsByCompanyName(string companyName);
         Task<IGeneralModel> BulkCheckIfExistsByCompanyName(string[] companyNames);
 
         Task<IGeneralModel> BulkCompanyRegistration(InitialRegistrationListModel registrationModels, string username);
@@ -860,6 +861,15 @@ namespace xgca.core.Company
             bool isExist = await _companyData.CheckIfExistsByCompanyName(companyName);
             string message = (isExist) ? "Company exists" : "Company does not exists";
             return _general.Response(isExist, 200, message, true);
+        }
+
+        public async Task<IGeneralModel> CheckIfCompanyExistsByCompanyName(string companyName)
+        {
+            companyName = companyName.Replace("%20", " ");
+            var companyInfo = await _companyData.CheckIfExistsCompanyByCompanyName(companyName);
+            if(companyInfo == null) return _general.Response(null, StatusCodes.Status400BadRequest, "Company not found.", true);
+
+            return _general.Response(companyInfo, StatusCodes.Status200OK, "Company found", true);
         }
 
         public async Task<IGeneralModel> BulkCheckIfExistsByCompanyName(string[] companyNames)

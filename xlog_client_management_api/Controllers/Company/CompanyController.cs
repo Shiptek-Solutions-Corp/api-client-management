@@ -452,6 +452,21 @@ namespace xlog_company_service_api.Controllers.Company
             return Ok(response);
         }
 
+        [Route("company/exists")]
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> CheckCompanyIfExists([FromQuery] string companyName)
+        {
+            var response = await _company.CheckIfCompanyExistsByCompanyName(companyName);
+
+            if (response.statusCode == 400) return BadRequest(response);
+            if (response.statusCode == 401) return Unauthorized(response);
+            return Ok(response);
+        }
+
         [Route("company/companyNames")]
         [HttpPost]
         [Authorize(AuthenticationSchemes = "Bearer")]
