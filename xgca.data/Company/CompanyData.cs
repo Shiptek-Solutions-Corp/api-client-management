@@ -258,7 +258,7 @@ namespace xgca.data.Company
                     Addresses = g.AddressLine, 
                     ContactDetails = new { 
                         PhonePrefixId = g.PhoneNumberPrefixId ?? "",
-                        PhoneNumberPrefix = g.PhoneNumberPrefix ?? "",
+                        PhonePrefix = g.PhoneNumberPrefix ?? "",
                         Phone = g.PhoneNumber,
                         MobilePrefix = g.MobileNumberPrefix ?? "",
                         MobilePrefixId = g.MobileNumberPrefixId ?? "",
