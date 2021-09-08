@@ -257,11 +257,14 @@ namespace xgca.data.Company
                     ImageUrl = g.Image, 
                     Addresses = g.AddressLine, 
                     ContactDetails = new { 
-                        PhonePrefixId = g.PhoneNumberPrefix ?? "",
+                        PhonePrefixId = g.PhoneNumberPrefixId ?? "",
+                        PhoneNumberPrefix = g.PhoneNumberPrefix ?? "",
                         Phone = g.PhoneNumber,
-                        MobilePrefixId = g.MobileNumberPrefix ?? "",
+                        MobilePrefix = g.MobileNumberPrefix ?? "",
+                        MobilePrefixId = g.MobileNumberPrefixId ?? "",
                         Mobile = g.MobileNumber ?? "",
                         FaxPrefix = g.FaxNumberPrefix ?? "",
+                        FaxPrefixId = g.FaxNumberPrefixId ?? "",
                         Fax = g.FaxNumber ?? ""
                     }
                 }
