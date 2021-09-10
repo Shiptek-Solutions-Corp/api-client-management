@@ -10,6 +10,7 @@ using xgca.core.Models.YourEDI;
 
 namespace xlog_client_management_api.Controllers.YourEdi
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1/your-edi")]
     public class YourEdiController : ControllerBase
     {

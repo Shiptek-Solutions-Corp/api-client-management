@@ -15,6 +15,7 @@ using xgca.core.Models.User;
 
 namespace xlog_client_management_api.Controllers.User
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1")]
     public class UserController : Controller
     {
@@ -139,15 +140,16 @@ namespace xlog_client_management_api.Controllers.User
             return Ok(response);
         }
 
-        [Route("user/{emailAddress}/activate-company-user")]
+        [Route("user/activate-company-user")]
         [HttpPost]
         //[TokenAuthorize("scope", "users.get")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> ActivateCompanyUser([FromRoute(Name = "emailAddress")] string emailAddress)
+        public async Task<IActionResult> ActivateCompanyUser([FromQuery] string emailAddress, [FromQuery] bool isSendEmail = false)
         {
-            var response = await _user.ActivateCompanyUser(emailAddress);
+            string token = Request.Headers["Authorization"].ToString().Remove(0, 7);
+            var response = await _user.ActivateCompanyUser(emailAddress, isSendEmail, token);
 
             if (response.statusCode == 400)
             {
@@ -157,6 +159,20 @@ namespace xlog_client_management_api.Controllers.User
             {
                 return Unauthorized(response);
             }
+
+            return Ok(response);
+        }
+
+        [Route("user/{emailAddress}/details-by-email")]
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> RetrieveProfileByEmail([FromRoute(Name = "emailAddress")] string emailAddress)
+        {
+            var response = await _user.RetrieveProfileByEmail(emailAddress);
+
+            if (response.statusCode == 400)
+                return BadRequest(response);
 
             return Ok(response);
         }

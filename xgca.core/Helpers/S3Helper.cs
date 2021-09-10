@@ -5,8 +5,9 @@ using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
+using Amazon.SecurityToken;
 using Microsoft.AspNetCore.Http;
-
+using Microsoft.Extensions.Configuration;
 
 namespace xgca.core.Helpers
 {
@@ -44,6 +45,24 @@ namespace xgca.core.Helpers
             else
             {
                 return null;
+            }
+        }
+
+        public static async Task<string> GetS3URL(
+            string key,
+            IConfiguration config,
+            IAmazonSecurityTokenService _amazonSecurityTokenService = null)
+        {
+
+            using (var client = new AmazonS3Client(RegionEndpoint.APSoutheast1))
+            {
+                var expiryUrlRequest = new GetPreSignedUrlRequest()
+                {
+                    BucketName = config.GetSection("AWSS3:BucketName").Value,
+                    Key = key,
+                    Expires = DateTime.Now.AddDays(1)
+                };
+                return client.GetPreSignedURL(expiryUrlRequest);
             }
         }
     }

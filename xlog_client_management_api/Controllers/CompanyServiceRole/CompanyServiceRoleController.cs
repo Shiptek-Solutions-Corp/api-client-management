@@ -15,6 +15,7 @@ using xgca.core.Helpers;
 
 namespace xlog_client_management_api.Controllers.CompanyServiceRole
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1")]
     [ApiController]
     public class CompanyServiceRoleController : Controller
@@ -72,12 +73,11 @@ namespace xlog_client_management_api.Controllers.CompanyServiceRole
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> DownloadCompanyServiceByCompanyId(string companyId)
+        public async Task<IActionResult> DownloadCompanyServiceByCompanyId(string companyId,[FromQuery] string type = "xlsx")
         {
-            var response = await _companyServiceRole.DownloadByCompanyServiceId(companyId);
-            var fileName = $"UserGroups_{DateTime.Now:yyyyMMddhhmmss}.xlsx";
+            var response = await _companyServiceRole.DownloadByCompanyServiceId(companyId, type);
 
-            return File(response, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            return File(response.Bytes, MimeTypes.GetMimeType(response.FileName), response.FileName);
         }
 
         [Route("company/services/role/company/{companyId}")]

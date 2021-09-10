@@ -10,6 +10,7 @@ using xgca.core.PreferredProvider;
 
 namespace xlog_client_management_api.Controllers.PreferredProvider
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1")]
     [Authorize(AuthenticationSchemes = "Bearer")]
     public class PreferredProviderController : Controller

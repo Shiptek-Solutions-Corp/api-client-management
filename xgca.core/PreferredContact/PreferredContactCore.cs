@@ -301,8 +301,10 @@ namespace xgca.core.PreferredContact
                         ContactId = g.GuestId,
                         ContactName = guest.GuestName,
                         ImageURL = (guest.Image is null) ? "-" : guest.Image,
+                        AddressLine = guest.AddressLine,
                         CityProvince = guestCityProvince,
                         Country = guest.CountryName,
+                        CountryId = guest.CountryId,
                         ContactType = 2,
                         PhoneNumber = (guest.PhoneNumber is null) ? "-" : $"{guest.PhoneNumberPrefix}{guest.PhoneNumber}",
                         MobileNumber = (guest.MobileNumber is null) ? "-" : $"{guest.MobileNumberPrefix}{guest.MobileNumber}",
@@ -331,8 +333,10 @@ namespace xgca.core.PreferredContact
                         ContactId = r.RegisteredId,
                         ContactName = company.CompanyName,
                         ImageURL = (company.ImageURL is null) ? "-" : company.ImageURL,
+                        AddressLine = company.Addresses.AddressLine,
                         CityProvince = registeredCityProvince,
                         Country = company.Addresses.CountryName,
+                        CountryId = company.Addresses.CountryId,
                         ContactType = 1,
                         PhoneNumber = (company.ContactDetails.Phone is null) ? "-" : $"{company.ContactDetails.PhonePrefix}{company.ContactDetails.Phone}",
                         MobileNumber = (company.ContactDetails.Mobile is null) ? "-" : $"{company.ContactDetails.MobilePrefix}{company.ContactDetails.Mobile}",
@@ -349,7 +353,7 @@ namespace xgca.core.PreferredContact
             return _general.Response(pagedResponse, 200, "Configurable preferred contacts has been listed", true);
         }
 
-        public async Task<IGeneralModel> QuickSearch(string search, int profileId, int pageNumber, int pageSize, int recordCount)
+        public async Task<IGeneralModel> QuickSearch(string search, int profileId, int pageNumber, int pageSize, int recordCount, int serviceRoleGroup = (int)Enums.ServiceRoleGroup.All)
         {
             var profileGuid = await _company.GetGuidById(profileId);
 
@@ -383,8 +387,10 @@ namespace xgca.core.PreferredContact
                         ContactId = g.GuestId,
                         ContactName = guest.GuestName,
                         ImageURL = (guest.Image is null) ? "-" : guest.Image,
+                        AddressLine = guest.AddressLine,
                         CityProvince = guestCityProvince,
                         Country = guest.CountryName,
+                        CountryId = guest.CountryId,
                         ContactType = 2,
                         PhoneNumber = (guest.PhoneNumber is null) ? "-" : $"{guest.PhoneNumberPrefix}{guest.PhoneNumber}",
                         MobileNumber = (guest.MobileNumber is null) ? "-" : $"{guest.MobileNumberPrefix}{guest.MobileNumber}",
@@ -405,6 +411,16 @@ namespace xgca.core.PreferredContact
                         continue;
                     }
 
+                    if (serviceRoleGroup == (int)Enums.ServiceRoleGroup.BookingParty)
+                    {
+                        List<int> serviceIds = company.CompanyServices.Select(c => c.ServiceId).ToList();
+                        var nonBookingPartyRoles = serviceIds.Where(s => GlobalVariables.BookingPartyGroup.All(b => b != s));
+                        if (nonBookingPartyRoles.Count() != 0)
+                        {
+                            continue;
+                        }
+                    }
+
                     var registeredCityProvince = _prefConHelper.RegisteredCityState(company);
 
                     preferredContacts.Add(new ListPreferredContact
@@ -413,8 +429,10 @@ namespace xgca.core.PreferredContact
                         ContactId = r.RegisteredId,
                         ContactName = company.CompanyName,
                         ImageURL = (company.ImageURL is null) ? "-" : company.ImageURL,
+                        AddressLine = company.Addresses.AddressLine,
                         CityProvince = registeredCityProvince,
                         Country = company.Addresses.CountryName,
+                        CountryId = company.Addresses.CountryId,
                         ContactType = 1,
                         PhoneNumber = (company.ContactDetails.Phone is null) ? "-" : $"{company.ContactDetails.PhonePrefix}{company.ContactDetails.Phone}",
                         MobileNumber = (company.ContactDetails.Mobile is null) ? "-" : $"{company.ContactDetails.MobilePrefix}{company.ContactDetails.Mobile}",

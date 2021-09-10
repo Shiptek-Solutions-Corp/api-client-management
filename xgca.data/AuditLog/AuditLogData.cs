@@ -6,6 +6,9 @@ using xgca.entity;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using LinqKit;
+using System.Collections;
+using Microsoft.AspNetCore.Http;
+using xgca.data.ViewModels;
 
 namespace xgca.data.AuditLog
 {
@@ -15,6 +18,18 @@ namespace xgca.data.AuditLog
         Task<List<entity.Models.AuditLog>> List();
         Task<entity.Models.AuditLog> Retrieve(int key);
         Task<int> GetIdByGuid(Guid key);
+        Task<(List<GetAuditLogListingViewModel>, int)> ListPaginate(
+            string tableName, 
+            int keyFieldId,
+            DateTime createdDateFrom,
+            DateTime createdDateTo,
+            string action,
+            string username,
+            string orderBy,
+            string search,
+            int pageNumbe,
+            int pageSize);
+
         Task<List<entity.Models.AuditLog>> ListByTableName(string tableName);
         Task<List<entity.Models.AuditLog>> ListByTableNameAndKeyFieldId(string tableName, int keyFieldId);
         Task<List<entity.Models.AuditLog>> GetCompanyServiceRoleLogs(string type, int[] ids, int keyField);
@@ -25,9 +40,11 @@ namespace xgca.data.AuditLog
     public class AuditLogData : IMaintainable<entity.Models.AuditLog>, IAuditLogData
     {
         private readonly IXGCAContext _context;
-        public AuditLogData(IXGCAContext context)
+        private readonly IHttpContextAccessor contextAccessor;
+        public AuditLogData(IXGCAContext context, IHttpContextAccessor contextAccessor)
         {
             _context = context;
+            this.contextAccessor = contextAccessor;
         }
 
         public async Task<bool> Create(entity.Models.AuditLog obj)
@@ -120,6 +137,53 @@ namespace xgca.data.AuditLog
                 .ToListAsync();
 
             return ids;
+        }
+
+        public async Task<(List<GetAuditLogListingViewModel>, int)> ListPaginate(string tableName, int keyFieldId, DateTime createdDateFrom, DateTime createdDateTo, string action, string username, string orderBy, string search, int pageNumber, int pageSize)
+        {
+            var isFromCms = contextAccessor.HttpContext.User.Claims.Any(t => t.Type == "custom:isCMS" && t.Value.Contains("1"));
+
+            DateTime currentDate = DateTime.UtcNow;
+            if (createdDateFrom == default)
+            {
+                createdDateFrom = currentDate;
+                createdDateTo = currentDate;
+            }
+
+            var data = await (from a in _context.AuditLogs
+                              join u in _context.Users on a.CreatedBy equals u.UserId into newUserList
+                              from ul in newUserList.DefaultIfEmpty()
+                              where (
+                                      a.AuditLogAction.ToLower().Contains(search) ||
+                                      ul.Username.ToLower().Contains(search)
+                                    ) &&
+                                    a.TableName.ToLower().Contains(tableName.ToLower())
+                                    && a.KeyFieldId.ToString().Contains(keyFieldId.ToString())
+                                    && a.AuditLogAction.ToLower().Contains(action.ToLower())
+                                    && ul.Username.ToLower().Contains(username.ToLower())
+                                   && (
+                                   (createdDateFrom.Date == currentDate.Date ? currentDate.Date : a.CreatedOn.Date) >= (createdDateFrom.Date == currentDate.Date ? currentDate.Date : createdDateFrom.Date)
+                                    && (createdDateTo.Date == currentDate.Date ? currentDate.Date : a.CreatedOn.Date) <= (createdDateTo.Date == currentDate.Date ? currentDate.Date : createdDateTo.Date)
+                                   )
+                              select new GetAuditLogListingViewModel{
+                                CreatedOn = a.CreatedOn,
+                                Module = isFromCms && tableName.Equals("company") ? "Managed Account" : "--",
+                                SubModule = isFromCms && tableName.Equals("company") ? "Company" : "--",
+                                AuditLogAction = a.AuditLogAction,
+                                Description = "--",
+                                Username = ul.Username ?? "System",
+                                NewValue = a.NewValue,
+                                OldValue = a.OldValue,
+                              }).OrderByDescending(a => a.CreatedOn)
+                              .ToListAsync();
+
+
+            int recordCount = data.Count();
+            var result = data.Skip(pageSize * pageNumber)
+                .Take(pageSize)
+                .ToList();
+
+            return (result, recordCount);
         }
     }
 }

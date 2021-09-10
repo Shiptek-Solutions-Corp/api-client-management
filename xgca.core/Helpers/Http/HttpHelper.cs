@@ -10,6 +10,8 @@ using System.Net.Http.Headers;
 using xgca.core.Constants;
 using xgca.core.Models.Email;
 using Microsoft.Extensions.Options;
+using xgca.core.Models.User;
+using xgca.core.Response;
 
 namespace xgca.core.Helpers.Http
 {
@@ -30,7 +32,8 @@ namespace xgca.core.Helpers.Http
         public Task<dynamic> GetGuidById(string environment, string endpointUrl, int id);
         public Task<dynamic> GetGuidById(string environment, string endpointUrl, int id, string token);
         public Task<dynamic> Put(string endpointUrl, dynamic data, string token);
-
+        public Task<GeneralModel> PostAsync(string Url, string token, dynamic body, EvaultSecretAccessKeyModel apiKeys = null);
+        public Task<GeneralModel> GetAsync(string Url, string token);
     }
     public class HttpHelper : IHttpHelper
     {
@@ -201,6 +204,60 @@ namespace xgca.core.Helpers.Http
             var responseData = JsonConvert.DeserializeObject(result);
 
             return responseData;
+        }
+
+        public async Task<GeneralModel> PostAsync(string Url, string token, dynamic body, EvaultSecretAccessKeyModel apiKeys = null)
+        {
+            if(token.Length > 0) _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            if(apiKeys != null)
+            {
+                _httpClient.DefaultRequestHeaders.Add("x-access-key", apiKeys.accessKey);
+                _httpClient.DefaultRequestHeaders.Add("x-secret-key", apiKeys.secretKey);
+                _httpClient.DefaultRequestHeaders.Add("account-code", apiKeys.masterMerchantCode);
+            }
+
+            var jsonParams = (body == null? "":JsonConvert.SerializeObject(body));
+
+            HttpResponseMessage responseMsg = new HttpResponseMessage();
+            StringContent content = new StringContent(jsonParams, Encoding.UTF8, "application/json");
+
+            responseMsg = await _httpClient.PostAsync(Url, content);
+
+            if (!responseMsg.IsSuccessStatusCode)
+            {
+                return new GeneralModel
+                {
+                    message = $"Error encountered on consuming this url: {Url} (POST)",
+                    statusCode = (int)responseMsg.StatusCode,
+                    isSuccessful = false,
+                    data = body
+                };
+            }
+
+            var responseContent = await responseMsg.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<GeneralModel>(responseContent);
+        }
+
+        public async Task<GeneralModel> GetAsync(string Url, string token)
+        {
+            if (token.Length > 0) _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+
+            HttpResponseMessage responseMsg = new HttpResponseMessage();
+            responseMsg = await _httpClient.GetAsync(Url);
+
+            if (!responseMsg.IsSuccessStatusCode)
+            {
+                return new GeneralModel
+                {
+                    message = $"Error encountered on consuming this url: {Url} (GET)",
+                    statusCode = (int)responseMsg.StatusCode,
+                    isSuccessful = false,
+                    data = ""
+                };
+            }
+            var responseContent = await responseMsg.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<GeneralModel>(responseContent);
         }
     }
 }

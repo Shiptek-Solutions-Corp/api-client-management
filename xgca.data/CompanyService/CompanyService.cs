@@ -19,8 +19,8 @@ namespace xgca.data.CompanyService
         Task<List<entity.Models.CompanyService>> List(int pageNumber, int pageSize);
         Task<List<entity.Models.CompanyService>> ListServiceProviders(int nonProviderId, int pageNumber, int pageSize);
         Task<List<entity.Models.CompanyService>> ListServiceProviders(int serviceId, int nonProviderId, int pageNumber, int pageSize);
-        Task<(List<entity.Models.CompanyService>, int)> ListServiceProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds);
-        Task<(List<entity.Models.CompanyService>, int)> ListPreferredProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds);
+        Task<(List<entity.Models.CompanyService>, int)> ListServiceProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds, List<int> bookingPartyGroup);
+        Task<(List<entity.Models.CompanyService>, int)> ListPreferredProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds, List<int> bookingPartyGroup);
         Task<List<entity.Models.CompanyService>> List(string search, int pageNumber, int pageSize);
         Task<List<entity.Models.CompanyService>> ListByCompanyId(int companyId);
         Task<List<entity.Models.CompanyService>> ListByCompanyId(int companyId, List<string> companyServiceGuids);
@@ -266,7 +266,7 @@ namespace xgca.data.CompanyService
 
             return companyServices;
         }
-        public async Task<(List<entity.Models.CompanyService>, int)> ListServiceProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds)
+        public async Task<(List<entity.Models.CompanyService>, int)> ListServiceProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds, List<int> bookingPartyGroup)
         {
             var predicate = PredicateBuilder.New<entity.Models.CompanyService>();
 
@@ -283,6 +283,11 @@ namespace xgca.data.CompanyService
             if (!(existingIds is null) || existingIds.Count != 0)
             {
                 predicate = predicate.And(x => !existingIds.Contains(x.Guid));
+            }
+
+            if (bookingPartyGroup.Count != 0)
+            {
+                predicate = predicate.And(x => bookingPartyGroup.Contains(x.ServiceId));
             }
 
             if (serviceId != 0)
@@ -307,7 +312,7 @@ namespace xgca.data.CompanyService
             return (companyServices, result.Count());
         }
 
-        public async Task<(List<entity.Models.CompanyService>, int)> ListPreferredProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds)
+        public async Task<(List<entity.Models.CompanyService>, int)> ListPreferredProviders(string search, int serviceId, int nonProviderId, int pageNumber, int pageSize, List<Guid> existingIds, List<int> bookingPartyGroup)
         {
             var predicate = PredicateBuilder.New<entity.Models.CompanyService>();
 
@@ -324,6 +329,11 @@ namespace xgca.data.CompanyService
             if (!(existingIds is null) || existingIds.Count != 0)
             {
                 predicate = predicate.And(x => existingIds.Contains(x.Guid));
+            }
+
+            if (bookingPartyGroup.Count != 0)
+            {
+                predicate = predicate.And(x => bookingPartyGroup.Contains(x.ServiceId));
             }
 
             if (serviceId != 0)
@@ -483,5 +493,6 @@ namespace xgca.data.CompanyService
             return providers;
 
         }
+
     }
 }

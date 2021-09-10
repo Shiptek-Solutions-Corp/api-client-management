@@ -58,6 +58,8 @@ namespace xgca.core.Helpers
                 company.ImageURL,
                 company.WebsiteURL,
                 company.EmailAddress,
+                company.Status,
+                company.StatusName,
                 Phone = String.Concat(company.ContactDetails.PhonePrefix, company.ContactDetails.Phone),
                 Mobile = String.Concat(company.ContactDetails.MobilePrefix, company.ContactDetails.Mobile),
                 Fax = String.Concat(company.ContactDetails.FaxPrefix, company.ContactDetails.Fax),
@@ -68,7 +70,7 @@ namespace xgca.core.Helpers
             return obj;
         }
 
-        public static dynamic ReturnUpdatedValue(dynamic companyObj, string cityId, string stateId, dynamic companyServicesObj)
+        public static dynamic ReturnUpdatedValue(dynamic companyObj, string cityId, string stateId, dynamic companyServicesObj, string kycStatus = "NEW")
         {
             string fullAddress = AddressHelper.GenerateFullAddress(companyObj.Addresses);
             var data = new
@@ -122,7 +124,9 @@ namespace xgca.core.Helpers
                 CUCC = companyObj.CUCC,
                 companyObj.TaxExemption,
                 companyObj.TaxExemptionStatus,
-                CompanyServices = companyServicesObj
+                CompanyServices = companyServicesObj,
+                Status = (companyObj.Status == 1) ? "Active" : "Inactive",
+                KYCStatus = (kycStatus is null) ? "NEW" : kycStatus
             };
 
             return data;

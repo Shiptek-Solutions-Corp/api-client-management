@@ -59,6 +59,11 @@ namespace xgca.core.Helpers
         public string GetCity { get; set; }
         public string GetUserType { get; set; }
         public string GetResourcesForAuthorization { get; set; }
+        public string ServiceList { get; set; }
+        public string PortDetailsBulk { get; set; }
+        public string RetrieveService { get; set; }
+        public string GetServiceRoleId { get; set; }
+        public string PortSearch { get; set; }
     }
     public class OptimusAuthService : ParentConstant
     {
@@ -88,4 +93,13 @@ namespace xgca.core.Helpers
     {
         public string Login { get; set; }
     }
+
+    public class AuthConfig
+    {
+        public string BasePath { get; set; }
+        public string CustomerRegistration { get; set; }
+        public string BulkCreateCustomerAccreditation { get; set; }
+
+    }
+  
 }

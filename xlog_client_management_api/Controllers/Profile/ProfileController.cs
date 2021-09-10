@@ -8,9 +8,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using xgca.core.Constants;
 
 namespace xlog_client_management_api.Controllers.Profile
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1")]
     public class ProfileController : Controller
     {
@@ -31,6 +33,7 @@ namespace xlog_client_management_api.Controllers.Profile
         public async Task<IActionResult> ListUser([FromRoute]string companyServiceKey)
         {
             var username = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
+            GlobalVariables.LoggedInCompanyId = Convert.ToInt32(Request.HttpContext.User.Claims.First(x => x.Type == "custom:companyId").Value);
             var response = await _profile.LoadProfile(username, companyServiceKey);
 
             if (response.statusCode == 400)

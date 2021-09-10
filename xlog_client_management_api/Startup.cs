@@ -65,24 +65,45 @@ using xgca.data.PreferredProvider;
 using xgca.core.PreferredProvider;
 using xgca.core.Helpers.PreferredProvider;
 using xgca.core.Helpers.Service;
+using xgca.data.Repositories;
+using Z.EntityFramework.Extensions;
+using xgca.data.CompanyTaxSettings;
+using xgca.core.ResponseV2;
+using xas.core.accreditation.Request;
+using xas.data.accreditation.Request;
+using xas.core._ResponseModel;
+using FluentValidation;
+using xas.core.Request;
+using xgca.core.Validators.Request;
+using xas.core.TruckArea;
+using xas.data.DataModel.TruckArea;
+using xas.data.DataModel.PortArea;
+using xas.core.PortArea;
+using xas.core.ServiceRoleConfig;
+using xas.core.ServiceProvider;
+using xas.data.DataModel.ServiceRoleConfig;
+using Amazon.SecurityToken;
+using xgca.core.Models.Accreditation.PortArea;
 
 namespace xlog_client_management_api
 {
+    //Scaffold-dbContext "Server=127.0.0.1,11433;Initial Catalog=Dev-Client;User ID=userClientDev;Password=VlormyFrbidrt" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -t Company.Company, Settings.KycStatus, Company.CompanyStructure, Company.CompanyDocuments, Company.CompanyBeneficialOwners, Company.CompanyDirectors, Company.CompanySections, Settings.DocumentType, Settings.DocumentCategory, Settings.BeneficialOwnersType, Settings.SectionStatus, Settings.Section -ContextDir Context -Context ClientServiceContext -f
+    //Scaffold-dbContext "Server=127.0.0.1,11433;Initial Catalog=Dev-Client;User ID=userClientDev;Password=VlormyFrbidrt" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -t Accreditation.AccreditationStatusConfig, Accreditation.Request, Accreditation.TruckArea, Accreditation.PortArea, Accreditation.ServiceRoleConfig -ContextDir Context -Context ClientServiceContext -f
+
+    //$env:ASPNETCORE_ENVIRONMENT='local'
+    //Script-Migration -Idempotent
+    //EntityFrameworkCore\Add-Migration nameofmigration
     public class Startup
     {
         private string[] envLst = new string[] { "local", "dev2" };
-        private string[] envLstRedoc = new string[] { "local", "dev2", "dev" };
         private string currentEnvironment = String.Empty;
+
+        public IConfiguration Configuration { get; }
+        private string conString { get; set; }
+
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
-            //var d = env.EnvironmentName;
-            //var builder = new ConfigurationBuilder()
-            // .SetBasePath(env.ContentRootPath)
-            // .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            // .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-            // .AddEnvironmentVariables();
-            //configuration = builder.Build();
-            //Configuration = configuration;
+            currentEnvironment = env.EnvironmentName;
 
             currentEnvironment = env.EnvironmentName;
             var builder = new ConfigurationBuilder()
@@ -107,9 +128,7 @@ namespace xlog_client_management_api
             }
         }
 
-        public IConfiguration Configuration { get; }
 
-        private string conString { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -129,14 +148,14 @@ namespace xlog_client_management_api
                 options.Audience = Configuration.GetSection("AWSCognito:UserPoolClientId").Value;
                 options.Authority = $"https://cognito-idp.{Configuration.GetSection("AWSCognito:Region").Value}.amazonaws.com/{Configuration.GetSection("AWSCognito:UserPoolId").Value}";
             });
-
+            services.AddDbContext<XGCAContext>(i => i.UseSqlServer(conString));
             //services.AddDbContext<XGCAContext>(opts => opts.UseLazyLoadingProxies(false).UseSqlServer(Configuration["ConnectionString:XGCADb"]));
 
-            services.AddDbContextPool<XGCAContext>(opts => opts.UseSqlServer(conString, builder =>
-            {
-                builder.EnableRetryOnFailure();
-                //builder.ServerVersion(new System.Version("5.6.10"), ServerType.MySql);
-            }));
+            //services.AddDbContextPool<XGCAContext>(opts => opts.UseSqlServer(conString, builder =>
+            //{
+            //    builder.EnableRetryOnFailure();
+            //    //builder.ServerVersion(new System.Version("5.6.10"), ServerType.MySql);
+            //}));
 
             //services.AddSingleton<IAmazonCognitoIdentityProvider>(cognitoIdentityProvider);
             //services.AddSingleton<CognitoUserPool>(userPool);
@@ -159,6 +178,19 @@ namespace xlog_client_management_api
             services.AddScoped<IPreferredContactData, PreferredContactData>();
             services.AddScoped<IPreferredProviderData, PreferredProviderData>();
             services.AddScoped<IGeneral, General>();
+            services.AddScoped<ICompanySectionRepository, CompanySectionRepository>();
+            services.AddScoped<ICompanyStructureRepository, CompanyStructureRepository>();
+            services.AddScoped<ICompanyBeneficialOwnersRepository, CompanyBeneficialOwnersRepository>();
+            services.AddScoped<ICompanyDocumentRepository, CompanyDocumentRepository>();
+            services.AddScoped<IDocumentTypeRepository, DocumentTypeRepository>();
+            services.AddScoped<ICompanyDirectorRepository, CompanyDirectorRepository>();
+            services.AddScoped<IKYCStatusRepository, KYCStatusRepository>();
+            services.AddScoped<ICompanySectionRepository, CompanySectionRepository>();
+            services.AddScoped<ISectionRepository, SectionRepository>();
+            services.AddTransient<ICompanyDataV2, CompanyDataV2>();
+            services.AddTransient<ICompanyTaxSettingsRepository, CompanyTaxSettingsRepository>();
+            services.AddScoped<IKYCLogRepository, KYCLogRepository>();
+
 
             services.AddScoped<ICompanyGroupResource, CompanyGroupResource>();
             services.AddScoped<ICompanyGroupResourceData, CompanyGroupResourceData>();
@@ -195,8 +227,36 @@ namespace xlog_client_management_api
             services.AddScoped<IPreferredContactCore, PreferredContactCore>();
             services.AddScoped<IPreferredProviderCore, PreferredProviderCore>();
             services.AddScoped<IYourEDIService, YourEDIService>();
+            services.AddTransient<ICompanyStructureService, CompanyStructureService>();
+            services.AddTransient<ICompanyBeneficialOwnerService, CompanyBeneficialOwnerService>();
+            services.AddTransient<ICompanyDirectorService, CompanyDirectorService>();
+            services.AddTransient<ICompanyDocumentService, CompanyDocumentService>();
+            services.AddTransient<ICompanySectionService, CompanySectionService>();
+            services.AddTransient<IDocumentTypeService, DocumentTypeService>();
+            services.AddTransient<ICompanyServiceV2, CompanyServiceV2>();
+            services.AddTransient<ICompanyTaxSettingsService, CompanyTaxSettingsService>();
+            services.AddTransient<IKYCLogService, KYCLogService>();
+            services.AddTransient<IPaginationResponse, PaginationResponse>();
 
             services.AddScoped<IGLobalCmsService, xgca.core.Services.GlobalCmsService>();
+
+            //Accreditation
+            services.AddScoped<IRequestCore, RequestCore>();
+            services.AddScoped<IPortAreaData, PortAreaData>();
+            services.AddScoped<IPortAreaCore, PortAreaCore>();
+            services.AddScoped<ITruckAreaData, TruckAreaData>();
+            services.AddScoped<IRequestData, RequestData>();
+            services.AddScoped<IGeneralResponse, GeneralResponse>();
+            services.AddScoped<IValidator<List<RequestModel>>, CreateRequestValidator>();
+            services.AddScoped<ITruckAreaCore, TruckAreaCore>();
+            services.AddScoped<IServiceRoleConfigCore, ServiceRoleConfigCore>();
+            services.AddScoped<ICServiceProvider, CServiceProvider>();
+            services.AddScoped<IServiceRoleConfigData, ServiceRoleConfigData>();
+            services.AddScoped<IValidator<List<CreatePortAreaModel>>, CreatePortAreadResponsiblityValidator>();
+            
+
+            //AWS
+            services.AddAWSService<IAmazonSecurityTokenService>();
 
             services.Configure<xgca.core.Helpers.GlobalCmsService>(o =>
             {
@@ -208,6 +268,14 @@ namespace xlog_client_management_api
                 o.GetCity = Configuration.GetSection("GlobalCmsService:GetCity").Value;
                 o.GetUserType = Configuration.GetSection("GlobalCmsService:GetUserType").Value;
                 o.GetResourcesForAuthorization = Configuration.GetSection("GlobalCmsService:GetResourcesForAuthorization").Value;
+                o.ServiceList = Configuration.GetSection("GlobalCmsService:ServiceList").Value;
+                o.PortDetailsBulk = Configuration.GetSection("GlobalCmsService:PortDetailsBulk").Value;
+                o.RetrieveService = Configuration.GetSection("GlobalCmsService:RetrieveService").Value;
+                o.GetServiceRoleId = Configuration.GetSection("GlobalCmsService:GetServiceRoleId").Value;
+                o.PortSearch = Configuration.GetSection("GlobalCmsService:PortSearch").Value;
+
+
+
             });
 
             services.Configure<OptimusAuthService>(o => {
@@ -238,6 +306,9 @@ namespace xlog_client_management_api
                 o.SendCompanyActivationTemplate = Configuration.GetSection("EmailTemplate:SendCompanyActivationTemplate").Value;
             });
 
+            services.Configure<EvaultEndPoints>(option => Configuration.GetSection("EvaultEndPoints").Bind(option));
+            services.Configure<AuthConfig>(option => Configuration.GetSection("AuthConfig").Bind(option));
+            
             services.AddHttpClient();
             services.AddMvc().AddNewtonsoftJson(options => {
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
@@ -267,20 +338,13 @@ namespace xlog_client_management_api
                 };
             });
 
-            //services.AddSwaggerGen(c =>
-            //{
-            //    c.SwaggerDoc("v1", new OpenApiInfo { Title = "XLOG Client Management API", Version = "v1" });
-            //    // Set the comments path for the Swagger JSON and UI.
-            //    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            //    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-            //    c.IncludeXmlComments(xmlPath);
-            //});
-
-            if (envLstRedoc.Contains(currentEnvironment))
+            if (envLst.Contains(currentEnvironment))
             {
                 services.AddSwaggerGen(c =>
                 {
                     c.SwaggerDoc("v1", new OpenApiInfo { Title = "XLOG Client Management API", Version = "v1" });
+                    c.SwaggerDoc("v2", new OpenApiInfo { Title = "XLOG Accreditation API", Version = "v1" });
+
                     // Set the comments path for the Swagger JSON and UI.
                     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -321,11 +385,11 @@ namespace xlog_client_management_api
 
             if (envLst.Contains(currentEnvironment))
             {
-                app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", name: "Client Management API V1");
+                    c.SwaggerEndpoint("/swagger/v2/swagger.json", name: "Accreditation API V1");
                     c.RoutePrefix = string.Empty;
                 });
             }

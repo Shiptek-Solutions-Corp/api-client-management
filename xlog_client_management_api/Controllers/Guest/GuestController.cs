@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using xgca.core.Models.Guest;
+using xgca.core.Response;
 
 namespace xlog_client_management_api.Controllers.Guest
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1")]
     [Authorize(AuthenticationSchemes = "Bearer")]
     public class GuestController : ControllerBase
@@ -19,11 +21,17 @@ namespace xlog_client_management_api.Controllers.Guest
             _guest = guest;
         }
 
+
+        /// <summary>
+        /// List all Guest
+        /// </summary>
+        /// <response code="200">Success</response>
+        /// <response code="400">An Error Occured</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Internal Server Error</response>
+        [ProducesResponseType(typeof(IGeneralModel), 200)]
         [Route("guest")]
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> ListGuests()
         {
             var response = await _guest.List();
@@ -40,12 +48,17 @@ namespace xlog_client_management_api.Controllers.Guest
             return Ok(response);
         }
 
+        /// <summary>
+        /// Register Guest
+        /// </summary>
+        /// <response code="200">Success</response>
+        /// <response code="400">An Error Occured</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Internal Server Error</response>
+        [ProducesResponseType(typeof(IGeneralModel), 200)]
         [Route("guest/register")]
         [TokenAuthorize("scope", "contacts.post")]
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> RegisterGuest([FromBody] CreateGuest obj)
         {
             var username = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
@@ -64,11 +77,17 @@ namespace xlog_client_management_api.Controllers.Guest
             return Ok(response);
         }
 
+
+        /// <summary>
+        /// Get Guest by Id
+        /// </summary>
+        /// <response code="200">Success</response>
+        /// <response code="400">An Error Occured</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Internal Server Error</response>
+        [ProducesResponseType(typeof(IGeneralModel), 200)]
         [Route("guest/{guestId}")]
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GuestDetails([FromRoute] int guestId)
         {
             var response = await _guest.ShowDetails(guestId);
@@ -85,11 +104,17 @@ namespace xlog_client_management_api.Controllers.Guest
             return Ok(response);
         }
 
+
+        /// <summary>
+        /// Get Guest's details by id
+        /// </summary>
+        /// <response code="200">Success</response>
+        /// <response code="400">An Error Occured</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Internal Server Error</response>
+        [ProducesResponseType(typeof(IGeneralModel), 200)]
         [Route("guest/{guestId}/details")]
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GuestDetails([FromRoute] string guestId)
         {
             var response = await _guest.ShowDetails(guestId);
@@ -106,11 +131,17 @@ namespace xlog_client_management_api.Controllers.Guest
             return Ok(response);
         }
 
+
+        /// <summary>
+        /// Update Guest
+        /// </summary>
+        /// <response code="200">Success</response>
+        /// <response code="400">An Error Occured</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Internal Server Error</response>
+        [ProducesResponseType(typeof(IGeneralModel), 200)]
         [Route("guest")]
         [HttpPut]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> UpdateGuest([FromBody] UpdateGuest obj)
         {
             var username = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
@@ -129,12 +160,18 @@ namespace xlog_client_management_api.Controllers.Guest
             return Ok(response);
         }
 
+
+        /// <summary>
+        /// Update guest contact details
+        /// </summary>
+        /// <response code="200">Success</response>
+        /// <response code="400">An Error Occured</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Internal Server Error</response>
+        [ProducesResponseType(typeof(IGeneralModel), 200)]
         [Route("preferred-contacts/guest")]
         [TokenAuthorize("scope", "contacts.put")]
         [HttpPut]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> UpdateGuestContact([FromBody] UpdateGuestContact obj)
         {
             var username = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;
@@ -153,11 +190,17 @@ namespace xlog_client_management_api.Controllers.Guest
             return Ok(response);
         }
 
+
+        /// <summary>
+        /// Delete Guest
+        /// </summary>
+        /// <response code="200">Success</response>
+        /// <response code="400">An Error Occured</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Internal Server Error</response>
+        [ProducesResponseType(typeof(IGeneralModel), 200)]
         [Route("guest/{guestId}")]
         [HttpDelete]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> DeleteGuest([FromRoute] string guestId)
         {
             var username = Request.HttpContext.User.Claims.First(x => x.Type == "cognito:username").Value;

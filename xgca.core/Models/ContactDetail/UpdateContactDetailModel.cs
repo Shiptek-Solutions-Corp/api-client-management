@@ -2,6 +2,7 @@
 {
     public class UpdateContactDetailModel
     {
+        public string Guid { get; set; }
         public string ContactDetailId { get; set; }
         public int PhonePrefixId { get; set; }
         public string PhonePrefix { get; set; }
