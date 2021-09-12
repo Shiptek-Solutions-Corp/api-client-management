@@ -26,6 +26,7 @@ namespace xas.data.accreditation.Request
         Task<List<xgca.entity.Models.Request>> ActivateDeactivateRequest(List<Guid> requestIds, bool status);
         Task<(List<GetRequestModel>, int)> GetRequestList(string bound, int pageSize, int pageNumber, Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string portAreaOperatingCountryName, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch);
         Task<xgca.entity.Models.Request> PortOfResponsibilityAccreditedCustomer(string companyId, string portId);
+        Task<List<xgca.entity.Models.Company>> GetAccreditedTruckingCompanies(Guid companyGuid);
     }
 
     public class RequestData: IRequestData
@@ -254,5 +255,19 @@ namespace xas.data.accreditation.Request
             return data;
         }
 
+        public async Task<List<xgca.entity.Models.Company>> GetAccreditedTruckingCompanies(Guid companyGuid)
+        {
+            //Get all accreditted company with role as Trucking
+            var lstAccredittedTruckingCompany = await (from r in _context.Request
+                                                       join coFrom in _context.Companies on r.CompanyIdFrom equals coFrom.Guid
+                                                       join coService in _context.CompanyServices on coFrom.CompanyId equals coService.CompanyId
+                                                       where r.IsDeleted == false 
+                                                            && r.CompanyIdTo == companyGuid
+                                                            && coService.IsDeleted == 0 
+                                                            && coService.Status == 1
+                                                            && coService.ServiceName == "Trucking"
+                                                       select coFrom).ToListAsync();
+            return lstAccredittedTruckingCompany;
+        }
     }
 }

@@ -176,5 +176,23 @@ namespace xlog_accreditation_service.Controllers
             return File(response, "application/octet-stream", fileName);
         }
 
+
+        /// <summary>
+        /// Get Accredited Trucking Companies
+        /// </summary>
+        /// <response code="200">Success</response>  
+        /// <response code="400">Error Found!</response>  
+        /// <response code="401">Unauthorized!</response>
+        /// <response code="500">Internal Server Error!</response>
+        [HttpGet]
+        [Route("request-accredited-trucking-companies")]
+        [TokenAuthorize("scope", "accreditationShippingAgency.put|accreditationShippingLine.put")]
+        public async Task<IActionResult> GetAccreditedTruckingCompanies([FromQuery] Guid companyGuid)
+        {
+            var response = await _requestCore.GetAccreditedTruckingCompanies(companyGuid);
+            if (response.statusCode == StatusCodes.Status400BadRequest) return BadRequest(response);
+            if (response.statusCode == StatusCodes.Status401Unauthorized) return Unauthorized(response);
+            return Ok(response);
+        }
     }
 }
