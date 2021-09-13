@@ -88,6 +88,7 @@ namespace xas.data.accreditation.Request
                                         , AccreditationStatusConfigDescription = r.RequestInfo.AccreditationStatusConfig.Description
                                         , RequestGuid = r.RequestInfo.Guid
                                         , RequestId = r.RequestInfo.RequestId
+                                        , RequestedDate = r.RequestInfo.CreatedOn
                                         , ServiceRoleIdFrom = r.RequestInfo.ServiceRoleIdFrom
                                         , CompanyIdFrom = r.RequestInfo.CompanyIdFrom
                                         , ServiceRoleIdTo = r.RequestInfo.ServiceRoleIdTo

@@ -10,6 +10,7 @@ namespace xgca.data.ViewModels.Request
         public string AccreditationStatusConfigDescription { get; set; }
         public int RequestId { get; set; }
         public Guid RequestGuid { get; set; }
+        public DateTime RequestedDate { get; set; }
         public Guid ServiceRoleIdFrom { get; set; }
         public Guid CompanyIdFrom { get; set; }
         public Guid ServiceRoleIdTo { get; set; }
