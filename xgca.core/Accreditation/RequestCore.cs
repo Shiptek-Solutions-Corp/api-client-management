@@ -60,6 +60,8 @@ namespace xas.core.accreditation.Request
         Task<byte[]> ExportRequestListToCSV(string bound, int pageSize, int pageNumber, Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string portAreaOperatingCountryName, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch, string viewerServiceRoleId);
         Task<byte[]> ExportRequestListToCSVTemplate();
 
+        Task<GeneralModel> GetAccreditedTruckingCompanies(Guid companyGuid);
+
         #endregion
 
         #region Customer Accreditation
@@ -366,6 +368,13 @@ namespace xas.core.accreditation.Request
             byte[] profileToExport = ms.ToArray();
             return profileToExport;
         }
+
+        public async Task<GeneralModel> GetAccreditedTruckingCompanies(Guid companyGuid)
+        {
+            var response = await _requestData.GetAccreditedTruckingCompanies(companyGuid);
+            return _generalResponse.Response(response, StatusCodes.Status200OK, "Accreditted Trucking Companies Successfully Loaded.", true);
+        }
+        
 
         #endregion
 
