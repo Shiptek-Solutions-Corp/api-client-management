@@ -431,7 +431,8 @@ namespace xgca.data.Company
             var company = await (from c in _context.Companies
                                  join a in _context.Addresses on c.AddressId equals a.AddressId
                                  join ct in _context.ContactDetails on c.ContactDetailId equals ct.ContactDetailId
-                                 where c.CompanyName == companyName
+                                 join srv in _context.CompanyServices on c.CompanyId equals srv.CompanyId
+                                 where srv.ServiceName == "Trucking" &&  c.CompanyName == companyName
                                  select new GetCompanyExistModel
                                  {
                                        CompanyName = c.CompanyName 
