@@ -722,6 +722,14 @@ namespace xgca.entity
                     .HasName("IX_Request")
                     .IsUnique();
 
+                entity.Property(e => e.CompanyCodeFrom).HasMaxLength(10);
+
+                entity.Property(e => e.CompanyCodeTo).HasMaxLength(10);
+
+                entity.Property(e => e.CompanyNameFrom).HasMaxLength(160);
+
+                entity.Property(e => e.CompanyNameTo).HasMaxLength(160);
+
                 entity.Property(e => e.CreatedBy).IsRequired();
 
                 entity.Property(e => e.Guid).HasDefaultValueSql("(newid())");

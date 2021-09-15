@@ -26,6 +26,10 @@ namespace xgca.entity.Models
         public Guid CompanyIdFrom { get; set; }
         public Guid ServiceRoleIdTo { get; set; }
         public Guid CompanyIdTo { get; set; }
+        public string CompanyCodeTo { get; set; }
+        public string CompanyNameTo { get; set; }
+        public string CompanyCodeFrom { get; set; }
+        public string CompanyNameFrom { get; set; }
         public bool? IsActive { get; set; }
 
         public virtual AccreditationStatusConfig AccreditationStatusConfig { get; set; }
