@@ -1,17 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace xgca.entity.Models
 {
-    [Table("KYCLog", Schema = "Settings")]
-    public class KYCLog
+    public partial class KYCLog
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int KYCLogId { get; set; }
+        public int KyclogId { get; set; }
         public int CompanyId { get; set; }
         public int CompanySectionsId { get; set; }
         public string Remarks { get; set; }

@@ -244,11 +244,11 @@ namespace xgca.core.Services
                 var organizationalChart = (GetOCDocumentModel)companyDocumentResponse.data.OrganizationalChart;
 
                 string latestRemarks = "-";
-                if (tempCompanyStructureSection.KYCLogs.Count != 0)
+                if (tempCompanyStructureSection.Kyclog.Count != 0)
                 {
-                    latestRemarks = (tempCompanyStructureSection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks is null)
+                    latestRemarks = (tempCompanyStructureSection.Kyclog.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks is null)
                         ? "-"
-                        : tempCompanyStructureSection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
+                        : tempCompanyStructureSection.Kyclog.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
                 }
 
                 companyStructureSection.Details = companyStructure;
@@ -270,11 +270,11 @@ namespace xgca.core.Services
                 var individuals = (List<GetIndividualBeneficialOwnerModel>)companyBeneficialOwnerResponse.data.Individuals;
 
                 string latestRemarks = "-";
-                if (tempCompanyBeneficialOwnerSection.KYCLogs.Count != 0)
+                if (tempCompanyBeneficialOwnerSection.Kyclog.Count != 0)
                 {
-                    latestRemarks = (tempCompanyBeneficialOwnerSection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks is null)
+                    latestRemarks = (tempCompanyBeneficialOwnerSection.Kyclog.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks is null)
                         ? "-"
-                        : tempCompanyBeneficialOwnerSection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
+                        : tempCompanyBeneficialOwnerSection.Kyclog.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
                 }
 
                 companyBeneficialOwnerSection.Company = companies;
@@ -292,11 +292,11 @@ namespace xgca.core.Services
                 var directors = (List<GetCompanyDirectorModel>)companyDirectorResponse.data.Directors;
 
                 string latestRemarks = "-";
-                if (tempCompanyDirectorSection.KYCLogs.Count != 0)
+                if (tempCompanyDirectorSection.Kyclog.Count != 0)
                 {
-                    latestRemarks = (tempCompanyDirectorSection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks is null)
+                    latestRemarks = (tempCompanyDirectorSection.Kyclog.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks is null)
                         ? "-"
-                        : tempCompanyDirectorSection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
+                        : tempCompanyDirectorSection.Kyclog.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
                 }
 
                 companyDirectorSection.Directors = directors;
@@ -418,11 +418,11 @@ namespace xgca.core.Services
                 var organizationalChart = (GetOCDocumentModel)companyDocumentResponse.data.OrganizationalChart;
 
                 string latestRemarks = "-";
-                if (companySection.KYCLogs.Count != 0)
+                if (companySection.Kyclog.Count != 0)
                 {
-                    latestRemarks = (companySection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks is null)
+                    latestRemarks = (companySection.Kyclog.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks is null)
                         ? "-"
-                        : companySection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
+                        : companySection.Kyclog.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
                 }
 
                 companyStructureSection.Details = companyStructure;
@@ -449,11 +449,11 @@ namespace xgca.core.Services
                 var individuals = (List<GetIndividualBeneficialOwnerModel>)companyBeneficialOwnerResponse.data.Individuals;
 
                 string latestRemarks = "-";
-                if (companySection.KYCLogs.Count != 0)
+                if (companySection.Kyclog.Count != 0)
                 {
-                    latestRemarks = (companySection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks is null)
+                    latestRemarks = (companySection.Kyclog.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks is null)
                         ? "-"
-                        : companySection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
+                        : companySection.Kyclog.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
                 }
 
                 companyBeneficialOwnerSection.Company = companies;
@@ -477,11 +477,11 @@ namespace xgca.core.Services
                 var directors = (List<GetCompanyDirectorModel>)companyDirectorResponse.data.Directors;
 
                 string latestRemarks = "-";
-                if (companySection.KYCLogs.Count != 0)
+                if (companySection.Kyclog.Count != 0)
                 {
-                    latestRemarks = (companySection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks is null)
+                    latestRemarks = (companySection.Kyclog.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks is null)
                         ? "-"
-                        : companySection.KYCLogs.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
+                        : companySection.Kyclog.OrderByDescending(o => o.CreatedOn).FirstOrDefault().Remarks.ToString();
                 }
 
                 companyDirectorSection.Directors = directors;

@@ -81,7 +81,7 @@ namespace xgca.data.Repositories
         public async Task<(string, string)> GetGuidById(int id)
         {
             string guid = await _context.KYCLogs.AsNoTracking()
-                .Where(x => x.KYCLogId == id)
+                .Where(x => x.KyclogId == id)
                 .Select(c => c.Guid.ToString())
                 .FirstOrDefaultAsync();
 
@@ -94,7 +94,7 @@ namespace xgca.data.Repositories
         {
             int intId = await _context.KYCLogs.AsNoTracking()
                 .Where(x => x.Guid == Guid.Parse(id))
-                .Select(c => c.KYCLogId)
+                .Select(c => c.KyclogId)
                 .FirstOrDefaultAsync();
 
             return (intId == 0)

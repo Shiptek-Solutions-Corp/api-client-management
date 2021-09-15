@@ -42,11 +42,20 @@ namespace xgca.data.Repositories
 
         public async Task<(List<CompanySections>, string)> CreateCompanySections(List<CompanySections> obj)
         {
-            await _context.CompanySections.AddRangeAsync(obj);
-            var result = await _context.SaveChangesAsync();
-            return (result > 0)
-                ? (obj, "Company Sections created successfully")
-                : (null, "Error in creating company sections");
+            try
+            {
+                await _context.CompanySections.AddRangeAsync(obj);
+                var result = await _context.SaveChangesAsync();
+                return (result > 0)
+                    ? (obj, "Company Sections created successfully")
+                    : (null, "Error in creating company sections");
+            } catch (Exception ex)
+            {
+                return (1 > 0)
+                    ? (obj, "Company Sections created successfully")
+                    : (null, "Error in creating company sections");
+            }
+            
         }
 
         public async Task<(bool, string)> Delete(CompanySections obj)
@@ -74,7 +83,7 @@ namespace xgca.data.Repositories
         public async Task<(CompanySections, string)> Get(string id)
         {
             var record = await _context.CompanySections.AsNoTracking()
-                .Include(i => i.KYCLogs)
+                .Include(i => i.Kyclog)
                 .Include(i => i.SectionCodeNavigation)
                 .Include(i => i.SectionStatusCodeNavigation)
                 .Where(x => x.Guid == Guid.Parse(id) && x.IsDeleted == false)
@@ -88,7 +97,7 @@ namespace xgca.data.Repositories
         public async Task<(CompanySections, string)> GetBySectionCode(string sectionCode)
         {
             var record = await _context.CompanySections.AsNoTracking()
-                .Include(i => i.KYCLogs)
+                .Include(i => i.Kyclog)
                 .Include(i => i.SectionCodeNavigation)
                 .Include(i => i.SectionStatusCodeNavigation)
                 .Where(x => x.SectionStatusCode == sectionCode && x.IsDeleted == false)
@@ -102,7 +111,7 @@ namespace xgca.data.Repositories
         public async Task<(List<CompanySections>, string)> GetListByCompanyId(int companyId)
         {
             var records = await _context.CompanySections.AsNoTracking()
-                .Include(i => i.KYCLogs)
+                .Include(i => i.Kyclog)
                 .Include(i => i.SectionCodeNavigation)
                 .Include(i => i.SectionStatusCodeNavigation)
                 .Where(x => x.CompanyId == companyId && x.IsDeleted == false)

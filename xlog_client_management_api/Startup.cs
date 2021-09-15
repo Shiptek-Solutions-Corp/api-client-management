@@ -87,7 +87,7 @@ using xgca.core.Models.Accreditation.PortArea;
 
 namespace xlog_client_management_api
 {
-    //Scaffold-dbContext "Server=127.0.0.1,11433;Initial Catalog=Dev-Client;User ID=userClientDev;Password=VlormyFrbidrt" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -t Company.Company, Settings.KycStatus, Company.CompanyStructure, Company.CompanyDocuments, Company.CompanyBeneficialOwners, Company.CompanyDirectors, Company.CompanySections, Settings.DocumentType, Settings.DocumentCategory, Settings.BeneficialOwnersType, Settings.SectionStatus, Settings.Section -ContextDir Context -Context ClientServiceContext -f
+    //Scaffold-dbContext "Server=127.0.0.1,11433;Initial Catalog=Dev-Client;User ID=userClientDev;Password=VlormyFrbidrt" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -t Company.Company, Settings.KycStatus, Company.CompanyStructure, Company.CompanyDocuments, Company.CompanyBeneficialOwners, Company.CompanyDirectors, Company.CompanySections, Settings.DocumentType, Settings.DocumentCategory, Settings.BeneficialOwnersType, Settings.SectionStatus, Settings.Section, Settings.KYCLog -ContextDir Context -Context ClientServiceContext -f
     //Scaffold-dbContext "Server=127.0.0.1,11433;Initial Catalog=Dev-Client;User ID=userClientDev;Password=VlormyFrbidrt" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -t Accreditation.AccreditationStatusConfig, Accreditation.Request, Accreditation.TruckArea, Accreditation.PortArea, Accreditation.ServiceRoleConfig -ContextDir Context -Context ClientServiceContext -f
 
     //$env:ASPNETCORE_ENVIRONMENT='local'
@@ -382,7 +382,7 @@ namespace xlog_client_management_api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-
+            app.UseDeveloperExceptionPage();
             if (envLst.Contains(currentEnvironment))
             {
                 app.UseSwagger();
@@ -413,6 +413,7 @@ namespace xlog_client_management_api
                 endpoints.MapControllers();
             });
 
+           
         }
     }
 }

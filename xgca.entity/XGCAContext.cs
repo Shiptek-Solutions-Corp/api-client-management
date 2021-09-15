@@ -142,6 +142,8 @@ namespace xgca.entity
                 .Property(cgr => cgr.IsMasterUser)
                 .HasDefaultValue(0);
 
+
+            #region KYC
             modelBuilder.Entity<BeneficialOwnersType>(entity =>
             {
                 entity.HasKey(e => e.BeneficialOwnersTypeCode);
@@ -586,6 +588,25 @@ namespace xgca.entity
                 entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
             });
 
+            modelBuilder.Entity<KYCLog>(entity =>
+            {
+                entity.ToTable("KYCLog", "Settings");
+
+                entity.HasIndex(e => e.CompanyId);
+
+                entity.HasIndex(e => e.CompanySectionsId);
+
+                entity.Property(e => e.KyclogId).HasColumnName("KYCLogId");
+
+                entity.HasOne(d => d.Company)
+                    .WithMany(p => p.KYCLogs)
+                    .HasForeignKey(d => d.CompanyId);
+
+                entity.HasOne(d => d.CompanySections)
+                    .WithMany(p => p.Kyclog)
+                    .HasForeignKey(d => d.CompanySectionsId);
+            });
+
             modelBuilder.Entity<Section>(entity =>
             {
                 entity.HasKey(e => e.SectionCode);
@@ -662,6 +683,7 @@ namespace xgca.entity
                 entity.Property(e => e.UpdatedOn).HasDefaultValueSql("(getutcdate())");
             });
 
+            #endregion
 
             //Accreditation
             modelBuilder.Entity<AccreditationStatusConfig>(entity =>
