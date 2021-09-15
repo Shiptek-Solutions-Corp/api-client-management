@@ -42,7 +42,10 @@ namespace xas.data.DataModel.PortArea
                                      where r.Guid == requestId && p.IsDeleted == false 
                                      select new PortAreaResponseModel
                                      {
-                                         CityName = p.CityName 
+                                           CityCode = p.CityCode
+                                         , CityName = p.CityName 
+                                         , StateCode = p.StateCode
+                                         , StateName = p.StateName 
                                          , CountryAreaId = p.CountryAreaId 
                                          , CountryCode = p.CountryCode 
                                          , CountryName = p.CountryName 
