@@ -56,8 +56,8 @@ namespace xas.core.accreditation.Request
         Task<GeneralModel> ActivateDeactivateRequest(List<Guid> requestIds, bool status);
         Task<GeneralModel> UpdateRequestStatusBulk(int companyId, List<Guid> requestId, int status);
         Task<int> GetRequestIdByGuid(string guid);
-        Task<GeneralModel> GetRequestList(string bound, int pageSize, int pageNumber, Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string portAreaOperatingCountryName, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch, DateTime requestedDate);
-        Task<byte[]> ExportRequestListToCSV(string bound, int pageSize, int pageNumber, Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string portAreaOperatingCountryName, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch, string viewerServiceRoleId, DateTime requestedDate);
+        Task<GeneralModel> GetRequestList(string bound, int pageSize, int pageNumber, Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string portAreaOperatingCountryName, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch, DateTime requestedDateFrom, DateTime requestedDateTo);
+        Task<byte[]> ExportRequestListToCSV(string bound, int pageSize, int pageNumber, Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string portAreaOperatingCountryName, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch, string viewerServiceRoleId, DateTime requestedDateFrom, DateTime requestedDateTo);
         Task<byte[]> ExportRequestListToCSVTemplate();
 
         Task<GeneralModel> GetAccreditedTruckingCompanies(Guid companyGuid);
@@ -119,9 +119,9 @@ namespace xas.core.accreditation.Request
         }
 
         #region Request        
-        public async Task<GeneralModel> GetRequestList(string bound, int pageSize, int pageNumber, Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string portAreaOperatingCountryName, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch, DateTime requestedDate)
+        public async Task<GeneralModel> GetRequestList(string bound, int pageSize, int pageNumber, Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string portAreaOperatingCountryName, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch, DateTime requestedDateFrom, DateTime requestedDateTo)
         {
-            var response = await _requestData.GetRequestList(bound, pageSize, pageNumber, loginCompanyGuid, loginServiceRoleGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, portAreaOperatingCountryName, truckAreaResponsibility, accreditationStatusConfigId, companyStatus, sortOrder, sortBy, quickSearch, requestedDate);
+            var response = await _requestData.GetRequestList(bound, pageSize, pageNumber, loginCompanyGuid, loginServiceRoleGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, portAreaOperatingCountryName, truckAreaResponsibility, accreditationStatusConfigId, companyStatus, sortOrder, sortBy, quickSearch, requestedDateFrom, requestedDateTo);
 
             //Update Image Url for new S3 link for each record
             response.Item1.ForEach(i =>
@@ -227,7 +227,7 @@ namespace xas.core.accreditation.Request
         public async Task<byte[]> ExportRequestListToCSV(string bound, int pageSize, int pageNumber, Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string companyName
                                                        , string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string portAreaOperatingCountryName
                                                        , string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch
-                                                       , string viewerServiceRoleId, DateTime requestedDate)
+                                                       , string viewerServiceRoleId, DateTime requestedDateFrom, DateTime requestedDateTo)
         {
             //SC Shipper/Consignee
             //SL  Shipping Line
@@ -237,7 +237,7 @@ namespace xas.core.accreditation.Request
             string fileName = String.Concat(Directory.GetCurrentDirectory(), @"request_exportCSV.csv");
             if (System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
 
-            var data = await _requestData.GetRequestList(bound, pageSize, pageNumber, loginCompanyGuid, loginServiceRoleGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, portAreaOperatingCountryName, truckAreaResponsibility, accreditationStatusConfigId, companyStatus, sortOrder, sortBy, quickSearch, requestedDate);
+            var data = await _requestData.GetRequestList(bound, pageSize, pageNumber, loginCompanyGuid, loginServiceRoleGuid, serviceRoleGuid, companyName, companyAddress, companyCountryName, companyStateCityName, portAreaResponsibility, portAreaOperatingCountryName, truckAreaResponsibility, accreditationStatusConfigId, companyStatus, sortOrder, sortBy, quickSearch, requestedDateFrom, requestedDateTo);
 
             MemoryStream ms = new MemoryStream();
             using (StreamWriter sw = new StreamWriter(ms, Encoding.UTF8))
