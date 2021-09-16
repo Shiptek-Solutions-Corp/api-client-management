@@ -9,6 +9,7 @@ using xgca.entity.Models;
 using xgca.entity;
 using xgca.data.ViewModels.Request;
 using xas.data.Request;
+using xgca.data.ViewModels.PortArea;
 
 namespace xas.data.accreditation.Request
 {
@@ -98,6 +99,27 @@ namespace xas.data.accreditation.Request
                                         , CompanyIdTo = r.RequestInfo.CompanyIdTo
                                         , RequestIsActive = r.RequestInfo.IsActive
                                         , PortAreaList = String.Join(" / ", r.RequestInfo.PortArea.Where(i => i.IsDeleted == false).Select(i => (i.Locode + "-"+ i.PortCode + "-" + i.PortName)))
+                                        , PortAreaInfoList = r.RequestInfo.PortArea.Where(i => i.IsDeleted == false).Select(i => new PortAreaResponseModel 
+                                                                                                                                    { 
+                                                                                                                                         CityCode = i.CityCode 
+                                                                                                                                         , CityName = i.CityName 
+                                                                                                                                         , CountryAreaId = i.CountryAreaId 
+                                                                                                                                         , CountryCode = i.CountryCode 
+                                                                                                                                         , CountryName = i.CountryName 
+                                                                                                                                         , Latitude = i.Latitude 
+                                                                                                                                         , Longitude = i.Longitude 
+                                                                                                                                         , Location = i.Location 
+                                                                                                                                         , LoCode = i.Locode 
+                                                                                                                                         , PortAreaGuid = i.Guid 
+                                                                                                                                         , PortAreaId = i.PortAreaId 
+                                                                                                                                         , PortId = i.PortId 
+                                                                                                                                         , PortName = i.PortName 
+                                                                                                                                         , PortOfDischarge = i.PortOfDischarge.ToString()
+                                                                                                                                         , PortOfLoading = i.PortOfLoading.ToString()
+                                                                                                                                         , StateCode = i.StateCode 
+                                                                                                                                         , StateName = i.StateName 
+                                                                                                                                         , IsDeleted = i.IsDeleted 
+                                                                                                                                    }).ToList()
                                         , PortAreaOperatingCountries = r.RequestInfo.PortArea.Where(i => i.IsDeleted == false).Select(i => i.CountryName).Distinct().ToList()
                                         , PortAreaOperatingCountriesJoin = String.Join(" / ", r.RequestInfo.PortArea.Where(i => i.IsDeleted == false).Select(i => i.CountryName))
                                         , TruckAreaList = String.Join(" / ", r.RequestInfo.TruckArea.Where(i => i.IsDeleted == false).Select(i => i.CountryName))

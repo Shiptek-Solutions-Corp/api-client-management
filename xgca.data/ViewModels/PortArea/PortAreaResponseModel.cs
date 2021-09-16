@@ -21,7 +21,6 @@ namespace xgca.data.ViewModels.PortArea
         public string CityName { get; set; }
         public bool IsDeleted { get; set; }
         public Guid PortAreaGuid { get; set; }
-        public int MyProperty { get; set; }
         public Guid? CityCode { get; set; }
         public Guid? StateCode { get; set; }
         public string StateName { get; set; }

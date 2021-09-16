@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using xgca.data.ViewModels.PortArea;
 
 namespace xgca.data.ViewModels.Request
 {
@@ -17,6 +18,7 @@ namespace xgca.data.ViewModels.Request
         public Guid CompanyIdTo { get; set; }
         public bool? RequestIsActive { get; set; }
         public string PortAreaList { get; set; }
+        public List<PortAreaResponseModel> PortAreaInfoList { get; set; }
         public List<string> PortAreaOperatingCountries { get; set; }
         public string PortAreaOperatingCountriesJoin { get; set; }
         public string TruckAreaList { get; set; }
