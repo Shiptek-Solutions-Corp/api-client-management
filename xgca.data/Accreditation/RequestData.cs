@@ -285,20 +285,20 @@ namespace xas.data.accreditation.Request
         {
             //Get all accreditted company with role as Trucking
             var lstAccredittedTruckingCompany = await (from r in _context.Request
-                                                       join coFrom in _context.Companies on r.CompanyIdFrom equals coFrom.Guid
-                                                       join coService in _context.CompanyServices on coFrom.CompanyId equals coService.CompanyId
+                                                       join coTo in _context.Companies on r.CompanyIdTo equals coTo.Guid
+                                                       join coService in _context.CompanyServices on coTo.CompanyId equals coService.CompanyId
                                                        where r.IsDeleted == false 
-                                                            && r.CompanyIdTo == companyGuid
+                                                            && r.CompanyIdFrom == companyGuid
                                                             && coService.IsDeleted == 0 
                                                             && coService.Status == 1
                                                             && coService.ServiceName == "Trucking"
                                                        select new GetAccreditedTruckingCompaniesModel
                                                        {
-                                                           CompanyGuid = coFrom.Guid 
-                                                           , CompanyCode = coFrom.CompanyCode 
-                                                           , CompanyName = coFrom.CompanyName 
-                                                           , CompanyEmail = coFrom.EmailAddress 
-                                                           , CompanyLogo = coFrom.ImageURL
+                                                           CompanyGuid = coTo.Guid 
+                                                           , CompanyCode = coTo.CompanyCode 
+                                                           , CompanyName = coTo.CompanyName 
+                                                           , CompanyEmail = coTo.EmailAddress 
+                                                           , CompanyLogo = coTo.ImageURL
                                                        }).ToListAsync();
             return lstAccredittedTruckingCompany;
         }
