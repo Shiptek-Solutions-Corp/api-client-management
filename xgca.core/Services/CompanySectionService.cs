@@ -45,7 +45,7 @@ namespace xgca.core.Services
         Task<IGeneralModel> ReviseCompanyStructureSection(ReviseCompanySectionModel obj);
         Task<IGeneralModel> ReviseCompanyBeneficialOwnerSection(ReviseCompanySectionModel obj);
         Task<IGeneralModel> ReviseCompanyDirectorSection(ReviseCompanySectionModel obj);
-        Task<string> CheckOverallKYCStatus(int companyId);
+        Task<(string, string, int)> CheckOverallKYCStatus(int companyId);
 
     }
     public class CompanySectionService : ICompanySectionService
@@ -315,7 +315,6 @@ namespace xgca.core.Services
 
         public async Task<IGeneralModel> GetCompanySectionsByCompanyGuid(string companyGuid)
         {
-            //GlobalVariables.LoggedInUserId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
             int companyId = await _companyRepository.GetIdByGuid(Guid.Parse(companyGuid));
             var companySections = await GetCompanySection(companyId);
 
@@ -343,11 +342,11 @@ namespace xgca.core.Services
 
             return _general.Response(new { OverallKYCStatus = overallKYCStatus, AdditionalInformation = companySections, Reason = reason }, 200, "Company Sections retrieved successfully", true);
         }
-
-        public async Task<string> CheckOverallKYCStatus(int companyId)
+        public async Task<(string, string, int)> CheckOverallKYCStatus(int companyId)
         {
             var (companySections, message) = await _repository.GetListByCompanyId(companyId);
-            string kycStatus = null;
+            string kycStatus = null, responseMessage = null;
+            int statusCode = StatusCodes.Status200OK;
 
             List<string> sectionStatuses = new List<string>();
             string companyStructureStatus = companySections.SingleOrDefault(x => x.SectionCode == Enum.GetName(typeof(Enums.Section), Enums.Section.CS)).SectionStatusCode;
@@ -391,12 +390,19 @@ namespace xgca.core.Services
                     if (!companyDetails.KycStatusCode.Equals("APP"))
                     {
                         string token = contextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Remove(0, 7);
-                        await _userService.ActivateCompanyUser(companyDetails.CompanyUsers.Select(c => c.Users).First()?.EmailAddress, true, token);
+                        var activationResponse = await _userService.ActivateCompanyUser(companyDetails.CompanyUsers.Select(c => c.Users).First()?.EmailAddress, true, token);
+
+                        if (activationResponse.statusCode == StatusCodes.Status400BadRequest)
+                        {
+                            kycStatus = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.PEN);
+                            responseMessage = activationResponse.message;
+                            statusCode = activationResponse.statusCode;
+                        }
                     }
                 }
             }
 
-            return kycStatus;
+            return (kycStatus, responseMessage, statusCode);
 
         }
 
@@ -540,7 +546,7 @@ namespace xgca.core.Services
                 return _general.Response(null, 400, "Error in updating company structure section status", false);
             }
 
-            string kycStatus = await CheckOverallKYCStatus(companyId);
+            var (kycStatus, responseMessage, statusCode) = await CheckOverallKYCStatus(companyId);
             var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
 
             var (companySectionId, companySectionMessage) = await _repository.GetIdByGuid(obj.Id);
@@ -562,6 +568,11 @@ namespace xgca.core.Services
                 OverallKYCStatus = companyKYCStatus,
                 CompanyStructureSection = companyStructureSection
             };
+
+            if (statusCode == StatusCodes.Status400BadRequest)
+            {
+                return _general.Response(data, statusCode, responseMessage, false);
+            }
 
             return _general.Response(data, 200, _submitSpiel, true);
         }
@@ -611,7 +622,7 @@ namespace xgca.core.Services
                 return _general.Response(null, 400, "Error in saving company structure section as draft", false);
             }
 
-            string kycStatus = await CheckOverallKYCStatus(companyId);
+            var (kycStatus, responseMessage, statusCode) = await CheckOverallKYCStatus(companyId);
             var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
 
             var (companySection, companySectionMessage) = await _repository.Get(obj.Id);
@@ -633,6 +644,11 @@ namespace xgca.core.Services
                 OverallKYCStatus = companyKYCStatus,
                 CompanyStructureSection = companyStructureSection
             };
+
+            if (statusCode == StatusCodes.Status400BadRequest)
+            {
+                return _general.Response(data, statusCode, responseMessage, false);
+            }
 
             return _general.Response(data, 200, _draftSpiel, true);
         }
@@ -661,7 +677,7 @@ namespace xgca.core.Services
                 return _general.Response(null, 400, "Error in updating ultimate beneficial owner section status", false);
             }
 
-            string kycStatus = await CheckOverallKYCStatus(companyId);
+            var (kycStatus, responseMessage, statusCode) = await CheckOverallKYCStatus(companyId);
             var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
 
             var (companySectionId, companySectionMessage) = await _repository.GetIdByGuid(obj.Id);
@@ -683,6 +699,11 @@ namespace xgca.core.Services
                 OverallKYCStatus = companyKYCStatus,
                 UltimateBeneficialOwners = companyBeneficialOwnerSection
             };
+
+            if (statusCode == StatusCodes.Status400BadRequest)
+            {
+                return _general.Response(data, statusCode, responseMessage, false);
+            }
 
             return _general.Response(data, 200, _submitSpiel, true);
         }
@@ -710,7 +731,7 @@ namespace xgca.core.Services
                 return _general.Response(null, 400, "Error in saving ultimate benficial owner section as draft", false);
             }
 
-            string kycStatus = await CheckOverallKYCStatus(companyId);
+            var (kycStatus, responseMessage, statusCode) = await CheckOverallKYCStatus(companyId);
             var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
 
             var (companySection, companySectionMessage) = await _repository.Get(obj.Id);
@@ -732,6 +753,11 @@ namespace xgca.core.Services
                 OverallKYCStatus = companyKYCStatus,
                 UltimateBeneficialOwners = companyBeneficialOwnerSection
             };
+
+            if (statusCode == StatusCodes.Status400BadRequest)
+            {
+                return _general.Response(data, statusCode, responseMessage, false);
+            }
 
             return _general.Response(data, 200, _draftSpiel, true);
         }
@@ -764,7 +790,7 @@ namespace xgca.core.Services
                 return _general.Response(null, 400, "Error in updating company directors section status", false);
             }
 
-            string kycStatus = await CheckOverallKYCStatus(companyId);
+            var (kycStatus, responseMessage, statusCode) = await CheckOverallKYCStatus(companyId);
             var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
 
             var (companySectionId, companySectionMessage) = await _repository.GetIdByGuid(obj.Id);
@@ -786,6 +812,11 @@ namespace xgca.core.Services
                 OverallKYCStatus = companyKYCStatus,
                 CompanyDirectors = companyDirectorSection
             };
+
+            if (statusCode == StatusCodes.Status400BadRequest)
+            {
+                return _general.Response(data, statusCode, responseMessage, false);
+            }
 
             return _general.Response(data, 200, _submitSpiel, true);
         }
@@ -813,7 +844,7 @@ namespace xgca.core.Services
                 return _general.Response(null, 400, "Error in saving ultimate benficial owner section as draft", false);
             }
 
-            string kycStatus = await CheckOverallKYCStatus(companyId);
+            var (kycStatus, responseMessage, statusCode) = await CheckOverallKYCStatus(companyId);
             var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, GlobalVariables.LoggedInUserId);
 
             var (companySection, companySectionMessage) = await _repository.Get(obj.Id);
@@ -835,6 +866,11 @@ namespace xgca.core.Services
                 OverallKYCStatus = companyKYCStatus,
                 CompanyDirectors = companyDirectorSection
             };
+
+            if (statusCode == StatusCodes.Status400BadRequest)
+            {
+                return _general.Response(data, statusCode, responseMessage, false);
+            }
 
             return _general.Response(data, 200, _draftSpiel, true);
         }
@@ -882,13 +918,18 @@ namespace xgca.core.Services
                 return _general.Response(null, 400, updateMessage, false);
             }
 
-            string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
+            var (overallKYCStatus, responseMessage, statusCode) = await CheckCompanyKYCStatus(companyId);
 
             var data = new
             {
                 OverallKYCStatus = overallKYCStatus,
                 CompanyStructure = updateResult
             };
+
+            if (statusCode == StatusCodes.Status400BadRequest)
+            {
+                return _general.Response(data, statusCode, responseMessage, false);
+            }
 
             return _general.Response(data, 200, updateMessage, true);
         }
@@ -921,13 +962,18 @@ namespace xgca.core.Services
                 return _general.Response(null, 400, updateMessage, false);
             }
 
-            string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
+            var (overallKYCStatus, responseMessage, statusCode) = await CheckCompanyKYCStatus(companyId);
 
             var data = new
             {
                 OverallKYCStatus = overallKYCStatus,
                 UltimateBeneficialOwners = updateResult
             };
+
+            if (statusCode == StatusCodes.Status400BadRequest)
+            {
+                return _general.Response(data, statusCode, responseMessage, false);
+            }
 
             return _general.Response(data, 200, updateMessage, true);
         }
@@ -960,13 +1006,18 @@ namespace xgca.core.Services
                 return _general.Response(null, 400, updateMessage, false);
             }
 
-            string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
+            var (overallKYCStatus, responseMessage, statusCode) = await CheckCompanyKYCStatus(companyId);
 
             var data = new
             {
                 OverallKYCStatus = overallKYCStatus,
                 CompanyDirectors = updateResult
             };
+
+            if (statusCode == StatusCodes.Status400BadRequest)
+            {
+                return _general.Response(data, statusCode, responseMessage, false);
+            }
 
             return _general.Response(data, 200, updateMessage, true);
         }
@@ -1011,13 +1062,18 @@ namespace xgca.core.Services
                 });
             }
 
-            string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
+            var (overallKYCStatus, responseMessage, statusCode) = await CheckCompanyKYCStatus(companyId);
 
             var data = new
             {
                 OverallKYCStatus = overallKYCStatus,
                 CompanyStructure = updateResult
             };
+
+            if (statusCode == StatusCodes.Status400BadRequest)
+            {
+                return _general.Response(data, statusCode, responseMessage, false);
+            }
 
             return _general.Response(data, 200, updateMessage, true);
         }
@@ -1062,13 +1118,18 @@ namespace xgca.core.Services
                 });
             }
 
-            string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
+            var (overallKYCStatus, responseMessage, statusCode) = await CheckCompanyKYCStatus(companyId);
 
             var data = new
             {
                 OverallKYCStatus = overallKYCStatus,
                 UltimateBeneficialOwners = updateResult
             };
+
+            if (statusCode == StatusCodes.Status400BadRequest)
+            {
+                return _general.Response(data, statusCode, responseMessage, false);
+            }
 
             return _general.Response(data, 200, updateMessage, true);
         }
@@ -1113,7 +1174,7 @@ namespace xgca.core.Services
                 });
             }
 
-            string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
+            var (overallKYCStatus, responseMessage, statusCode) = await CheckCompanyKYCStatus(companyId);
 
             var data = new
             {
@@ -1121,16 +1182,21 @@ namespace xgca.core.Services
                 CompanyDirectors = updateResult
             };
 
+            if (statusCode == StatusCodes.Status400BadRequest)
+            {
+                return _general.Response(data, statusCode, responseMessage, false);
+            }
+
             return _general.Response(data, 200, updateMessage, true);
         }
 
-        public async Task<string> CheckCompanyKYCStatus(int companyId)
+        public async Task<(string, string, int)> CheckCompanyKYCStatus(int companyId)
         {
-            string kycStatus = await CheckOverallKYCStatus(companyId);
+            var (kycStatus, responseMessage, statusCode) = await CheckOverallKYCStatus(companyId);
             int userId = await _userRepository.GetIdByUsername(GlobalVariables.LoggedInUsername);
             var (companyKYCStatus, message) = await _companyRepository.UpdateKYCStatus(companyId, kycStatus, userId);
 
-            return companyKYCStatus;
+            return (companyKYCStatus, responseMessage, statusCode);
         }
 
         public async Task<IGeneralModel> RejectCompanySection(RejectCompanySectionModel obj)
@@ -1236,13 +1302,18 @@ namespace xgca.core.Services
                 });
             }
 
-            string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
+            var (overallKYCStatus, responseMessage, statusCode) = await CheckCompanyKYCStatus(companyId);
 
             var data = new
             {
                 OverallKYCStatus = overallKYCStatus,
                 CompanyStructure = updateResult
             };
+
+            if (statusCode == StatusCodes.Status400BadRequest)
+            {
+                return _general.Response(data, statusCode, responseMessage, false);
+            }
 
             return _general.Response(data, 200, updateMessage, true);
         }
@@ -1287,13 +1358,18 @@ namespace xgca.core.Services
                 });
             }
 
-            string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
+            var (overallKYCStatus, responseMessage, statusCode) = await CheckCompanyKYCStatus(companyId);
 
             var data = new
             {
                 OverallKYCStatus = overallKYCStatus,
                 UltimateBeneficialOwners = updateResult
             };
+
+            if (statusCode == StatusCodes.Status400BadRequest)
+            {
+                return _general.Response(data, statusCode, responseMessage, false);
+            }
 
             return _general.Response(data, 200, updateMessage, true);
         }
@@ -1338,13 +1414,18 @@ namespace xgca.core.Services
                 });
             }
 
-            string overallKYCStatus = await CheckCompanyKYCStatus(companyId);
+            var (overallKYCStatus, responseMessage, statusCode) = await CheckCompanyKYCStatus(companyId);
 
             var data = new
             {
                 OverallKYCStatus = overallKYCStatus,
                 CompanyDirectors = updateResult
             };
+
+            if (statusCode == StatusCodes.Status400BadRequest)
+            {
+                return _general.Response(data, statusCode, responseMessage, false);
+            }
 
             return _general.Response(data, 200, updateMessage, true);
         }
