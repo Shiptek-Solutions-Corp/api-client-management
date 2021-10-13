@@ -223,7 +223,7 @@ namespace xgca.core.Helpers.Http
 
             responseMsg = await _httpClient.PostAsync(Url, content);
 
-            if (!responseMsg.IsSuccessStatusCode)
+            if (!responseMsg.IsSuccessStatusCode && apiKeys == null)
             {
                 return new GeneralModel
                 {

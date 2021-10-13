@@ -1129,7 +1129,7 @@ namespace xgca.core.User
 
             //Save Company Info to Evault
             string evaultRegUrl = _evaultEnpoints.evaultRegister;
-            var response3 = await _httpHelper.PostAsync(evaultRegUrl, partnerAuth.access_token, subMerchantInfo);
+            var response3 = await _httpHelper.PostAsync(evaultRegUrl, partnerAuth.access_token, subMerchantInfo, credInfo);
             if (response3.statusCode == StatusCodes.Status200OK)
             {
                 EvaultRegistrationResponseModel registrationInfo = (response3.data as JObject)?.ToObject<EvaultRegistrationResponseModel>();
