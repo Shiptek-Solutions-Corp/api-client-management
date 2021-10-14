@@ -395,7 +395,7 @@ namespace xgca.core.Services
 
                         if (activationResponse.statusCode == StatusCodes.Status400BadRequest)
                         {
-                            responseMessage = "KYC Approval success but Evault registration failed";
+                            responseMessage = activationResponse.message;
                             statusCode = activationResponse.statusCode;
                             errors = activationResponse.errors;
                         }
