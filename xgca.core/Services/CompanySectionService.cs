@@ -395,8 +395,7 @@ namespace xgca.core.Services
 
                         if (activationResponse.statusCode == StatusCodes.Status400BadRequest)
                         {
-                            kycStatus = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.PEN);
-                            responseMessage = activationResponse.message;
+                            responseMessage = "KYC Approval success but Evault registration failed";
                             statusCode = activationResponse.statusCode;
                             errors = activationResponse.errors;
                         }
