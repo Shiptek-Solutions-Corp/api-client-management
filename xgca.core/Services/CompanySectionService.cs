@@ -395,7 +395,7 @@ namespace xgca.core.Services
 
                         if (activationResponse.statusCode == StatusCodes.Status400BadRequest)
                         {
-                            responseMessage = activationResponse.message;
+                            responseMessage = "KYC Approval success but Evault registration failed";
                             statusCode = activationResponse.statusCode;
                             errors = activationResponse.errors;
                         }
@@ -572,10 +572,10 @@ namespace xgca.core.Services
 
             if (statusCode == StatusCodes.Status400BadRequest)
             {
-                return _general.Response(data, errors, statusCode, responseMessage, false);
+                return _general.Response(data, errors, StatusCodes.Status200OK, responseMessage, true);
             }
 
-            return _general.Response(data, 200, _submitSpiel, true);
+            return _general.Response(data, StatusCodes.Status200OK, _submitSpiel, true);
         }
 
         public async Task<IGeneralModel> DraftCompanyStructureSection(UpdateCompanyStructureSectionModel obj, int companyId)
@@ -648,10 +648,10 @@ namespace xgca.core.Services
 
             if (statusCode == StatusCodes.Status400BadRequest)
             {
-                return _general.Response(data, errors, statusCode, responseMessage, false);
+                return _general.Response(data, errors, StatusCodes.Status200OK, responseMessage, true);
             }
 
-            return _general.Response(data, 200, _draftSpiel, true);
+            return _general.Response(data, StatusCodes.Status200OK, _draftSpiel, true);
         }
 
         public async Task<IGeneralModel> SubmitCompanyBeneficialOwnerSection(UpdateCompanyBeneficialOwnerSectionModel obj, int companyId)
@@ -703,10 +703,10 @@ namespace xgca.core.Services
 
             if (statusCode == StatusCodes.Status400BadRequest)
             {
-                return _general.Response(data, errors, statusCode, responseMessage, false);
+                return _general.Response(data, errors, StatusCodes.Status200OK, responseMessage, true);
             }
 
-            return _general.Response(data, 200, _submitSpiel, true);
+            return _general.Response(data, StatusCodes.Status200OK, _submitSpiel, true);
         }
 
         public async Task<IGeneralModel> DraftCompanyBeneficialOwnerSection(UpdateCompanyBeneficialOwnerSectionModel obj, int companyId)
@@ -757,10 +757,10 @@ namespace xgca.core.Services
 
             if (statusCode == StatusCodes.Status400BadRequest)
             {
-                return _general.Response(data, errors, statusCode, responseMessage, false);
+                return _general.Response(data, errors, StatusCodes.Status200OK, responseMessage, true);
             }
 
-            return _general.Response(data, 200, _draftSpiel, true);
+            return _general.Response(data, StatusCodes.Status200OK, _draftSpiel, true);
         }
 
         public async Task<IGeneralModel> SubmitCompanyDirectorSection(UpdateCompanyDirectorSectionModel obj, int companyId)
@@ -816,10 +816,10 @@ namespace xgca.core.Services
 
             if (statusCode == StatusCodes.Status400BadRequest)
             {
-                return _general.Response(data, errors, statusCode, responseMessage, false);
+                return _general.Response(data, errors, StatusCodes.Status200OK, responseMessage, true);
             }
 
-            return _general.Response(data, 200, _submitSpiel, true);
+            return _general.Response(data, StatusCodes.Status200OK, _submitSpiel, true);
         }
 
         public async Task<IGeneralModel> DraftCompanyDirectorSection(UpdateCompanyDirectorSectionModel obj, int companyId)
@@ -870,10 +870,10 @@ namespace xgca.core.Services
 
             if (statusCode == StatusCodes.Status400BadRequest)
             {
-                return _general.Response(data, errors, statusCode, responseMessage, false);
+                return _general.Response(data, errors, StatusCodes.Status200OK, responseMessage, true);
             }
 
-            return _general.Response(data, 200, _draftSpiel, true);
+            return _general.Response(data, StatusCodes.Status200OK, _draftSpiel, true);
         }
 
         public async Task<IGeneralModel> ListTotalNumerOfEmployess()
@@ -929,10 +929,10 @@ namespace xgca.core.Services
 
             if (statusCode == StatusCodes.Status400BadRequest)
             {
-                return _general.Response(data, errors, statusCode, responseMessage, false);
+                return _general.Response(data, errors, StatusCodes.Status200OK, responseMessage, true);
             }
 
-            return _general.Response(data, 200, updateMessage, true);
+            return _general.Response(data, StatusCodes.Status200OK, updateMessage, true);
         }
 
         public async Task<IGeneralModel> RejectCompanyBeneficialOwnerSection(string companyGuid)
@@ -973,10 +973,10 @@ namespace xgca.core.Services
 
             if (statusCode == StatusCodes.Status400BadRequest)
             {
-                return _general.Response(data, errors, statusCode, responseMessage, false);
+                return _general.Response(data, errors, StatusCodes.Status200OK, responseMessage, true);
             }
 
-            return _general.Response(data, 200, updateMessage, true);
+            return _general.Response(data, StatusCodes.Status200OK, updateMessage, true);
         }
 
         public async Task<IGeneralModel> RejectCompanyDirectorSection(string companyGuid)
@@ -1017,10 +1017,10 @@ namespace xgca.core.Services
 
             if (statusCode == StatusCodes.Status400BadRequest)
             {
-                return _general.Response(data, errors, statusCode, responseMessage, false);
+                return _general.Response(data, errors, StatusCodes.Status200OK, responseMessage, true);
             }
 
-            return _general.Response(data, 200, updateMessage, true);
+            return _general.Response(data, StatusCodes.Status200OK, updateMessage, true);
         }
 
         public async Task<IGeneralModel> ApproveCompanyStructureSection(ApproveCompanySectionModel obj)
@@ -1073,10 +1073,10 @@ namespace xgca.core.Services
 
             if (statusCode == StatusCodes.Status400BadRequest)
             {
-                return _general.Response(data, errors, statusCode, responseMessage, false);
+                return _general.Response(data, errors, StatusCodes.Status200OK, responseMessage, true);
             }
 
-            return _general.Response(data, 200, updateMessage, true);
+            return _general.Response(data, StatusCodes.Status200OK, updateMessage, true);
         }
 
         public async Task<IGeneralModel> ApproveCompanyBeneficialOwnerSection(ApproveCompanySectionModel obj)
@@ -1129,10 +1129,10 @@ namespace xgca.core.Services
 
             if (statusCode == StatusCodes.Status400BadRequest)
             {
-                return _general.Response(data, errors, statusCode, responseMessage, false);
+                return _general.Response(data, errors, StatusCodes.Status200OK, responseMessage, true);
             }
 
-            return _general.Response(data, 200, updateMessage, true);
+            return _general.Response(data, StatusCodes.Status200OK, updateMessage, true);
         }
 
         public async Task<IGeneralModel> ApproveCompanyDirectorSection(ApproveCompanySectionModel obj)
@@ -1185,10 +1185,10 @@ namespace xgca.core.Services
 
             if (statusCode == StatusCodes.Status400BadRequest)
             {
-                return _general.Response(data, errors, statusCode, responseMessage, false);
+                return _general.Response(data, errors, StatusCodes.Status200OK, responseMessage, true);
             }
 
-            return _general.Response(data, 200, updateMessage, true);
+            return _general.Response(data, StatusCodes.Status200OK, updateMessage, true);
         }
 
         public async Task<(string, string, int, List<ErrorField>)> CheckCompanyKYCStatus(int companyId)
@@ -1260,7 +1260,7 @@ namespace xgca.core.Services
                 Remarks = obj.Remarks
             };
 
-            return _general.Response(data, 200, rejectMessage, true);
+            return _general.Response(data, StatusCodes.Status200OK, rejectMessage, true);
         }
 
         public async Task<IGeneralModel> ReviseCompanyStructureSection(ReviseCompanySectionModel obj)
@@ -1316,7 +1316,7 @@ namespace xgca.core.Services
                 return _general.Response(data, errors, statusCode, responseMessage, false);
             }
 
-            return _general.Response(data, 200, updateMessage, true);
+            return _general.Response(data, StatusCodes.Status200OK, updateMessage, true);
         }
 
         public async Task<IGeneralModel> ReviseCompanyBeneficialOwnerSection(ReviseCompanySectionModel obj)
@@ -1372,7 +1372,7 @@ namespace xgca.core.Services
                 return _general.Response(data, errors, statusCode, responseMessage, false);
             }
 
-            return _general.Response(data, 200, updateMessage, true);
+            return _general.Response(data, StatusCodes.Status200OK, updateMessage, true);
         }
 
         public async Task<IGeneralModel> ReviseCompanyDirectorSection(ReviseCompanySectionModel obj)
@@ -1428,7 +1428,7 @@ namespace xgca.core.Services
                 return _general.Response(data, errors, statusCode, responseMessage, false);
             }
 
-            return _general.Response(data, 200, updateMessage, true);
+            return _general.Response(data, StatusCodes.Status200OK, updateMessage, true);
         }
     }
 }

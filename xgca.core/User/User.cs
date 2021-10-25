@@ -1151,7 +1151,7 @@ namespace xgca.core.User
             } 
             else
             {
-                return _general.Response(response3.data, response.errors, response3.statusCode, response3.message, response3.isSuccessful);
+                return _general.Response(response3.data, response3.errors, response3.statusCode, response3.message, response3.isSuccessful);
             }
 
             if(response3.errors.Count > 0)
