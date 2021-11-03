@@ -382,7 +382,7 @@ namespace xlog_client_management_api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-           // app.UseDeveloperExceptionPage();
+            app.UseDeveloperExceptionPage();
             if (envLst.Contains(currentEnvironment))
             {
                 app.UseSwagger();
@@ -392,6 +392,7 @@ namespace xlog_client_management_api
                     c.SwaggerEndpoint("/swagger/v2/swagger.json", name: "Accreditation API V1");
                     c.RoutePrefix = string.Empty;
                 });
+                //app.UseDeveloperExceptionPage();
             }
 
             app.UseHttpsRedirection();
