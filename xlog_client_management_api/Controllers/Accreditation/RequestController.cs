@@ -187,9 +187,9 @@ namespace xlog_accreditation_service.Controllers
         [HttpGet]
         [Route("request-accredited-trucking-companies")]
         [TokenAuthorize("scope", "accreditationShippingAgency.put|accreditationShippingLine.put")]
-        public async Task<IActionResult> GetAccreditedTruckingCompanies([FromQuery] Guid companyGuid)
+        public async Task<IActionResult> GetAccreditedTruckingCompanies([FromQuery] Guid companyGuid, bool IsSupplementary = false)
         {
-            var response = await _requestCore.GetAccreditedTruckingCompanies(companyGuid);
+            var response = await _requestCore.GetAccreditedTruckingCompanies(companyGuid, IsSupplementary);
             if (response.statusCode == StatusCodes.Status400BadRequest) return BadRequest(response);
             if (response.statusCode == StatusCodes.Status401Unauthorized) return Unauthorized(response);
             return Ok(response);

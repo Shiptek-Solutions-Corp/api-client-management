@@ -27,7 +27,7 @@ namespace xas.data.accreditation.Request
         Task<List<xgca.entity.Models.Request>> ActivateDeactivateRequest(List<Guid> requestIds, bool status);
         Task<(List<GetRequestModel>, int)> GetRequestList(string bound, int pageSize, int pageNumber, Guid loginCompanyGuid, Guid loginServiceRoleGuid, Guid serviceRoleGuid, string companyName, string companyAddress, string companyCountryName, string companyStateCityName, string portAreaResponsibility, string portAreaOperatingCountryName, string truckAreaResponsibility, int accreditationStatusConfigId, byte? companyStatus, string sortOrder, string sortBy, string quickSearch, DateTime requestedDateFrom, DateTime requestedDateTo);
         Task<xgca.entity.Models.Request> PortOfResponsibilityAccreditedCustomer(string companyId, string portId);
-        Task<List<GetAccreditedTruckingCompaniesModel>> GetAccreditedTruckingCompanies(Guid companyGuid);
+        Task<List<GetAccreditedTruckingCompaniesModel>> GetAccreditedTruckingCompanies(Guid companyGuid, bool IsSupplementary);
     }
 
     public class RequestData: IRequestData
@@ -281,25 +281,48 @@ namespace xas.data.accreditation.Request
             return data;
         }
 
-        public async Task<List<GetAccreditedTruckingCompaniesModel>> GetAccreditedTruckingCompanies(Guid companyGuid)
+        public async Task<List<GetAccreditedTruckingCompaniesModel>> GetAccreditedTruckingCompanies(Guid companyGuid, bool IsSupplementary)
         {
             //Get all accreditted company with role as Trucking
-            var lstAccredittedTruckingCompany = await (from r in _context.Request
-                                                       join coTo in _context.Companies on r.CompanyIdTo equals coTo.Guid
-                                                       join coService in _context.CompanyServices on coTo.CompanyId equals coService.CompanyId
-                                                       where r.IsDeleted == false 
-                                                            && r.CompanyIdFrom == companyGuid
-                                                            && coService.IsDeleted == 0 
-                                                            && coService.Status == 1
-                                                            && coService.ServiceName == "Trucking"
+            List<GetAccreditedTruckingCompaniesModel> lstAccredittedTruckingCompany;
+            var truckingGuid = new Guid("E97B3292-11B7-479D-9014-D94907233559");
+
+            if (!IsSupplementary) 
+            {  //Trucking as Accreditor and Shipper/Consignee as Requestor
+                lstAccredittedTruckingCompany = await (from r in _context.Request
+                                                           join coTo in _context.Companies on r.CompanyIdTo equals coTo.Guid
+                                                           where r.IsDeleted == false  
+                                                                && r.IsActive == true 
+                                                                && r.AccreditationStatusConfigId == 2
+                                                                && r.CompanyIdFrom == companyGuid
+                                                                && r.ServiceRoleIdTo == truckingGuid                                                
                                                        select new GetAccreditedTruckingCompaniesModel
-                                                       {
-                                                           CompanyGuid = coTo.Guid 
-                                                           , CompanyCode = coTo.CompanyCode 
-                                                           , CompanyName = coTo.CompanyName 
-                                                           , CompanyEmail = coTo.EmailAddress 
-                                                           , CompanyLogo = coTo.ImageURL
-                                                       }).ToListAsync();
+                                                           {
+                                                               CompanyGuid = coTo.Guid 
+                                                               , CompanyCode = coTo.CompanyCode 
+                                                               , CompanyName = coTo.CompanyName 
+                                                               , CompanyEmail = coTo.EmailAddress 
+                                                               , CompanyLogo = coTo.ImageURL
+                                                           }).ToListAsync();
+             }
+            else
+            {  //Shipping Line as Accreditor and Trucking as Requestor
+                lstAccredittedTruckingCompany = await (from r in _context.Request
+                                                           join coFrom in _context.Companies on r.CompanyIdFrom equals coFrom.Guid
+                                                           where r.IsDeleted == false
+                                                                && r.IsActive == true
+                                                                && r.AccreditationStatusConfigId == 2
+                                                                && r.CompanyIdTo == companyGuid
+                                                                && r.ServiceRoleIdFrom == truckingGuid
+                                                       select new GetAccreditedTruckingCompaniesModel
+                                                           {
+                                                               CompanyGuid = coFrom.Guid 
+                                                               , CompanyCode = coFrom.CompanyCode 
+                                                               , CompanyName = coFrom.CompanyName 
+                                                               , CompanyEmail = coFrom.EmailAddress 
+                                                               , CompanyLogo = coFrom.ImageURL
+                                                           }).ToListAsync();
+            }
             return lstAccredittedTruckingCompany;
         }
     }
