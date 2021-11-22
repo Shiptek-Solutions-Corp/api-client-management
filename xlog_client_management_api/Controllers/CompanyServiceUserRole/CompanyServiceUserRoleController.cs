@@ -9,6 +9,7 @@ using xgca.core.Models.CompanyServiceUserRole;
 
 namespace xlog_client_management_api.Controllers.CompanyServiceUserRole
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1/[controller]")]
     public class CompanyServiceUserRoleController : Controller
     {

@@ -19,6 +19,55 @@ namespace xgca.entity.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("xgca.entity.Models.AccreditationStatusConfig", b =>
+                {
+                    b.Property<int>("AccreditationStatusConfigId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("(newid())");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("AccreditationStatusConfigId");
+
+                    b.HasIndex("Guid")
+                        .IsUnique()
+                        .HasName("IX_AccreditationStatusConfig");
+
+                    b.ToTable("AccreditationStatusConfig","Accreditation");
+                });
+
             modelBuilder.Entity("xgca.entity.Models.Address", b =>
                 {
                     b.Property<int>("AddressId")
@@ -140,22 +189,22 @@ namespace xgca.entity.Migrations
                         {
                             AddressTypeId = 1,
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2020, 12, 2, 5, 2, 27, 352, DateTimeKind.Utc).AddTicks(7994),
+                            CreatedOn = new DateTime(2021, 9, 15, 5, 49, 16, 743, DateTimeKind.Utc).AddTicks(3186),
                             Guid = new Guid("1e0621b2-b7ea-4d48-8be2-f09980694816"),
                             IsDeleted = (byte)0,
                             ModifiedBy = 0,
-                            ModifiedOn = new DateTime(2020, 12, 2, 5, 2, 27, 352, DateTimeKind.Utc).AddTicks(8877),
+                            ModifiedOn = new DateTime(2021, 9, 15, 5, 49, 16, 743, DateTimeKind.Utc).AddTicks(4374),
                             Name = "Company"
                         },
                         new
                         {
                             AddressTypeId = 2,
                             CreatedBy = 0,
-                            CreatedOn = new DateTime(2020, 12, 2, 5, 2, 27, 353, DateTimeKind.Utc).AddTicks(9632),
+                            CreatedOn = new DateTime(2021, 9, 15, 5, 49, 16, 744, DateTimeKind.Utc).AddTicks(9024),
                             Guid = new Guid("95ec682b-074f-42bb-9fed-d4dbde41e41d"),
                             IsDeleted = (byte)0,
                             ModifiedBy = 0,
-                            ModifiedOn = new DateTime(2020, 12, 2, 5, 2, 27, 353, DateTimeKind.Utc).AddTicks(9649),
+                            ModifiedOn = new DateTime(2021, 9, 15, 5, 49, 16, 744, DateTimeKind.Utc).AddTicks(9046),
                             Name = "Residential"
                         });
                 });
@@ -201,6 +250,61 @@ namespace xgca.entity.Migrations
                     b.ToTable("AuditLog","Settings");
                 });
 
+            modelBuilder.Entity("xgca.entity.Models.BeneficialOwnersType", b =>
+                {
+                    b.Property<string>("BeneficialOwnersTypeCode")
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<bool?>("IsActive")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((1))");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UpdatedBy")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.HasKey("BeneficialOwnersTypeCode");
+
+                    b.ToTable("BeneficialOwnersType","Settings");
+                });
+
             modelBuilder.Entity("xgca.entity.Models.Company", b =>
                 {
                     b.Property<int>("CompanyId")
@@ -215,6 +319,7 @@ namespace xgca.entity.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("CUCC")
+                        .HasColumnName("CUCC")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ClientId")
@@ -247,11 +352,16 @@ namespace xgca.entity.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ImageURL")
+                        .HasColumnName("ImageURL")
                         .HasColumnType("nvarchar(500)")
                         .HasMaxLength(500);
 
                     b.Property<byte>("IsDeleted")
                         .HasColumnType("tinyint");
+
+                    b.Property<string>("KycStatusCode")
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
 
                     b.Property<int>("ModifiedBy")
                         .HasColumnType("int");
@@ -259,8 +369,14 @@ namespace xgca.entity.Migrations
                     b.Property<DateTime>("ModifiedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("PricingSettingsDescription")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint");
+
+                    b.Property<string>("StatusName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte>("TaxExemption")
                         .HasColumnType("tinyint");
@@ -269,6 +385,7 @@ namespace xgca.entity.Migrations
                         .HasColumnType("tinyint");
 
                     b.Property<string>("WebsiteURL")
+                        .HasColumnName("WebsiteURL")
                         .HasColumnType("nvarchar(50)")
                         .HasMaxLength(50);
 
@@ -278,7 +395,305 @@ namespace xgca.entity.Migrations
 
                     b.HasIndex("ContactDetailId");
 
+                    b.HasIndex("KycStatusCode");
+
                     b.ToTable("Company","Company");
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.CompanyBeneficialOwners", b =>
+                {
+                    b.Property<int>("CompanyBeneficialOwnersId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("AdditionalAddress")
+                        .HasColumnType("nvarchar(1500)")
+                        .HasMaxLength(1500);
+
+                    b.Property<string>("BeneficialOwnersTypeCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<string>("CityId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CityName")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("CompanyAddress")
+                        .HasColumnType("nvarchar(1500)")
+                        .HasMaxLength(1500);
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CountryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CountryName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("date");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool?>("IsActive")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((1))");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(500)")
+                        .HasMaxLength(500);
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<string>("PostalId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StateId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StateName")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("UpdatedBy")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.HasKey("CompanyBeneficialOwnersId");
+
+                    b.HasIndex("BeneficialOwnersTypeCode");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("CompanyBeneficialOwners","Company");
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.CompanyDirectors", b =>
+                {
+                    b.Property<int>("CompanyDirectorsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("AdditionalAddress")
+                        .HasColumnType("nvarchar(1500)")
+                        .HasMaxLength(1500);
+
+                    b.Property<string>("CityId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CityName")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("CompanyAddress")
+                        .HasColumnType("nvarchar(1500)")
+                        .HasMaxLength(1500);
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CountryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CountryName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("date");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool?>("IsActive")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((1))");
+
+                    b.Property<bool>("IsCompany")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(500)")
+                        .HasMaxLength(500);
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<string>("PostalId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StateId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StateName")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("UpdatedBy")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.HasKey("CompanyDirectorsId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("CompanyDirectors","Company");
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.CompanyDocuments", b =>
+                {
+                    b.Property<int>("CompanyDocumentsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DocumentDescription")
+                        .HasColumnType("nvarchar(550)")
+                        .HasMaxLength(550);
+
+                    b.Property<string>("DocumentNo")
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<int>("DocumentTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FileUrl")
+                        .HasColumnType("nvarchar(1500)")
+                        .HasMaxLength(1500);
+
+                    b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("(newid())");
+
+                    b.Property<bool?>("IsActive")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((1))");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UpdatedBy")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.HasKey("CompanyDocumentsId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("DocumentTypeId");
+
+                    b.ToTable("CompanyDocuments","Company");
                 });
 
             modelBuilder.Entity("xgca.entity.Models.CompanyGroupResource", b =>
@@ -334,6 +749,84 @@ namespace xgca.entity.Migrations
                     b.ToTable("CompanyGroupResource","Company");
                 });
 
+            modelBuilder.Entity("xgca.entity.Models.CompanySections", b =>
+                {
+                    b.Property<int>("CompanySectionsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool?>("IsActive")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((1))");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDraft")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SectionCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<string>("SectionStatusCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<string>("UpdatedBy")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.HasKey("CompanySectionsId");
+
+                    b.HasIndex("SectionCode");
+
+                    b.HasIndex("SectionStatusCode");
+
+                    b.HasIndex("CompanyId", "SectionCode")
+                        .IsUnique()
+                        .HasName("IX_CompanySections");
+
+                    b.ToTable("CompanySections","Company");
+                });
+
             modelBuilder.Entity("xgca.entity.Models.CompanyService", b =>
                 {
                     b.Property<int>("CompanyServiceId")
@@ -365,6 +858,9 @@ namespace xgca.entity.Migrations
 
                     b.Property<int>("ServiceId")
                         .HasColumnType("int");
+
+                    b.Property<string>("ServiceName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint");
@@ -532,6 +1028,167 @@ namespace xgca.entity.Migrations
                     b.ToTable("CompanyServiceUserRole","Company");
                 });
 
+            modelBuilder.Entity("xgca.entity.Models.CompanyStructure", b =>
+                {
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AdditionalAddress")
+                        .HasColumnType("nvarchar(1500)")
+                        .HasMaxLength(1500);
+
+                    b.Property<string>("CityId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CityName")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("CompanyAddress")
+                        .HasColumnType("nvarchar(1500)")
+                        .HasMaxLength(1500);
+
+                    b.Property<int>("CountryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CountryName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("(newid())");
+
+                    b.Property<bool?>("IsActive")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((1))");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<string>("PostalId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RegistrationNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<string>("StateId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StateName")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("TotalEmployeeNo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdatedBy")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.HasKey("CompanyId");
+
+                    b.ToTable("CompanyStructure","Company");
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.CompanyTaxSettings", b =>
+                {
+                    b.Property<int>("CompanyTaxSettingsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Admin");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("(newid())");
+
+                    b.Property<bool>("IsTaxExcempted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Active");
+
+                    b.Property<decimal>("TaxPercentageRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("TaxTypeDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TaxTypeId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CompanyTaxSettingsId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("CompanyTaxSettings","Company");
+                });
+
             modelBuilder.Entity("xgca.entity.Models.CompanyUser", b =>
                 {
                     b.Property<int>("CompanyUserId")
@@ -642,6 +1299,141 @@ namespace xgca.entity.Migrations
                     b.HasKey("ContactDetailId");
 
                     b.ToTable("ContactDetail","General");
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.DocumentCategory", b =>
+                {
+                    b.Property<string>("DocumentCategoryCode")
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("(newid())");
+
+                    b.Property<bool?>("IsActive")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((1))");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UpdatedBy")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.HasKey("DocumentCategoryCode");
+
+                    b.ToTable("DocumentCategory","Settings");
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.DocumentType", b =>
+                {
+                    b.Property<int>("DocumentTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<string>("DocumentCategoryCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("(newid())");
+
+                    b.Property<bool?>("IsActive")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((1))");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdatedBy")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.HasKey("DocumentTypeId");
+
+                    b.HasIndex("Description")
+                        .IsUnique()
+                        .HasName("IX_DocumentType");
+
+                    b.HasIndex("DocumentCategoryCode");
+
+                    b.ToTable("DocumentType","Settings");
                 });
 
             modelBuilder.Entity("xgca.entity.Models.Guest", b =>
@@ -799,6 +1591,216 @@ namespace xgca.entity.Migrations
                     b.ToTable("Invite","Company");
                 });
 
+            modelBuilder.Entity("xgca.entity.Models.KYCLog", b =>
+                {
+                    b.Property<int>("KyclogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("KYCLogId")
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CompanySectionsId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SectionStatusCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("KyclogId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("CompanySectionsId");
+
+                    b.ToTable("KYCLog","Settings");
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.KycStatus", b =>
+                {
+                    b.Property<string>("KycStatusCode")
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<int?>("EnumIndex")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("(newid())");
+
+                    b.Property<bool?>("IsActive")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((1))");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UpdatedBy")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.HasKey("KycStatusCode");
+
+                    b.HasIndex("Description")
+                        .IsUnique()
+                        .HasName("IX_KycStatus");
+
+                    b.ToTable("KycStatus","Settings");
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.PortArea", b =>
+                {
+                    b.Property<int>("PortAreaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<Guid?>("CityCode")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CityName")
+                        .HasColumnType("nvarchar(150)")
+                        .HasMaxLength(150);
+
+                    b.Property<int>("CountryAreaId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CountryCode")
+                        .HasColumnType("nvarchar(2)")
+                        .HasMaxLength(2);
+
+                    b.Property<string>("CountryName")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("(newid())");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Latitude")
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
+
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(500)")
+                        .HasMaxLength(500);
+
+                    b.Property<string>("Locode")
+                        .HasColumnType("nvarchar(15)")
+                        .HasMaxLength(15);
+
+                    b.Property<string>("Longitude")
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
+
+                    b.Property<string>("PortCode")
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<Guid>("PortId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PortName")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<int>("PortOfDischarge")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PortOfLoading")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RequestId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("StateCode")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("StateName")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("PortAreaId");
+
+                    b.HasIndex("Guid")
+                        .IsUnique()
+                        .HasName("IX_PortArea");
+
+                    b.HasIndex("RequestId");
+
+                    b.ToTable("PortArea","Accreditation");
+                });
+
             modelBuilder.Entity("xgca.entity.Models.PreferredContact", b =>
                 {
                     b.Property<int>("PreferredContactId")
@@ -895,6 +1897,351 @@ namespace xgca.entity.Migrations
                     b.ToTable("PreferredProvider","Company");
                 });
 
+            modelBuilder.Entity("xgca.entity.Models.Request", b =>
+                {
+                    b.Property<int>("RequestId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("AccreditationStatusConfigId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CompanyCodeFrom")
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<string>("CompanyCodeTo")
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<Guid>("CompanyIdFrom")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CompanyIdTo")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CompanyNameFrom")
+                        .HasColumnType("nvarchar(160)")
+                        .HasMaxLength(160);
+
+                    b.Property<string>("CompanyNameTo")
+                        .HasColumnType("nvarchar(160)")
+                        .HasMaxLength(160);
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("(newid())");
+
+                    b.Property<bool?>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((1))");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("RequestStatusId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ServiceRoleIdFrom")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ServiceRoleIdTo")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("RequestId");
+
+                    b.HasIndex("AccreditationStatusConfigId");
+
+                    b.HasIndex("Guid")
+                        .IsUnique()
+                        .HasName("IX_Request");
+
+                    b.ToTable("Request","Accreditation");
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.Section", b =>
+                {
+                    b.Property<string>("SectionCode")
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("(newid())");
+
+                    b.Property<bool?>("IsActive")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((1))");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UpdatedBy")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.HasKey("SectionCode");
+
+                    b.HasIndex("SectionCode", "Description")
+                        .IsUnique()
+                        .HasName("IX_Section");
+
+                    b.ToTable("Section","Settings");
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.SectionStatus", b =>
+                {
+                    b.Property<string>("SectionStatusCode")
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<int?>("EnumIndex")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("(newid())");
+
+                    b.Property<bool?>("IsActive")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("((1))");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UpdatedBy")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValueSql("(N'ADMIN')")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.HasKey("SectionStatusCode");
+
+                    b.HasIndex("Description")
+                        .IsUnique()
+                        .HasName("IX_SectionStatus");
+
+                    b.ToTable("SectionStatus","Settings");
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.ServiceRoleConfig", b =>
+                {
+                    b.Property<int>("ServiceRoleConfigId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("(newid())");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("ServiceRoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ServiceRoleIdAllowed")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ServiceRoleConfigId");
+
+                    b.HasIndex("Guid")
+                        .IsUnique()
+                        .HasName("IX_ServiceRoleConfig");
+
+                    b.ToTable("ServiceRoleConfig","Accreditation");
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.TruckArea", b =>
+                {
+                    b.Property<int>("TruckAreaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CityId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CityName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CountryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CountryName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("(newid())");
+
+                    b.Property<int>("IsActive")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Latitude")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Longitude")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PostalId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RequestId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StateId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StateName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("TruckAreaId");
+
+                    b.HasIndex("Guid")
+                        .IsUnique()
+                        .HasName("IX_TruckArea");
+
+                    b.HasIndex("RequestId");
+
+                    b.ToTable("TruckArea","Accreditation");
+                });
+
             modelBuilder.Entity("xgca.entity.Models.User", b =>
                 {
                     b.Property<int>("UserId")
@@ -989,6 +2336,50 @@ namespace xgca.entity.Migrations
                         .HasForeignKey("ContactDetailId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("xgca.entity.Models.KycStatus", "KycStatusCodeNavigation")
+                        .WithMany("Company")
+                        .HasForeignKey("KycStatusCode")
+                        .HasConstraintName("FK_Company_KycStatus");
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.CompanyBeneficialOwners", b =>
+                {
+                    b.HasOne("xgca.entity.Models.BeneficialOwnersType", "BeneficialOwnersTypeCodeNavigation")
+                        .WithMany("CompanyBeneficialOwners")
+                        .HasForeignKey("BeneficialOwnersTypeCode")
+                        .HasConstraintName("FK_CompanyBeneficialOwners_BeneficialOwnersType")
+                        .IsRequired();
+
+                    b.HasOne("xgca.entity.Models.Company", "Company")
+                        .WithMany("CompanyBeneficialOwners")
+                        .HasForeignKey("CompanyId")
+                        .HasConstraintName("FK_CompanyBeneficialOwners_Company")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.CompanyDirectors", b =>
+                {
+                    b.HasOne("xgca.entity.Models.Company", "Company")
+                        .WithMany("CompanyDirectors")
+                        .HasForeignKey("CompanyId")
+                        .HasConstraintName("FK_CompanyDirectors_Company")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.CompanyDocuments", b =>
+                {
+                    b.HasOne("xgca.entity.Models.Company", "Company")
+                        .WithMany("CompanyDocuments")
+                        .HasForeignKey("CompanyId")
+                        .HasConstraintName("FK_CompanyDocuments_Company")
+                        .IsRequired();
+
+                    b.HasOne("xgca.entity.Models.DocumentType", "DocumentType")
+                        .WithMany("CompanyDocuments")
+                        .HasForeignKey("DocumentTypeId")
+                        .HasConstraintName("FK_CompanyDocuments_DocumentType")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("xgca.entity.Models.CompanyGroupResource", b =>
@@ -997,6 +2388,27 @@ namespace xgca.entity.Migrations
                         .WithMany("CompanyGroupResources")
                         .HasForeignKey("CompanyServiceRoleId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.CompanySections", b =>
+                {
+                    b.HasOne("xgca.entity.Models.Company", "Company")
+                        .WithMany("CompanySections")
+                        .HasForeignKey("CompanyId")
+                        .HasConstraintName("FK_CompanySections_Company")
+                        .IsRequired();
+
+                    b.HasOne("xgca.entity.Models.Section", "SectionCodeNavigation")
+                        .WithMany("CompanySections")
+                        .HasForeignKey("SectionCode")
+                        .HasConstraintName("FK_CompanySections_Section")
+                        .IsRequired();
+
+                    b.HasOne("xgca.entity.Models.SectionStatus", "SectionStatusCodeNavigation")
+                        .WithMany("CompanySections")
+                        .HasForeignKey("SectionStatusCode")
+                        .HasConstraintName("FK_CompanySections_SectionStatus")
                         .IsRequired();
                 });
 
@@ -1052,6 +2464,24 @@ namespace xgca.entity.Migrations
                         .HasForeignKey("CompanyServiceUserId");
                 });
 
+            modelBuilder.Entity("xgca.entity.Models.CompanyStructure", b =>
+                {
+                    b.HasOne("xgca.entity.Models.Company", "Company")
+                        .WithOne("CompanyStructure")
+                        .HasForeignKey("xgca.entity.Models.CompanyStructure", "CompanyId")
+                        .HasConstraintName("FK_CompanyStructure_Company")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.CompanyTaxSettings", b =>
+                {
+                    b.HasOne("xgca.entity.Models.Company", "Company")
+                        .WithMany("CompanyTaxSettings")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("xgca.entity.Models.CompanyUser", b =>
                 {
                     b.HasOne("xgca.entity.Models.Company", "Companies")
@@ -1067,12 +2497,63 @@ namespace xgca.entity.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("xgca.entity.Models.DocumentType", b =>
+                {
+                    b.HasOne("xgca.entity.Models.DocumentCategory", "DocumentCategoryCodeNavigation")
+                        .WithMany("DocumentType")
+                        .HasForeignKey("DocumentCategoryCode")
+                        .HasConstraintName("FK_DocumentType_DocumentCategory")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("xgca.entity.Models.Invite", b =>
                 {
                     b.HasOne("xgca.entity.Models.Company", "Company")
                         .WithMany()
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.KYCLog", b =>
+                {
+                    b.HasOne("xgca.entity.Models.Company", "Company")
+                        .WithMany("KYCLogs")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("xgca.entity.Models.CompanySections", "CompanySections")
+                        .WithMany("Kyclog")
+                        .HasForeignKey("CompanySectionsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.PortArea", b =>
+                {
+                    b.HasOne("xgca.entity.Models.Request", "Request")
+                        .WithMany("PortArea")
+                        .HasForeignKey("RequestId")
+                        .HasConstraintName("FK_PortArea_Request")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.Request", b =>
+                {
+                    b.HasOne("xgca.entity.Models.AccreditationStatusConfig", "AccreditationStatusConfig")
+                        .WithMany("Request")
+                        .HasForeignKey("AccreditationStatusConfigId")
+                        .HasConstraintName("FK_Request_AccreditationStatusConfig")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("xgca.entity.Models.TruckArea", b =>
+                {
+                    b.HasOne("xgca.entity.Models.Request", "Request")
+                        .WithMany("TruckArea")
+                        .HasForeignKey("RequestId")
+                        .HasConstraintName("FK_TruckArea_Request")
                         .IsRequired();
                 });
 

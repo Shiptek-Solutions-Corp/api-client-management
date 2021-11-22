@@ -11,7 +11,9 @@ using Newtonsoft.Json.Linq;
 
 namespace xlog_client_management_api.Controllers.AuditLog
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     public class AuditLogController : Controller
     {
         public readonly xgca.core.AuditLog.IAuditLogCore _auditLog;
@@ -22,7 +24,6 @@ namespace xlog_client_management_api.Controllers.AuditLog
 
         [Route("logs/{tableName}/{keyFieldId}")]
         [HttpGet]
-        [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -42,9 +43,54 @@ namespace xlog_client_management_api.Controllers.AuditLog
             return Ok(response);
         }
 
+        [Route("logs/{tableName}/{keyFieldId}/filter")]
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetFilteredList(
+            [FromQuery] DateTime createdDateFrom,
+            [FromQuery] DateTime createdDateTo,
+            [FromRoute] string tableName,
+            [FromRoute] int keyFieldId,
+            [FromQuery] string action = "",
+            [FromQuery] string username = "",
+            [FromQuery] string orderBy = "CreatedOn",
+            [FromQuery] string search = "",
+            [FromQuery] int pageNumber = 0,
+            [FromQuery] int pageSize = 10)
+        {
+            var response = await _auditLog.ListPaginate(tableName, keyFieldId, createdDateFrom, createdDateTo, action, username, orderBy, search, pageNumber, pageSize);
+            if (response.statusCode == 400) return BadRequest(response);
+            if (response.statusCode == 401)return Unauthorized(response);
+
+            return Ok(response);
+        }
+
+        [Route("logs/{tableName}/{keyFieldId}/filter/download")]
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> DownloadFiltered(
+            [FromQuery] DateTime createdDateFrom,
+            [FromQuery] DateTime createdDateTo,
+            [FromRoute] string tableName,
+            [FromRoute] int keyFieldId,
+            [FromQuery] string action = "",
+            [FromQuery] string username = "",
+            [FromQuery] string orderBy = "CreatedOn",
+            [FromQuery] string search = "",
+            [FromQuery] int pageNumber = 0,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string fileType = "xlsx")
+        {
+            var response = await _auditLog.DownloadFiltered(tableName, keyFieldId, createdDateFrom, createdDateTo, action, username, orderBy, search, pageNumber, pageSize, fileType);
+            return File(response.Bytes, MimeTypes.GetMimeType(response.FileName), response.FileName);
+        }
+
         [Route("logs/details/{auditLogId}")]
         [HttpGet]
-        [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -66,29 +112,17 @@ namespace xlog_client_management_api.Controllers.AuditLog
 
         [Route("logs/{tableName}/{keyFieldId}/download")]
         [HttpGet]
-        [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> DownloadAuditLogs([FromRoute] string tableName, string keyFieldId)
+        public async Task<FileResult> DownloadAuditLogs([FromRoute] string tableName, [FromRoute] string keyFieldId, [FromQuery] string fileType = "xlsx")
         {
-            var response = await _auditLog.ListByTableNameAndKeyFieldId(tableName, keyFieldId);
-
-            if (response.statusCode == 400)
-            {
-                return BadRequest(response);
-            }
-            else if (response.statusCode == 401)
-            {
-                return Unauthorized(response);
-            }
-
-            return Ok(response);
+            var response = await _auditLog.DownloadByTableNameAndKeyFieldId(tableName, keyFieldId, fileType);
+            return File(response.Bytes, MimeTypes.GetMimeType(response.FileName), response.FileName);
         }
 
         [Route("audit-logs")]
         [HttpGet]
-        [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -113,7 +147,6 @@ namespace xlog_client_management_api.Controllers.AuditLog
 
         [Route("audit-logs/acm-group/download")]
         [HttpGet]
-        [Authorize(AuthenticationSchemes = "Bearer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

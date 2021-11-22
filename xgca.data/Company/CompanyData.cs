@@ -6,11 +6,14 @@ using xgca.entity;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using LinqKit;
+using System.Collections;
+using xgca.data.ViewModels.Company;
 
 namespace xgca.data.Company
 {
     public interface ICompanyData
     {
+        Task<(string, string)> UpdateKYCStatus(int companyId, string kycStatusCode, int userId);
         Task<bool> Create(entity.Models.Company obj);
         Task<int> CreateAndReturnId(entity.Models.Company obj);
         Task<List<entity.Models.Company>> List();
@@ -24,7 +27,7 @@ namespace xgca.data.Company
         Task<YourEDIActorReturn> GetCompanyAndMasterUserDetails(string companyKey);
         Task<entity.Models.Company> Retrieve(Guid key);
         Task<dynamic> ListByService(int serviceId, string companyName, int page, int rowCount);
-        Task<dynamic> ListByService(int serviceId, int page, int rowCount);
+        Task<dynamic> ListByService(int serviceId, int page, int rowCount, string quickSearch);
         Task<List<entity.Models.Company>> ListCompaniesByGuids(List<string> guids);
 
         Task<List<entity.Models.Company>> ListRegisteredCompanies(List<string> registeredIds);
@@ -44,6 +47,11 @@ namespace xgca.data.Company
         Task<entity.Models.Company> GetAccreditor(int companyId);
         Task<string> GetCompanyCode(string companyGuid);
         Task<(Biller, Customer)> GetInvoiceActors(string billerId, string customerId);
+        Task<string> GetKYCStatus(int companyId);
+        Task<(entity.Models.Company, string)> GetAccreditorByCompnyGuid(string guid);
+        Task<(entity.Models.Company, string)> GetByCompanyCode(string code);
+        Task<GetCompanyExistModel> CheckIfExistsCompanyByCompanyName(string companyName);
+
     }
 
     public class ActorReturn
@@ -148,12 +156,12 @@ namespace xgca.data.Company
             return response;                
         }
 
-        public async Task<dynamic> ListByService(int serviceId, int page, int rowCount)
+        public async Task<dynamic> ListByService(int serviceId, int page, int rowCount, string quickSearch = "")
         {
             var data = await _context.CompanyServices.AsNoTracking()
                 .Include(c => c.Companies)
-                    .ThenInclude(a => a.Addresses)
-                .Where(t => t.ServiceId == serviceId)
+                .ThenInclude(a => a.Addresses)
+                .Where(t => t.ServiceId == serviceId && (t.Companies.CompanyName + t.Companies.Addresses.FullAddress).ToUpper().Contains(quickSearch.ToUpper()))
                 .Select(t => new
                 { 
                     CompanyId = t.Companies.Guid, 
@@ -182,6 +190,8 @@ namespace xgca.data.Company
                     .ThenInclude(at => at.AddressTypes)
                 .Include(cn => cn.ContactDetails)
                 .Include(cs => cs.CompanyServices)
+                .Include(cs => cs.CompanyUsers)
+                .ThenInclude(c => c.Users)
                 .Where(c => c.CompanyId == key && c.IsDeleted == 0).FirstOrDefaultAsync();
             return data;
         }
@@ -250,11 +260,14 @@ namespace xgca.data.Company
                     ImageUrl = g.Image, 
                     Addresses = g.AddressLine, 
                     ContactDetails = new { 
-                        PhonePrefixId = g.PhoneNumberPrefix ?? "",
+                        PhonePrefixId = g.PhoneNumberPrefixId ?? "",
+                        PhonePrefix = g.PhoneNumberPrefix ?? "",
                         Phone = g.PhoneNumber,
-                        MobilePrefixId = g.MobileNumberPrefix ?? "",
+                        MobilePrefix = g.MobileNumberPrefix ?? "",
+                        MobilePrefixId = g.MobileNumberPrefixId ?? "",
                         Mobile = g.MobileNumber ?? "",
                         FaxPrefix = g.FaxNumberPrefix ?? "",
+                        FaxPrefixId = g.FaxNumberPrefixId ?? "",
                         Fax = g.FaxNumber ?? ""
                     }
                 }
@@ -366,6 +379,7 @@ namespace xgca.data.Company
             predicate = predicate.And(x => guids.Contains(x.Guid.ToString()) && x.IsDeleted == 0);
 
             var companies = await _context.Companies.AsNoTracking()
+                .Include(cs => cs.CompanyServices)
                 .Include(a => a.Addresses)
                 .Include(c => c.ContactDetails)
                 .Where(predicate)
@@ -409,6 +423,25 @@ namespace xgca.data.Company
             //var company = await _context.Companies.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyName == companyName);
             var company = await _context.Companies.Where(x => x.CompanyName == companyName).FirstOrDefaultAsync();
             return (company is null) ? false : true;
+        }
+
+        public async Task<GetCompanyExistModel> CheckIfExistsCompanyByCompanyName(string companyName)
+        {
+            //var company = await _context.Companies.AsNoTracking().SingleOrDefaultAsync(x => x.CompanyName == companyName);
+            var company = await (from c in _context.Companies
+                                 join a in _context.Addresses on c.AddressId equals a.AddressId
+                                 join ct in _context.ContactDetails on c.ContactDetailId equals ct.ContactDetailId
+                                 join srv in _context.CompanyServices on c.CompanyId equals srv.CompanyId
+                                 where srv.ServiceName == "Trucking" &&  c.CompanyName == companyName
+                                 select new GetCompanyExistModel
+                                 {
+                                       CompanyName = c.CompanyName 
+                                     , CompanyAddress = a.FullAddress 
+                                     , CompanyContactNo = (ct.MobilePrefix + ct.Mobile)
+                                     , CompanyLogo = c.ImageURL
+                                     , CompanyGuid = c.Guid
+                                 }).SingleOrDefaultAsync();
+            return company;
         }
 
         public async Task<string[]> BulkCheckIfExistsByCompanyName(string[] companyName)
@@ -505,6 +538,11 @@ namespace xgca.data.Company
                 .Where(c => c.CompanyId == companyId && c.AccreditedBy != null)
                 .Select(x => new { Key = x.AccreditedBy })
                 .FirstOrDefaultAsync();
+
+            if (accreditor is null)
+            {
+                return null;
+            }
 
             if (accreditor.Key is null)
             {
@@ -662,6 +700,86 @@ namespace xgca.data.Company
             data.AddRange(guests);
 
             return data;
+        }
+
+        public async Task<(string, string)> UpdateKYCStatus(int companyId, string kycStatusCode, int userId)
+        {
+            var record = await _context.Companies
+                .Where(x => x.CompanyId == companyId && x.IsDeleted == 0)
+                .FirstOrDefaultAsync();
+
+            string oldKYCSStatusCode = record.KycStatusCode;
+
+            if (record is null)
+            {
+                return (oldKYCSStatusCode, "Record does not exists or may have been deleted");
+            }
+
+            record.KycStatusCode = kycStatusCode;
+            record.ModifiedBy = userId;
+            record.ModifiedOn = DateTime.UtcNow;
+
+            if (kycStatusCode == "APP") // Update company status to active when overall KYC status is approved
+            {
+                record.Status = 1;
+                record.StatusName = "Active";
+            }
+           
+            var result = await _context.SaveChangesAsync();
+            return (result > 0)
+                ? (kycStatusCode, "Company KYC Status updated successfully")
+                : (oldKYCSStatusCode, "Error in updating Company KYC Status");
+        }
+
+        public async Task<string> GetKYCStatus(int companyId)
+        {
+            string kycStatus = await _context.Companies.AsNoTracking()
+                .Where(x => x.CompanyId == companyId)
+                .Select(c => c.KycStatusCode)
+                .FirstOrDefaultAsync();
+
+            return kycStatus;
+        }
+
+        public async Task<(entity.Models.Company, string)> GetAccreditorByCompnyGuid(string guid)
+        {
+            string accreditorId = await _context.Companies.AsNoTracking()
+                .Where(x => x.Guid == Guid.Parse(guid) && x.Status == 1 && x.IsDeleted == 0)
+                .Select(x => x.AccreditedBy)
+                .FirstOrDefaultAsync();
+
+            if (accreditorId is null)
+            {
+                return (null, "Company has not been accredited by any shipping line company");
+            }
+
+            var accreditor = await _context.Companies.AsNoTracking()
+                .Include(i => i.Addresses)
+                .Include(i => i.ContactDetails)
+                .Where(x => x.Guid == Guid.Parse(accreditorId) && x.Status == 1 && x.IsDeleted == 0)
+                .FirstOrDefaultAsync();
+
+
+            return (accreditor is null)
+                ? (null, "Company has not been accredited by any shipping line company")
+                : (accreditor, "Accreditor Shipping Line retrieved");
+        }
+
+        public async Task<(entity.Models.Company, string)> GetByCompanyCode(string code)
+        {
+            var data = await _context.Companies
+                .Include(a => a.Addresses)
+                    .ThenInclude(at => at.AddressTypes)
+                .Include(cn => cn.ContactDetails)
+                .Include(cs => cs.CompanyServices)
+                .Where(c => c.CompanyCode == code && c.IsDeleted == 0).FirstOrDefaultAsync();
+
+            if (data is null)
+            {
+                return (null, "Record does not exists or may have been deleted");
+            }
+
+            return (data, "Company information retrieved");
         }
     }
 }

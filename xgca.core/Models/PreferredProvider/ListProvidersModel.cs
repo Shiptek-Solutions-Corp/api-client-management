@@ -18,6 +18,8 @@ namespace xgca.core.Models.CompanyService
         public string MobileNumber { get; set; }
         public string FaxNumber { get; set; }
         public string Email { get; set; }
+        public string Country { get; set; }
+        public int CountryId { get; set; }
 
     }
 }

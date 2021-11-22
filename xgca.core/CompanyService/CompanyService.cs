@@ -115,6 +115,7 @@ namespace xgca.core.CompanyService
             {
                 CompanyId = companyId,
                 ServiceId = service.data.ServiceId,
+                ServiceName = service.data.name,
                 Status = 1,
                 CreatedBy = userId,
                 CreatedOn = DateTime.UtcNow,
@@ -137,6 +138,7 @@ namespace xgca.core.CompanyService
                 companyServices.Add(new entity.Models.CompanyService
                 {
                     ServiceId = service.data.serviceId,
+                    ServiceName = service.data.name,
                     CompanyId = companyId,
                     Status = 1,
                     CreatedBy = userId,
@@ -190,6 +192,7 @@ namespace xgca.core.CompanyService
                     {
                         CompanyId = companyId,
                         ServiceId = Convert.ToInt32((serviceJson)["data"]["serviceId"]),
+                        ServiceName = Convert.ToString((serviceJson)["data"]["name"]),
                         Guid = Guid.NewGuid(),
                         Status = 1,
                         CreatedBy = userId,
@@ -206,6 +209,7 @@ namespace xgca.core.CompanyService
                         CompanyServiceId = companyServiceId,
                         CompanyId = companyId,
                         ServiceId = Convert.ToInt32((serviceJson)["data"]["serviceId"]),
+                        ServiceName = Convert.ToString((serviceJson)["data"]["name"]),
                         Status = Convert.ToByte((serviceObj)["status"]),
                         ModifiedBy = userId,
                         ModifiedOn = DateTime.UtcNow,
@@ -280,7 +284,7 @@ namespace xgca.core.CompanyService
             return _general.Response(pagedResponse, 200, "Configurable providers has been listed", true);
         }*/
 
-        public async Task<IGeneralModel> ListProviders(int companyId, string search, string serviceId, int otherProviderPageNumber, int otherProviderPageSize, int otherProviderRecordCount, int preferredProviderPageNumber, int preferredProviderPageSize, int preferredProviderRecordCount)
+        public async Task<IGeneralModel> ListProviders(int companyId, string search, string serviceId, int otherProviderPageNumber, int otherProviderPageSize, int otherProviderRecordCount, int preferredProviderPageNumber, int preferredProviderPageSize, int preferredProviderRecordCount, int serviceRoleGroup = (int)Enums.ServiceRoleGroup.All)
         {
             //if (preferredProviderPageSize > 3 || otherProviderPageSize > 3)
             //{
@@ -321,8 +325,14 @@ namespace xgca.core.CompanyService
             string country = null;
             string address = null;
 
+            List<int> serviceRoles = new List<int>();
+            if (serviceRoleGroup == (int)Enums.ServiceRoleGroup.BookingParty)
+            { 
+                serviceRoles = GlobalVariables.BookingPartyGroup; 
+            }
+
             var preferredProviderCompanyServiceGuids = await _preferredProvider.GetCompanyServiceIdByProfileId(companyId);
-            var (preferredProvidersData, preferredProviderDataCount) = await _companyService.ListPreferredProviders(search, serviceIdFilter, shipperConsigneeId, preferredProviderPageNumber, preferredProviderPageSize, preferredProviderCompanyServiceGuids);
+            var (preferredProvidersData, preferredProviderDataCount) = await _companyService.ListPreferredProviders(search, serviceIdFilter, shipperConsigneeId, preferredProviderPageNumber, preferredProviderPageSize, preferredProviderCompanyServiceGuids, serviceRoles);
             List<ListProvidersModel> preferredProviders = new List<ListProvidersModel>();
             if (!(preferredProvidersData is null))
             {
@@ -347,13 +357,15 @@ namespace xgca.core.CompanyService
                         PhoneNumber = (provider.Companies.ContactDetails.Phone is null) ? "-" : $"{provider.Companies.ContactDetails.PhonePrefix}{provider.Companies.ContactDetails.Phone}",
                         MobileNumber = (provider.Companies.ContactDetails.Mobile is null) ? "-" : $"{provider.Companies.ContactDetails.MobilePrefix}{provider.Companies.ContactDetails.Mobile}",
                         FaxNumber = (provider.Companies.ContactDetails.Fax is null) ? "-" : $"{provider.Companies.ContactDetails.FaxPrefix}{provider.Companies.ContactDetails.Fax}",
-                        Email = (provider.Companies.EmailAddress is null) ? "-" : provider.Companies.EmailAddress
+                        Email = (provider.Companies.EmailAddress is null) ? "-" : provider.Companies.EmailAddress,
+                        Country = provider.Companies.Addresses.CountryName,
+                        CountryId = provider.Companies.Addresses.CountryId,
                     });;
                 }
             }
 
             //recordCount = await _companyService.GetOtherProvidersRecordCount(shipperConsigneeId, serviceIdFilter, preferredProviderCompanyServiceGuids, search);
-            var (otherProvidersData, otherProviderDataCount) = await _companyService.ListServiceProviders(search, serviceIdFilter, shipperConsigneeId, otherProviderPageNumber, otherProviderPageSize, preferredProviderCompanyServiceGuids);
+            var (otherProvidersData, otherProviderDataCount) = await _companyService.ListServiceProviders(search, serviceIdFilter, shipperConsigneeId, otherProviderPageNumber, otherProviderPageSize, preferredProviderCompanyServiceGuids, serviceRoles);
             List<ListProvidersModel> otherProviders = new List<ListProvidersModel>();
 
             if (!(otherProvidersData is null))
@@ -379,7 +391,9 @@ namespace xgca.core.CompanyService
                         PhoneNumber = (provider.Companies.ContactDetails.Phone is null) ? "-" : $"{provider.Companies.ContactDetails.PhonePrefix}{provider.Companies.ContactDetails.Phone}",
                         MobileNumber = (provider.Companies.ContactDetails.Mobile is null) ? "-" : $"{provider.Companies.ContactDetails.MobilePrefix}{provider.Companies.ContactDetails.Mobile}",
                         FaxNumber = (provider.Companies.ContactDetails.Fax is null) ? "-" : $"{provider.Companies.ContactDetails.FaxPrefix}{provider.Companies.ContactDetails.Fax}",
-                        Email = (provider.Companies.EmailAddress is null) ? "-" : provider.Companies.EmailAddress
+                        Email = (provider.Companies.EmailAddress is null) ? "-" : provider.Companies.EmailAddress,
+                        Country = provider.Companies.Addresses.CountryName,
+                        CountryId = provider.Companies.Addresses.CountryId,
                     });
                 }
             }

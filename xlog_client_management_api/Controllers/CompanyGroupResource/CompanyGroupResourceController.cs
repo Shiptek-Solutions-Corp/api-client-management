@@ -9,6 +9,7 @@ using xgca.core.Models.CompanyGroupResource;
 
 namespace xlog_client_management_api.Controllers.CompanyGroupResource
 {
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("clients/api/v1/[controller]")]
     public class CompanyGroupResourceController : Controller
     {

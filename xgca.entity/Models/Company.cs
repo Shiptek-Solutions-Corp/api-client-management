@@ -9,6 +9,14 @@ namespace xgca.entity.Models
     [Table("Company", Schema = "Company")]
     public class Company
     {
+        public Company()
+        {
+            CompanyBeneficialOwners = new HashSet<CompanyBeneficialOwners>();
+            CompanyDirectors = new HashSet<CompanyDirectors>();
+            CompanyDocuments = new HashSet<CompanyDocuments>();
+            CompanySections = new HashSet<CompanySections>();
+        }
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CompanyId { get; set; }
@@ -29,6 +37,7 @@ namespace xgca.entity.Models
         public string WebsiteURL { get; set; }
         [System.ComponentModel.DefaultValue(1)]
         public byte Status { get; set; }
+        public string StatusName { get; set; }
         [System.ComponentModel.DefaultValue(0)]
         public byte IsDeleted { get; set; }
         public byte TaxExemption { get; set; }
@@ -41,10 +50,19 @@ namespace xgca.entity.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Guid { get; set; }
         public string AccreditedBy { get; set; }
-
+        public string KycStatusCode { get; set; }
+        public string PricingSettingsDescription { get; set; }
         public virtual Address Addresses { get; set; }
         public virtual ContactDetail ContactDetails { get; set; }
         public virtual ICollection<CompanyService> CompanyServices { get; set; }
         public virtual ICollection<CompanyUser> CompanyUsers { get; set; }
+        public virtual KycStatus KycStatusCodeNavigation { get; set; }
+        public virtual CompanyStructure CompanyStructure { get; set; }
+        public virtual ICollection<CompanyTaxSettings> CompanyTaxSettings { get; set; }
+        public virtual ICollection<CompanyBeneficialOwners> CompanyBeneficialOwners { get; set; }
+        public virtual ICollection<CompanyDirectors> CompanyDirectors { get; set; }
+        public virtual ICollection<CompanyDocuments> CompanyDocuments { get; set; }
+        public virtual ICollection<CompanySections> CompanySections { get; set; }
+        public virtual ICollection<KYCLog> KYCLogs { get; set; }
     }
 }

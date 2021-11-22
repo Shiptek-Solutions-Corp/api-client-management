@@ -28,6 +28,7 @@ namespace xgca.data.User
         Task<int> GetTotalUsers(List<int> userIds);
         Task<entity.Models.User> Retrieve(int key);
         Task<entity.Models.User> RetrieveByUsername(string username);
+        Task<entity.Models.User> RetrieveByEmail(string emailAddress);
         Task<bool> Update(entity.Models.User obj);
         Task<bool> UpdateStatus(entity.Models.User obj);
         Task<bool> UpdateStatus(List<int> userIds, int modifiedBy, byte status);
@@ -254,7 +255,7 @@ namespace xgca.data.User
             var data = await _context.Users
                 .Where(u => u.Username == username)
                 .FirstOrDefaultAsync();
-            return data.UserId;
+            return data?.UserId ?? 0;
         }
 
         public bool UsernameExists(string username)
@@ -395,6 +396,8 @@ namespace xgca.data.User
             var user = await _context.Users.Where(u => u.EmailAddress == emailAddress)
                 .Include(u => u.CompanyUsers)
                 .ThenInclude(u => u.Companies)
+                .ThenInclude(u => u.Addresses)
+                .Include(u => u.ContactDetails)
                 .FirstOrDefaultAsync();
 
             if (user == null)
@@ -415,6 +418,16 @@ namespace xgca.data.User
 
                 throw ex;
             }
+        }
+
+        public async Task<entity.Models.User> RetrieveByEmail(string emailAddress)
+        {
+            var data = await _context.Users
+                .Include(cn => cn.ContactDetails)
+                .Include(cu => cu.CompanyUsers)
+                .ThenInclude(c => c.Companies)
+                .Where(u => u.EmailAddress == emailAddress).FirstOrDefaultAsync();
+            return data;
         }
     }
 }

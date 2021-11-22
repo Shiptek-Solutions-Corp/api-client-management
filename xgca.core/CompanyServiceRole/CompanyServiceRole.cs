@@ -31,7 +31,7 @@ namespace xgca.core.CompanyServiceRole
         Task<IGeneralModel> Create(CreateCompanyServiceRoleModel obj);
         Task<IGeneralModel> CreateDefault(int companyId, int userId);
         Task<IGeneralModel> ListByCompanyServiceId(string key);
-        Task<byte[]> DownloadByCompanyServiceId(string key);
+        Task<FileResponse> DownloadByCompanyServiceId(string key, string type);
         Task<IGeneralModel> ListByCompany(string key, int status);
         Task<IGeneralModel> Show(Guid companyServiceRoleId);
         Task<IGeneralModel> Update(UpdateCompanyServiceRoleModel updateCompanyServiceRoleModel, Guid companyServiceRoleId);
@@ -342,38 +342,51 @@ namespace xgca.core.CompanyServiceRole
                 : _general.Response(null, 400, "An error occured", true);
         }
 
-        public async Task<byte[]> DownloadByCompanyServiceId(string key)
+        public async Task<FileResponse> DownloadByCompanyServiceId(string key, string type)
         {
             int companyId = await _companyData.GetIdByGuid(Guid.Parse(key));
             var result = await _companyServiceRole.ListByCompanyId(companyId, -1);
             var services = await gLobalCmsService.GetAllService();
             var viewCompanyServiceRole = result.CompanyServiceRoles.Select(c => _mapper.Map<GetCompanyServiceRoleModel>(c)).ToList();
+            List<ExportCompanyServiceRoleModel> exportData = new List<ExportCompanyServiceRoleModel>();
+
             foreach (var companyServiceRole in viewCompanyServiceRole)
             {
                 companyServiceRole.CompanyServices.ServiceName = services.Where(c => c.IntServiceId == companyServiceRole.CompanyServices.ServiceId).FirstOrDefault().ServiceName;
+
+                exportData.Add(new ExportCompanyServiceRoleModel 
+                {
+                   ServiceName = companyServiceRole?.CompanyServices?.ServiceName,
+                   GroupName =  companyServiceRole?.Name,
+                   Description =  companyServiceRole?.Description,
+                   Status =  companyServiceRole?.IsActive == 1 ? "Active" : "Inactive"
+                });
             }
 
-            var table = new DataTable { TableName = "ServiceRates" };
-            table.Columns.Add("Service", typeof(string));
-            table.Columns.Add("Group Name", typeof(string));
-            table.Columns.Add("Description", typeof(string));
-            table.Columns.Add("Status", typeof(string));
+            var fileName = $"UserGroups{DateTime.Now:yyyyMMddhhmmss}.{type}";
 
-            for (int i = 0; i < viewCompanyServiceRole.Count; i++)
+            switch (type)
             {
-                table.Rows.Add(
-                    viewCompanyServiceRole[i]?.CompanyServices?.ServiceName,
-                    viewCompanyServiceRole[i]?.Name,
-                    viewCompanyServiceRole[i]?.Description,
-                    viewCompanyServiceRole[i]?.IsActive == 1 ? "Active" : "Inactive"
-                );
-            }
+                case "csv":
+                    {
+                        var bytes = await FileHelper.GetCsvBytes(exportData);
+                        return new FileResponse(bytes, fileName);
+                    }
+                case "xlsx":
+                    {
+                        var bytes = await FileHelper.GetXlsxBytes(exportData);
+                        return new FileResponse(bytes, fileName);
+                    }
+                default:
+                    {
+                        var errors = new List<ErrorField>
+                    {
+                        new ErrorField("type", "File Type not supported")
+                    };
 
-            var wb = new XLWorkbook();
-            wb.Worksheets.Add(table);
-            await using var memoryStream = new MemoryStream();
-            wb.SaveAs(memoryStream);
-            return memoryStream.ToArray();
+                        return new FileResponse(errors);
+                    }
+            }
         }
     }
 }

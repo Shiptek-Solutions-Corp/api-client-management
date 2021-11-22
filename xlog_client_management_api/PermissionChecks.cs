@@ -34,7 +34,7 @@ namespace xlog_client_management_api
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            var isMasterUser = context.HttpContext.User.Claims.Any(t => t.Type == "custom:mUser" && t.Value.Contains("1"));
+            var isMasterUser = context.HttpContext.User.Claims.Any(t => (t.Type == "custom:mUser" && t.Value.Contains("1") || (t.Type == "custom:isCMS" && t.Value.Contains("1"))));
             string claim = _claim.Value;
             bool hasPermission = false;
             List<bool> hasPermissions = new List<bool>();

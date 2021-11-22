@@ -30,6 +30,9 @@ using System.Data;
 using System.Globalization;
 using ClosedXML.Excel;
 using System.IO;
+using xgca.data.Repositories;
+using xgca.core.Services;
+using GlobalCmsService = xgca.core.Helpers.GlobalCmsService;
 
 namespace xgca.core.Company
 {
@@ -63,14 +66,18 @@ namespace xgca.core.Company
 
         Task<IGeneralModel> ListByCompanyName(string companyName);
         Task<IGeneralModel> CheckIfExistsByCompanyName(string companyName);
+        Task<IGeneralModel> CheckIfCompanyExistsByCompanyName(string companyName);
         Task<IGeneralModel> BulkCheckIfExistsByCompanyName(string[] companyNames);
 
         Task<IGeneralModel> BulkCompanyRegistration(InitialRegistrationListModel registrationModels, string username);
         Task<IGeneralModel> SetCUCC(UpdateCUCCCodeDTO obj);
         Task<IGeneralModel> GetAccreditor(int companyId);
         Task<IGeneralModel> GetCompanyCode(string companyGuid);
+        Task<IGeneralModel> GetCompanyCode();
         Task<IGeneralModel> GetInvoiceActors(string billerId, string customerId);
         Task<byte[]> DownloadCompanyProfileLogs(int companyId);
+        Task<IGeneralModel> GetAccreditorShippingLine(string companyId);
+        Task<IGeneralModel> GetByCompanyCode(string code);
 
     }
     public class Company : ICompany
@@ -89,10 +96,13 @@ namespace xgca.core.Company
         private readonly IUserData _userData;
         private readonly IGuestData _guestData;
 
+        private readonly ICompanySectionService _companySectionService;
         private readonly IOptions<GlobalCmsService> _options;
         private readonly IHttpHelper _httpHelper;
         private readonly ITokenHelper _tokenHelper;
         private readonly IGeneral _general;
+
+        private readonly IKYCStatusRepository _kycRepository;
 
         public Company(ICompanyData companyData,
             xgca.core.Address.IAddress coreAddress,
@@ -106,10 +116,12 @@ namespace xgca.core.Company
             ICompanyUser coreCompanyUser,
             IUserData userData,
             IGuestData guestData,
+            ICompanySectionService companySectionService,
             IOptions<GlobalCmsService> options,
             IHttpHelper httpHelper,
             ITokenHelper tokenHelper,
-            IGeneral general)
+            IGeneral general,
+            IKYCStatusRepository kycRepository)
         {
             _companyData = companyData;
             _coreAddress = coreAddress;
@@ -123,10 +135,12 @@ namespace xgca.core.Company
             _coreCompanyUser = coreCompanyUser;
             _userData = userData;
             _guestData = guestData;
+            _companySectionService = companySectionService;
             _httpHelper = httpHelper;
             _tokenHelper = tokenHelper;
             _options = options;
             _general = general;
+            _kycRepository = kycRepository;
         }
 
         public async Task<IGeneralModel> List()
@@ -142,7 +156,7 @@ namespace xgca.core.Company
 
             if (companyName is null)
             {
-                data = await _companyData.ListByService(serviceId, page, rowCount);
+                data = await _companyData.ListByService(serviceId, page, rowCount, "");
             }
             else
             {
@@ -194,7 +208,9 @@ namespace xgca.core.Company
                 ModifiedBy = createdById,
                 ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid(),
-                Status = 1
+                Status = 0,
+                StatusName = "Inactive",
+                KycStatusCode = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.NEW)
             };
 
             var companyId = await _companyData.CreateAndReturnId(company);
@@ -247,12 +263,17 @@ namespace xgca.core.Company
                 ModifiedBy = GlobalVariables.SystemUserId,
                 ModifiedOn = DateTime.UtcNow,
                 Guid = Guid.NewGuid(),
-                Status = 0, // Default Inactive
+                Status = 0, // Default Inactive,
+                StatusName = "Inactive",
+                KycStatusCode = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.NEW)
             };
 
             var companyId = await _companyData.CreateAndReturnId(company);
             if (companyId <= 0)
             { return _general.Response(null, 400, "Error on creating company", true); }
+
+            GlobalVariables.LoggedInCompanyId = companyId;
+            await _companySectionService.CreateInitialSections();
 
             await _coreCompanyService.CreateBatch(obj.Services, companyId, GlobalVariables.SystemUserId);
             await _coreCompanyServiceRole.CreateDefault(companyId, GlobalVariables.SystemUserId);
@@ -266,6 +287,8 @@ namespace xgca.core.Company
             var newCompanyServicesResponse = await _coreCompanyService.ListByCompanyId(newCompany.Guid.ToString());
             var newCompanyServices = newCompanyServicesResponse.data.companyService;
             var companyLog = CompanyHelper.BuildCompanyValue(newCompany, newCompanyServices);
+
+            var kycReturn = await _kycRepository.GetByKycStatusCode(newCompany.KycStatusCode);
 
             // Create audit log
             await _coreAuditLog.CreateAuditLog("Create", company.GetType().Name, companyId, GlobalVariables.SystemUserId, companyLog, null);
@@ -329,7 +352,8 @@ namespace xgca.core.Company
             var stateResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetState}/", newCompany.Addresses.StateId, AuthToken.Contra);
             var stateJson = (JObject)stateResponse;
 
-            var updatedCompany = CompanyHelper.ReturnUpdatedValue(newCompany, (cityJson)["data"]["cityId"].ToString(), (stateJson)["data"]["stateId"].ToString(), companyServices);
+            var kycReturn = await _kycRepository.GetByKycStatusCode(newCompany.KycStatusCode);
+            var updatedCompany = CompanyHelper.ReturnUpdatedValue(newCompany, (cityJson)["data"]["cityId"].ToString(), (stateJson)["data"]["stateId"].ToString(), companyServices, kycReturn.Item1.Description);
 
             var newValue = CompanyHelper.BuildCompanyValue(newCompany, companyServices);
 
@@ -355,6 +379,8 @@ namespace xgca.core.Company
             var stateJson = (JObject)stateResponse;
 
             var companyServices = await _coreCompanyService.ListByCompanyId(companyKey);
+
+            var kycReturn = await _kycRepository.GetByKycStatusCode(result.KycStatusCode);
 
             var data = new
             {
@@ -408,6 +434,9 @@ namespace xgca.core.Company
                 result.TaxExemption,
                 result.TaxExemptionStatus,
                 CompanyServices = companyServices.data.companyService,
+                Status = (result.Status == 1) ? "Active" : "Inactive",
+                KYCStatusCode = kycReturn.Item1?.KycStatusCode,
+                KYCStatus = (kycReturn.Item1 is null) ? "NEW" : kycReturn.Item1.Description
             };
 
             return _general.Response(new { company = data }, 200, "Configurable information for selected company has been displayed", true);
@@ -428,6 +457,8 @@ namespace xgca.core.Company
             var stateJson = (JObject)stateResponse;
 
             var companyServices = await _coreCompanyService.ListByCompanyId(companyId);
+
+            var kycReturn = await _kycRepository.GetByKycStatusCode(result.KycStatusCode);
 
             var data = new
             {
@@ -482,6 +513,9 @@ namespace xgca.core.Company
                 result.TaxExemption,
                 result.TaxExemptionStatus,
                 CompanyServices = companyServices.data.companyService,
+                Status = (result.Status == 1) ? "Active" : "Inactive",
+                KYCStatusCode = kycReturn.Item1?.KycStatusCode,
+                KYCStatus = (kycReturn.Item1 is null) ? "NEW" : kycReturn.Item1.Description
             };
 
             return _general.Response(new { company = data }, 200, "Configurable information for selected company has been displayed", true);
@@ -710,61 +744,70 @@ namespace xgca.core.Company
         {
             var data = await _companyData.ListCompaniesByGuids(obj.CompanyIDs);
 
+            var companies = new List<GetCompanyInformation>();
 
-
-            var companies = data.Select(c => new
+            foreach (var d in data)
             {
+                var cityResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetCity}/", d.Addresses.CityId, AuthToken.Contra);
+                var cityJson = (JObject)cityResponse;
+                var stateResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetState}/", d.Addresses.StateId, AuthToken.Contra);
+                var stateJson = (JObject)stateResponse;
 
-                CompanyId = c.Guid,
-                c.CompanyName,
-                c.CompanyCode,
-                c.ImageURL,
-                AddressId = c.Addresses.Guid,
-                c.Addresses.AddressLine,
-                City = new
+                companies.Add(new GetCompanyInformation
                 {
-                    c.Addresses.CityId,
-                    c.Addresses.CityName,
-                },
-                State = new
-                {
-                    c.Addresses.StateId,
-                    c.Addresses.StateName,
-                },
-                Country = new
-                {
-                    c.Addresses.CountryId,
-                    c.Addresses.CountryName,
-                },
-                c.Addresses.ZipCode,
-                c.Addresses.FullAddress,
-                c.Addresses.Longitude,
-                c.Addresses.Latitude,
-                c.Addresses.AddressAdditionalInformation,
-                c.WebsiteURL,
-                c.EmailAddress,
-                ContactDetailId = c.ContactDetails.Guid,
-                Phone = new
-                {
-                    c.ContactDetails.PhonePrefixId,
-                    c.ContactDetails.PhonePrefix,
-                    c.ContactDetails.Phone,
-                },
-                Mobile = new
-                {
-                    c.ContactDetails.MobilePrefixId,
-                    c.ContactDetails.MobilePrefix,
-                    c.ContactDetails.Mobile,
-                },
-                Fax = new
-                {
-                    c.ContactDetails.FaxPrefixId,
-                    c.ContactDetails.FaxPrefix,
-                    c.ContactDetails.Fax,
-                },
-                c.CUCC,
-                c.Status
-            });
+                    CompanyId = d.Guid.ToString(),
+                    CompanyName = d.CompanyName,
+                    CompanyCode = d.CompanyCode,
+                    ImageURL = d.ImageURL,
+                    AddressId = d.Addresses.Guid.ToString(),
+                    AddressLine = d.Addresses.AddressLine,
+                    City = new City
+                    {
+                        CityId = d.Addresses.CityId,
+                        CityGuid = (cityJson)["data"]["cityId"].ToString(),
+                        CityName = d.Addresses.CityName,
+                    },
+                    State = new State
+                    {
+                        StateId = d.Addresses.StateId,
+                        StateGuid = (stateJson)["data"]["stateId"].ToString(),
+                        StateName = d.Addresses.StateName,
+                    },
+                    Country = new Country
+                    {
+                        CountryId = d.Addresses.CountryId,
+                        CountryName = d.Addresses.CountryName,
+                    },
+                    ZipCode = d.Addresses.ZipCode,
+                    FullAddress = d.Addresses.FullAddress,
+                    Longitude = d.Addresses.Longitude,
+                    Latitude = d.Addresses.Latitude,
+                    AddressAdditionalInformation = d.Addresses.AddressAdditionalInformation,
+                    WebsiteURL = d.WebsiteURL,
+                    EmailAddress = d.EmailAddress,
+                    ContactDetailId = d.ContactDetails.Guid.ToString(),
+                    Phone = new PhoneNumber
+                    {
+                        PhonePrefixId = d.ContactDetails.PhonePrefixId,
+                        PhonePrefix = d.ContactDetails.PhonePrefix,
+                        Phone = d.ContactDetails.Phone,
+                    },
+                    Mobile = new MobileNumber
+                    {
+                        MobilePrefixId = d.ContactDetails.MobilePrefixId,
+                        MobilePrefix = d.ContactDetails.MobilePrefix,
+                        Mobile = d.ContactDetails.Mobile,
+                    },
+                    Fax = new FaxNumber
+                    {
+                        FaxPrefixId = d.ContactDetails.FaxPrefixId,
+                        FaxPrefix = d.ContactDetails.FaxPrefix,
+                        Fax = d.ContactDetails.Fax,
+                    },
+                    CUCC = d.CUCC,
+                    Status = d.Status
+                });
+            }
 
             return _general.Response(new { Companies = companies }, 200, "Get Successful", true);
         }
@@ -818,6 +861,15 @@ namespace xgca.core.Company
             bool isExist = await _companyData.CheckIfExistsByCompanyName(companyName);
             string message = (isExist) ? "Company exists" : "Company does not exists";
             return _general.Response(isExist, 200, message, true);
+        }
+
+        public async Task<IGeneralModel> CheckIfCompanyExistsByCompanyName(string companyName)
+        {
+            companyName = companyName.Replace("%20", " ");
+            var companyInfo = await _companyData.CheckIfExistsCompanyByCompanyName(companyName);
+            if(companyInfo == null) return _general.Response(null, StatusCodes.Status400BadRequest, "Company not found.", true);
+
+            return _general.Response(companyInfo, StatusCodes.Status200OK, "Company found", true);
         }
 
         public async Task<IGeneralModel> BulkCheckIfExistsByCompanyName(string[] companyNames)
@@ -874,7 +926,9 @@ namespace xgca.core.Company
                     ModifiedOn = DateTime.UtcNow,
                     Guid = Guid.NewGuid(),
                     Status = 1,
-                    AccreditedBy = o.AccreditedBy
+                    StatusName = "Active",
+                    AccreditedBy = o.AccreditedBy,
+                    KycStatusCode = Enum.GetName(typeof(Enums.KYCStatus), Enums.KYCStatus.NEW)
                 };
 
                 var companyId = await _companyData.CreateAndReturnId(company);
@@ -1056,6 +1110,124 @@ namespace xgca.core.Company
             await using var memoryStream = new MemoryStream();
             wb.SaveAs(memoryStream);
             return memoryStream.ToArray();
+        }
+
+        public async Task<IGeneralModel> GetAccreditorShippingLine(string companyId)
+        {
+            if (companyId is null)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            if (Guid.Parse(companyId) == Guid.Empty)
+            {
+                return _general.Response(null, 400, "Invalid company id", false);
+            }
+
+            var (company, message) = await _companyData.GetAccreditorByCompnyGuid(companyId);
+
+            if (company is null)
+            {
+                return _general.Response(null, 400, message, false);
+            }
+
+            var accreditor = new
+            {
+                CompanyId = company.Guid.ToString(),
+                company.CompanyName,
+                company.ImageURL
+            };
+
+            return _general.Response(new { Accreditor = accreditor }, 200, "Service provider returned", true);
+        }
+
+        public async Task<IGeneralModel> GetCompanyCode()
+        {
+            string companyGuid = await _companyData.GetGuidById(GlobalVariables.LoggedInCompanyId);
+            var code = await _companyData.GetCompanyCode(companyGuid);
+
+            if (code == null)
+            {
+                code = "XLOG1";
+            }
+
+            return _general.Response(new { CompanyCode = code }, 200, "Company code retrieved", true);
+        }
+
+        public async Task<IGeneralModel> GetByCompanyCode(string code)
+        {
+            var (result, message) = await _companyData.GetByCompanyCode(code);
+
+            if (result is null)
+            { return _general.Response(null, 400, "Selected company might have been deleted or does not exists", false); }
+
+            var cityResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetCity}/", result.Addresses.CityId, AuthToken.Contra);
+            var cityJson = (JObject)cityResponse;
+            var stateResponse = await _httpHelper.GetGuidById(_options.Value.BaseUrl, $"{_options.Value.GetState}/", result.Addresses.StateId, AuthToken.Contra);
+            var stateJson = (JObject)stateResponse;
+
+            var companyServices = await _coreCompanyService.ListByCompanyId(result.Guid.ToString());
+
+            var kycReturn = await _kycRepository.GetByKycStatusCode(result.KycStatusCode);
+
+            var data = new
+            {
+                CompanyId = result.Guid,
+                result.CompanyName,
+                result.ImageURL,
+                AddressId = result.Addresses.Guid,
+                result.Addresses.AddressLine,
+                City = new
+                {
+                    CityId = (cityJson)["data"]["cityId"],
+                    result.Addresses.CityName,
+                },
+                State = new
+                {
+                    StateId = (stateJson)["data"]["stateId"],
+                    result.Addresses.StateName,
+                },
+                Country = new
+                {
+                    result.Addresses.CountryId,
+                    result.Addresses.CountryName,
+                },
+                result.Addresses.ZipCode,
+                result.Addresses.FullAddress,
+                result.Addresses.Longitude,
+                result.Addresses.Latitude,
+                result.Addresses.AddressAdditionalInformation,
+                result.WebsiteURL,
+                result.EmailAddress,
+                ContactDetailId = result.ContactDetails.Guid,
+                Phone = new
+                {
+                    result.ContactDetails.PhonePrefixId,
+                    result.ContactDetails.PhonePrefix,
+                    result.ContactDetails.Phone,
+                },
+                Mobile = new
+                {
+                    result.ContactDetails.MobilePrefixId,
+                    result.ContactDetails.MobilePrefix,
+                    result.ContactDetails.Mobile,
+                },
+                Fax = new
+                {
+                    result.ContactDetails.FaxPrefixId,
+                    result.ContactDetails.FaxPrefix,
+                    result.ContactDetails.Fax,
+                },
+                result.CUCC,
+                result.TaxExemption,
+                result.TaxExemptionStatus,
+                CompanyServices = companyServices.data.companyService,
+                Status = (result.Status == 1) ? "Active" : "Inactive",
+                KYCStatusCode = kycReturn.Item1.KycStatusCode,
+                KYCStatus = (kycReturn.Item1 is null) ? "NEW" : kycReturn.Item1.Description
+            };
+
+            return _general.Response(new { company = data }, 200, "Configurable information for selected company has been displayed", true);
         }
 
         //public async Task<IGeneralModel> GetCompanyAndGuestByIds(List<string> guids)
